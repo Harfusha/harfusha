@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-use Migrations\AbstractMigration;
+use Migrations\BaseMigration;
 
 /** Add prose fields without invalidating an installation of the first release. */
-final class AddEditorialFields extends AbstractMigration
+final class AddEditorialFields extends BaseMigration
 {
     public function change(): void
     {

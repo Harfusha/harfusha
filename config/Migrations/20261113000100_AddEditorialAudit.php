@@ -1,10 +1,10 @@
 <?php
 declare(strict_types=1);
 
-use Migrations\AbstractMigration;
+use Migrations\BaseMigration;
 
 /** Append-only mutation receipts; intentionally excludes private editorial text. */
-final class AddEditorialAudit extends AbstractMigration
+final class AddEditorialAudit extends BaseMigration
 {
     public function change(): void
     {
