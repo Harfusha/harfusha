@@ -28,7 +28,7 @@ final class HostGuardMiddleware implements MiddlewareInterface
         if (
             !is_string($expectedHost) || $expectedHost === '' ||
             strcasecmp($uri->getHost(), $expectedHost) !== 0 ||
-            ($uri->getPort() !== null && $expectedPort !== $uri->getPort())
+            $expectedPort !== $uri->getPort()
         ) {
             throw new BadRequestException('Unexpected host');
         }
