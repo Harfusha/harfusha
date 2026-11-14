@@ -9,6 +9,9 @@ use JsonException;
 use stdClass;
 use Throwable;
 
+// phpcs:disable Generic.PHP.NoSilencedErrors.Discouraged -- Filesystem calls intentionally fail closed;
+// each suppressed operation is explicitly checked and denied on failure.
+
 /**
  * Bounded, fail-closed login throttle for shared hosting without Redis.
  *
@@ -242,3 +245,5 @@ final readonly class LoginLimiter
         return @fflush($handle);
     }
 }
+
+// phpcs:enable Generic.PHP.NoSilencedErrors.Discouraged
