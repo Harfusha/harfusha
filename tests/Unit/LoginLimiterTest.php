@@ -55,7 +55,9 @@ final class LoginLimiterTest extends TestCase
     public function testWindowExpiresExactlyAfterFifteenMinutes(): void
     {
         $dir = $this->directory();
-        $clockState = (object)['now' => 1700000000];
+        $clockState = new class {
+            public int $now = 1700000000;
+        };
         $clock = static fn(): int => $clockState->now;
         $limiter = new LoginLimiter($dir, $clock);
         for ($i = 0; $i < 5; $i++) {
@@ -141,7 +143,9 @@ final class LoginLimiterTest extends TestCase
 
     public function testClockRollbackDoesNotSilentlyResetCounters(): void
     {
-        $clockState = (object)['now' => 1700000000];
+        $clockState = new class {
+            public int $now = 1700000000;
+        };
         $clock = static fn(): int => $clockState->now;
         $limiter = new LoginLimiter($this->directory(), $clock);
         self::assertTrue($limiter->consume('192.0.2.40'));
