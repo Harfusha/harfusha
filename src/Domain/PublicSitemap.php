@@ -29,7 +29,8 @@ final class PublicSitemap
             throw new InvalidArgumentException('Duplicate sitemap route');
         }
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n"
-            . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">' . "\n";
+            . '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'
+            . ' xmlns:xhtml="http://www.w3.org/1999/xhtml">' . "\n";
         foreach ($routes as $route) {
             if ($route !== '' && preg_match('~^[a-z0-9]+(?:[a-z0-9/-]*[a-z0-9])?$~D', $route) !== 1) {
                 throw new InvalidArgumentException('Invalid sitemap route');

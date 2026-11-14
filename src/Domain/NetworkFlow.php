@@ -50,7 +50,12 @@ final readonly class NetworkFlow
         foreach ($nodes as $node) {
             $nodeId = $node['id'] ?? null;
             $dependencies = $node['depends'] ?? null;
-            if (!is_string($nodeId) || !is_array($dependencies) || !array_is_list($dependencies) || isset($neighbors[$nodeId])) {
+            if (
+                !is_string($nodeId)
+                || !is_array($dependencies)
+                || !array_is_list($dependencies)
+                || isset($neighbors[$nodeId])
+            ) {
                 throw new InvalidArgumentException('Invalid public flow topology');
             }
             $neighbors[$nodeId] = [];
@@ -83,7 +88,13 @@ final readonly class NetworkFlow
         return new self($id, $titleCs, $titleEn, $descriptionCs, $descriptionEn, $path, $cs, $en);
     }
 
-    /** @return array{id:string,title_cs:string,title_en:string,description_cs:string,description_en:string,path:list<string>,steps_cs:list<string>,steps_en:list<string>} */
+    /**
+     * @return array{
+     *     id:string,title_cs:string,title_en:string,
+     *     description_cs:string,description_en:string,
+     *     path:list<string>,steps_cs:list<string>,steps_en:list<string>
+     * }
+     */
     public function toArray(): array
     {
         return [

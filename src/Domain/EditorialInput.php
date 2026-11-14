@@ -20,7 +20,10 @@ final class EditorialInput
     }
 
     /**
-     * @return array{slug:string,summary_cs:string,summary_en:string,status:string,problem_cs:string,problem_en:string,solution_cs:string,solution_en:string}
+     * @return array{
+     *     slug:string,summary_cs:string,summary_en:string,status:string,
+     *     problem_cs:string,problem_en:string,solution_cs:string,solution_en:string
+     * }
      */
     public static function project(mixed $payload): array
     {
@@ -101,7 +104,12 @@ final class EditorialInput
     private static function field(array $data, string $key, int $maxChars, bool $required): string
     {
         $value = $data[$key] ?? null;
-        if (!is_string($value) || strlen($value) > $maxChars * 4 || str_contains($value, "\0") || preg_match('//u', $value) !== 1) {
+        if (
+            !is_string($value)
+            || strlen($value) > $maxChars * 4
+            || str_contains($value, "\0")
+            || preg_match('//u', $value) !== 1
+        ) {
             throw new InvalidArgumentException('Invalid text value');
         }
         $value = trim($value);

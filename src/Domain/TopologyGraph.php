@@ -22,7 +22,13 @@ final readonly class TopologyGraph
         foreach ($nodes as $node) {
             $id = $node['id'] ?? null;
             $depends = $node['depends'] ?? null;
-            if (!is_string($id) || preg_match('/^[a-z0-9-]{1,32}$/D', $id) !== 1 || isset($deps[$id]) || !is_array($depends) || !array_is_list($depends)) {
+            if (
+                !is_string($id)
+                || preg_match('/^[a-z0-9-]{1,32}$/D', $id) !== 1
+                || isset($deps[$id])
+                || !is_array($depends)
+                || !array_is_list($depends)
+            ) {
                 throw new InvalidArgumentException('Invalid or duplicate public topology node');
             }
             $values = [];

@@ -24,7 +24,12 @@ final class GithubSnapshot
      * @param list<array<string,mixed>> $issues
      * @return list<\App\Domain\GithubRecord>
      */
-    public static function externalActivity(array $pullRequests, array $mergedPullRequests, array $issues, string $author): array
+    public static function externalActivity(
+        array $pullRequests,
+        array $mergedPullRequests,
+        array $issues,
+        string $author,
+    ): array
     {
         if (preg_match('/^[A-Za-z0-9-]{1,39}$/D', $author) !== 1) {
             throw new InvalidArgumentException('Invalid GitHub account');

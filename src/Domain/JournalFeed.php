@@ -31,7 +31,9 @@ final class JournalFeed
         $xml .= '<rss version="2.0"><channel>';
         $xml .= '<title>' . self::escape($title) . '</title>';
         $xml .= '<link>' . self::escape($base . '/journal') . '</link>';
-        $xml .= '<description>' . self::escape($language->value('Ověřitelné technické zápisky.', 'Traceable engineering notes.')) . '</description>';
+        $xml .= '<description>'
+            . self::escape($language->value('Ověřitelné technické zápisky.', 'Traceable engineering notes.'))
+            . '</description>';
         $xml .= '<language>' . $language->code . '</language>';
         foreach (array_slice($entries, 0, 30) as $record) {
             $title = $record['title_' . $language->code] ?? null;
