@@ -70,7 +70,7 @@ final readonly class NetworkFlow
             }
             $previous = $path[$index - 1] ?? null;
             $previousNeighbors = $previous !== null ? ($neighbors[$previous] ?? null) : null;
-            $currentNeighbors = $neighbors[$nodeId] ?? null;
+            $currentNeighbors = $neighbors[$nodeId];
             if ($previous === null || $previousNeighbors === null || $currentNeighbors === null ||
                 $previous === $nodeId ||
                 (!in_array($previous, $currentNeighbors, true) && !in_array($nodeId, $previousNeighbors, true))) {

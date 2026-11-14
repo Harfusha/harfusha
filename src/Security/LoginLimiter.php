@@ -73,7 +73,7 @@ final readonly class LoginLimiter
         $path = rtrim($this->directory, '/\\') . '/login-' . $shard . '.json';
 
         // A symlink is never a valid limiter database. Store TMP outside webroot.
-        if (is_link($path)) {
+        if (self::pathIsLink($path)) {
             return false;
         }
         $handle = @fopen($path, 'c+b');
@@ -86,7 +86,7 @@ final readonly class LoginLimiter
             }
             // Recheck after lock acquisition (a different process may have
             // replaced the pathname while this request was waiting).
-            if (is_link($path)) {
+            if (self::pathIsLink($path)) {
                 return false;
             }
             $now = ($this->clock)();
@@ -118,6 +118,12 @@ final readonly class LoginLimiter
         }
     }
 
+    private static function pathIsLink(string $path): bool
+    {
+        clearstatcache(true, $path);
+        return is_link($path);
+    }
+
     private function ensurePrivateDirectory(): bool
     {
         if (is_link($this->directory)) {
@@ -134,7 +140,7 @@ final readonly class LoginLimiter
      */
     private function read($handle, int $now): ?array
     {
-        if (!@rewind($handle)) {
+        if (@fseek($handle, 0, SEEK_SET) !== 0) {
             return null;
         }
         $raw = @stream_get_contents($handle, self::MAX_SHARD_BYTES + 1);
@@ -186,8 +192,8 @@ final readonly class LoginLimiter
      */
     private function write($handle, array $entries): bool
     {
-        $json = json_encode($entries === [] ? (object)[] : $entries, JSON_THROW_ON_ERROR);
-        if (strlen($json) > self::MAX_SHARD_BYTES || !@rewind($handle) || !@ftruncate($handle, 0)) {
+        $json = json_encode($entries === [] ? new \stdClass() : $entries, JSON_THROW_ON_ERROR);
+        if (strlen($json) > self::MAX_SHARD_BYTES || @fseek($handle, 0, SEEK_SET) !== 0 || !@ftruncate($handle, 0)) {
             return false;
         }
         $length = strlen($json);

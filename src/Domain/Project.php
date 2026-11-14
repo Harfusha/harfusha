@@ -57,7 +57,10 @@ final readonly class Project
         return is_string($values[$key] ?? null) ? $values[$key] : '';
     }
 
-    /** @param array<string,mixed> $values @return list<string> */
+    /**
+     * @param array<string,mixed> $values
+     * @return list<string>
+     */
     private static function strings(array $values, string $key): array
     {
         $input = $values[$key] ?? [];

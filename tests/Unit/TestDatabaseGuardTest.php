@@ -13,7 +13,7 @@ final class TestDatabaseGuardTest extends TestCase
     public function testAcceptsExplicitlyConfirmedIsolatedDatabase(): void
     {
         TestDatabaseGuard::assertSafe('testing', 'harfusha_lab_ci', '127.0.0.1', 'lab_ci', 'harfusha_lab_ci');
-        self::assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
     #[DataProvider('unsafeTargets')]

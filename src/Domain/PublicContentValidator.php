@@ -206,7 +206,10 @@ final class PublicContentValidator
         return $value;
     }
 
-    /** @param array<string,mixed> $row @return list<string> */
+    /**
+     * @param array<string,mixed> $row
+     * @return list<string>
+     */
     private static function stringList(array $row, string $key, string $label, int $min, int $max, int $maxChars): array
     {
         $items = $row[$key] ?? null;

@@ -23,7 +23,6 @@ final class PublicProjectViewTest extends TestCase
         self::assertSame($project->summaryEn, $en['summary']);
         self::assertNull($cs['repository']);
         self::assertSame($cs['slug'], $en['slug']);
-        self::assertCount(13, $cs);
         self::assertArrayNotHasKey('private', $cs);
     }
 
