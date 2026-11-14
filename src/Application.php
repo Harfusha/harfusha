@@ -26,11 +26,17 @@ final class Application extends BaseApplication
 
     public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
     {
-        $csrf = new CsrfProtectionMiddleware(['httponly' => true, 'samesite' => 'Strict', 'secure' => str_starts_with((string)Configure::read('App.fullBaseUrl'), 'https://')]);
+        $configuredUrl = Configure::read('App.fullBaseUrl');
+        $url = is_string($configuredUrl) ? $configuredUrl : '';
+        $config = Configure::read('Error');
+        if (!is_array($config)) {
+            throw new \RuntimeException('CakePHP error configuration must be an array');
+        }
+        $csrf = new CsrfProtectionMiddleware(['httponly' => true, 'samesite' => 'Strict', 'secure' => str_starts_with($url, 'https://')]);
         $csrf->skipCheckCallback(static fn (ServerRequest $request): bool => $request->getUri()->getPath() === '/cron/github');
         return $middlewareQueue
             ->add(new SecurityHeadersMiddleware())
-            ->add(new ErrorHandlerMiddleware(Configure::read('Error'), $this))
+            ->add(new ErrorHandlerMiddleware($config, $this))
             ->add(new HostGuardMiddleware())
             ->add(new AssetMiddleware(['cacheTime' => Configure::read('Asset.cacheTime')]))
             ->add(new RoutingMiddleware($this))

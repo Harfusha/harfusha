@@ -5,6 +5,8 @@ includes:
     - vendor/shipmonk/phpstan-rules/rules.neon
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
 parameters:
+    bootstrapFiles:
+        - config/paths.php
     level: max
     phpVersion: 80512
     checkMissingCallableSignature: true

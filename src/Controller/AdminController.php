@@ -59,7 +59,10 @@ final class AdminController extends AppController
     public function login(): Response
     {
         $this->request->allowMethod(['post']);
-        $client = $this->request->clientIp(false);
+        // Use the direct peer address. Never trust a user-supplied forwarding header for rate limits.
+        $remoteIp = $this->request->getEnv('REMOTE_ADDR');
+        $client = is_string($remoteIp) && filter_var($remoteIp, FILTER_VALIDATE_IP) !== false
+            ? $remoteIp : 'unknown';
         $limiter = new LoginLimiter(TMP . 'auth');
         if (!$limiter->consume($client)) {
             return $this->response->withStatus(429)->withHeader('Retry-After', '900')
@@ -68,7 +71,7 @@ final class AdminController extends AppController
         $password = $this->request->getData('password');
         $stored = getenv('ADMIN_PASSWORD_HASH');
         if (!AdminCredentials::verify($password, $stored)) {
-            return $this->redirect('/admin?error=1', 303);
+            return $this->redirect('/admin?error=1', 303) ?? $this->response;
         }
         if (!$limiter->clear($client)) {
             return $this->response->withStatus(503)->withStringBody('Login temporarily unavailable');
@@ -76,14 +79,14 @@ final class AdminController extends AppController
         $session = $this->request->getSession();
         $session->renew();
         $session->write('lab.admin', true);
-        return $this->redirect('/admin', 303);
+        return $this->redirect('/admin', 303) ?? $this->response;
     }
 
     public function logout(): Response
     {
         $this->request->getSession()->delete('lab.admin');
         $this->request->getSession()->renew();
-        return $this->redirect('/admin', 303);
+        return $this->redirect('/admin', 303) ?? $this->response;
     }
 
     public function project(): Response
@@ -115,7 +118,7 @@ final class AdminController extends AppController
             error_log('Project update failed: ' . $error->getMessage());
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
-        return $this->redirect('/admin?saved=1', 303);
+        return $this->redirect('/admin?saved=1', 303) ?? $this->response;
     }
 
     public function journal(): Response
@@ -148,7 +151,7 @@ final class AdminController extends AppController
             error_log('Journal update failed: ' . $error->getMessage());
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
-        return $this->redirect('/admin?saved=1', 303);
+        return $this->redirect('/admin?saved=1', 303) ?? $this->response;
     }
 
     /** Existing entry can be updated or hidden without removing the audit history. */
@@ -173,6 +176,7 @@ final class AdminController extends AppController
             if ($entry === null) {
                 return $this->response->withStatus(404)->withStringBody('Entry not found');
             }
+            /** @var array<string, mixed> $auditValues */
             $auditValues = ['is_public' => $action === 'publish'];
             if ($action === 'save') {
                 try {
@@ -204,7 +208,7 @@ final class AdminController extends AppController
             error_log('Journal update failed: ' . $error->getMessage());
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
-        return $this->redirect('/admin?saved=1', 303);
+        return $this->redirect('/admin?saved=1', 303) ?? $this->response;
     }
 
 }

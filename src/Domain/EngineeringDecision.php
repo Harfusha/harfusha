@@ -29,17 +29,27 @@ final readonly class EngineeringDecision
         }
     }
 
-    /** @param array<string,mixed> $row */
+    /** @param array<string, mixed> $row */
     public static function fromArray(array $row): self
     {
         return new self(
-            (string)$row['id'], (string)$row['project'], (string)$row['status'],
-            (string)$row['title_cs'], (string)$row['title_en'],
-            (string)$row['context_cs'], (string)$row['context_en'],
-            (string)$row['decision_cs'], (string)$row['decision_en'],
-            (string)$row['tradeoff_cs'], (string)$row['tradeoff_en'],
-            (string)$row['evidence_cs'], (string)$row['evidence_en'],
+            self::textField($row, 'id'), self::textField($row, 'project'), self::textField($row, 'status'),
+            self::textField($row, 'title_cs'), self::textField($row, 'title_en'),
+            self::textField($row, 'context_cs'), self::textField($row, 'context_en'),
+            self::textField($row, 'decision_cs'), self::textField($row, 'decision_en'),
+            self::textField($row, 'tradeoff_cs'), self::textField($row, 'tradeoff_en'),
+            self::textField($row, 'evidence_cs'), self::textField($row, 'evidence_en'),
         );
+    }
+
+    /** @param array<string, mixed> $row */
+    private static function textField(array $row, string $key): string
+    {
+        $value = $row[$key] ?? null;
+        if (!is_string($value)) {
+            throw new InvalidArgumentException('Invalid decision field: ' . $key);
+        }
+        return $value;
     }
 
     public function title(Language $lang): string { return $lang->value($this->titleCs, $this->titleEn); }
