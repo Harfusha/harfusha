@@ -134,6 +134,24 @@ final class GithubSyncService
         if (!is_array($json)) {
             throw new RuntimeException('Invalid API response');
         }
-        return $json;
+        if (array_is_list($json)) {
+            $records = [];
+            foreach ($json as $record) {
+                if (!is_array($record)) {
+                    throw new RuntimeException('Invalid API list entry');
+                }
+                /** @var array<string, mixed> $record */
+                $records[] = $record;
+            }
+            return $records;
+        }
+        $object = [];
+        foreach ($json as $key => $value) {
+            if (!is_string($key)) {
+                throw new RuntimeException('Invalid API object key');
+            }
+            $object[$key] = $value;
+        }
+        return $object;
     }
 }

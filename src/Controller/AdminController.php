@@ -111,8 +111,12 @@ final class AdminController extends AppController
                 throw new \RuntimeException('Invalid editorial database');
             }
             $db->transactional(static function (Connection $connection) use ($table, $record, $data): void {
-                $table->saveOrFail($table->patchEntity($record, $data));
-                EditorialAuditTrail::record($connection, 'project', $data['slug'], 'update', $data);
+                try {
+                    $table->saveOrFail($table->patchEntity($record, $data));
+                    EditorialAuditTrail::record($connection, 'project', $data['slug'], 'update', $data);
+                } catch (Throwable $error) {
+                    throw new \RuntimeException('Project transaction aborted', 0, $error);
+                }
             });
         } catch (Throwable $error) {
             error_log('Project update failed: ' . $error->getMessage());
@@ -144,8 +148,16 @@ final class AdminController extends AppController
                 throw new \RuntimeException('Invalid editorial database');
             }
             $db->transactional(static function (Connection $connection) use ($table, $record, $values): void {
-                $table->saveOrFail($record);
-                EditorialAuditTrail::record($connection, 'journal', (string)$record->get('id'), 'create', $values);
+                try {
+                    $table->saveOrFail($record);
+                    $id = $record->get('id');
+                    if (!is_int($id) && !(is_string($id) && ctype_digit($id))) {
+                        throw new \RuntimeException('Missing saved journal ID');
+                    }
+                    EditorialAuditTrail::record($connection, 'journal', (string)$id, 'create', $values);
+                } catch (Throwable $error) {
+                    throw new \RuntimeException('Journal transaction aborted', 0, $error);
+                }
             });
         } catch (Throwable $error) {
             error_log('Journal update failed: ' . $error->getMessage());
@@ -200,9 +212,13 @@ final class AdminController extends AppController
                 throw new \RuntimeException('Invalid editorial database');
             }
             $db->transactional(static function (Connection $connection) use ($table, $entry, $id, $action, $auditValues): void {
-                $table->saveOrFail($entry);
-                EditorialAuditTrail::record($connection, 'journal', (string)$id,
-                    $action === 'save' ? 'update' : $action, $auditValues);
+                try {
+                    $table->saveOrFail($entry);
+                    EditorialAuditTrail::record($connection, 'journal', (string)$id,
+                        $action === 'save' ? 'update' : $action, $auditValues);
+                } catch (Throwable $error) {
+                    throw new \RuntimeException('Journal update transaction aborted', 0, $error);
+                }
             });
         } catch (Throwable $error) {
             error_log('Journal update failed: ' . $error->getMessage());
