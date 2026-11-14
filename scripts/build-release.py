@@ -24,6 +24,18 @@ def require(command: list[str]) -> None:
     subprocess.run(command, cwd=ROOT, check=True)
 
 
+def client_test_files(root: Path) -> list[str]:
+    """Return the full deterministic browser regression suite; never silently skip it."""
+    files = sorted((root / 'tests/Client').glob('*.test.cjs'))
+    if not files:
+        raise RuntimeError('No browser-core regression tests found')
+    return [str(path.relative_to(root)) for path in files]
+
+
+def verify_client_tests(root: Path) -> None:
+    require(['node', '--test', *client_test_files(root)])
+
+
 def main() -> None:
     parser=argparse.ArgumentParser(description='Verify, build and archive the production PHP 8.5 application')
     parser.add_argument('--output',type=Path,required=True)
@@ -82,10 +94,7 @@ def main() -> None:
     require(['python3','scripts/audit-rendered.py'])
     require(['node','--check','webroot/assets/js/app.js'])
     require(['node','--check','webroot/assets/js/lab-core.js'])
-    client_tests = sorted((ROOT / 'tests/Client').glob('*.test.cjs'))
-    if not client_tests:
-        raise SystemExit('No browser-core regression tests found')
-    require(['node', '--test', *(str(path.relative_to(ROOT)) for path in client_tests)])
+    verify_client_tests(ROOT)
     # Real Chromium DOM smoke (renders offline templates, not CakePHP HTTP E2E).
     require(['python3','tests/Browser/smoke.py'] + (['--chromium', os.environ['CHROMIUM_PATH']] if os.environ.get('CHROMIUM_PATH') else []))
     # Optional TypeScript checker is a required release gate, not hosted code.
