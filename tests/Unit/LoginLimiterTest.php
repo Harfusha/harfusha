@@ -14,7 +14,11 @@ final class LoginLimiterTest extends TestCase
     protected function tearDown(): void
     {
         foreach ($this->directories as $directory) {
-            foreach (glob($directory . '/*') ?? [] as $file) {
+            $files = glob($directory . '/*');
+            if ($files === false) {
+                throw new \RuntimeException('Could not enumerate test limiter files');
+            }
+            foreach ($files as $file) {
                 unlink($file);
             }
             if (is_dir($directory)) {

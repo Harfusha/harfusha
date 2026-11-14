@@ -84,9 +84,13 @@ final readonly class LoginLimiter
             if (!@flock($handle, LOCK_EX)) {
                 return false;
             }
-            // Recheck after lock acquisition (a different process may have
-            // replaced the pathname while this request was waiting).
-            if (self::pathIsLink($path)) {
+            // Check the open descriptor still points to this actual path, not
+            // a symlink or a replacement racing the advisory file lock.
+            clearstatcache(true, $path);
+            $pathname = @lstat($path);
+            $descriptor = @fstat($handle);
+            if (!is_array($pathname) || !is_array($descriptor) ||
+                $pathname['ino'] !== $descriptor['ino'] || $pathname['dev'] !== $descriptor['dev']) {
                 return false;
             }
             $now = ($this->clock)();
@@ -132,7 +136,12 @@ final readonly class LoginLimiter
         if (!is_dir($this->directory) && !@mkdir($this->directory, 0700, true) && !is_dir($this->directory)) {
             return false;
         }
-        return is_dir($this->directory) && !is_link($this->directory) && is_writable($this->directory);
+        clearstatcache(true, $this->directory);
+        $info = @lstat($this->directory);
+        if (!is_array($info) || ($info['mode'] & 0170000) !== 0040000) {
+            return false;
+        }
+        return is_writable($this->directory);
     }
 
     /** @param resource $handle

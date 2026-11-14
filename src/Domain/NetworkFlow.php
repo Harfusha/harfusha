@@ -71,7 +71,7 @@ final readonly class NetworkFlow
             $previous = $path[$index - 1] ?? null;
             $previousNeighbors = $previous !== null ? ($neighbors[$previous] ?? null) : null;
             $currentNeighbors = $neighbors[$nodeId];
-            if ($previous === null || $previousNeighbors === null || $currentNeighbors === null ||
+            if ($previous === null || $previousNeighbors === null ||
                 $previous === $nodeId ||
                 (!in_array($previous, $currentNeighbors, true) && !in_array($nodeId, $previousNeighbors, true))) {
                 throw new InvalidArgumentException('Public flow includes a disconnected hop');
