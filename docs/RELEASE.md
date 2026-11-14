@@ -3,7 +3,7 @@
 ## Non-negotiable acceptance
 
 - An actual runtime of **PHP 8.5.12+** and required extensions (Web and CLI) is available. No Composer `--ignore-platform-reqs` or fake platform version.
-- Resolve and **commit `composer.lock`** on PHP 8.5 after reviewing dependencies. `composer validate --strict` must pass.
+- Use the already committed, reviewed **`composer.lock`** with `composer install` on PHP 8.5. Future dependency updates require review and a fresh `composer validate --strict` and CI run.
 - The code passes **PHPStan level max + strict rules + ShipMonk + CakeDC** without ignores/baseline. Check that the installed extension configuration is valid.
 - PHPUnit unit and CakePHP integration tests run against an isolated MySQL database after all three Migrations. Do not run CI against production.
 - CakePHP CodeSniffer and privacy checks pass; 48 bilingual pages are rendered and their internal links, assets and IDs audited.
@@ -14,7 +14,7 @@
 
 ## Automated production builder
 
-When `composer.lock` is present, dev packages are installed, MySQL test database is explicitly confirmed and TypeScript 5.8.3 is installed in `node_modules` and Chromium/Playwright is configured, run:
+With the committed `composer.lock`, dev packages installed, a MySQL test database explicitly confirmed and TypeScript 5.8.3 is installed in `node_modules` and Chromium/Playwright is configured, run:
 
 ```sh
 npm install --no-save --ignore-scripts typescript@5.8.3
@@ -30,7 +30,7 @@ The builder checks PHP and required extensions and executes:
 5. Kopie schváleného zdrojového stromu do izolovaného staging adresáře a Composer production install (`--no-dev`) **pouze v něm**
 6. vendor-inclusive ZIP včetně `scripts/preflight.php` a SHA256 manifestu, excluding `.env`, local secrets, caches, test files and unneeded dev folders
 
-**Do not treat manual approval, passing syntax or a configured CI workflow as proof of a successful release.** The delivered source ZIP has not run this builder, because PHP 8.5/Composer/MySQL are unavailable in the authoring runtime.
+**Current evidence (14 Nov 2026):** [GitHub Actions run #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069) passed all three jobs on PHP 8.5 / MySQL 8.4, including Composer, migration, PHPStan, PHPUnit, HTTP smoke and browser checks. That run does **not** prove that the production builder has completed, a production ZIP has been deployed, human content review has happened or shared-host staging/restore has passed.
 
 ## Apache/shared hosting
 
@@ -38,7 +38,7 @@ Set the only document root to `webroot/` or apply the sibling `public_html` layo
 
 Read `docs/MASTER_PLAN.md` for the full completion matrix, manual content requirements, staging and rollback gates.
 
-**Doplnění:** Release build ověřuje skutečný migrační příkaz a chrání databázi podmínkou názvu. Nesmí mít dostupné produkční přihlašovací údaje. `composer.lock` chybí do prvního opravdového řešení závislostí na PHP 8.5; build nesmí předstírat úspěch. Veřejné API má samostatnou HTTP gate v `scripts/http-smoke.py` a typovaný kontrakt v `docs/API.md`.
+**Doplnění:** Release build ověřuje skutečný migrační příkaz a chrání databázi podmínkou názvu. Nesmí mít dostupné produkční přihlašovací údaje. `composer.lock` je již verzovaný a ověřený v CI; build nesmí předstírat úspěch na cílovém hostingu. Veřejné API má samostatnou HTTP gate v `scripts/http-smoke.py` a typovaný kontrakt v `docs/API.md`.
 
 ## Mandatory private-derived content approval gate (14 Nov 2026)
 
