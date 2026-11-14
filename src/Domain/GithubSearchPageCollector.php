@@ -52,7 +52,13 @@ final class GithubSearchPageCollector
                 throw new InvalidArgumentException('Malformed GitHub Search item');
             }
             $url = $item['html_url'] ?? null;
-            if (!is_string($url) || preg_match('~^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+/(?:pull|issues)/[1-9][0-9]*$~D', $url) !== 1) {
+            if (
+                !is_string($url)
+                || preg_match(
+                    '~^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+/(?:pull|issues)/[1-9][0-9]*$~D',
+                    $url,
+                ) !== 1
+            ) {
                 throw new InvalidArgumentException('Invalid GitHub Search result URL');
             }
             if (isset($this->seen[$url])) {
