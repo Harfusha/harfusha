@@ -13,3 +13,8 @@ require_once dirname(__DIR__) . '/src/Security/TestDatabaseGuard.php';
 );
 require dirname(__DIR__) . '/vendor/autoload.php';
 require dirname(__DIR__) . '/config/bootstrap.php';
+
+// All integration tests use the explicitly confirmed disposable test database.
+// CakePHP fixture connections and schema must be initialized after the guard.
+\Cake\TestSuite\ConnectionHelper::addTestAliases();
+(new \Migrations\TestSuite\Migrator())->run();

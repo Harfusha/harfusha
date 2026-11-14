@@ -1,18 +1,13 @@
-name: Resolve Composer lockfile on PHP 8.5
+name: Resolve Composer lockfile on PHP 8.5 (manual)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [master]
-    paths:
-      - '.github/workflows/resolve-lockfile.yml'
 
 permissions:
   contents: read
 
 jobs:
   resolve:
-    if: github.repository == 'Harfusha/harfusha'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -23,41 +18,19 @@ jobs:
           extensions: intl, mbstring, pdo_mysql, simplexml, openssl
           tools: composer:v2
           coverage: none
-      - name: Require patched PHP 8.5 and dependencies
+      - name: Verify patched PHP 8.5 and required extensions
         run: |
           php -r 'if (PHP_VERSION_ID < 80512 || PHP_VERSION_ID >= 80600) {fwrite(STDERR, "PHP 8.5.12+ required\n"); exit(1);}'
-          composer validate --strict --no-check-publish
-      - name: Resolve dependency snapshot without executing package code
+      - name: Resolve one dependency snapshot without executing package scripts
         run: |
           composer update --no-interaction --prefer-dist --no-progress --no-scripts --no-plugins
+          composer validate --strict --no-check-publish
           composer audit --locked
-      - name: Export lockfile for review
+          composer check-platform-reqs
+      - name: Export Composer lockfile for review
         uses: actions/upload-artifact@v4
         with:
           name: composer-lock-php85
           path: composer.lock
           if-no-files-found: error
           retention-days: 7
-
-  commit-lock:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    needs: resolve
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: composer-lock-php85
-      - name: Commit generated lockfile without running downloaded code
-        shell: bash
-        run: |
-          test -s composer.lock
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add composer.lock
-          if ! git diff --cached --quiet; then
-            git commit -m 'build: lock PHP 8.5 Composer dependencies'
-            git push origin HEAD:master
-          fi
