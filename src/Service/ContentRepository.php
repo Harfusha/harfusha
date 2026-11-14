@@ -11,6 +11,9 @@ use App\Model\Table\GithubActivityTable;
 use App\Model\Table\GithubPublicReposTable;
 use App\Model\Table\SyncRunsTable;
 use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
+use Cake\Database\Connection;
+use UnexpectedValueException;
 use Cake\ORM\TableRegistry;
 use DateTimeInterface;
 use Throwable;
@@ -87,7 +90,7 @@ final class ContentRepository
                 continue;
             }
             $relatedSlug = $edge['from'] === $slug ? $edge['to'] : $edge['from'];
-            $results[] = ['slug' => $relatedSlug, 'name' => $titles[$relatedSlug], 'type' => $edge['type']];
+            $results[] = ['slug' => $relatedSlug, 'name' => $titles[$relatedSlug] ?? $relatedSlug, 'type' => $edge['type']];
         }
         return $results;
     }
@@ -223,9 +226,9 @@ final class ContentRepository
                 foreach ($entities as $record) {
                     $date = $record->get('pushed_at');
                     $rows[] = [
-                        'repository' => (string)$record->get('repository'),
-                        'description' => (string)$record->get('description'),
-                        'repo_url' => (string)$record->get('repo_url'),
+                        'repository' => self::requiredString($record->get('repository'), 'repository'),
+                        'description' => self::requiredString($record->get('description'), 'description'),
+                        'repo_url' => self::requiredString($record->get('repo_url'), 'repo_url'),
                         'pushed_at' => $date instanceof DateTimeInterface ? $date->format('Y-m-d H:i:s') : '',
                     ];
                 }
@@ -254,12 +257,12 @@ final class ContentRepository
             $result = [];
             foreach ($entries as $entry) {
                 $result[] = [
-                    'id' => (int)$entry->get('id'),
-                    'category' => (string)$entry->get('category'),
-                    'title_cs' => (string)$entry->get('title_cs'),
-                    'title_en' => (string)$entry->get('title_en'),
-                    'body_cs' => (string)$entry->get('body_cs'),
-                    'body_en' => (string)$entry->get('body_en'),
+                    'id' => self::requiredId($entry->get('id')),
+                    'category' => self::requiredString($entry->get('category'), 'category'),
+                    'title_cs' => self::requiredString($entry->get('title_cs'), 'title_cs'),
+                    'title_en' => self::requiredString($entry->get('title_en'), 'title_en'),
+                    'body_cs' => self::requiredString($entry->get('body_cs'), 'body_cs'),
+                    'body_en' => self::requiredString($entry->get('body_en'), 'body_en'),
                     'is_public' => $entry->get('is_public') === true || $entry->get('is_public') === 1,
                 ];
             }
@@ -280,17 +283,23 @@ final class ContentRepository
             return [];
         }
         try {
-            $db = \Cake\Datasource\ConnectionManager::get('default');
+            $db = ConnectionManager::get('default');
+            if (!$db instanceof Connection) {
+                throw new UnexpectedValueException('Unsupported database connection');
+            }
             $query = $db->execute('SELECT entity_type,entity_key,action,content_digest,occurred_at
                 FROM editorial_audit ORDER BY id DESC LIMIT 30');
             $output = [];
             foreach ($query->fetchAll('assoc') as $row) {
+                if (!is_array($row)) {
+                    throw new UnexpectedValueException('Malformed editorial audit record');
+                }
                 $output[] = [
-                    'type' => (string)$row['entity_type'],
-                    'key' => (string)$row['entity_key'],
-                    'action' => (string)$row['action'],
-                    'date' => (string)$row['occurred_at'],
-                    'digest' => (string)$row['content_digest'],
+                    'type' => self::requiredString($row['entity_type'] ?? null, 'entity_type'),
+                    'key' => self::requiredString($row['entity_key'] ?? null, 'entity_key'),
+                    'action' => self::requiredString($row['action'] ?? null, 'action'),
+                    'date' => self::requiredString($row['occurred_at'] ?? null, 'occurred_at'),
+                    'digest' => self::requiredString($row['content_digest'] ?? null, 'content_digest'),
                 ];
             }
             return $output;
@@ -298,6 +307,25 @@ final class ContentRepository
             error_log('Editorial audit history unavailable: ' . $error->getMessage());
             return [];
         }
+    }
+
+    private static function requiredString(mixed $value, string $column): string
+    {
+        if (!is_string($value)) {
+            throw new UnexpectedValueException('Invalid persisted string: ' . $column);
+        }
+        return $value;
+    }
+
+    private static function requiredId(mixed $value): int
+    {
+        if (is_int($value) && $value > 0) {
+            return $value;
+        }
+        if (is_string($value) && ctype_digit($value) && (int)$value > 0) {
+            return (int)$value;
+        }
+        throw new UnexpectedValueException('Invalid persisted editorial id');
     }
 
     public function hasDatabase(): bool
