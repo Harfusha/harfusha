@@ -449,7 +449,7 @@ $fixtures = [
 foreach (['cs','en'] as $code) {
     $lang = new Language($code);
     foreach ($fixtures as $name => $variables) {
-        $html = $renderer->render($root . '/templates/Pages/' . $name . '.php', ['lang'=>$lang, 'route'=>'/' . $name, ...$variables]);
+        $html = $renderer->render($root . '/templates/Pages/' . ($name === 'open-source' ? 'open_source' : $name) . '.php', ['lang'=>$lang, 'route'=>'/' . $name, ...$variables]);
         verify(strlen($html) > 100 && str_contains($html, 'class='), "SSR template {$code}/{$name}");
     }
 }
