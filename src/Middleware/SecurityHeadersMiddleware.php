@@ -12,6 +12,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 /** HTTP response policies applied to every Cake response, including failures. */
 final class SecurityHeadersMiddleware implements MiddlewareInterface
 {
+    /**
+     * Process an HTTP request using this middleware.
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $response = $handler->handle($request);

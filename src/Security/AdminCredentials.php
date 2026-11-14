@@ -6,10 +6,16 @@ namespace App\Security;
 /** Passwords are opaque bytes: never trim, lowercase or normalize the input. */
 final class AdminCredentials
 {
+    /**
+     * Initialize validated dependencies and immutable configuration.
+     */
     private function __construct()
     {
     }
 
+    /**
+     * Verify the supplied password without modifying significant whitespace.
+     */
     public static function verify(mixed $submitted, mixed $storedHash): bool
     {
         if (

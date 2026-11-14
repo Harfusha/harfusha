@@ -8,10 +8,16 @@ use InvalidArgumentException;
 /** Validate canonical production origin and non-default secrets before boot. */
 final class DeploymentPolicy
 {
+    /**
+     * Initialize validated dependencies and immutable configuration.
+     */
     private function __construct()
     {
     }
 
+    /**
+     * Reject unsafe configuration at application startup.
+     */
     public static function assertEnvironment(string $environment, bool $debug, string $origin, string $salt): void
     {
         if (!in_array($environment, ['production', 'development', 'testing'], true)) {

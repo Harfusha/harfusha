@@ -12,10 +12,16 @@ use RuntimeException;
  */
 final class TestDatabaseGuard
 {
+    /**
+     * Initialize validated dependencies and immutable configuration.
+     */
     private function __construct()
     {
     }
 
+    /**
+     * Ensure integration tests can only target a confirmed disposable database.
+     */
     public static function assertSafe(
         string $environment,
         string $database,

@@ -11,6 +11,9 @@ use Cake\Console\ConsoleIo;
 /** CLI readiness gate for deployment smoke, not a public diagnostic endpoint. */
 final class LabHealthCommand extends Command
 {
+    /**
+     * Execute the console command.
+     */
     public function execute(Arguments $args, ConsoleIo $io): int
     {
         $report = (new OperationsService())->report();

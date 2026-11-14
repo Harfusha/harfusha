@@ -13,6 +13,9 @@ use Psr\Http\Server\RequestHandlerInterface;
 /** Reject unexpected hosts and ports; trust the configured canonical origin only. */
 final class HostGuardMiddleware implements MiddlewareInterface
 {
+    /**
+     * Process an HTTP request using this middleware.
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $configured = Configure::read('App.fullBaseUrl');

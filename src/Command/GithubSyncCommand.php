@@ -11,6 +11,9 @@ use Throwable;
 
 final class GithubSyncCommand extends Command
 {
+    /**
+     * Execute the console command.
+     */
     public function execute(Arguments $args, ConsoleIo $io): int
     {
         try {

@@ -19,12 +19,18 @@ use RuntimeException;
 
 final class Application extends BaseApplication
 {
+    /**
+     * Register required CakePHP plugins during bootstrap.
+     */
     public function bootstrap(): void
     {
         parent::bootstrap();
         $this->addPlugin('Migrations');
     }
 
+    /**
+     * Build the ordered HTTP middleware pipeline.
+     */
     public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
     {
         $configuredUrl = Configure::read('App.fullBaseUrl');
@@ -46,6 +52,9 @@ final class Application extends BaseApplication
             ->add($csrf);
     }
 
+    /**
+     * Configure dependency injection bindings.
+     */
     public function services(ContainerInterface $container): void
     {
     }

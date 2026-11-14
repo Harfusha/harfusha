@@ -65,6 +65,9 @@ final readonly class LoginLimiter
         return $this->mutate($address, true);
     }
 
+    /**
+     * Atomically update the bounded on-disk login throttle.
+     */
     private function mutate(string $address, bool $clear): bool
     {
         if ($address === '' || strlen($address) > 128 || str_contains($address, "\0")) {
@@ -130,6 +133,9 @@ final readonly class LoginLimiter
         }
     }
 
+    /**
+     * Detect symlinks before opening security-sensitive state.
+     */
     private static function pathIsLink(string $path): bool
     {
         clearstatcache(true, $path);
@@ -137,6 +143,9 @@ final readonly class LoginLimiter
         return is_link($path);
     }
 
+    /**
+     * Check that persistent throttle storage is private and writable.
+     */
     private function ensurePrivateDirectory(): bool
     {
         if (is_link($this->directory)) {
