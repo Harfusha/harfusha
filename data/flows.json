@@ -1,0 +1,42 @@
+[
+  {
+    "id": "media",
+    "title_cs": "Přehrání videa",
+    "title_en": "Video playback",
+    "description_cs": "Modelová cesta klientského požadavku ke službě Jellyfin a dále k síťovému úložišti. Nejde o měření skutečných paketů.",
+    "description_en": "Conceptual path from a client request to Jellyfin and onward to network storage. This is not a live packet capture.",
+    "path": ["clients", "router", "pi", "router", "nas"],
+    "steps_cs": ["Klient požádá o video", "Síťový router předá provoz", "Jellyfin zpracuje požadavek", "Přístup k souborům přes lokální síť", "Úložiště poskytne obsah"],
+    "steps_en": ["Client requests a video", "Router forwards traffic", "Jellyfin handles the request", "Local network carries storage traffic", "Storage supplies media"]
+  },
+  {
+    "id": "vpn",
+    "title_cs": "Vzdálený přístup",
+    "title_en": "Remote access",
+    "description_cs": "Zjednodušený koncept vstupu přes VPN bránu. Neobsahuje skutečné porty, adresy ani firewallová pravidla.",
+    "description_en": "Simplified VPN gateway concept. No real ports, addresses or firewall policies are published.",
+    "path": ["internet", "router", "pi"],
+    "steps_cs": ["Příchozí spojení z vnější sítě", "VPN brána a kontrola přístupu", "Dosažení interní aplikace"],
+    "steps_en": ["Inbound external connection", "VPN gateway and access control", "Reach an internal application"]
+  },
+  {
+    "id": "printing",
+    "title_cs": "Síťový tisk",
+    "title_en": "Network printing",
+    "description_cs": "Vzorový průchod tiskové úlohy od klienta po samostatný tiskový server.",
+    "description_en": "Illustrative path of a print job from a client to a separate print server.",
+    "path": ["clients", "router", "print"],
+    "steps_cs": ["Klient odešle dokument", "Úloha prochází lokální sítí", "CUPS přijme tiskovou úlohu"],
+    "steps_en": ["Client submits a document", "Job crosses the local network", "CUPS receives the print job"]
+  },
+  {
+    "id": "backup",
+    "title_cs": "Zálohování služeb",
+    "title_en": "Service backup",
+    "description_cs": "Ilustrační cesta zálohy z aplikačního uzlu na oddělené úložiště, bez uvedení skutečné konfigurace zálohování.",
+    "description_en": "Illustrative backup path from an application host to separate storage, without revealing real backup configuration.",
+    "path": ["pi", "router", "nas"],
+    "steps_cs": ["Aplikační uzel vytvoří zálohu", "Přenos přes lokální síť", "NAS uloží zálohovací data"],
+    "steps_en": ["Application host creates a backup", "Transfer across local network", "NAS stores backup data"]
+  }
+]

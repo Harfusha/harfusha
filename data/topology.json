@@ -1,0 +1,139 @@
+[
+  {
+    "id": "internet",
+    "name": "Internet",
+    "kind": "uplink",
+    "x": 520,
+    "y": 52,
+    "description_cs": "Vnější síť. Veřejná mapa neuvádí poskytovatele ani veřejnou IP adresu.",
+    "description_en": "External network. The public map does not disclose the ISP or public IP.",
+    "tech": [
+      "WAN"
+    ],
+    "services": [],
+    "depends": []
+  },
+  {
+    "id": "router",
+    "name": "MikroTik Router",
+    "kind": "network",
+    "x": 520,
+    "y": 182,
+    "description_cs": "Směrování provozu, firewall, WireGuard a síťové služby.",
+    "description_en": "Traffic routing, firewall, WireGuard and network services.",
+    "tech": [
+      "RouterOS",
+      "WireGuard"
+    ],
+    "services": [
+      "VPN gateway",
+      "Routing",
+      "Firewall"
+    ],
+    "depends": [
+      "internet"
+    ]
+  },
+  {
+    "id": "pi",
+    "name": "Raspberry Pi 5",
+    "kind": "compute",
+    "x": 240,
+    "y": 350,
+    "description_cs": "Hlavní nízkoenergetický uzel pro domácí aplikace a automatizaci.",
+    "description_en": "Primary low-power node hosting home applications and automation.",
+    "tech": [
+      "Debian",
+      "Ansible",
+      "systemd"
+    ],
+    "services": [
+      "Jellyfin",
+      "Pi-hole",
+      "Unbound",
+      "Semaphore",
+      "BookStack"
+    ],
+    "depends": [
+      "router"
+    ]
+  },
+  {
+    "id": "nas",
+    "name": "QNAP NAS",
+    "kind": "storage",
+    "x": 800,
+    "y": 350,
+    "description_cs": "Sdílené úložiště, snapshoty a zálohovací cíle.",
+    "description_en": "Shared storage, snapshots and backup targets.",
+    "tech": [
+      "QTS",
+      "RAID",
+      "Snapshots"
+    ],
+    "services": [
+      "File storage",
+      "Backups"
+    ],
+    "depends": [
+      "router"
+    ]
+  },
+  {
+    "id": "proxmox",
+    "name": "Proxmox Lab",
+    "kind": "compute",
+    "x": 170,
+    "y": 520,
+    "description_cs": "Výkonnější testovací server zapínaný podle potřeby.",
+    "description_en": "More powerful test server started when needed.",
+    "tech": [
+      "Proxmox VE",
+      "VMs"
+    ],
+    "services": [
+      "Test VMs"
+    ],
+    "depends": [
+      "router"
+    ]
+  },
+  {
+    "id": "print",
+    "name": "Pi Zero Print",
+    "kind": "device",
+    "x": 520,
+    "y": 520,
+    "description_cs": "Oddělený tiskový server s read-only konfigurací systému.",
+    "description_en": "Dedicated print server with a read-only system setup.",
+    "tech": [
+      "CUPS",
+      "overlayroot"
+    ],
+    "services": [
+      "Network printing"
+    ],
+    "depends": [
+      "router"
+    ]
+  },
+  {
+    "id": "clients",
+    "name": "Local Clients",
+    "kind": "device",
+    "x": 870,
+    "y": 520,
+    "description_cs": "Pracovní stanice a lokální zařízení; veřejný model je záměrně agregovaný.",
+    "description_en": "Workstations and local devices; public model deliberately aggregates them.",
+    "tech": [
+      "Windows",
+      "LAN"
+    ],
+    "services": [
+      "Dev workstation"
+    ],
+    "depends": [
+      "router"
+    ]
+  }
+]

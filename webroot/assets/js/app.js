@@ -1,0 +1,508 @@
+(() => {
+  'use strict';
+  const $ = (selector, parent = document) => parent.querySelector(selector);
+  const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
+  const language = document.body.dataset.language === 'en' ? 'en' : 'cs';
+  const local = (cs, en) => language === 'en' ? en : cs;
+  const core = window.HarfushaLabCore;
+
+  function initFilter(root, itemSelector, extraFilters = []) {
+    if (!root) return;
+    const input = $('[data-search]', root);
+    const count = $('[data-count]', root);
+    const empty = $('[data-empty]', root);
+    const items = $$(itemSelector, root);
+    const filters = extraFilters.map(([selector, attr]) => ({ element: $(selector, root), attr }));
+    const run = () => {
+      const q = (input?.value ?? '').trim().toLocaleLowerCase();
+      let visible = 0;
+      for (const item of items) {
+        const text = (item.dataset.searchText || '').toLocaleLowerCase();
+        const matched = text.includes(q) && filters.every(({element, attr}) => !element || element.value === 'all' || item.dataset[attr] === element.value);
+        item.classList.toggle('hidden', !matched);
+        if (matched) visible++;
+      }
+      if (count) count.textContent = `${visible} ${local('záznamů', 'results')}`;
+      empty?.classList.toggle('hidden', visible > 0);
+    };
+    input?.addEventListener('input', run);
+    filters.forEach(({element}) => element?.addEventListener('change', run));
+    run();
+  }
+
+  initFilter($('[data-maker-browser]'), '[data-maker]', [['[data-maker-status]', 'status']]);
+  initFilter($('[data-project-browser]'), '[data-project]', [['[data-filter]', 'category']]);
+  initFilter($('[data-activity-browser]'), '[data-activity]', [['[data-state]', 'state'], ['[data-kind]', 'kind']]);
+  initFilter($('[data-decision-browser]'), '[data-decision]', [['[data-decision-status]', 'status']]);
+  const contributionDialog = $('[data-activity-dialog]');
+  if (contributionDialog) {
+    $$('[data-activity-inspect]').forEach(button => button.addEventListener('click', () => {
+      $('[data-activity-title]', contributionDialog).textContent = button.dataset.inspectTitle || '';
+      $('[data-activity-repo]', contributionDialog).textContent = `${button.dataset.inspectRepo || ''} · ${button.dataset.inspectState || ''}`;
+      const anchor = $('[data-activity-url]', contributionDialog);
+      anchor.href = button.dataset.inspectUrl || '#';
+      if (typeof contributionDialog.showModal === 'function') contributionDialog.showModal();
+      else anchor.click();
+    }));
+    contributionDialog.addEventListener('click', e => {
+      if (e.target === contributionDialog) contributionDialog.close();
+    });
+  }
+
+
+  function initAdmin() {
+    const root = $('[data-admin-editor]');
+    if (!root) return;
+    const select = $('[data-admin-select]', root), cs = $('[data-admin-cs]', root), en = $('[data-admin-en]', root), status = $('[data-admin-status]', root);
+    const problems = [$('[data-admin-problem-cs]', root), $('[data-admin-problem-en]', root)];
+    const solutions = [$('[data-admin-solution-cs]', root), $('[data-admin-solution-en]', root)];
+    const update = () => {
+      const option = select?.selectedOptions[0];
+      if (!option) return;
+      cs.value = option.dataset.cs || '';
+      en.value = option.dataset.en || '';
+      status.value = option.dataset.status || 'prototype';
+      problems[0].value = option.dataset.problemCs || '';
+      problems[1].value = option.dataset.problemEn || '';
+      solutions[0].value = option.dataset.solutionCs || '';
+      solutions[1].value = option.dataset.solutionEn || '';
+    };
+    select?.addEventListener('change', update);
+    update();
+  }
+  initAdmin();
+
+  /** Project relationship explorer: fully local, deterministic, keyboard-accessible. */
+  function initConnections() {
+    const root = $('[data-connections]');
+    const source = $('#connections-data');
+    if (!root || !source) return;
+    let graph;
+    try { graph = JSON.parse(source.textContent); } catch { return; }
+    if (!Array.isArray(graph.nodes) || !Array.isArray(graph.edges) || graph.nodes.length === 0) return;
+    const svg = $('[data-connections-svg]', root);
+    const input = $('[data-connection-search]', root);
+    const name = $('[data-connections-name]', root);
+    const description = $('[data-connections-description]', root);
+    const links = $('[data-connections-links]', root);
+    const open = $('[data-connections-open]', root);
+    const nodes = graph.nodes;
+    const byId = new Map(nodes.map(node => [node.id, node]));
+    const positions = new Map();
+    const centerX = 530, centerY = 338;
+    nodes.forEach((node, index) => {
+      const ring = index < 5 ? 1 : 2;
+      const offset = index < 5 ? index : index - 5;
+      const total = ring === 1 ? 5 : Math.max(1, nodes.length - 5);
+      const angle = 2 * Math.PI * offset / total - Math.PI / 2;
+      const radius = ring === 1 ? 164 : 282;
+      positions.set(node.id, {x:centerX + radius*Math.cos(angle), y:centerY+radius*Math.sin(angle)});
+    });
+    const make = (tag, attributes = {}, text = null) => {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      for (const [key, value] of Object.entries(attributes)) el.setAttribute(key, String(value));
+      if (text !== null) el.textContent = text;
+      return el;
+    };
+    let selected = null;
+    const label = type => ({'runs-on':'Runs on','assists-development':'Development tooling',
+      'hosts':'Hosts','worker-hosting':'Worker hosting','produces-models':'Related CAD workflow',
+      'print-workflow':'3D print workflow','media-infrastructure':'Media infrastructure',
+      'game-development':'Game development'}[type] || 'Related');
+    const render = () => {
+      const query = input.value.trim().toLocaleLowerCase();
+      const matching = new Set(nodes.filter(node => !query || `${node.name} ${node.category}`.toLocaleLowerCase().includes(query)).map(n => n.id));
+      svg.replaceChildren();
+      const edges = make('g', {'aria-hidden':'true',class:'connections-edges'});
+      graph.edges.forEach(edge => {
+        const a = positions.get(edge.from), b = positions.get(edge.to);
+        if (!a || !b) return;
+        const strong = selected === null || selected === edge.from || selected === edge.to;
+        edges.append(make('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:strong?'':'muted'}));
+      });
+      svg.append(edges);
+      nodes.forEach(node => {
+        const pos = positions.get(node.id);
+        const highlighted = selected === node.id;
+        const dimmed = !matching.has(node.id) && selected !== node.id;
+        const g=make('g',{class:`connection-node${highlighted?' selected':''}${dimmed?' muted':''}`,role:'button',tabindex:'0','aria-pressed':String(highlighted),'aria-label':node.name,'data-node-id':node.id});
+        g.append(make('rect',{x:pos.x-91,y:pos.y-31,width:182,height:62,rx:11}));
+        g.append(make('text',{x:pos.x,y:pos.y-2,class:'node-title'},node.name.length>22?node.name.slice(0,20)+'…':node.name));
+        g.append(make('text',{x:pos.x,y:pos.y+15,class:'node-type'},node.category));
+        const select = ()=>{selected=node.id;render();
+          svg.querySelectorAll('[data-node-id]').forEach(candidate=>{if(candidate.getAttribute('data-node-id')===node.id)candidate.focus();});};
+        g.addEventListener('click', select);
+        g.addEventListener('keydown', event=>{if(event.key==='Enter' || event.key===' '){event.preventDefault();select();}});
+        svg.append(g);
+      });
+      const node=selected ? byId.get(selected) : null;
+      name.textContent = node?.name || (language==='en'?'Project map':'Mapa projektů');
+      description.textContent = node ? (language==='en'?node.description_en:node.description_cs) :
+        local('Klikni na uzel grafu a prozkoumej související projekty.','Select a graph node to inspect related projects.');
+      links.replaceChildren();
+      if (node) {
+        graph.edges.filter(edge=>edge.from===node.id || edge.to===node.id).forEach(edge=>{
+          const other=byId.get(edge.from===node.id?edge.to:edge.from);
+          if (!other) return;
+          const li=document.createElement('li');
+          const button=document.createElement('button');button.type='button';button.className='inline-link';
+          button.textContent=`${other.name} · ${label(edge.type)}`;
+          button.addEventListener('click',()=>{selected=other.id;render();});
+          li.append(button);links.append(li);
+        });
+        open.href=`${graph.base}/${encodeURIComponent(node.id)}`;
+        open.classList.remove('hidden');
+      } else {
+        open.classList.add('hidden');
+      }
+    };
+    input.addEventListener('input',render);
+    $('[data-connections-reset]',root).addEventListener('click',()=>{selected=null;input.value='';render();});
+    render();
+  }
+  initConnections();
+
+  function initHomelab() {
+    const root = $('[data-homelab]'), json = $('#topology-data'), flowsJson = $('#topology-flows');
+    if (!root || !json || !flowsJson) return;
+    let nodes, flows;
+    try { nodes = JSON.parse(json.textContent); flows = JSON.parse(flowsJson.textContent); } catch { return; }
+    if (!Array.isArray(nodes) || nodes.length < 2 || !Array.isArray(flows) || !flows.length) return;
+    const svg = $('[data-lab-svg]', root), modeButtons = $$('[data-lab-view]', root), failureMode = $('[data-failure-mode]', root);
+    const inspectorName = $('[data-lab-name]', root), description = $('[data-lab-description]', root), tech = $('[data-lab-tech]', root), services = $('[data-lab-services]', root), note = $('[data-lab-note]', root), index = $('[data-lab-index]', root);
+    const flowToolbar = $('[data-flow-toolbar]', root), flowSelect = $('[data-flow-select]', root);
+    const flowInspector = $('[data-flow-inspector]', root), flowTitle = $('[data-flow-title]', root);
+    const flowDescription = $('[data-flow-description]', root), flowSteps = $('[data-flow-steps]', root), flowResult = $('[data-flow-result]', root);
+    let currentFlow = flows[0];
+    let selected = 'pi', view = 'hardware';
+    const knockedOut = new Set();
+    const nodeMap = new Map(nodes.map(n => [n.id, n]));
+    const svgEl = (name, attrs = {}, contents = null) => {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', name);
+      Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, String(value)));
+      if (contents !== null) el.textContent = contents;
+      return el;
+    };
+    const unavailable = () => new Set(core.affectedNodes(nodes, [...knockedOut]));
+    const render = () => {
+      svg.replaceChildren();
+      const down = unavailable();
+      const up = id => !down.has(id);
+      const flowStatus = core.traceFlow(nodes, currentFlow, [...knockedOut]);
+      const flowLinks = new Set();
+      if (view === 'flows') {
+        for (let i = 1; i < currentFlow.path.length; i++) {
+          flowLinks.add([currentFlow.path[i-1], currentFlow.path[i]].sort().join('|'));
+        }
+      }
+      flowToolbar.classList.toggle('hidden', view !== 'flows');
+      flowInspector.classList.toggle('hidden', view !== 'flows');
+      const edges = svgEl('g', {'aria-hidden':'true'});
+      nodes.forEach(n => (n.depends || []).forEach(dep => {
+        const parent = nodeMap.get(dep);
+        if (!parent) return;
+        const highlight = (view === 'dependencies' && (n.id === selected || parent.id === selected)) ||
+          (view === 'flows' && flowLinks.has([n.id, parent.id].sort().join('|')));
+        const failed = !up(n.id) || !up(parent.id);
+        const edge = svgEl('path', {
+          d: `M${parent.x} ${parent.y+38} Q${(parent.x+n.x)/2} ${(parent.y+n.y)/2} ${n.x} ${n.y-38}`,
+          class:`lab-edge${highlight ? ' highlight':''}${failed ? ' failed':''}`,
+        });
+        edges.append(edge);
+      }));
+      svg.append(edges);
+      nodes.forEach((node, i) => {
+        const alive = up(node.id);
+        const group = svgEl('g',{class:`lab-node${node.id===selected?' selected':''}${alive?'':' failed'}`,role:'button',tabindex:'0', 'aria-label': `${node.name}${alive ? '' : ' unavailable in simulation'}`, 'aria-pressed': String(node.id===selected), 'data-lab-node-id': node.id});
+        group.append(svgEl('rect',{x:node.x-105,y:node.y-38,width:210,height:76,rx:13}));
+        group.append(svgEl('circle',{cx:node.x-82,cy:node.y-15,r:5}));
+        group.append(svgEl('text',{x:node.x-68,y:node.y-9},node.name));
+        const detail = view==='services' ? `${(node.services||[]).length} services` : view==='dependencies' ? `${(node.depends||[]).length} dependencies` : view==='flows' && currentFlow.path.includes(node.id) ? local('NA CESTĚ','IN PATH') : node.kind.toUpperCase();
+        group.append(svgEl('text',{x:node.x-80,y:node.y+18,class:'sub'},detail));
+        const select = () => {
+          selected = node.id;
+          if (failureMode.checked && node.id !== 'internet') {
+            if (knockedOut.has(node.id)) knockedOut.delete(node.id);
+            else knockedOut.add(node.id);
+          }
+          render();
+          svg.querySelectorAll('[data-lab-node-id]').forEach(candidate=>{if(candidate.getAttribute('data-lab-node-id')===node.id)candidate.focus();});
+        };
+        group.addEventListener('click', select);
+        group.addEventListener('keydown', event => {if(event.key==='Enter' || event.key===' '){event.preventDefault();select();}});
+        svg.append(group);
+      });
+      const node = nodeMap.get(selected);
+      inspectorName.textContent = node.name;
+      description.textContent = (language === 'en' ? node.description_en : node.description_cs) || '';
+      index.textContent = String(nodes.indexOf(node)+1).padStart(2,'0');
+      tech.replaceChildren(...(node.tech||[]).map(label => { const e=document.createElement('span');e.textContent=label;return e; }));
+      services.replaceChildren(...(node.services||[]).map(label => {const e=document.createElement('li');e.textContent=label;e.className=up(node.id)?'':'down';return e;}));
+      const failed = nodes.filter(n=>down.has(n.id)).map(n=>n.name);
+      note.textContent = failed.length ? local(`Simulace: nedostupné uzly: ${failed.join(', ')}.`, `Simulation: unavailable nodes: ${failed.join(', ')}.`) : local('Všechny modelované uzly jsou dostupné. Zapni simulaci výpadku a klikni na zařízení.', 'All modeled nodes are available. Enable outage simulation and select a device.');
+      if (view === 'flows') {
+        flowTitle.textContent = language === 'en' ? currentFlow.title_en : currentFlow.title_cs;
+        flowDescription.textContent = language === 'en' ? currentFlow.description_en : currentFlow.description_cs;
+        flowSteps.replaceChildren();
+        flowStatus.steps.forEach((step, i) => {
+          const li = document.createElement('li');
+          li.className = step.available ? 'available' : 'unavailable';
+          const name = nodeMap.get(step.id).name;
+          const description = language === 'en' ? currentFlow.steps_en[i] : currentFlow.steps_cs[i];
+          const state = step.available ? local('dostupný','available') : local('nedostupný','unavailable');
+          li.textContent = `${i+1}. ${name}: ${description} (${state})`;
+          flowSteps.append(li);
+        });
+        flowResult.textContent = flowStatus.available
+          ? local('Modelová cesta je dostupná.','Modeled path is available.')
+          : local(`Cesta přerušena: ${nodeMap.get(flowStatus.firstFailed).name}.`, `Path interrupted: ${nodeMap.get(flowStatus.firstFailed).name}.`);
+        flowResult.classList.toggle('blocked', !flowStatus.available);
+      }
+      modeButtons.forEach(b=>{const active=b.dataset.labView===view;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
+    };
+    modeButtons.forEach(btn=>btn.addEventListener('click',()=>{view=btn.dataset.labView;render();}));
+    flowSelect.addEventListener('change', () => {currentFlow=flows.find(flow=>flow.id===flowSelect.value) || flows[0];render();});
+    $('[data-lab-reset]',root)?.addEventListener('click',()=>{knockedOut.clear();failureMode.checked=false;render();});
+    failureMode.addEventListener('change',render);
+    render();
+  }
+  initHomelab();
+
+  const STEPS = [
+    {cs:'Zadání úkolu',en:'Task intake',descCs:'Agent přijme konkrétní úkol a vymezí, co má změnit.',descEn:'The agent receives a scoped task and identifies what to change.',trace:'task: "Find and fix a typed ORM association bug"\nmode: read-only discovery first'},
+    {cs:'Index repozitáře',en:'Repository index',descCs:'Lokální index nabídne soubory, symboly a závislosti bez načítání celého repozitáře.',descEn:'Local indexes reveal files, symbols and dependencies without loading every source file.',trace:'local_ai_repo(action="context")\n→ symbols, routes, relationships'},
+    {cs:'Vyhledání důkazů',en:'Evidence retrieval',descCs:'Symbolické hledání a RAG najdou relevantní kontext. Výstup odkazuje na konkrétní zdroj.',descEn:'Symbol search and RAG retrieve related context with provenance.',trace:'local_ai_rag(query="association types")\n→ ranked evidence references'},
+    {cs:'Návrh řešení',en:'Plan change',descCs:'Agent sestaví omezený plán a před úpravami označí dotčené kontrakty.',descEn:'The agent prepares a bounded plan and identifies affected contracts before editing.',trace:'plan → locate type owner → modify → test\nverification: required'},
+    {cs:'Implementace',en:'Implement change',descCs:'Změna se provede v přesně vymezených souborech. Demonstrace žádný kód nemění.',descEn:'The edit is scoped to specific files. This demo never edits a repository.',trace:'scope: src/Model/...\nmock change: add correct generic type'},
+    {cs:'Ověření',en:'Verify & report',descCs:'Statická analýza, testy a závěrečná kontrola změn vytvářejí podložený výsledek.',descEn:'Static analysis, tests and diff review form an evidence-backed result.',trace:'phpstan: required (example)\nunit tests: required (example)\nresult: no tests executed in demo'},
+  ];
+
+  function initPlayground() {
+    const root = $('[data-playground]');
+    if (!root) return;
+    const tabs = $$('[data-demo-tab]',root), panels = $$('[data-demo-panel]',root);
+    const valid = new Set(['ai','sync','world','cad','request']);
+    const show = (id, updateHash) => {
+      if (!valid.has(id)) id='ai';
+      tabs.forEach(t=>{t.setAttribute('aria-selected',String(t.dataset.demoTab===id));t.tabIndex=t.dataset.demoTab===id?0:-1;});
+      panels.forEach(p=>p.classList.toggle('hidden',p.dataset.demoPanel!==id));
+      if (updateHash) history.replaceState(null,'',`#${id}`);
+      if (id==='world') renderWorld();
+      if (id==='cad') renderCad();
+    };
+    tabs.forEach((t,i)=>{
+      t.addEventListener('click',()=>show(t.dataset.demoTab,true));
+      t.addEventListener('keydown',event=>{
+        let next=i;
+        if(event.key==='ArrowRight')next=(i+1)%tabs.length;
+        else if(event.key==='ArrowLeft')next=(i-1+tabs.length)%tabs.length;
+        else if(event.key==='Home')next=0;
+        else if(event.key==='End')next=tabs.length-1;
+        else return;
+        event.preventDefault();
+        show(tabs[next].dataset.demoTab,true);
+        tabs[next].focus();
+      });
+    });
+    window.addEventListener('hashchange',()=>show(location.hash.slice(1),false));
+    show(location.hash.slice(1),false);
+    initAi(root);
+    initSync(root);
+    initWorld(root);
+    initCad(root);
+    initRequest(root);
+  }
+
+  function initAi(root) {
+    const area = $('[data-ai-steps]',root);
+    if (!area) return;
+    const detail = $('[data-ai-title]',root), desc = $('[data-ai-description]',root), code = $('[data-ai-code]',root), index = $('[data-ai-index]',root);
+    let current = 0;
+    const buttons = STEPS.map((step,i)=>{
+      const btn=document.createElement('button');btn.className='ai-step';btn.type='button';
+      const num=document.createElement('span');num.textContent=String(i+1).padStart(2,'0');
+      const title=document.createElement('strong');title.textContent=language==='en'?step.en:step.cs;
+      btn.append(num,title);
+      btn.addEventListener('click',()=>{current=i;draw();});
+      area.append(btn);
+      return btn;
+    });
+    const draw = () => {
+      const step=STEPS[current];
+      detail.textContent=language==='en'?step.en:step.cs;
+      desc.textContent=language==='en'?step.descEn:step.descCs;
+      code.textContent=step.trace;
+      index.textContent=`${String(current+1).padStart(2,'0')}/${String(STEPS.length).padStart(2,'0')}`;
+      buttons.forEach((b,i)=>{b.classList.toggle('active',i===current);b.setAttribute('aria-current',i===current?'step':'false');});
+      $('[data-ai-prev]',root).disabled=current===0;
+      $('[data-ai-next]',root).disabled=current===STEPS.length-1;
+    };
+    $('[data-ai-prev]',root).addEventListener('click',()=>{current=Math.max(0,current-1);draw();});
+    $('[data-ai-next]',root).addEventListener('click',()=>{current=Math.min(STEPS.length-1,current+1);draw();});
+    $('[data-ai-reset]',root).addEventListener('click',()=>{current=0;draw();});
+    draw();
+  }
+
+  function initSync(root) {
+    const alpha = $('[data-sync-alpha]',root), beta = $('[data-sync-beta]',root), log=$('[data-sync-log]',root);
+    if (!alpha || !beta) return;
+    const initial='{"theme":"dark","version":1}';
+    let revA=1,revB=1,dirtyA=false,dirtyB=false;
+    const push = message => {
+      const li=document.createElement('li');li.textContent=message;
+      log.prepend(li);
+      while(log.children.length>8)log.lastChild.remove();
+    };
+    const paint = () => {
+      $('[data-alpha-version]',root).textContent=`rev ${revA}${dirtyA?' · modified':''}`;
+      $('[data-beta-version]',root).textContent=`rev ${revB}${dirtyB?' · modified':''}`;
+    };
+    alpha.addEventListener('input',()=>{dirtyA=true;paint();});
+    beta.addEventListener('input',()=>{dirtyB=true;paint();});
+    const transition = operation => {
+      const outcome = core.syncStep({alpha:alpha.value,beta:beta.value,dirtyA,dirtyB,revA,revB},operation);
+      const next = outcome.state;
+      alpha.value=next.alpha;beta.value=next.beta;dirtyA=next.dirtyA;dirtyB=next.dirtyB;revA=next.revA;revB=next.revB;
+      const messages = {unchanged:local('Žádné změny ke zpracování.','No changes to sync.'),
+        conflict:local('Konflikt: obě strany byly změněny. Vyber vítěznou kopii.','Conflict: both sides changed. Choose the winning copy.'),
+        synchronized:local('Změny byly synchronizovány.','Changes synchronized.')};
+      push(messages[outcome.outcome]||`${outcome.outcome}: manual resolution`);
+      paint();
+    };
+    $('[data-sync-run]',root).addEventListener('click',()=>transition('sync'));
+    $$('[data-sync-resolve]',root).forEach(btn=>btn.addEventListener('click',()=>transition(btn.dataset.syncResolve)));
+    $('[data-sync-reset]',root).addEventListener('click',()=>{alpha.value=beta.value=initial;revA=revB=1;dirtyA=dirtyB=false;log.replaceChildren();push('Sandbox reset.');paint();});
+    push('Demo initialized: synchronized.');paint();
+  }
+
+  let renderWorld = () => {};
+  function initWorld(root) {
+    const canvas = $('[data-world-canvas]',root);
+    if (!canvas) return;
+    const seedInput=$('[data-world-seed]',root),density=$('[data-world-density]',root),relief=$('[data-world-relief]',root);
+    const ctx=canvas.getContext('2d',{alpha:false});
+    if(!ctx)return;
+    const hash = core.hash;
+    const terrain = core.terrain;
+    renderWorld=()=>{
+      if($('#world')?.classList.contains('hidden'))return;
+      const seed=Math.max(0,Math.min(99999999,Number(seedInput.value)||0))|0;
+      const trees=Number(density.value)/100,elevation=Number(relief.value)/100;
+      $('[data-density-value]',root).textContent=`${density.value}%`;
+      $('[data-relief-value]',root).textContent=`${relief.value}%`;
+      const w=canvas.width,h=canvas.height;ctx.fillStyle='#10242a';ctx.fillRect(0,0,w,h);
+      const cell=5,cols=Math.ceil(w/cell),rows=Math.ceil(h/cell);
+      for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+        const z=terrain(x,y,seed),n=hash(x,y,seed+92);
+        let fill;
+        if(z<.36){fill=n>.6?'#164554':'#1a5160';}
+        else if(z<.42){fill='#b7a87c';}
+        else if(z>.64+(.44-elevation)*.19){fill=n>.65?'#a4b6ac':'#7f948e';}
+        else if(n<trees*(z>.48?.57:.30)){fill=n<trees*.15?'#215d40':'#286a47';}
+        else fill=z>.52?'#779473':'#8faa74';
+        ctx.fillStyle=fill;ctx.fillRect(x*cell,y*cell,cell+1,cell+1);
+      }
+      ctx.strokeStyle='#d7ba8b';ctx.lineWidth=3;ctx.setLineDash([8,5]);ctx.beginPath();
+      for(let x=80;x<w-60;x+=6){const y=235+Math.sin((x+seed%600)/95)*80+Math.sin(x/47)*14;if(x===80)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);
+      ctx.fillStyle='rgba(10,28,32,.72)';ctx.fillRect(16,16,205,38);
+      ctx.fillStyle='#ddedeb';ctx.font='13px monospace';ctx.fillText(`SEED ${seed} · TOY TERRAIN`,28,40);
+    };
+    $('[data-world-generate]',root).addEventListener('click',renderWorld);
+    [density,relief,seedInput].forEach(e=>e.addEventListener('input',renderWorld));
+    renderWorld();
+  }
+
+  let renderCad=()=>{};
+  function initCad(root) {
+    const canvas=$('[data-cad-canvas]',root),file=$('[data-cad-file]',root),wire=$('[data-cad-wire]',root);
+    if(!canvas)return;
+    const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
+    const sample=()=>{
+      const V=[[-1,-.8,-1],[1,-.8,-1],[1,.8,-1],[-1,.8,-1],[-1,-.8,1],[1,-.8,1],[1,.8,1],[-1,.8,1]];
+      const F=[[0,2,1],[0,3,2],[4,5,6],[4,6,7],[0,1,5],[0,5,4],[3,7,6],[3,6,2],[1,2,6],[1,6,5],[0,4,7],[0,7,3]];
+      const base=F.map(([a,b,c])=>[V[a],V[b],V[c]]);
+      const n=24;
+      for(let i=0;i<n;i++){
+        const a=i*Math.PI*2/n,b=(i+1)*Math.PI*2/n;
+        const p=[.35*Math.cos(a),.81,.35*Math.sin(a)],q=[.35*Math.cos(b),.81,.35*Math.sin(b)],v=[0,1.45,0];
+        base.push([p,q,v]);
+      }
+      return base;
+    };
+    let mesh=sample(),ax=-.3,ay=.65,zoom=1,drag=false,previous=[0,0];
+    const normMesh = core.normalizeMesh;
+    mesh=normMesh(mesh);
+    renderCad=()=>{
+      if($('#cad')?.classList.contains('hidden'))return;
+      const w=canvas.width,h=canvas.height;ctx.fillStyle='#0c1d25';ctx.fillRect(0,0,w,h);
+      ctx.strokeStyle='rgba(83,139,141,.11)';ctx.lineWidth=1;
+      for(let i=0;i<w;i+=37){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,h);ctx.stroke();}
+      for(let i=0;i<h;i+=37){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(w,i);ctx.stroke();}
+      const sinY=Math.sin(ay),cosY=Math.cos(ay),sinX=Math.sin(ax),cosX=Math.cos(ax);
+      const project=p=>{const x=p[0]*cosY+p[2]*sinY,z=-p[0]*sinY+p[2]*cosY,y=p[1]*cosX-z*sinX,depth=p[1]*sinX+z*cosX;return [w/2+x*125*zoom,h/2-y*125*zoom,depth];};
+      const tris=mesh.map(t=>t.map(project)).map(points=>({points,depth:points.reduce((a,p)=>a+p[2],0)/3})).sort((a,b)=>a.depth-b.depth);
+      for(const {points} of tris){
+        const [a,b,c]=points;
+        const cross=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+        if(!wire.checked && cross>0)continue;
+        const shade=Math.min(1,Math.abs(cross)/50000);
+        ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(c[0],c[1]);ctx.closePath();
+        if(!wire.checked){ctx.fillStyle=`rgba(44, ${Math.round(126+shade*80)}, ${Math.round(140+shade*56)}, 0.87)`;ctx.fill();}
+        ctx.strokeStyle=wire.checked?'rgba(103,238,194,.55)':'rgba(163,247,225,.3)';ctx.lineWidth=wire.checked?1.1:.5;ctx.stroke();
+      }
+    };
+    const info=$('[data-cad-info]',root);
+    const setInfo=msg=>info.textContent=msg;
+    const loadStl = async input => {
+      if(input.size > 8 * 1024 * 1024) throw new Error('File exceeds 8 MB');
+      return normMesh(core.parseStl(await input.arrayBuffer()));
+    };
+    file.addEventListener('change',async()=>{
+      if(!file.files?.length)return;
+      try{mesh=await loadStl(file.files[0]);ax=-.3;ay=.65;zoom=1;setInfo(`${mesh.length.toLocaleString()} triangles · local STL`);renderCad();}
+      catch(e){setInfo(`Cannot open STL: ${e.message}`);}
+    });
+    wire.addEventListener('change',renderCad);
+    $('[data-cad-reset]',root).addEventListener('click',()=>{mesh=normMesh(sample());ax=-.3;ay=.65;zoom=1;file.value='';setInfo(`${mesh.length} triangles · sample geometry`);renderCad();});
+    canvas.addEventListener('pointerdown',e=>{drag=true;previous=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);});
+    canvas.addEventListener('pointermove',e=>{if(!drag)return;ay+=(e.clientX-previous[0])*.009;ax+=(e.clientY-previous[1])*.009;ax=Math.max(-1.5,Math.min(1.5,ax));previous=[e.clientX,e.clientY];renderCad();});
+    canvas.addEventListener('pointerup',()=>{drag=false;});
+    canvas.addEventListener('pointercancel',()=>{drag=false;});
+    canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.28,Math.min(3,zoom*(e.deltaY>0?.88:1.12)));renderCad();},{passive:false});
+    setInfo(`${mesh.length} triangles · sample geometry`);
+    renderCad();
+  }
+
+  function initRequest(root) {
+    const panel=$('[data-request-lab]',root);
+    if(!panel || !core?.requestTrace) return;
+    const route=$('[data-request-route]',panel), method=$('[data-request-method]',panel);
+    const host=$('[data-request-host]',panel), csrf=$('[data-request-csrf]',panel);
+    const auth=$('[data-request-auth]',panel), payload=$('[data-request-payload]',panel);
+    const response=$('[data-request-response]',panel), steps=$('[data-request-steps]',panel);
+    const render=()=>{
+      const trace=core.requestTrace({path:route.value,method:method.value,hostValid:host.checked,
+        csrfValid:csrf.checked,authenticated:auth.checked,payloadValid:payload.checked});
+      response.textContent=`HTTP ${trace.status} · ${({200:'OK',303:'See Other',400:'Bad Request',403:'Forbidden',405:'Method Not Allowed',422:'Unprocessable Content'})[trace.status] || 'Result'}`;
+      response.dataset.status=String(trace.status);
+      steps.replaceChildren();
+      for(const step of trace.steps){
+        const li=document.createElement('li');li.className=`request-step request-${step.result}`;
+        const name=document.createElement('strong');name.textContent=step.name;
+        const detail=document.createElement('span');detail.textContent=step.detail;
+        const badge=document.createElement('b');badge.textContent=step.result.toUpperCase();
+        li.append(name,detail,badge);steps.append(li);
+      }
+      const admin=route.value==='/admin/project';
+      $$('[data-request-admin-only]',panel).forEach(element=>{element.classList.toggle('request-muted',!admin);});
+    };
+    $$('input,select',panel).forEach(input=>input.addEventListener('change',render));
+    $('[data-request-reset]',panel).addEventListener('click',()=>{
+      route.value='/cs/projects';method.value='GET';
+      host.checked=csrf.checked=auth.checked=payload.checked=true;render();
+    });
+    render();
+  }
+
+  initPlayground();
+})();

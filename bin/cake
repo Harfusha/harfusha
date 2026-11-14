@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "${PHP:-php}" "$(dirname "$0")/cake.php" "$@"

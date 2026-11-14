@@ -1,0 +1,371 @@
+[
+  {
+    "slug": "local-ai-hub",
+    "name": "Local AI Hub",
+    "category": "AI & Developer Tools",
+    "status": "active",
+    "featured": true,
+    "private": false,
+    "repo": "https://github.com/Harfusha/local-ai-hub",
+    "demo": "ai",
+    "summary_cs": "Lokální inteligence a orchestrace pro coding agenty: MCP, RAG, indexování kódu a kontrola nákladů na kontext.",
+    "summary_en": "Local-first intelligence and orchestration for coding agents: MCP, RAG, code indexing and context economics.",
+    "problem_cs": "Cloudoví agenti opakovaně procházejí repozitáře a spotřebovávají kontext při úlohách, které lze zpracovat lokálně.",
+    "problem_en": "Cloud agents repeatedly rediscover repositories and consume context for work that can be handled locally.",
+    "solution_cs": "Deterministická analýza, sémantické vyhledávání, řízení pracovních postupů a ověřitelné kontextové výstupy.",
+    "solution_en": "Deterministic code analysis, semantic retrieval, workflow orchestration and evidence-backed context outputs.",
+    "stack": [
+      "Python",
+      "MCP",
+      "RAG",
+      "SQLite",
+      "LLM"
+    ],
+    "features": [
+      "7 MCP nástrojů",
+      "Serena & code intelligence",
+      "Agent OS & durable work",
+      "Local model routing"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "mutaui",
+    "name": "MutaUI",
+    "category": "Desktop & Tools",
+    "status": "active",
+    "featured": true,
+    "private": false,
+    "repo": "https://github.com/Harfusha/MutaUI",
+    "demo": "sync",
+    "summary_cs": "Grafické rozhraní pro Mutagen: synchronizační relace, forwarding, monitoring a bezpečné hromadné akce.",
+    "summary_en": "Desktop UI for Mutagen: synchronization sessions, forwarding, monitoring and safe bulk actions.",
+    "problem_cs": "Výkonný synchronizační engine Mutagen se obtížněji ovládá bez vizuálního přehledu stavu.",
+    "problem_en": "Mutagen is powerful, but sessions and operational state are harder to understand without a visual interface.",
+    "solution_cs": "Qt klient nad nativním CLI, bezpečně oddělené relace, adaptivní obnovování stavu a testy zabalené aplikace.",
+    "solution_en": "Qt client over the native CLI, scoped session operations, adaptive polling and packaged-app smoke tests.",
+    "stack": [
+      "Python",
+      "PySide6",
+      "Qt",
+      "SQLite",
+      "PyInstaller"
+    ],
+    "features": [
+      "Sync & forward control",
+      "Adaptive monitoring",
+      "Server grouping",
+      "Packaged EXE smoke tests"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "home-infrastructure",
+    "name": "Home Infrastructure",
+    "category": "Infrastructure",
+    "status": "active",
+    "featured": true,
+    "private": true,
+    "repo": "",
+    "demo": "homelab",
+    "summary_cs": "Domácí infrastruktura spravovaná jako kód: Ansible, Semaphore, Linux, MikroTik, NAS a Proxmox.",
+    "summary_en": "Home infrastructure managed as code: Ansible, Semaphore, Linux, MikroTik, NAS and Proxmox.",
+    "problem_cs": "Více zařízení a služeb vyžaduje konzistentní konfiguraci, auditovatelnost a opakovatelné obnovovací postupy.",
+    "problem_en": "Multiple devices and services need consistent configuration, auditability and repeatable recovery.",
+    "solution_cs": "Deklarativní správa pomocí Ansible, řízené playbooky, plánované úlohy, ověřovací kontroly a dokumentace.",
+    "solution_en": "Declarative Ansible management, guarded playbooks, scheduled tasks, health checks and runbooks.",
+    "stack": [
+      "Ansible",
+      "Python",
+      "Linux",
+      "RouterOS",
+      "Proxmox",
+      "Restic"
+    ],
+    "features": [
+      "Infrastructure as Code",
+      "Guarded deploys",
+      "Backups & recovery",
+      "Service monitoring"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "woodbound",
+    "name": "Woodbound / WoodTycoon",
+    "category": "Games & Simulation",
+    "status": "prototype",
+    "featured": true,
+    "private": true,
+    "repo": "",
+    "demo": "world",
+    "summary_cs": "Unity prototyp s procedurálním generováním světa, biome systémem, trasami a validátory.",
+    "summary_en": "Unity prototype with procedural world generation, biomes, routes and validators.",
+    "problem_cs": "Generování soudržného herního světa zahrnuje množství vzájemně závislých geografických a herních pravidel.",
+    "problem_en": "Coherent world generation involves many interdependent geography and gameplay constraints.",
+    "solution_cs": "Vícefázová generovací pipeline, prostorové validátory a oddělené nástroje pro ověřování výsledků.",
+    "solution_en": "Multi-stage generation pipeline, spatial validators and independent verification tooling.",
+    "stack": [
+      "C#",
+      "Unity",
+      "Python",
+      "Procedural Generation"
+    ],
+    "features": [
+      "Biomes & terrain",
+      "Route pathfinding",
+      "Validation gates",
+      "Editor tooling"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "scan2cad",
+    "name": "Scan2CAD Studio",
+    "category": "3D & Engineering",
+    "status": "prototype",
+    "featured": true,
+    "private": true,
+    "repo": "",
+    "demo": "cad",
+    "summary_cs": "Převod 3D skenů na kontrolovatelné upravitelné CAD návrhy, s validací a MCP rozhraním.",
+    "summary_en": "Converting 3D scans into inspectable editable CAD candidates with validation and an MCP interface.",
+    "problem_cs": "Skenované sítě jsou často geometricky nepřesné a nejsou přímo upravitelné jako CAD modely.",
+    "problem_en": "Scanned meshes can be noisy and are not directly editable as CAD models.",
+    "solution_cs": "Workflow pro kontrolu vstupů, měřítka, rekonstrukci, geometrické porovnání a export STEP.",
+    "solution_en": "Input checks, verified scale, reconstruction, geometric comparison and STEP export workflows.",
+    "stack": [
+      "Python",
+      "MCP",
+      "CAD",
+      "WebGL"
+    ],
+    "features": [
+      "PLY / OBJ / STL input",
+      "STEP export",
+      "Validation reports",
+      "Local project storage"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "tiskov",
+    "name": "Tiskov / Vytiskov",
+    "category": "Web Applications",
+    "status": "prototype",
+    "featured": false,
+    "private": true,
+    "repo": "",
+    "demo": "",
+    "summary_cs": "Aplikace pro kalkulaci a správu poptávek po 3D tisku s odděleným Raspberry Pi workerem.",
+    "summary_en": "3D print quoting and request management with a separate Raspberry Pi worker.",
+    "problem_cs": "Poptávky na 3D tisk vyžadují spolehlivou evidenci, odhady a asynchronní zpracování modelů.",
+    "problem_en": "3D print requests need reliable intake, estimates and asynchronous model processing.",
+    "solution_cs": "Symfony web, SQL fronta úloh, nezávislý worker a provozní kontroly.",
+    "solution_en": "Symfony web app, SQL job queue, independent worker and operational checks.",
+    "stack": [
+      "PHP",
+      "Symfony",
+      "MySQL",
+      "Raspberry Pi"
+    ],
+    "features": [
+      "Request intake",
+      "Queue & worker",
+      "Admin diagnostics",
+      "Print estimates"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "shpotify",
+    "name": "Shpotify",
+    "category": "Web Applications",
+    "status": "prototype",
+    "featured": false,
+    "private": true,
+    "repo": "",
+    "demo": "",
+    "summary_cs": "Soukromé hudební místnosti se sdílenou frontou, integrací Spotify a vysvětlitelnými doporučeními.",
+    "summary_en": "Private music rooms with a shared queue, Spotify integration and explainable recommendations.",
+    "problem_cs": "Malé skupiny chtějí sdílené ovládání hudby bez složité serverové infrastruktury.",
+    "problem_en": "Small groups need shared music controls without a complex server runtime.",
+    "solution_cs": "PHP a MySQL na sdíleném hostingu, izolace skupin, idempotentní fronta a samostatný výpočetní worker.",
+    "solution_en": "PHP and MySQL on shared hosting, tenant isolation, idempotent queues and a separate worker.",
+    "stack": [
+      "PHP",
+      "MySQL",
+      "PWA",
+      "Spotify OAuth"
+    ],
+    "features": [
+      "Private rooms",
+      "Multi-tenant model",
+      "Queue & recommendations",
+      "Shared-hosting architecture"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "softwareinc-multiplayer",
+    "name": "Software Inc Coop Revamped",
+    "category": "Games & Simulation",
+    "status": "prototype",
+    "featured": false,
+    "private": true,
+    "repo": "",
+    "demo": "",
+    "summary_cs": "Kooperativní a kompetitivní multiplayerový mod pro Software Inc s izolovaným doménovým jádrem.",
+    "summary_en": "Cooperative and competitive multiplayer mod for Software Inc with isolated domain logic.",
+    "problem_cs": "Synchronizovaný multiplayer zasahuje do herních mechanismů, persistence a bezpečnosti síťového přenosu.",
+    "problem_en": "Synchronized multiplayer intersects game mechanics, persistence and network security.",
+    "solution_cs": "C#/.NET doménové modely, ověřování protokolu, integrační adaptéry a rozsáhlé automatizované testování.",
+    "solution_en": "C#/.NET domain models, protocol verification, integration adapters and extensive automated tests.",
+    "stack": [
+      "C#",
+      ".NET",
+      "Unity",
+      "NUnit"
+    ],
+    "features": [
+      "Domain separation",
+      "Network guards",
+      "Game adapters",
+      "Scenario probes"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "wishflix",
+    "name": "Wishflix Android TV",
+    "category": "Media & Apps",
+    "status": "prototype",
+    "featured": false,
+    "private": true,
+    "repo": "",
+    "demo": "",
+    "summary_cs": "Soukromá integrace nad klientem Jellyfin Android TV zaměřená na offline metadata a kompatibilitu.",
+    "summary_en": "Private integration based on Jellyfin Android TV focused on offline metadata and compatibility.",
+    "problem_cs": "Offline prohlížení knihovny a metadat v TV aplikaci vyžaduje zvláštní správu lokálního úložiště.",
+    "problem_en": "Offline TV browsing requires deliberate local storage and metadata management.",
+    "solution_cs": "Upravená klientská vrstva a validační testy založené na zdrojovém klientu Jellyfin.",
+    "solution_en": "Modified client layer and validation tests based on the upstream Jellyfin client.",
+    "stack": [
+      "Kotlin",
+      "Android",
+      "Gradle"
+    ],
+    "features": [
+      "Offline artwork",
+      "Private media cache",
+      "Compatibility validation"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "vitkovske-npc",
+    "name": "Vítkovské NPC",
+    "category": "Bots & Automation",
+    "status": "maintenance",
+    "featured": false,
+    "private": true,
+    "repo": "",
+    "demo": "",
+    "summary_cs": "Soukromý Discord bot v Pythonu provozovaný jako systemd služba na Raspberry Pi.",
+    "summary_en": "Private Python Discord bot deployed as a systemd service on a Raspberry Pi.",
+    "problem_cs": "Automatizace komunitních procesů vyžaduje provozně jednoduchého, dlouhodobě běžícího bota.",
+    "problem_en": "Community automation benefits from an easy-to-operate long-running bot.",
+    "solution_cs": "Modulární Python bot s příkazy, oddělenou konfigurací a provozním logováním.",
+    "solution_en": "Modular Python bot with commands, isolated configuration and operational logs.",
+    "stack": [
+      "Python",
+      "Discord",
+      "systemd"
+    ],
+    "features": [
+      "Slash commands",
+      "Structured modules",
+      "Raspberry Pi hosting"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "maker-lab",
+    "name": "Maker Lab / 3D Printing",
+    "category": "3D & Engineering",
+    "status": "active",
+    "featured": false,
+    "private": true,
+    "repo": "",
+    "demo": "cad",
+    "summary_cs": "Funkční mechanické díly, rekonstrukce STL, filtrační a sušící pomůcky pro FDM tisk.",
+    "summary_en": "Functional mechanical parts, STL reconstruction and FDM printing accessories.",
+    "problem_cs": "Běžně dostupné náhradní díly často neodpovídají skutečným rozměrům nebo použití.",
+    "problem_en": "Off-the-shelf parts often fail to match real dimensions or intended loads.",
+    "solution_cs": "Iterativní CAD a FDM návrh, porovnání prototypů, testování tolerancí a materiálů.",
+    "solution_en": "Iterative CAD/FDM design, prototype comparisons, tolerance and material testing.",
+    "stack": [
+      "Bambu Lab A1",
+      "PETG",
+      "PLA",
+      "STL"
+    ],
+    "features": [
+      "Functional parts",
+      "Fit & tolerance",
+      "Dry storage",
+      "Mechanical design"
+    ],
+    "year": "2026"
+  },
+  {
+    "slug": "code-reviews",
+    "name": "Code Reviews",
+    "category": "Archive",
+    "status": "archived",
+    "featured": false,
+    "private": true,
+    "repo": "",
+    "demo": "",
+    "summary_cs": "Starší soukromý repozitář pro peer review kódu a společnou práci.",
+    "summary_en": "Older private repository for peer code reviews and collaboration.",
+    "problem_cs": "Společná revize kódu vyžaduje sdílený a kontrolovatelný proces.",
+    "problem_en": "Collaborative code reviews need a shared, inspectable workflow.",
+    "solution_cs": "GitHub větve a pull requesty pro komentování změn.",
+    "solution_en": "GitHub branches and pull requests for reviewing changes.",
+    "stack": [
+      "GitHub",
+      "Code Review"
+    ],
+    "features": [
+      "Peer collaboration",
+      "Review workflow"
+    ],
+    "year": "2022"
+  },
+  {
+    "slug": "tools-extended",
+    "name": "Tools Extended",
+    "category": "Archive",
+    "status": "archived",
+    "featured": false,
+    "private": true,
+    "repo": "",
+    "demo": "",
+    "summary_cs": "Archivovaná experimentální aplikace a práce s CakePHP.",
+    "summary_en": "Archived experimental app and CakePHP work.",
+    "problem_cs": "Procvičení týmového vývoje a údržby webové aplikace.",
+    "problem_en": "Practice collaborative development and maintenance of a web application.",
+    "solution_cs": "CakePHP aplikace s historií pull requestů a revizí.",
+    "solution_en": "CakePHP application with pull request and review history.",
+    "stack": [
+      "PHP",
+      "CakePHP"
+    ],
+    "features": [
+      "Application development",
+      "CI experiments"
+    ],
+    "year": "2024"
+  }
+]

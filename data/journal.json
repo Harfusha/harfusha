@@ -1,0 +1,29 @@
+[
+  {
+    "title_cs": "Založení MutaUI",
+    "title_en": "MutaUI launched",
+    "body_cs": "Zveřejnění veřejného repozitáře nástroje pro Mutagen. Navazuje práce na desktopové ergonomii a podpoře platforem.",
+    "body_en": "Public repository for the Mutagen UI created. Desktop ergonomics and platform support are ongoing work.",
+    "category": "Desktop",
+    "published_at": "2026-11-12 07:43:52",
+    "source_url": "https://github.com/Harfusha/MutaUI"
+  },
+  {
+    "title_cs": "Local AI Hub 6.0.0",
+    "title_en": "Local AI Hub 6.0.0",
+    "body_cs": "Dokumentace sjednoceného MCP rozhraní, plánování úloh a evidence práce s kontextem. Funkce ověřujte vůči aktuálnímu repozitáři.",
+    "body_en": "Documentation of the unified MCP surface, task workflows and evidence-based context accounting. Verify features against the current repository.",
+    "category": "AI",
+    "published_at": "2026-11-08 10:00:00",
+    "source_url": "https://github.com/Harfusha/local-ai-hub"
+  },
+  {
+    "title_cs": "Domácí infrastruktura jako kód",
+    "title_en": "Home infrastructure as code",
+    "body_cs": "Ansible zdroj pravdy pro router, Raspberry Pi, NAS a testovací server. Provozní konfigurace zůstává neveřejná.",
+    "body_en": "Ansible source of truth for the router, Raspberry Pi, NAS and test server. Operational configuration remains private.",
+    "category": "Infrastructure",
+    "published_at": "2026-08-16 12:00:00",
+    "source_url": ""
+  }
+]

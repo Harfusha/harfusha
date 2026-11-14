@@ -1,0 +1,124 @@
+name: Verify PHP 8.5 + browser core
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root-test-only
+          MYSQL_DATABASE: harfusha_lab_ci
+          MYSQL_USER: lab_ci
+          MYSQL_PASSWORD: lab-test-only
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot-test-only"
+          --health-interval=10s --health-timeout=5s --health-retries=12
+    env:
+      APP_ENV: testing
+      DEBUG: 'false'
+      APP_URL: http://localhost:8765
+      SECURITY_SALT: 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+      DB_HOST: 127.0.0.1
+      DB_PORT: '3306'
+      DB_NAME: harfusha_lab_ci
+      DB_USER: lab_ci
+      LAB_TEST_DB_CONFIRM: harfusha_lab_ci
+      DB_PASS: lab-test-only
+      GITHUB_LOGIN: Harfusha
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: intl, mbstring, pdo_mysql, simplexml, openssl
+          coverage: none
+          tools: composer:v2
+      - name: Require reproducible dependency lockfile
+        run: |
+          test -f composer.lock || { echo 'composer.lock is required: resolve on PHP 8.5, review, commit'; exit 1; }
+          composer install --no-interaction --prefer-dist --no-progress
+      - name: Validate Composer metadata and vulnerabilities
+        run: |
+          composer validate --strict
+          composer audit --locked
+      - name: Verify PHP source, public schemas and offline SSR
+        run: |
+          composer syntax
+          composer standalone
+          python3 scripts/audit-public.py
+          python3 scripts/audit-rendered.py
+      - name: Initialize real MySQL schema
+        run: php bin/cake.php migrations migrate --no-interaction
+      - name: Actual CakePHP HTTP middleware, CSRF and session smoke
+        run: |
+          export LAB_SMOKE_ADMIN_PASSWORD="$(python3 -c 'import secrets; print(secrets.token_urlsafe(36))')"
+          export ADMIN_PASSWORD_HASH="$(php -r 'echo password_hash(getenv("LAB_SMOKE_ADMIN_PASSWORD"), PASSWORD_DEFAULT);')"
+          php -S 127.0.0.1:8765 -t webroot webroot/index.php > /tmp/harfusha-http.log 2>&1 &
+          echo $! > /tmp/harfusha-http.pid
+          trap 'kill $(cat /tmp/harfusha-http.pid) 2>/dev/null || true' EXIT
+          python3 scripts/http-smoke.py
+      - name: Max PHPStan + all configured strict extensions
+        run: composer stan
+      - name: PHPUnit including CakePHP HTTP integration
+        run: composer test
+      - name: CakePHP style rules
+        run: composer cs-check
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned JavaScript checker (CI only, never on hosting)
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund typescript@5.8.3
+      - name: Browser-side syntax, strict JSDoc typing, and deterministic tests
+        run: |
+          node --check webroot/assets/js/app.js
+          node --check webroot/assets/js/lab-core.js
+          npx --no-install tsc --noEmit --allowJs --checkJs --strict --target ES2022 --lib ES2022,DOM webroot/assets/js/lab-core.js
+          node --test tests/Client/*.test.cjs
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Pure browser-core regression tests
+        run: node --test tests/Client/*.test.cjs
+      - name: Public-data privacy heuristic
+        run: python3 scripts/audit-public.py
+      - name: Editorial, archive and HTTP smoke harness unit tests (not human approval)
+        run: python3 -m unittest discover -s tests/Python -v
+      - name: Reproducible source ZIP and independent SHA256 verification
+        run: |
+          python3 scripts/build-source.py --output "$RUNNER_TEMP/harfusha-lab-source.zip" --skip-tests
+          python3 scripts/verify_archive.py "$RUNNER_TEMP/harfusha-lab-source.zip" --variant source
+
+  browser-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: intl, mbstring
+          coverage: none
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install pinned offline browser test tools
+        run: |
+          python -m pip install playwright==1.56.0
+          python -m playwright install --with-deps chromium
+      - name: Browser DOM, keyboard and responsive regression
+        run: python3 tests/Browser/smoke.py

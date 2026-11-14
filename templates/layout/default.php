@@ -1,0 +1,76 @@
+<?php
+declare(strict_types=1);
+use App\Support\Html;
+use App\Support\Language;
+/** @var Language $lang */
+/** @var string $title */
+/** @var string $description */
+/** @var string $content */
+/** @var string $route */
+$route = $route ?? '/';
+$nav = [
+    ['projects', $lang->value('Projekty', 'Projects')],
+    ['connections', $lang->value('Mapa', 'Map')],
+    ['homelab', 'Homelab'],
+    ['maker', 'Maker Lab'],
+    ['playground', 'Playground'],
+    ['open-source', 'Open Source'],
+    ['now', $lang->value('Právě teď', 'Now')],
+    ['about', $lang->value('O mně', 'About')],
+];
+$fullUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . $lang->path($route);
+?>
+<!doctype html>
+<html lang="<?= Html::escape($lang->code) ?>">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#0a1118">
+  <meta name="description" content="<?= Html::escape($description) ?>">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="<?= Html::escape($title) ?>">
+  <meta property="og:description" content="<?= Html::escape($description) ?>">
+  <meta property="og:url" content="<?= Html::escape($fullUrl) ?>">
+  <link rel="canonical" href="<?= Html::escape($fullUrl) ?>">
+  <link rel="alternate" type="application/rss+xml" title="Harfusha Lab Journal" href="<?= $lang->path('/feed.xml') ?>">
+  <link rel="alternate" hreflang="cs" href="<?= Html::escape(rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . Html::path('cs',$route)) ?>">
+  <link rel="alternate" hreflang="en" href="<?= Html::escape(rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . Html::path('en',$route)) ?>">
+  <link rel="alternate" hreflang="x-default" href="<?= Html::escape(rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . Html::path('cs',$route)) ?>">
+  <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/css/app.css?v=20261114">
+  <script src="/assets/js/lab-core.js?v=20261114" defer></script>
+  <script src="/assets/js/app.js?v=20261114" defer></script>
+  <title><?= Html::escape($title) ?></title>
+</head>
+<body data-language="<?= Html::escape($lang->code) ?>">
+<a class="skip-link" href="#main"><?= $lang->value('Přejít na obsah','Skip to content') ?></a>
+<div class="site-backdrop" aria-hidden="true"></div>
+<header class="site-header">
+  <div class="header-inner shell">
+    <a class="brand" href="<?= $lang->path() ?>" aria-label="Harfusha Lab home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>HARFUSHA<span class="brand-light">/LAB</span></span></a>
+    <nav class="desktop-nav" aria-label="Main navigation">
+      <?php foreach ($nav as [$slug,$text]): ?>
+      <a href="<?= $lang->path('/'.$slug) ?>" <?= str_starts_with($route, '/'.$slug) ? 'aria-current="page"' : '' ?>><?= Html::escape($text) ?></a>
+      <?php endforeach; ?>
+    </nav>
+    <div class="header-actions">
+      <a class="lang-toggle" href="<?= Html::path($lang->code === 'en' ? 'cs' : 'en', $route) ?>" lang="<?= $lang->code === 'en' ? 'cs' : 'en' ?>" aria-label="Switch language"><?= $lang->code === 'en' ? 'CZ' : 'EN' ?></a>
+      <a class="github-chip" href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile">GitHub <span aria-hidden="true">↗</span></a>
+    </div>
+    <details class="mobile-menu"><summary aria-label="Open navigation"><span></span><span></span><span></span></summary>
+      <nav aria-label="Mobile navigation">
+        <?php foreach ($nav as [$slug,$text]): ?><a href="<?= $lang->path('/'.$slug) ?>"><?= Html::escape($text) ?></a><?php endforeach; ?>
+        <a href="<?= Html::path($lang->code === 'en'?'cs':'en',$route) ?>">Change language</a>
+      </nav>
+    </details>
+  </div>
+</header>
+<main id="main"><?= $this->fetch('content') ?></main>
+<footer class="site-footer"><div class="shell footer-grid">
+  <div><a class="brand" href="<?= $lang->path() ?>">HARFUSHA<span class="brand-light">/LAB</span></a><p><?= $lang->value('Software. Infrastruktura. Experimenty. Skutečné systémy a poctivé technické příběhy.', 'Software. Infrastructure. Experiments. Real systems and honest engineering stories.') ?></p></div>
+  <div><span class="eyebrow">EXPLORE</span><a href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Technická rozhodnutí','Engineering decisions') ?></a><a href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projekty', 'All projects') ?></a><a href="<?= $lang->path('/homelab') ?>">Home Lab Explorer</a><a href="<?= $lang->path('/maker') ?>">Maker Lab</a><a href="<?= $lang->path('/open-source') ?>">Open Source</a></div>
+  <div><span class="eyebrow">CONNECT</span><a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="<?= $lang->path('/about') ?>"><?= $lang->value('O mně', 'About me') ?></a><a href="<?= $lang->path('/journal') ?>">Workshop Log</a></div>
+  <div class="footer-aside">© <?= date('Y') ?> Adam Halfar <p><?= $lang->value('Žádná uměle nafouknutá čísla. Interaktivní demonstrace jsou označené a citlivá konfigurace zůstává soukromá.', 'No inflated metrics. Interactive simulations are labelled, and sensitive configuration stays private.') ?></p></div>
+</div></footer>
+</body></html>

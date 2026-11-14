@@ -1,0 +1,65 @@
+{
+  "name": "harfusha/lab",
+  "description": "Interactive engineering lab — CakePHP 5.4, PHP 8.5, typed domain and secure browser demos",
+  "type": "project",
+  "license": "MIT",
+  "require": {
+    "php": "~8.5.12",
+    "ext-mbstring": "*",
+    "ext-intl": "*",
+    "ext-pdo": "*",
+    "ext-pdo_mysql": "*",
+    "ext-simplexml": "*",
+    "ext-json": "*",
+    "cakephp/cakephp": "5.4.*",
+    "cakephp/migrations": "^5.0",
+    "cakephp/plugin-installer": "^2.0",
+    "vlucas/phpdotenv": "^5.6"
+  },
+  "require-dev": {
+    "cakedc/cakephp-phpstan": "^4.3",
+    "cakephp/cakephp-codesniffer": "^5.3",
+    "phpstan/phpstan": "^2.1",
+    "phpstan/phpstan-strict-rules": "^2.0",
+    "phpstan/phpstan-phpunit": "^2.0",
+    "phpunit/phpunit": "^12.4",
+    "rector/rector": "^2.0",
+    "cakephp/bake": "^3.6",
+    "shipmonk/phpstan-rules": "^4.4",
+    "phpstan/phpstan-deprecation-rules": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\Test\\": "tests/"
+    }
+  },
+  "config": {
+    "sort-packages": true,
+    "optimize-autoloader": true,
+    "platform-check": true,
+    "allow-plugins": {
+      "cakephp/plugin-installer": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "scripts": {
+    "stan": "phpstan analyse -c phpstan.neon --memory-limit=1G",
+    "test": "phpunit -c phpunit.xml.dist",
+    "cs-check": "phpcs --standard=phpcs.xml src/ tests/",
+    "syntax": "php scripts/syntax-check.php",
+    "check": "@quality",
+    "standalone": "@php tests/standalone.php",
+    "quality": [
+      "@syntax",
+      "@standalone",
+      "@stan",
+      "@test",
+      "@cs-check"
+    ]
+  }
+}

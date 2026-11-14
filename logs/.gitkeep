@@ -1,0 +1,1 @@
+Runtime directory; writable by PHP. Never place under public webroot.

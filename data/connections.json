@@ -1,0 +1,62 @@
+[
+  {
+    "from": "local-ai-hub",
+    "to": "home-infrastructure",
+    "type": "runs-on"
+  },
+  {
+    "from": "local-ai-hub",
+    "to": "mutaui",
+    "type": "assists-development"
+  },
+  {
+    "from": "local-ai-hub",
+    "to": "woodbound",
+    "type": "assists-development"
+  },
+  {
+    "from": "local-ai-hub",
+    "to": "scan2cad",
+    "type": "assists-development"
+  },
+  {
+    "from": "local-ai-hub",
+    "to": "shpotify",
+    "type": "assists-development"
+  },
+  {
+    "from": "home-infrastructure",
+    "to": "vitkovske-npc",
+    "type": "hosts"
+  },
+  {
+    "from": "home-infrastructure",
+    "to": "shpotify",
+    "type": "worker-hosting"
+  },
+  {
+    "from": "home-infrastructure",
+    "to": "tiskov",
+    "type": "worker-hosting"
+  },
+  {
+    "from": "maker-lab",
+    "to": "scan2cad",
+    "type": "produces-models"
+  },
+  {
+    "from": "maker-lab",
+    "to": "tiskov",
+    "type": "print-workflow"
+  },
+  {
+    "from": "home-infrastructure",
+    "to": "wishflix",
+    "type": "media-infrastructure"
+  },
+  {
+    "from": "woodbound",
+    "to": "softwareinc-multiplayer",
+    "type": "game-development"
+  }
+]

@@ -1,0 +1,114 @@
+[
+  {
+    "source_url": "https://github.com/cakephp/cakephp/pull/17827",
+    "title": "Add mixin and template to associations, add PHPStan support",
+    "repository": "cakephp/cakephp",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2024-08-22"
+  },
+  {
+    "source_url": "https://github.com/cakephp/cakephp/pull/17552",
+    "title": "Add option to set rounding mode for I18n numbers",
+    "repository": "cakephp/cakephp",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2024-01-20"
+  },
+  {
+    "source_url": "https://github.com/cakephp/debug_kit/pull/1022",
+    "title": "Compress DebugKit panel content and optimize SQLite storage",
+    "repository": "cakephp/debug_kit",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2024-08-29"
+  },
+  {
+    "source_url": "https://github.com/dereuromark/cakephp-ide-helper/pull/345",
+    "title": "Add support for multiline annotations",
+    "repository": "dereuromark/cakephp-ide-helper",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2024-03-05"
+  },
+  {
+    "source_url": "https://github.com/cakephp/cakephp/pull/18957",
+    "title": "Add TableLocator get by FQCN",
+    "repository": "cakephp/cakephp",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2025-10-10"
+  },
+  {
+    "source_url": "https://github.com/cakephp/chronos/pull/460",
+    "title": "Fix wrong return types",
+    "repository": "cakephp/chronos",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2024-07-30"
+  },
+  {
+    "source_url": "https://github.com/rectorphp/rector-src/pull/6201",
+    "title": "Remove SimplifyUselessVariableRector from code quality level",
+    "repository": "rectorphp/rector-src",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2024-07-30"
+  },
+  {
+    "source_url": "https://github.com/cakephp/cakephp/pull/17974",
+    "title": "Add IP and URL to active transaction warning",
+    "repository": "cakephp/cakephp",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2024-10-17"
+  },
+  {
+    "source_url": "https://github.com/cakephp/cakephp/pull/17976",
+    "title": "Add error context",
+    "repository": "cakephp/cakephp",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2025-04-15"
+  },
+  {
+    "source_url": "https://github.com/cakephp/cakephp/pull/17979",
+    "title": "Trim padding zeros in numeric converters",
+    "repository": "cakephp/cakephp",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2024-11-01"
+  },
+  {
+    "source_url": "https://github.com/CakeDC/cakephp-phpstan/pull/37",
+    "title": "Backport TableAssociationTypeNodeResolverExtension for CakePHP 4",
+    "repository": "CakeDC/cakephp-phpstan",
+    "kind": "pr",
+    "state": "merged",
+    "published_at": "2024-10-23"
+  },
+  {
+    "source_url": "https://github.com/ansible/ansible/issues/84560",
+    "title": "DNF package does not use ansible_python_interpreter",
+    "repository": "ansible/ansible",
+    "kind": "issue",
+    "state": "closed",
+    "published_at": "2025-01-15"
+  },
+  {
+    "source_url": "https://github.com/phpstan/phpstan/issues/13291",
+    "title": "function.alreadyNarrowedType wrongly reported",
+    "repository": "phpstan/phpstan",
+    "kind": "issue",
+    "state": "closed",
+    "published_at": "2025-07-22"
+  },
+  {
+    "source_url": "https://github.com/cakephp/cakephp/issues/18954",
+    "title": "Specific table aware TableLocator",
+    "repository": "cakephp/cakephp",
+    "kind": "issue",
+    "state": "closed",
+    "published_at": "2025-10-07"
+  }
+]

@@ -1,0 +1,307 @@
+<?php
+declare(strict_types=1);
+
+namespace App\Service;
+
+use App\Domain\Project;
+use App\Domain\ProjectCatalog;
+use App\Model\Table\ProjectOverridesTable;
+use App\Model\Table\JournalEntriesTable;
+use App\Model\Table\GithubActivityTable;
+use App\Model\Table\GithubPublicReposTable;
+use App\Model\Table\SyncRunsTable;
+use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
+use DateTimeInterface;
+use Throwable;
+
+/** ORM enrichment of a private, reviewed, static source of truth. */
+final class ContentRepository
+{
+    private readonly ProjectCatalog $catalog;
+
+    public function __construct(?ProjectCatalog $catalog = null)
+    {
+        $this->catalog = $catalog ?? new ProjectCatalog(ROOT . '/data');
+    }
+
+    /** @return list<Project> */
+    public function projects(): array
+    {
+        $base = $this->catalog->projects();
+        if (!$this->hasDatabase()) {
+            return $base;
+        }
+        try {
+            $overrides = [];
+            $rows = TableRegistry::getTableLocator()->get(ProjectOverridesTable::class)->find()->all();
+            foreach ($rows as $row) {
+                $slug = $row->get('slug');
+                if (is_string($slug)) {
+                    $overrides[$slug] = $row;
+                }
+            }
+            return array_map(static function (Project $project) use ($overrides): Project {
+                $override = $overrides[$project->slug] ?? null;
+                if ($override === null) {
+                    return $project;
+                }
+                $summaryCs = $override->get('summary_cs');
+                $summaryEn = $override->get('summary_en');
+                $status = $override->get('status');
+                $problemCs = $override->get('problem_cs');
+                $problemEn = $override->get('problem_en');
+                $solutionCs = $override->get('solution_cs');
+                $solutionEn = $override->get('solution_en');
+                if (!is_string($summaryCs) || !is_string($summaryEn) || !is_string($status)) {
+                    return $project;
+                }
+                return new Project(
+                    $project->slug, $project->name, $project->category, $status,
+                    $project->featured, $project->private, $project->repo, $project->demo,
+                    $summaryCs, $summaryEn,
+                    is_string($problemCs) && $problemCs !== '' ? $problemCs : $project->problemCs,
+                    is_string($problemEn) && $problemEn !== '' ? $problemEn : $project->problemEn,
+                    is_string($solutionCs) && $solutionCs !== '' ? $solutionCs : $project->solutionCs,
+                    is_string($solutionEn) && $solutionEn !== '' ? $solutionEn : $project->solutionEn,
+                    $project->stack,
+                    $project->features, $project->year,
+                );
+            }, $base);
+        } catch (Throwable $error) {
+            error_log('Project catalogue ORM fallback: ' . $error->getMessage());
+            return $base;
+        }
+    }
+
+    /** @return list<array{slug:string,name:string,type:string}> */
+    public function relatedProjects(string $slug): array
+    {
+        $titles = [];
+        foreach ($this->catalog->projects() as $project) {
+            $titles[$project->slug] = $project->name;
+        }
+        $results = [];
+        foreach ($this->catalog->connections() as $edge) {
+            if ($edge['from'] !== $slug && $edge['to'] !== $slug) {
+                continue;
+            }
+            $relatedSlug = $edge['from'] === $slug ? $edge['to'] : $edge['from'];
+            $results[] = ['slug' => $relatedSlug, 'name' => $titles[$relatedSlug], 'type' => $edge['type']];
+        }
+        return $results;
+    }
+
+    /** @return list<array{from:string,to:string,type:string}> */
+    public function connections(): array
+    {
+        return $this->catalog->connections();
+    }
+
+    public function findProject(string $slug): ?Project
+    {
+        foreach ($this->projects() as $project) {
+            if ($project->slug === $slug) {
+                return $project;
+            }
+        }
+        return null;
+    }
+
+    /** @return list<\App\Domain\EngineeringDecision> */
+    public function decisions(): array
+    {
+        return $this->catalog->decisions();
+    }
+
+    /** @return list<\App\Domain\NetworkFlow> */
+    public function flows(): array
+    {
+        return $this->catalog->flows();
+    }
+
+    /** @return list<array<string,mixed>> */
+    public function maker(): array
+    {
+        return $this->catalog->maker();
+    }
+
+    /** @return list<array<string,mixed>> */
+    public function topology(): array
+    {
+        return $this->catalog->topology();
+    }
+
+    /** @return list<array<string,mixed>> */
+    public function journal(): array
+    {
+        $rows = $this->catalog->journal();
+        if ($this->hasDatabase()) {
+            try {
+                $entities = TableRegistry::getTableLocator()->get(JournalEntriesTable::class)
+                    ->find()->where(['is_public' => true])->orderByDesc('published_at')->limit(60)->all();
+                foreach ($entities as $record) {
+                    $published = $record->get('published_at');
+                    $rows[] = [
+                        'title_cs' => $record->get('title_cs'), 'title_en' => $record->get('title_en'),
+                        'body_cs' => $record->get('body_cs'), 'body_en' => $record->get('body_en'),
+                        'category' => $record->get('category'), 'source_url' => $record->get('source_url'),
+                        'published_at' => $published instanceof DateTimeInterface ? $published->format('Y-m-d H:i:s') : '',
+                    ];
+                }
+            } catch (Throwable $error) {
+                error_log('Journal ORM fallback: ' . $error->getMessage());
+            }
+        }
+        // Editorial changes should appear immediately in the latest workshop feed.
+        usort($rows, static fn (array $a, array $b): int => strcmp(
+            is_string($b['published_at'] ?? null) ? $b['published_at'] : '',
+            is_string($a['published_at'] ?? null) ? $a['published_at'] : '',
+        ));
+        return $rows;
+    }
+
+    /** @return list<array<string,mixed>> */
+    public function activity(): array
+    {
+        if ($this->hasDatabase()) {
+            try {
+                $entities = TableRegistry::getTableLocator()->get(GithubActivityTable::class)
+                    ->find()->orderByDesc('published_at')->limit(500)->all();
+                $rows = [];
+                foreach ($entities as $record) {
+                    $created = $record->get('published_at');
+                    $rows[] = [
+                        'source_url' => $record->get('source_url'), 'title' => $record->get('title'),
+                        'repository' => $record->get('repository'), 'kind' => $record->get('kind'),
+                        'state' => $record->get('state'),
+                        'published_at' => $created instanceof DateTimeInterface ? $created->format('Y-m-d H:i:s') : '',
+                    ];
+                }
+                if ($rows !== []) {
+                    return $rows;
+                }
+            } catch (Throwable $error) {
+                error_log('Activity ORM fallback: ' . $error->getMessage());
+            }
+        }
+        return $this->catalog->contributions();
+    }
+
+    /**
+     * Publication provenance, not an invented real-time server status.
+     * @return array{source:string,last_sync:?string}
+     */
+    public function githubProvenance(): array
+    {
+        if ($this->hasDatabase()) {
+            try {
+                $run = TableRegistry::getTableLocator()->get(SyncRunsTable::class)
+                    ->find()->where(['source' => 'github'])->orderByDesc('completed_at')->first();
+                if ($run !== null) {
+                    $time = $run->get('completed_at');
+                    return [
+                        'source' => 'github-public-api',
+                        'last_sync' => $time instanceof DateTimeInterface ? $time->format('Y-m-d H:i:s') . ' UTC' : null,
+                    ];
+                }
+            } catch (Throwable $error) {
+                error_log('Sync provenance unavailable: ' . $error->getMessage());
+            }
+        }
+        return ['source' => 'reviewed-snapshot', 'last_sync' => null];
+    }
+
+    /** @return list<array{repository:string,description:string,repo_url:string,pushed_at:string}> */
+    public function publicRepoUpdates(): array
+    {
+        if ($this->hasDatabase()) {
+            try {
+                $entities = TableRegistry::getTableLocator()->get(GithubPublicReposTable::class)
+                    ->find()->orderByDesc('pushed_at')->limit(6)->all();
+                $rows = [];
+                foreach ($entities as $record) {
+                    $date = $record->get('pushed_at');
+                    $rows[] = [
+                        'repository' => (string)$record->get('repository'),
+                        'description' => (string)$record->get('description'),
+                        'repo_url' => (string)$record->get('repo_url'),
+                        'pushed_at' => $date instanceof DateTimeInterface ? $date->format('Y-m-d H:i:s') : '',
+                    ];
+                }
+                if ($rows !== []) {
+                    return $rows;
+                }
+            } catch (Throwable $error) {
+                error_log('Repo feed ORM fallback: ' . $error->getMessage());
+            }
+        }
+        return [
+            ['repository' => 'Harfusha/MutaUI', 'description' => 'GitHub snapshot 2026-11-12', 'repo_url' => 'https://github.com/Harfusha/MutaUI', 'pushed_at' => '2026-11-12 18:53:55'],
+            ['repository' => 'Harfusha/local-ai-hub', 'description' => 'GitHub snapshot 2026-11-12', 'repo_url' => 'https://github.com/Harfusha/local-ai-hub', 'pushed_at' => '2026-11-12 11:45:05'],
+        ];
+    }
+
+    /** @return list<array{id:int,category:string,title_cs:string,title_en:string,body_cs:string,body_en:string,is_public:bool}> */
+    public function editorialJournal(): array
+    {
+        if (!$this->hasDatabase()) {
+            return [];
+        }
+        try {
+            $entries = TableRegistry::getTableLocator()->get(JournalEntriesTable::class)
+                ->find()->orderByDesc('id')->limit(30)->all();
+            $result = [];
+            foreach ($entries as $entry) {
+                $result[] = [
+                    'id' => (int)$entry->get('id'),
+                    'category' => (string)$entry->get('category'),
+                    'title_cs' => (string)$entry->get('title_cs'),
+                    'title_en' => (string)$entry->get('title_en'),
+                    'body_cs' => (string)$entry->get('body_cs'),
+                    'body_en' => (string)$entry->get('body_en'),
+                    'is_public' => $entry->get('is_public') === true || $entry->get('is_public') === 1,
+                ];
+            }
+            return $result;
+        } catch (Throwable $error) {
+            error_log('Editorial journal could not be listed: ' . $error->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Redacted, append-only editorial change receipts; content is never duplicated.
+     * @return list<array{type:string,key:string,action:string,date:string,digest:string}>
+     */
+    public function editorialAudit(): array
+    {
+        if (!$this->hasDatabase()) {
+            return [];
+        }
+        try {
+            $db = \Cake\Datasource\ConnectionManager::get('default');
+            $query = $db->execute('SELECT entity_type,entity_key,action,content_digest,occurred_at
+                FROM editorial_audit ORDER BY id DESC LIMIT 30');
+            $output = [];
+            foreach ($query->fetchAll('assoc') as $row) {
+                $output[] = [
+                    'type' => (string)$row['entity_type'],
+                    'key' => (string)$row['entity_key'],
+                    'action' => (string)$row['action'],
+                    'date' => (string)$row['occurred_at'],
+                    'digest' => (string)$row['content_digest'],
+                ];
+            }
+            return $output;
+        } catch (Throwable $error) {
+            error_log('Editorial audit history unavailable: ' . $error->getMessage());
+            return [];
+        }
+    }
+
+    public function hasDatabase(): bool
+    {
+        return (bool)Configure::read('Lab.databaseEnabled', false);
+    }
+}

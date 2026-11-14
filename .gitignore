@@ -1,0 +1,14 @@
+/vendor/
+/.env
+/config/app_local.php
+/tmp/*
+!/tmp/.gitkeep
+/logs/*
+!/logs/.gitkeep
+.phpunit.cache/
+.phpunit.result.cache
+/.phpstan/
+/.phpunit-watcher.yml
+
+# Local, reviewed public content release receipt (never publish / commit)
+/.lab-content-approval.json

@@ -1,0 +1,6 @@
+<?php
+declare(strict_types=1);
+use App\Support\Html;
+/** @var string $csrf */
+/** @var bool $enabled */
+?><!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Admin Login | Harfusha Lab</title><link rel="stylesheet" href="/assets/css/app.css"></head><body class="admin-body"><main class="admin-login"><a class="brand" href="/cs/">HARFUSHA<span class="brand-light">/LAB</span></a><div class="admin-login-card"><span class="eyebrow">PRIVATE CONTROL PANEL</span><h1>Admin Login</h1><?php if (!$enabled): ?><p class="notice">Set ADMIN_PASSWORD_HASH in .env before login is enabled.</p><?php endif; ?><?php if ($loginError): ?><p class="notice">Sign in failed. Check the password and try again.</p><?php endif; ?><form action="/admin/login" method="post"><input type="hidden" name="_csrfToken" value="<?= Html::escape($csrf) ?>"><label>Password<input type="password" name="password" autocomplete="current-password" required minlength="12"></label><button class="btn btn-primary" type="submit">Sign in →</button></form></div><a class="inline-link" href="/cs/">← Back to site</a></main></body></html>

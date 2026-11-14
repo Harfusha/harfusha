@@ -1,0 +1,24 @@
+includes:
+    - vendor/cakedc/cakephp-phpstan/extension.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/shipmonk/phpstan-rules/rules.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+parameters:
+    level: max
+    phpVersion: 80512
+    checkMissingCallableSignature: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    reportPossiblyNonexistentConstantArrayOffset: true
+    reportPossiblyNonexistentGeneralArrayOffset: true
+    paths:
+        - src
+        - tests/Unit
+        - tests/TestCase
+    tmpDir: tmp/cache/phpstan
+    treatPhpDocTypesAsCertain: true
+    reportUnmatchedIgnoredErrors: true
+    checkImplicitMixed: true
+    checkBenevolentUnionTypes: true
+    checkUninitializedProperties: true
+    # No ignored errors or baseline: each new violation fails CI.

@@ -1,0 +1,210 @@
+<?php
+declare(strict_types=1);
+namespace App\Controller;
+
+use App\Security\LoginLimiter;
+use App\Security\AdminCredentials;
+use App\Domain\EditorialInput;
+use InvalidArgumentException;
+use App\Service\ContentRepository;
+use App\Service\OperationsService;
+use App\Service\EditorialAuditTrail;
+use App\Model\Table\ProjectOverridesTable;
+use App\Model\Table\JournalEntriesTable;
+use Cake\Http\Response;
+use Cake\ORM\TableRegistry;
+use Cake\Database\Connection;
+use Cake\Datasource\ConnectionManager;
+use DateTimeImmutable;
+use Throwable;
+
+final class AdminController extends AppController
+{
+    private function authenticated(): bool
+    {
+        return $this->request->getSession()->read('lab.admin') === true;
+    }
+
+    private function formValue(string $key, int $max): string
+    {
+        $value = $this->request->getData($key);
+        if (!is_string($value) || strlen($value) > $max * 4) {
+            return '';
+        }
+        $value = trim($value);
+        return mb_strlen($value, 'UTF-8') <= $max ? $value : '';
+    }
+
+    public function index(): Response
+    {
+        $this->viewBuilder()->disableAutoLayout();
+        $this->response = $this->response->withHeader('Cache-Control', 'no-store')
+            ->withHeader('X-Robots-Tag', 'noindex, nofollow');
+        $csrfValue = $this->request->getAttribute('csrfToken');
+        $this->set('csrf', is_string($csrfValue) ? $csrfValue : '');
+        if (!$this->authenticated()) {
+            $this->set('enabled', is_string(getenv('ADMIN_PASSWORD_HASH')) && getenv('ADMIN_PASSWORD_HASH') !== '');
+            $this->set('loginError', $this->request->getQuery('error') !== null);
+            return $this->render('login');
+        }
+        $content = new ContentRepository();
+        $this->set('projects', $content->projects());
+        $this->set('dbEnabled', $content->hasDatabase());
+        $this->set('journalEntries', $content->editorialJournal());
+        $this->set('auditEntries', $content->editorialAudit());
+        $this->set('operations', (new OperationsService())->report());
+        return $this->render('index');
+    }
+
+    public function login(): Response
+    {
+        $this->request->allowMethod(['post']);
+        $client = $this->request->clientIp(false);
+        $limiter = new LoginLimiter(TMP . 'auth');
+        if (!$limiter->consume($client)) {
+            return $this->response->withStatus(429)->withHeader('Retry-After', '900')
+                ->withStringBody('Too many login attempts');
+        }
+        $password = $this->request->getData('password');
+        $stored = getenv('ADMIN_PASSWORD_HASH');
+        if (!AdminCredentials::verify($password, $stored)) {
+            return $this->redirect('/admin?error=1', 303);
+        }
+        if (!$limiter->clear($client)) {
+            return $this->response->withStatus(503)->withStringBody('Login temporarily unavailable');
+        }
+        $session = $this->request->getSession();
+        $session->renew();
+        $session->write('lab.admin', true);
+        return $this->redirect('/admin', 303);
+    }
+
+    public function logout(): Response
+    {
+        $this->request->getSession()->delete('lab.admin');
+        $this->request->getSession()->renew();
+        return $this->redirect('/admin', 303);
+    }
+
+    public function project(): Response
+    {
+        $this->request->allowMethod(['post']);
+        if (!$this->authenticated()) {
+            return $this->response->withStatus(403)->withStringBody('Forbidden');
+        }
+        try {
+            $data = EditorialInput::project($this->request->getData());
+        } catch (InvalidArgumentException) {
+            return $this->response->withStatus(422)->withStringBody('Invalid project update');
+        }
+        if ((new ContentRepository())->findProject($data['slug']) === null) {
+            return $this->response->withStatus(422)->withStringBody('Unknown project');
+        }
+        try {
+            $table = TableRegistry::getTableLocator()->get(ProjectOverridesTable::class);
+            $record = $table->find()->where(['slug' => $data['slug']])->first() ?? $table->newEmptyEntity();
+            $db = ConnectionManager::get('default');
+            if (!$db instanceof Connection) {
+                throw new \RuntimeException('Invalid editorial database');
+            }
+            $db->transactional(static function (Connection $connection) use ($table, $record, $data): void {
+                $table->saveOrFail($table->patchEntity($record, $data));
+                EditorialAuditTrail::record($connection, 'project', $data['slug'], 'update', $data);
+            });
+        } catch (Throwable $error) {
+            error_log('Project update failed: ' . $error->getMessage());
+            return $this->response->withStatus(503)->withStringBody('Database write failed');
+        }
+        return $this->redirect('/admin?saved=1', 303);
+    }
+
+    public function journal(): Response
+    {
+        $this->request->allowMethod(['post']);
+        if (!$this->authenticated()) {
+            return $this->response->withStatus(403)->withStringBody('Forbidden');
+        }
+        try {
+            $values = EditorialInput::journal($this->request->getData());
+        } catch (InvalidArgumentException) {
+            return $this->response->withStatus(422)->withStringBody('Invalid journal entry');
+        }
+        try {
+            $table = TableRegistry::getTableLocator()->get(JournalEntriesTable::class);
+            $record = $table->newEntity([...$values,
+                'published_at' => new DateTimeImmutable('now'),
+                'source_url' => '',
+                'is_public' => $this->formValue('visibility', 10) === 'public',
+            ]);
+            $db = ConnectionManager::get('default');
+            if (!$db instanceof Connection) {
+                throw new \RuntimeException('Invalid editorial database');
+            }
+            $db->transactional(static function (Connection $connection) use ($table, $record, $values): void {
+                $table->saveOrFail($record);
+                EditorialAuditTrail::record($connection, 'journal', (string)$record->get('id'), 'create', $values);
+            });
+        } catch (Throwable $error) {
+            error_log('Journal update failed: ' . $error->getMessage());
+            return $this->response->withStatus(503)->withStringBody('Database write failed');
+        }
+        return $this->redirect('/admin?saved=1', 303);
+    }
+
+    /** Existing entry can be updated or hidden without removing the audit history. */
+    public function journalUpdate(): Response
+    {
+        $this->request->allowMethod(['post']);
+        if (!$this->authenticated()) {
+            return $this->response->withStatus(403)->withStringBody('Forbidden');
+        }
+        try {
+            $id = EditorialInput::positiveId($this->request->getData('id'));
+        } catch (InvalidArgumentException) {
+            return $this->response->withStatus(422)->withStringBody('Invalid entry ID');
+        }
+        $action = $this->formValue('operation', 20);
+        if (!in_array($action, ['save','publish','unpublish'], true)) {
+            return $this->response->withStatus(422)->withStringBody('Invalid operation');
+        }
+        try {
+            $table = TableRegistry::getTableLocator()->get(JournalEntriesTable::class);
+            $entry = $table->find()->where(['id' => $id])->first();
+            if ($entry === null) {
+                return $this->response->withStatus(404)->withStringBody('Entry not found');
+            }
+            $auditValues = ['is_public' => $action === 'publish'];
+            if ($action === 'save') {
+                try {
+                    $values = EditorialInput::journal($this->request->getData());
+                } catch (InvalidArgumentException) {
+                    return $this->response->withStatus(422)->withStringBody('Invalid entry content');
+                }
+                $entry = $table->patchEntity($entry, $values);
+                $auditValues = $values;
+            } else {
+                $status = $action === 'publish';
+                $changes = ['is_public' => $status];
+                if ($status && $entry->get('is_public') !== true) {
+                    // A saved draft becomes an actual publication only now.
+                    $changes['published_at'] = new DateTimeImmutable('now');
+                }
+                $entry = $table->patchEntity($entry, $changes);
+            }
+            $db = ConnectionManager::get('default');
+            if (!$db instanceof Connection) {
+                throw new \RuntimeException('Invalid editorial database');
+            }
+            $db->transactional(static function (Connection $connection) use ($table, $entry, $id, $action, $auditValues): void {
+                $table->saveOrFail($entry);
+                EditorialAuditTrail::record($connection, 'journal', (string)$id,
+                    $action === 'save' ? 'update' : $action, $auditValues);
+            });
+        } catch (Throwable $error) {
+            error_log('Journal update failed: ' . $error->getMessage());
+            return $this->response->withStatus(503)->withStringBody('Database write failed');
+        }
+        return $this->redirect('/admin?saved=1', 303);
+    }
+
+}
