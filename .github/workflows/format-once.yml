@@ -1,0 +1,49 @@
+name: One-time CakePHP PHPCBF formatting
+
+on:
+  push:
+    paths:
+      - '.github/workflows/format-once.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  format:
+    if: github.repository == 'Harfusha/harfusha' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          extensions: intl, mbstring, pdo_mysql, simplexml
+          tools: composer:v2
+          coverage: none
+      - name: Install locked, pinned development dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Format CakePHP application and tests
+        shell: bash
+        run: |
+          set +e
+          vendor/bin/phpcbf --standard=phpcs.xml src/ tests/
+          rc=$?
+          set -e
+          if [ "$rc" -gt 2 ]; then
+            exit "$rc"
+          fi
+          git diff --check
+          git diff --stat
+      - name: Commit formatting changes
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/ tests/
+          if ! git diff --cached --quiet; then
+            git commit -m 'style: apply automated CakePHP PHPCBF fixes'
+            git push origin HEAD:master
+          fi
