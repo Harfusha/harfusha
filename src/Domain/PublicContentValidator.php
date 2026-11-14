@@ -48,7 +48,11 @@ final class PublicContentValidator
         if (preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $slug) !== 1) {
             throw new InvalidArgumentException('Invalid project slug: ' . $label);
         }
-        foreach (['name','category','status','year','repo','demo','summary_cs','summary_en','problem_cs','problem_en','solution_cs','solution_en'] as $field) {
+        foreach ([
+            'name', 'category', 'status', 'year', 'repo', 'demo',
+            'summary_cs', 'summary_en', 'problem_cs', 'problem_en',
+            'solution_cs', 'solution_en',
+        ] as $field) {
             self::string($row, $field, $label, in_array($field, ['repo','demo'], true) ? 0 : 1, 3000);
         }
         $featured = $row['featured'] ?? null;
@@ -82,7 +86,10 @@ final class PublicContentValidator
     private static function topology(array $row, string $label): string
     {
         $id = self::string($row, 'id', $label, 1, 32);
-        if (preg_match('/^[a-z][a-z0-9-]*$/D', $id) !== 1 || !in_array($row['kind'] ?? null, ['uplink','network','compute','storage','device'], true)) {
+        if (
+            preg_match('/^[a-z][a-z0-9-]*$/D', $id) !== 1
+            || !in_array($row['kind'] ?? null, ['uplink','network','compute','storage','device'], true)
+        ) {
             throw new InvalidArgumentException('Invalid topology identifier or kind: ' . $label);
         }
         foreach (['name','description_cs','description_en'] as $key) {
@@ -137,11 +144,21 @@ final class PublicContentValidator
         $url = self::string($row, 'source_url', $label, 1, 255);
         $repo = self::string($row, 'repository', $label, 1, 180);
         self::string($row, 'title', $label, 1, 250);
-        if (!in_array($row['kind'] ?? null, ['pr','issue'], true) || !in_array($row['state'] ?? null, ['merged','open','closed'], true)) {
+        if (
+            !in_array($row['kind'] ?? null, ['pr','issue'], true)
+            || !in_array($row['state'] ?? null, ['merged','open','closed'], true)
+        ) {
             throw new InvalidArgumentException('Invalid contribution state: ' . $label);
         }
         $type = $row['kind'] === 'pr' ? 'pull' : 'issues';
-        if (preg_match('~^https://github\.com/([A-Za-z0-9-]+/[A-Za-z0-9_.-]+)/' . $type . '/[1-9][0-9]*$~D', $url, $m) !== 1 || $m[1] !== $repo) {
+        if (
+            preg_match(
+                '~^https://github\.com/([A-Za-z0-9-]+/[A-Za-z0-9_.-]+)/' . $type . '/[1-9][0-9]*$~D',
+                $url,
+                $m,
+            ) !== 1
+            || $m[1] !== $repo
+        ) {
             throw new InvalidArgumentException('Contribution URL/repository mismatch: ' . $label);
         }
         self::date(self::string($row, 'published_at', $label, 10, 32), $label);
@@ -158,7 +175,11 @@ final class PublicContentValidator
         $when = self::string($row, 'published_at', $label, 10, 32);
         self::date($when, $label);
         $link = self::string($row, 'source_url', $label, 0, 255);
-        if ($link !== '' && preg_match('~^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_./%-]+)?$~D', $link) !== 1) {
+        if ($link !== ''
+            && preg_match(
+                '~^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_./%-]+)?$~D',
+                $link,
+            ) !== 1) {
             throw new InvalidArgumentException('Unsafe journal source: ' . $label);
         }
 
@@ -172,7 +193,10 @@ final class PublicContentValidator
         if (preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $id) !== 1) {
             throw new InvalidArgumentException('Invalid maker project ID: ' . $label);
         }
-        foreach (['title_cs','title_en','summary_cs','summary_en','method_cs','method_en','category','related'] as $key) {
+        foreach ([
+            'title_cs', 'title_en', 'summary_cs', 'summary_en',
+            'method_cs', 'method_en', 'category', 'related',
+        ] as $key) {
             self::string($row, $key, $label, 1, $key === 'related' ? 80 : 2000);
         }
         if (
@@ -212,7 +236,13 @@ final class PublicContentValidator
     private static function string(array $row, string $key, string $label, int $min, int $max): string
     {
         $value = $row[$key] ?? null;
-        if (!is_string($value) || strlen($value) < $min || strlen($value) > $max * 4 || ($min > 0 && trim($value) === '') || str_contains($value, "\0")) {
+        if (
+            !is_string($value)
+            || strlen($value) < $min
+            || strlen($value) > $max * 4
+            || ($min > 0 && trim($value) === '')
+            || str_contains($value, "\0")
+        ) {
             throw new InvalidArgumentException('Invalid field ' . $key . ': ' . $label);
         }
         // Length is measured in UTF-8 characters in production (mbstring requirement).
