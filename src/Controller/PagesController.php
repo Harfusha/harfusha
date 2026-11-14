@@ -53,8 +53,7 @@ final class PagesController extends AppController
         string $enDescription,
         string $route,
         array $data = [],
-    ): Response
-    {
+    ): Response {
         $lang = $this->lang();
         $this->set([...$data,
             'lang' => $lang, 'route' => $route,

@@ -32,10 +32,10 @@ final readonly class GithubRecord
         if (
             !is_string($url)
             || preg_match(
-                    '~^https://github\.com/([A-Za-z0-9-]+)/([A-Za-z0-9_.-]+)/(pull|issues)/[0-9]+$~D',
-                    $url,
-                    $parts,
-                ) !== 1
+                '~^https://github\.com/([A-Za-z0-9-]+)/([A-Za-z0-9_.-]+)/(pull|issues)/[0-9]+$~D',
+                $url,
+                $parts,
+            ) !== 1
         ) {
             throw new InvalidArgumentException('Unexpected event URL');
         }

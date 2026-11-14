@@ -137,17 +137,18 @@ final class AdminController extends AppController
             }
             $committed = $db->transactional(
                 static function (Connection $connection) use ($table, $record, $data): bool {
-                try {
-                    $table->saveOrFail($table->patchEntity($record, $data));
-                    EditorialAuditTrail::record($connection, 'project', $data['slug'], 'update', $data);
+                    try {
+                        $table->saveOrFail($table->patchEntity($record, $data));
+                        EditorialAuditTrail::record($connection, 'project', $data['slug'], 'update', $data);
 
-                    return true;
-                } catch (Throwable $error) {
-                    error_log('Project transaction rollback: ' . $error->getMessage());
+                        return true;
+                    } catch (Throwable $error) {
+                        error_log('Project transaction rollback: ' . $error->getMessage());
 
-                    return false;
-                }
-            });
+                        return false;
+                    }
+                },
+            );
             if ($committed !== true) {
                 throw new RuntimeException('Project transaction failed');
             }
@@ -187,21 +188,22 @@ final class AdminController extends AppController
             }
             $committed = $db->transactional(
                 static function (Connection $connection) use ($table, $record, $values): bool {
-                try {
-                    $table->saveOrFail($record);
-                    $id = $record->get('id');
-                    if (!is_int($id) && !(is_string($id) && ctype_digit($id))) {
+                    try {
+                        $table->saveOrFail($record);
+                        $id = $record->get('id');
+                        if (!is_int($id) && !(is_string($id) && ctype_digit($id))) {
+                            return false;
+                        }
+                        EditorialAuditTrail::record($connection, 'journal', (string)$id, 'create', $values);
+
+                        return true;
+                    } catch (Throwable $error) {
+                        error_log('Journal transaction rollback: ' . $error->getMessage());
+
                         return false;
                     }
-                    EditorialAuditTrail::record($connection, 'journal', (string)$id, 'create', $values);
-
-                    return true;
-                } catch (Throwable $error) {
-                    error_log('Journal transaction rollback: ' . $error->getMessage());
-
-                    return false;
-                }
-            });
+                },
+            );
             if ($committed !== true) {
                 throw new RuntimeException('Journal transaction failed');
             }
@@ -261,23 +263,24 @@ final class AdminController extends AppController
             }
             $committed = $db->transactional(
                 static function (Connection $connection) use ($table, $entry, $id, $action, $auditValues): bool {
-                try {
-                    $table->saveOrFail($entry);
-                    EditorialAuditTrail::record(
-                        $connection,
-                        'journal',
-                        (string)$id,
-                        $action === 'save' ? 'update' : $action,
-                        $auditValues,
-                    );
+                    try {
+                        $table->saveOrFail($entry);
+                        EditorialAuditTrail::record(
+                            $connection,
+                            'journal',
+                            (string)$id,
+                            $action === 'save' ? 'update' : $action,
+                            $auditValues,
+                        );
 
-                    return true;
-                } catch (Throwable $error) {
-                    error_log('Journal transaction rollback: ' . $error->getMessage());
+                        return true;
+                    } catch (Throwable $error) {
+                        error_log('Journal transaction rollback: ' . $error->getMessage());
 
-                    return false;
-                }
-            });
+                        return false;
+                    }
+                },
+            );
             if ($committed !== true) {
                 throw new RuntimeException('Journal update transaction failed');
             }

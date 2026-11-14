@@ -29,8 +29,7 @@ final class GithubSnapshot
         array $mergedPullRequests,
         array $issues,
         string $author,
-    ): array
-    {
+    ): array {
         if (preg_match('/^[A-Za-z0-9-]{1,39}$/D', $author) !== 1) {
             throw new InvalidArgumentException('Invalid GitHub account');
         }

@@ -48,11 +48,13 @@ final class PublicContentValidator
         if (preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $slug) !== 1) {
             throw new InvalidArgumentException('Invalid project slug: ' . $label);
         }
-        foreach ([
+        foreach (
+            [
             'name', 'category', 'status', 'year', 'repo', 'demo',
             'summary_cs', 'summary_en', 'problem_cs', 'problem_en',
             'solution_cs', 'solution_en',
-        ] as $field) {
+            ] as $field
+        ) {
             self::string($row, $field, $label, in_array($field, ['repo','demo'], true) ? 0 : 1, 3000);
         }
         $featured = $row['featured'] ?? null;
@@ -175,11 +177,13 @@ final class PublicContentValidator
         $when = self::string($row, 'published_at', $label, 10, 32);
         self::date($when, $label);
         $link = self::string($row, 'source_url', $label, 0, 255);
-        if ($link !== ''
+        if (
+            $link !== ''
             && preg_match(
                 '~^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_./%-]+)?$~D',
                 $link,
-            ) !== 1) {
+            ) !== 1
+        ) {
             throw new InvalidArgumentException('Unsafe journal source: ' . $label);
         }
 
@@ -193,10 +197,12 @@ final class PublicContentValidator
         if (preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $id) !== 1) {
             throw new InvalidArgumentException('Invalid maker project ID: ' . $label);
         }
-        foreach ([
+        foreach (
+            [
             'title_cs', 'title_en', 'summary_cs', 'summary_en',
             'method_cs', 'method_en', 'category', 'related',
-        ] as $key) {
+            ] as $key
+        ) {
             self::string($row, $key, $label, 1, $key === 'related' ? 80 : 2000);
         }
         if (
