@@ -12,3 +12,6 @@
 
 # Local, reviewed public content release receipt (never publish / commit)
 /.lab-content-approval.json
+
+# Generated at ZIP packaging time; never commit a stale checksum manifest.
+/SHA256SUMS

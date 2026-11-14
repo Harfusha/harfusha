@@ -1,5 +1,8 @@
 # Harfusha Lab — český průvodce
 
+> Úplný technický README projektu: [`docs/PROJECT-README.md`](docs/PROJECT-README.md). Kořenový `README.md` je záměrně určený pro veřejný profil GitHubu.
+
+
 Projekt je napsaný pro **CakePHP 5.4 / PHP 8.5.12+ / MySQL**, bez Node.js procesu na serveru. Všechny návštěvnické interakce běží v prohlížeči.
 
 ## Co obsahuje ZIP

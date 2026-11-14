@@ -62,7 +62,7 @@ Každý bod vyžaduje **vnější prostředí, přístup, autorství skutečnýc
 7. [ ] Založit a otestovat cron, včetně reálných HTTP 403/429/502 a návratu k poslednímu platnému snímku, případně ručně auditovat upstream výsledky. `GithubSnapshot` odmítá rozpor PR/merge i neúplné stránky.
 8. [ ] Zajistit staging deployment **vendor-inclusive** buildu; teprve potom produkční publikace. Testovat stejné PHP-FPM/OPcache/rewrite/chmod jako na hostingu.
 
-Příkazy a důvody: `README.md`, `docs/TESTING.md`, `docs/RELEASE.md`, `docs/DEPLOYMENT.md`.
+Příkazy a důvody: `docs/PROJECT-README.md`, `docs/TESTING.md`, `docs/RELEASE.md`, `docs/DEPLOYMENT.md`.
 
 ### P0. Bezpečnost a soukromí (release blokující)
 

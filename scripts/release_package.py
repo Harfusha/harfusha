@@ -20,7 +20,7 @@ SOURCE_DIRS = ('bin', 'config', 'data', 'db', 'src', 'templates', 'webroot', 'pl
 SHIPPING_DIRS = (*SOURCE_DIRS, 'vendor')
 RUNTIME_FILES = ('tmp/.gitkeep', 'tmp/cache/.gitkeep', 'tmp/cache/models/.gitkeep',
                  'tmp/cache/persistent/.gitkeep', 'tmp/cache/views/.gitkeep', 'logs/.gitkeep')
-OPERATIONS_FILES = ('scripts/preflight.php',)
+OPERATIONS_FILES = ('scripts/preflight.php', 'docs/PROJECT-README.md')
 EXCLUDE_PARTS = {'tests', 'test', '__tests__', '__pycache__', '.git', '.github',
                  'node_modules', '.idea', '.vscode', 'examples', '.phpunit.cache'}
 EXCLUDE_NAMES = {'.DS_Store', 'app_local.php', '.env', '.env.local', '.env.production',

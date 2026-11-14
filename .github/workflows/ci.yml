@@ -104,7 +104,8 @@ jobs:
           python3 scripts/verify_archive.py "$RUNNER_TEMP/harfusha-lab-source.zip" --variant source
 
   browser-offline:
-    runs-on: ubuntu-latest
+    # Playwright 1.56 Chromium binaries are not supported on Ubuntu 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
