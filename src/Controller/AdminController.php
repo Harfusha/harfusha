@@ -110,14 +110,19 @@ final class AdminController extends AppController
             if (!$db instanceof Connection) {
                 throw new \RuntimeException('Invalid editorial database');
             }
-            $db->transactional(static function (Connection $connection) use ($table, $record, $data): void {
+            $committed = $db->transactional(static function (Connection $connection) use ($table, $record, $data): bool {
                 try {
                     $table->saveOrFail($table->patchEntity($record, $data));
                     EditorialAuditTrail::record($connection, 'project', $data['slug'], 'update', $data);
+                    return true;
                 } catch (Throwable $error) {
-                    throw new \RuntimeException('Project transaction aborted', 0, $error);
+                    error_log('Project transaction rollback: ' . $error->getMessage());
+                    return false;
                 }
             });
+            if ($committed !== true) {
+                throw new \RuntimeException('Project transaction failed');
+            }
         } catch (Throwable $error) {
             error_log('Project update failed: ' . $error->getMessage());
             return $this->response->withStatus(503)->withStringBody('Database write failed');
@@ -147,18 +152,23 @@ final class AdminController extends AppController
             if (!$db instanceof Connection) {
                 throw new \RuntimeException('Invalid editorial database');
             }
-            $db->transactional(static function (Connection $connection) use ($table, $record, $values): void {
+            $committed = $db->transactional(static function (Connection $connection) use ($table, $record, $values): bool {
                 try {
                     $table->saveOrFail($record);
                     $id = $record->get('id');
                     if (!is_int($id) && !(is_string($id) && ctype_digit($id))) {
-                        throw new \RuntimeException('Missing saved journal ID');
+                        return false;
                     }
                     EditorialAuditTrail::record($connection, 'journal', (string)$id, 'create', $values);
+                    return true;
                 } catch (Throwable $error) {
-                    throw new \RuntimeException('Journal transaction aborted', 0, $error);
+                    error_log('Journal transaction rollback: ' . $error->getMessage());
+                    return false;
                 }
             });
+            if ($committed !== true) {
+                throw new \RuntimeException('Journal transaction failed');
+            }
         } catch (Throwable $error) {
             error_log('Journal update failed: ' . $error->getMessage());
             return $this->response->withStatus(503)->withStringBody('Database write failed');
@@ -211,15 +221,20 @@ final class AdminController extends AppController
             if (!$db instanceof Connection) {
                 throw new \RuntimeException('Invalid editorial database');
             }
-            $db->transactional(static function (Connection $connection) use ($table, $entry, $id, $action, $auditValues): void {
+            $committed = $db->transactional(static function (Connection $connection) use ($table, $entry, $id, $action, $auditValues): bool {
                 try {
                     $table->saveOrFail($entry);
                     EditorialAuditTrail::record($connection, 'journal', (string)$id,
                         $action === 'save' ? 'update' : $action, $auditValues);
+                    return true;
                 } catch (Throwable $error) {
-                    throw new \RuntimeException('Journal update transaction aborted', 0, $error);
+                    error_log('Journal transaction rollback: ' . $error->getMessage());
+                    return false;
                 }
             });
+            if ($committed !== true) {
+                throw new \RuntimeException('Journal update transaction failed');
+            }
         } catch (Throwable $error) {
             error_log('Journal update failed: ' . $error->getMessage());
             return $this->response->withStatus(503)->withStringBody('Database write failed');
