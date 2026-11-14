@@ -15,9 +15,9 @@ Projekt je napsaný pro **CakePHP 5.4 / PHP 8.5.12+ / MySQL**, bez Node.js proce
 - MySQL ORM modely, migraci, administrační stránku s editací textů, CLI importér veřejného GitHubu.
 - PHPUnit testy, `phpstan.neon` s **level max**, CakeDC, strict rules, ShipMonk, CI a dokumentaci.
 
-## Důležité omezení
+## Aktuální stav ověření (15. 11. 2026)
 
-V prostředí, ve kterém byl projekt vytvořen, **není Composer a chybí některá PHP rozšíření**. Proto ZIP **neobsahuje `vendor/`**, a nebylo možné spustit CakePHP framework, MySQL, PHPUnit ani PHPStan. Proběhly kontroly syntaxe PHP a JS, striktní typová kontrola samostatného JS jádra, 165 samostatných PHP testovacích tvrzení, 13 JS regresních testů, audit 48 veřejných HTML stránek a 50 prohlížečových smoke kontrol. Zdroj tedy vyžaduje ještě instalaci balíčků a kompletní CI ověření před produkčním nasazením. Nejde o již produkčně ověřenou aplikaci.
+V repozitáři je **`composer.lock`** a [GitHub Actions běh #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069) úspěšně dokončil PHP 8.5, Composer audit, CakePHP HTTP smoke, izolované MySQL migrace, PHPUnit, PHPStan max + strict pravidla, PHPCS, JavaScript i offline browser testy. To ověřuje daný CI běh, **nikoli nasazení na cílovém hostingu**. Zdrojový ZIP stále záměrně neobsahuje `vendor/`; produkční ZIP s `vendor/` se vytváří samostatným procesem `scripts/build-release.py` až po skutečném ručním schválení veřejného obsahu a splnění všech kontrol.
 
 ## Příprava na vlastním počítači
 
@@ -41,7 +41,7 @@ V prostředí, ve kterém byl projekt vytvořen, **není Composer a chybí někt
    ```
 
 4. Otevři `http://localhost:8765/cs/`.
-5. Oprav všechny případné chyby z plné PHPStan/CI analýzy a frameworkového testování. **Nesnižuj PHPStan level ani nepřidávej baseline ignorovaných chyb jen kvůli zelenému výsledku.**
+5. Po lokálních úpravách zopakuj CI a oprav případné nové chyby. **Nesnižuj PHPStan level ani nepřidávej baseline ignorovaných chyb jen kvůli zelenému výsledku.**
 
 ## Nasazení na sdílený hosting
 
@@ -67,7 +67,7 @@ Pokud hosting používá neměnné `public_html`, přečti nejprve **`docs/DEPLO
 Po dokončení všech kontrol vytvoř na počítači s **PHP 8.5.12+**, Composerem a rozšířeními **samostatný distribuční balíček včetně vendor/**:
 
 ```sh
-composer update   # jen do vytvoření a zamknutí composer.lock
+composer install  # respektuje již verzovaný a ověřený composer.lock
 npm install --no-save --ignore-scripts typescript@5.8.3
 APP_ENV=testing DB_HOST=127.0.0.1 DB_NAME=harfusha_lab_ci DB_USER=lab_ci LAB_TEST_DB_CONFIRM=harfusha_lab_ci python3 scripts/build-release.py --output ../harfusha-lab-deploy.zip
 ```
@@ -80,7 +80,7 @@ Pro izolovaný vývoj se souběžným PHP 8.5 a MySQL můžeš použít `docker 
 
 ## Důležité před ostrým nasazením
 
-`composer.lock` zde není, protože nebylo možné skutečně stáhnout balíčky a bezpečně spočítat jejich závislosti. Vytvoř jej na PHP 8.5, projdi celý CI a až potom použij produkční builder. Ani tento balíček **není hotový ověřený produkční ZIP** — zdrojový projekt je dokončenější, ale frameworkové a databázové testy musí teprve reálně projít.
+`composer.lock` již existuje a CI na PHP 8.5 / MySQL 8.4 prošlo. **Dosud však není ověřený produkční ZIP ani cílový hosting.** Před vydáním je nutné skutečně sestavit distribuční balíček včetně `vendor/`, ručně schválit veřejný obsah, provést staging na cílovém hostingu a otestovat zálohu i obnovu databáze.
 
 ### Opětovné vytvoření kompletního zdrojového ZIPu
 
@@ -110,10 +110,10 @@ za 15 minut, atomické rezervování pokusu a bezpečné odmítnutí při chybě
 Staré soubory `auth-<sha256>.json` lze po odstavení staré verze zkontrolovat a
 ručně smazat; nové `login-*.json` zachovej. Podrobnosti: `docs/AUTH-THROTTLE.md`.
 
-Pro vygenerování chybějícího `composer.lock` lze použít ručně spuštěnou GitHub
-Actions workflow **Resolve Composer lockfile on PHP 8.5**. Výsledek zkontroluj,
-ulož do repozitáře a spusť hlavní CI; samostatná existence workflow nezaručuje
-kompatibilitu závislostí.
+Při budoucí vědomé aktualizaci `composer.lock` lze použít ručně spuštěnou GitHub
+Actions workflow **Resolve Composer lockfile on PHP 8.5**. Výsledek nejprve zkontroluj,
+poté commitni a spusť hlavní CI. Pro běžnou instalaci používej `composer install`,
+nikoliv automatický `composer update`.
 
 
 ## Novinka 14. 11. 2026: interaktivní síťové cesty
