@@ -178,6 +178,12 @@ def main() -> int:
         print('FAIL API input bounds',file=sys.stderr)
         return 1
 
+    # PHP's development server does not enforce Apache FilesMatch directives.
+    dotfile_status, dotfile_body, _ = fetch('/.htaccess')
+    if dotfile_status not in (403, 404) or b'RewriteEngine On' in dotfile_body:
+        print(f'FAIL development server exposed webroot/.htaccess: {dotfile_status}', file=sys.stderr)
+        return 1
+
     # An attacker-controlled Host must never become an accepted canonical origin.
     hostile_host = Request(BASE + '/healthz', headers={'Host': 'attacker.invalid'})
     try:
