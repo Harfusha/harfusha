@@ -43,13 +43,12 @@ Requirements: patched PHP **8.5.12+** (8.5 branch), `intl`, `mbstring`, `simplex
 cp .env.example .env
 # Development: APP_ENV=development DEBUG=true APP_URL=http://localhost:8765
 # Fill database, SECURITY_SALT and other local variables in private .env
-composer update --no-interaction --prefer-dist  # first time only, until lock exists
-composer install
+composer install --no-interaction --prefer-dist
 php bin/cake.php migrations migrate
 php bin/cake.php server -p 8765
 ```
 
-Open `http://localhost:8765/cs/` or `/en/`. Before real deployment, generate, review and commit **`composer.lock`** on an actual PHP 8.5 system. This source package does not fabricate a dependency lockfile it could not resolve.
+Open `http://localhost:8765/cs/` or `/en/`. The repository now contains a Composer lockfile resolved on a real PHP 8.5 GitHub Actions runner. Always use `composer install` against that reviewed snapshot; the source archive still does not ship `vendor/`.
 
 ### Docker development (optional)
 
@@ -91,7 +90,7 @@ node --test tests/Client/*.test.cjs
 npx --no-install tsc --noEmit --allowJs --checkJs --strict --target ES2022 --lib ES2022,DOM webroot/assets/js/lab-core.js
 ```
 
-The GitHub Actions workflow provisions PHP 8.5 and MySQL 8.4, **requires an already committed Composer lockfile**, runs all three migrations and checks both real CakePHP HTTP routes and standalone/static/JS tests. A successful CI run **has not yet been observed in this delivery**.
+The GitHub Actions workflow provisions PHP 8.5 and MySQL 8.4, **requires an already committed Composer lockfile**, runs all three migrations and checks both real CakePHP HTTP routes and standalone/static/JS tests. Static and browser CI jobs have passed; full PHP/MySQL integration and PHPStan verification are still in progress.
 
 ## Deploying on shared hosting
 
@@ -164,18 +163,14 @@ files and closes the old concurrent check-then-record race. See
 and legacy cleanup. This change has isolated tests but still needs real CakePHP
 HTTP, PHPStan and hosting verification.
 
-If you cannot generate `composer.lock` locally, GitHub Actions provides a
-**manual** `Resolve Composer lockfile on PHP 8.5` workflow. Download its
-`composer-lock-php85` artifact, review package versions/security advisories
-and commit the lockfile; the main CI intentionally refuses to resolve new
-versions on every run. Neither workflow has been run in this delivery.
+For future controlled updates to `composer.lock`, GitHub Actions provides the **manual** `Resolve Composer lockfile on PHP 8.5` workflow. Review the exported artifact and its dependency advisories before updating the tracked lockfile. The main CI intentionally runs `composer install`, not an uncontrolled dependency update. Neither workflow has been run in this delivery.
 
 ## New source-candidate hardening (14 Nov 2026)
 
 - GitHub sync has two independently tested, typed pagination collectors. Duplicates, inconsistent Search API totals, truncated pages and unexpected repository pages fail before destructive MySQL refresh. See `docs/GITHUB-IMPORT-INTEGRITY.md`.
 - A production ZIP cannot be built without explicit manual review of public content: run `python3 scripts/review-public-content.py --review` then, **after actual human review**, `--approve --reviewer '...'` interactively. The private hash receipt is excluded from every ZIP; edits invalidate it. See `docs/CONTENT-APPROVAL.md`.
 - Python review-gate tests run in CI and source ZIP building; this is not evidence that a human has approved the content.
-- Current delivery is still **source-only** and not production verified: a real PHP 8.5/Composer/MySQL runner and its lockfile are unavailable here.
+- The real PHP 8.5 runner resolved and committed `composer.lock` on 14 Nov 2026. Source archives remain **vendor-free**; production approval still requires successful migrations, PHPStan, PHPUnit and deployment checks.
 
 ### Release hardening (14 Nov 2026)
 

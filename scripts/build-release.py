@@ -54,7 +54,7 @@ def main() -> None:
         raise SystemExit('Release gate requires local/container DB_HOST')
     if os.environ.get('DB_USER', '').lower() in ('', 'root', 'admin', 'administrator'):
         raise SystemExit('Release gate requires a dedicated unprivileged DB_USER')
-    require(['php','bin/cake.php','migrations','migrate','--no-interaction'])
+    require(['php','bin/cake.php','migrations','migrate'])
     require(['composer','quality'])
     print('Gate: start actual CakePHP HTTP smoke with ephemeral admin credentials', flush=True)
     smoke_env = os.environ.copy()

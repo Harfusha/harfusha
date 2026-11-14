@@ -58,7 +58,7 @@ jobs:
           python3 scripts/audit-public.py
           python3 scripts/audit-rendered.py
       - name: Initialize real MySQL schema
-        run: php bin/cake.php migrations migrate --no-interaction
+        run: php bin/cake.php migrations migrate
       - name: Actual CakePHP HTTP middleware, CSRF and session smoke
         run: |
           export LAB_SMOKE_ADMIN_PASSWORD="$(python3 -c 'import secrets; print(secrets.token_urlsafe(36))')"

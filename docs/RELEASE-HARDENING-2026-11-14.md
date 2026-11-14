@@ -17,7 +17,7 @@ export APP_ENV=testing DEBUG=false APP_URL=http://localhost:8765
 export DB_HOST=127.0.0.1 DB_NAME=harfusha_lab_ci DB_USER=lab_ci
 export DB_PASS='<test-only-password>'
 export LAB_TEST_DB_CONFIRM=harfusha_lab_ci
-php bin/cake.php migrations migrate --no-interaction
+php bin/cake.php migrations migrate
 composer quality
 python3 -m unittest discover -s tests/Python -v
 python3 scripts/review-public-content.py --review

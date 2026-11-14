@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
-const DS = DIRECTORY_SEPARATOR;
+if (!defined('DS')) {
+    define('DS', DIRECTORY_SEPARATOR);
+}
 define('ROOT', dirname(__DIR__));
 const APP_DIR = 'src';
 define('APP', ROOT . DS . APP_DIR . DS);

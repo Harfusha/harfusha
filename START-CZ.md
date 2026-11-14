@@ -26,8 +26,7 @@ V prostředí, ve kterém byl projekt vytvořen, **není Composer a chybí někt
 3. Spusť:
 
    ```bash
-   composer update   # poprvé vygeneruje composer.lock
-   composer install
+   composer install  # použije existující ověřený composer.lock
    composer syntax
    composer standalone
    composer stan

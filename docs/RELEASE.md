@@ -24,7 +24,7 @@ python3 scripts/build-release.py --output ../harfusha-lab-deploy.zip
 The builder checks PHP and required extensions and executes:
 
 1. `composer validate --strict` and `composer audit --locked`
-2. `php bin/cake.php migrations migrate --no-interaction` na **výslovně izolované** DB s názvem zakončeným `_test`, `_testing` nebo `_ci` a hodnotou `LAB_TEST_DB_CONFIRM` shodnou s `DB_NAME` (lokální host, neprivilegovaný účet); pak `composer quality` = PHP syntax, independent tests, PHPStan, PHPUnit and CakePHP CodeSniffer
+2. `php bin/cake.php migrations migrate` na **výslovně izolované** DB s názvem zakončeným `_test`, `_testing` nebo `_ci` a hodnotou `LAB_TEST_DB_CONFIRM` shodnou s `DB_NAME` (lokální host, neprivilegovaný účet); pak `composer quality` = PHP syntax, independent tests, PHPStan, PHPUnit and CakePHP CodeSniffer
 3. public privacy and rendered HTML audits
 4. JS parser, deterministic Node tests, offline Chromium DOM smoke and strict JSDoc typecheck
 5. Kopie schváleného zdrojového stromu do izolovaného staging adresáře a Composer production install (`--no-dev`) **pouze v něm**
