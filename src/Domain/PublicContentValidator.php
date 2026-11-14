@@ -241,6 +241,9 @@ final class PublicContentValidator
         return $validated;
     }
 
+    /**
+     * Validate and normalize a published ISO date.
+     */
     private static function date(string $value, string $label): void
     {
         try {

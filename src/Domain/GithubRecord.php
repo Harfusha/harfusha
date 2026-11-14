@@ -9,6 +9,9 @@ use InvalidArgumentException;
 
 final readonly class GithubRecord
 {
+    /**
+     * Initialize the immutable domain model with validated inputs.
+     */
     public function __construct(
         public string $url,
         public string $title,

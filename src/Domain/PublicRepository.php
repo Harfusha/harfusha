@@ -11,6 +11,9 @@ use InvalidArgumentException;
 /** Public-only GitHub repository snapshot; rejects incomplete upstream data. */
 final readonly class PublicRepository
 {
+    /**
+     * Initialize the immutable domain model with validated inputs.
+     */
     public function __construct(
         public string $name,
         public string $description,

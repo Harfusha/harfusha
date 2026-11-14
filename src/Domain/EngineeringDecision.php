@@ -9,6 +9,9 @@ use InvalidArgumentException;
 /** Reviewer-approved design rationale, intentionally separate from activity metrics. */
 final readonly class EngineeringDecision
 {
+    /**
+     * Initialize the immutable domain model with validated inputs.
+     */
     public function __construct(
         public string $id,
         public string $project,
@@ -60,26 +63,41 @@ final readonly class EngineeringDecision
         return $value;
     }
 
+    /**
+     * Return the localized decision title.
+     */
     public function title(Language $lang): string
     {
         return $lang->value($this->titleCs, $this->titleEn);
     }
 
+    /**
+     * Return the localized context for this decision.
+     */
     public function context(Language $lang): string
     {
         return $lang->value($this->contextCs, $this->contextEn);
     }
 
+    /**
+     * Return the chosen implementation approach in the requested language.
+     */
     public function choice(Language $lang): string
     {
         return $lang->value($this->decisionCs, $this->decisionEn);
     }
 
+    /**
+     * Describe the localized engineering trade-offs.
+     */
     public function tradeoff(Language $lang): string
     {
         return $lang->value($this->tradeoffCs, $this->tradeoffEn);
     }
 
+    /**
+     * Return the localized evidence for the documented decision.
+     */
     public function evidence(Language $lang): string
     {
         return $lang->value($this->evidenceCs, $this->evidenceEn);

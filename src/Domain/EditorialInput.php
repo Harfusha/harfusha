@@ -12,6 +12,9 @@ use InvalidArgumentException;
  */
 final class EditorialInput
 {
+    /**
+     * Initialize the immutable domain model with validated inputs.
+     */
     private function __construct()
     {
     }
@@ -63,6 +66,9 @@ final class EditorialInput
         ];
     }
 
+    /**
+     * Parse a strictly positive persisted identifier.
+     */
     public static function positiveId(mixed $value): int
     {
         if (

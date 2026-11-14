@@ -1,1 +1,10 @@
-<?xml version="1.0"?><ruleset name="Harfusha Lab"><description>Native CakePHP standards.</description><rule ref="CakePHP"/><file>src/</file><file>tests/</file></ruleset>
+<?xml version="1.0"?>
+<ruleset name="Harfusha Lab">
+    <description>CakePHP coding standard for application and PHPUnit code.</description>
+    <rule ref="CakePHP"/>
+    <file>src/</file>
+    <file>tests/</file>
+    <!-- This self-contained fallback harness deliberately defines global polyfills and helper classes.
+         It has separate standalone and syntax tests rather than application-class naming rules. -->
+    <exclude-pattern>*/tests/standalone.php</exclude-pattern>
+</ruleset>

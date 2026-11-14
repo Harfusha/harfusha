@@ -11,6 +11,9 @@ use DateTimeImmutable;
  */
 final class OperationsStatus
 {
+    /**
+     * Initialize the immutable domain model with validated inputs.
+     */
     private function __construct()
     {
     }

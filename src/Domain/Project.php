@@ -89,16 +89,25 @@ final readonly class Project
         return $strings;
     }
 
+    /**
+     * Return the project's localized summary.
+     */
     public function summary(Language $lang): string
     {
         return $lang->value($this->summaryCs, $this->summaryEn);
     }
 
+    /**
+     * Return the localized engineering problem statement.
+     */
     public function problem(Language $lang): string
     {
         return $lang->value($this->problemCs, $this->problemEn);
     }
 
+    /**
+     * Return the localized engineering solution description.
+     */
     public function solution(Language $lang): string
     {
         return $lang->value($this->solutionCs, $this->solutionEn);

@@ -18,6 +18,9 @@ final class ProjectCatalog
      */
     private ?array $cache = null;
 
+    /**
+     * Initialize the immutable domain model with validated inputs.
+     */
     public function __construct(private readonly string $directory)
     {
     }
@@ -51,6 +54,9 @@ final class ProjectCatalog
         return (new ProjectConnections($this->read('connections.json'), $this->projects()))->edges;
     }
 
+    /**
+     * Find a public project by its canonical slug.
+     */
     public function find(string $slug): ?Project
     {
         foreach ($this->projects() as $project) {

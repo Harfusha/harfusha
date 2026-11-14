@@ -12,6 +12,9 @@ use App\Support\Language;
  */
 final readonly class PublicProjectView
 {
+    /**
+     * Initialize the immutable domain model with validated inputs.
+     */
     public function __construct(private Project $project)
     {
     }

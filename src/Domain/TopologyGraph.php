@@ -85,7 +85,8 @@ final readonly class TopologyGraph
                     $down[] = $id;
                 }
             }
-        } while (count($down) > $before);
+            $after = count($down);
+        } while ($after > $before);
 
         return $down;
     }

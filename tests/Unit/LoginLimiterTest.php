@@ -55,17 +55,15 @@ final class LoginLimiterTest extends TestCase
     public function testWindowExpiresExactlyAfterFifteenMinutes(): void
     {
         $dir = $this->directory();
-        $now = 1700000000;
-        $clock = static function () use (&$now): int {
-            return $now;
-        };
+        $clockState = (object)['now' => 1700000000];
+        $clock = static fn(): int => $clockState->now;
         $limiter = new LoginLimiter($dir, $clock);
         for ($i = 0; $i < 5; $i++) {
             self::assertTrue($limiter->consume('198.51.100.18'));
         }
-        $now += 899;
+        $clockState->now += 899;
         self::assertFalse($limiter->consume('198.51.100.18'));
-        ++$now;
+        ++$clockState->now;
         self::assertTrue($limiter->consume('198.51.100.18'));
     }
 
@@ -76,13 +74,15 @@ final class LoginLimiterTest extends TestCase
         $buckets = [];
         /** @var list<string> $sameShard */
         $sameShard = [];
-        for ($i = 0; $i < 300 && count($sameShard) < 3; $i++) {
+        $foundThree = false;
+        for ($i = 0; $i < 300 && !$foundThree; $i++) {
             $address = '198.51.100.' . $i;
             $bucket = (int)hexdec(substr(hash('sha256', $address), 0, 2)) % 32;
             $buckets[$bucket] ??= [];
             $buckets[$bucket][] = $address;
             if (count($buckets[$bucket]) === 3) {
                 $sameShard = $buckets[$bucket];
+                $foundThree = true;
             }
         }
         self::assertCount(3, $sameShard);
@@ -141,14 +141,11 @@ final class LoginLimiterTest extends TestCase
 
     public function testClockRollbackDoesNotSilentlyResetCounters(): void
     {
-        $now = 1700000000;
-        $clock = static function () use (&$now): int {
-
-            return $now;
-        };
+        $clockState = (object)['now' => 1700000000];
+        $clock = static fn(): int => $clockState->now;
         $limiter = new LoginLimiter($this->directory(), $clock);
         self::assertTrue($limiter->consume('192.0.2.40'));
-        --$now;
+        --$clockState->now;
         self::assertFalse($limiter->consume('192.0.2.40'));
         self::assertFalse($limiter->clear('192.0.2.40'));
     }
