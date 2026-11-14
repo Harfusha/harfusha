@@ -34,6 +34,7 @@ final class ApiControllerTest extends TestCase
     public function testWriteMethodsAreNotExposed(): void
     {
         $this->post('/api/v1/projects');
-        $this->assertResponseFailure();
+        // A non-routed write endpoint should be absent (404), not an internal server failure.
+        $this->assertResponseCode(404);
     }
 }

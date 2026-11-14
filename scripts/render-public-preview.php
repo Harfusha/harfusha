@@ -94,7 +94,7 @@ namespace {
             if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
                 throw new \RuntimeException('Cannot create preview directory');
             }
-            $html = (new OfflineView())->build($root . '/templates/Pages/' . $template . '.php', [
+            $html = (new OfflineView())->build($root . '/templates/Pages/' . ($template === 'open-source' ? 'open_source' : $template) . '.php', [
                 'lang' => $language, 'route' => $route, 'title' => 'Harfusha Lab',
                 'description' => 'Offline view smoke preview', ...$data,
             ]);

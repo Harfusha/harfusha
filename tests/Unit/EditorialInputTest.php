@@ -55,6 +55,6 @@ final class EditorialInputTest extends TestCase
     {
         self::assertSame(42, EditorialInput::positiveId('42'));
         $this->expectException(InvalidArgumentException::class);
-        EditorialInput::positiveId('999999999999999999');
+        EditorialInput::positiveId('9223372036854775808');
     }
 }

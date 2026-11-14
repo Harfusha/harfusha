@@ -122,7 +122,7 @@ final class PagesController extends AppController
 
     public function openSource(): Response
     {
-        return $this->show('open-source', 'Open Source | Harfusha Lab', 'Open Source | Harfusha Lab',
+        return $this->show('open_source', 'Open Source | Harfusha Lab', 'Open Source | Harfusha Lab',
             'Reálné příspěvky do dalších projektů.', 'Real upstream contributions.', '/open-source',
             ['activity' => $this->content()->activity()]);
     }
