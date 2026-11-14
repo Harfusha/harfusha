@@ -1,26 +1,25 @@
-# Testování a důkazní materiály — 13. 11. 2026
+# Testování a důkazní materiály — aktualizováno 15. 11. 2026
 
-## Co bylo skutečně ověřeno v prostředí sestavení
+## Ověřený stav a hranice důkazů
 
-| Kontrola | Výsledek | Příkaz / omezení |
-|---|---|---|
-| PHP syntaxe všech zdrojů | PASS, aktuální počet určí skript | `php scripts/syntax-check.php` — lokální PHP 8.4, **není to PHP 8.5 runtime** |
-| Pure PHP doména a šablony | PASS | `php tests/standalone.php` — skutečné počty v aktuálním výpisu |
-| Veřejná data a heuristická privacy kontrola | PASS | `python3 scripts/audit-public.py` |
-| 48 dvojjazyčných HTML stránek + interní odkazy, assets, ID | PASS | `python3 scripts/audit-rendered.py` |
-| 13 JS regresních testů | PASS | `node --test tests/Client/*.test.cjs` |
-| Syntaxe JS | PASS | `node --check webroot/assets/js/*.js` (spouštět každý soubor zvlášť) |
-| Striktní JSDoc/TS jádro simulací | Dříve provedeno; znovu ověřit v CI | `npx --no-install tsc --noEmit --allowJs --checkJs --strict ...` |
-| Skutečný Chromium offline-DOM, klávesnice, mobil | PASS: 50 kombinací stránka/viewport | `python3 tests/Browser/smoke.py --chromium=/usr/bin/chromium` |
-| CakePHP bootstrap, ORM a HTTP na PHP 8.5 | **NOT RUN** | Composer a vendor v tomto prostředí chybí |
-| MySQL/migrace/rollback | **NOT RUN** | MySQL a `pdo_mysql` chybí |
-| PHPUnit/CakePHP integrace | **NOT RUN** | Frameworkové závislosti chybí |
-| PHPStan max/strict/ShipMonk/CakeDC | **NOT RUN** | Závislosti nejsou nainstalované |
-| PHPCS | **NOT RUN** | Composer není k dispozici |
-| HTTP/HTTPS CSP ověření v prohlížeči | **NOT RUN** | Sandbox blokuje navigaci do lokálního HTTP i file URL |
-| Staging/hosting/backup-restore | **NOT RUN** | Nutné infrastrukturní přístupy a nasazení |
+[GitHub Actions běh #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069) (14. 11. 2026) prokazatelně dokončil všechny tři joby `application`, `static` a `browser-offline` se stavem **success**. Tento běh zahrnoval PHP 8.5, Composer validaci a audit, CakePHP HTTP a session/CSRF testy, izolované migrace MySQL 8.4, PHPUnit, PHPStan max + CakeDC/strict/ShipMonk, PHPCS, JS regresní testy i Chromium offline browser testy.
 
-Test v Chromium je skutečný browser test, ale záměrně vkládá skutečné vygenerované HTML/CSS/JS přímo do dokumentu. **Neprokazuje** HTTP hlavičky, cookies, Cake routování ani PHP-FPM. Screenshoty v `docs/screenshots` jsou výstupem tohoto testu, nikoliv fotografie jiných projektů.
+Tento výsledek se vztahuje **výhradně k tehdejší revizi**. Novější commity (včetně bezpečnostních a release oprav z 15. 11. 2026) vyžadují vlastní úspěšný běh CI; z tohoto dokumentu nevyplývá, že již proběhl. Lokální izolované prostředí autorování navíc nemá stejné PHP/MySQL runtime jako GitHub Actions.
+
+| Oblast | Stav | Doklad / hranice |
+| --- | --- | --- |
+| PHP 8.5, Composer a uzamčené závislosti | **PASS v uvedeném CI** | PHP 8.5 a `composer.lock`; znovu spustit po změnách |
+| PHPStan max, strict, CakeDC, ShipMonk | **PASS v uvedeném CI** | Job `application` |
+| PHPUnit, CakePHP HTTP, CSRF a sessions | **PASS v uvedeném CI** | Job `application`, dočasné testovací přihlašovací údaje |
+| Izolované MySQL 8.4 migrace | **PASS v uvedeném CI** | Není to důkaz obnovy produkční DB |
+| PHPCS | **PASS v uvedeném CI** | Job `application` |
+| JavaScript a offline Chromium | **PASS v uvedeném CI** | Joby `static`, `browser-offline` a `application` |
+| Produkční ZIP s `vendor/` | **NEOVĚŘENO** | Nutný samostatný průchod `scripts/build-release.py` |
+| Skutečný sdílený hosting, HTTPS, PHP-FPM | **NEOVĚŘENO** | Vyžaduje cílové prostředí a doménu |
+| Backup/restore a rollback | **NEOVĚŘENO** | Vyžaduje test obnovy reálných dat na stagingu |
+| Ruční schválení obsahu a obrázků | **NESCHVÁLENO** | Automatické kontroly nesmějí předstírat lidské rozhodnutí |
+
+Chromium offline testy zobrazují předem vykreslené stránky a neověřují HTTP hlavičky nebo produkční PHP-FPM. Testy skutečného CakePHP HTTP běžely nezávisle v `application` jobu. Nezaměňovat tyto dvě úrovně testů.
 
 ## Povinné CI kontroly na PHP 8.5.12+
 
@@ -61,15 +60,15 @@ python3 tests/Browser/smoke.py  # s nainstalovaným Playwright Chromium
 ## Rozšířené gate tests pro aktuální verzi
 
 - HTTP `scripts/http-smoke.py`: vyžaduje běžící opravdovou Cake aplikaci na `localhost:8765`; kontroluje GET/POST, XML parser, CSP, anti-cache a odmítnutí cron bez tokenu. Není nahrazen offline rendererem.
-- `tests/TestCase/Controller/`: frameworková IntegrationTestTrait sada pro routování a admin authorization. Bude provedena až na PHP 8.5 s CakePHP.
+- `tests/TestCase/Controller/`: frameworková IntegrationTestTrait sada pro routování a admin authorization. Tyto testy už byly provedeny ve výše uvedeném CI běhu; po nových změnách je nutné je zopakovat.
 - 7 kurátorovaných engineering decision records: validace pole, reference na katalog, dvojjazyčnost, SSR, vyhledávání v Chromiu.
 - GitHub veřejné repo API: explicitní schéma, vlastnictví, URL, timestamps, duplicity a odmítnutí privátních záznamů.
-- Editorial audit: všechny projekty a poznámky se zapisují atomicky spolu s redigovaným auditním záznamem. MySQL transakce **zatím nemají ověřený end-to-end běh**.
+- Editorial audit: všechny projekty a poznámky se zapisují atomicky spolu s redigovaným auditním záznamem. MySQL integrace proběhla v CI; produkční migrace, obnova a rollback na cílovém hostingu však ověřeny nejsou.
 
 ## Nové regresní případy
 
 - Type-safe veřejná serializace projektů: zakázané odkazy na soukromá repa, dvojjazyčné pole, stabilní kontrakt (`PublicProjectViewTest`).
-- HTTP API: pouze GET, 400 pro jiný jazyk, 404 pro neznámý slug, 304 pro `If-None-Match` (`ApiControllerTest`, `http-smoke.py`; **neprovedeno bez CakePHP**).
+- HTTP API: pouze GET, 400 pro jiný jazyk, 404 pro neznámý slug, 304 pro `If-None-Match` (`ApiControllerTest`, `http-smoke.py`; v uvedeném CI proběhlo s CakePHP).
 - Browser: zaměření SVG uzlu po redraw, šipkové přepínání ARIA tabů, CakePHP request pipeline 200/303/403 (offline Chromium).
 - ASCII STL: limitovaný sampling většího souboru bez materiálizace všech regex matchů.
 - Sitemap: 2 jazykové URL včetně `x-default`, zamítnutí chybných cest (pure PHP + PHPUnit).
@@ -81,7 +80,7 @@ python3 tests/Browser/smoke.py  # s nainstalovaným Playwright Chromium
 CakePHP controller actions and verifies persisted project overrides, MySQL
 editorial audit rows, the journal draft/public lifecycle and escaping. Run on
 **disposable migrated MySQL** only. Its source can be syntax-checked offline,
-but a PASS requires real PHP 8.5 + Composer + Cake ORM + MySQL.
+and were exercised in the cited PHP 8.5 / MySQL CI run.
 
 `tests/Unit/OperationsStatusTest.php` covers the pure operational readiness
 policy; its smaller equivalent is also tested by `tests/standalone.php`.
@@ -91,7 +90,7 @@ policy; its smaller equivalent is also tested by `tests/standalone.php`.
 `tests/standalone.php` includes a real `pcntl_fork` concurrency check where
 available, not merely a sequential mock. `tests/Unit/LoginLimiterTest.php`
 also contains deterministic clock, shard capacity, failure and file-count
-tests (their PHPUnit execution is **not verified** without Composer). The
+tests (their PHPUnit execution passed in the cited CI run). The
 limiter runs as pure PHP; see `docs/AUTH-THROTTLE.md`.
 
 ## Database destructive-test guard (14 November 2026)
