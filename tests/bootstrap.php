@@ -1,10 +1,15 @@
 <?php
 declare(strict_types=1);
 
+use App\Security\TestDatabaseGuard;
+use Cake\Datasource\ConnectionManager;
+use Cake\TestSuite\ConnectionHelper;
+use Migrations\TestSuite\Migrator;
+
 // Check the database target BEFORE loading CakePHP or running any fixtures.
 // Never trust a filename suffix as proof that the database is disposable.
 require_once dirname(__DIR__) . '/src/Security/TestDatabaseGuard.php';
-\App\Security\TestDatabaseGuard::assertSafe(
+TestDatabaseGuard::assertSafe(
     (string)(getenv('APP_ENV') ?: ''),
     (string)(getenv('DB_NAME') ?: ''),
     (string)(getenv('DB_HOST') ?: ''),
@@ -16,10 +21,10 @@ require dirname(__DIR__) . '/config/bootstrap.php';
 
 // The guard above has confirmed this is an isolated disposable database.
 // CakePHP Migrations 5 requires an explicit datasource named "test".
-$testConfig = \Cake\Datasource\ConnectionManager::getConfig('default');
+$testConfig = ConnectionManager::getConfig('default');
 if (!is_array($testConfig)) {
-    throw new \RuntimeException('Test database configuration is missing');
+    throw new RuntimeException('Test database configuration is missing');
 }
-\Cake\Datasource\ConnectionManager::setConfig('test', $testConfig);
-\Cake\TestSuite\ConnectionHelper::addTestAliases();
-(new \Migrations\TestSuite\Migrator())->run();
+ConnectionManager::setConfig('test', $testConfig);
+ConnectionHelper::addTestAliases();
+(new Migrator())->run();

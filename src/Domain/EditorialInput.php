@@ -30,6 +30,7 @@ final class EditorialInput
         if (!in_array($status, ['active', 'prototype', 'maintenance', 'archived'], true)) {
             throw new InvalidArgumentException('Invalid project status');
         }
+
         return [
             'slug' => $slug,
             'summary_cs' => self::field($data, 'summary_cs', 2000, true),
@@ -52,6 +53,7 @@ final class EditorialInput
         if (preg_match('/^[A-Za-z0-9 &-]{1,40}$/D', $category) !== 1) {
             throw new InvalidArgumentException('Invalid journal category');
         }
+
         return [
             'category' => $category,
             'title_cs' => self::field($data, 'title_cs', 240, true),
@@ -63,10 +65,13 @@ final class EditorialInput
 
     public static function positiveId(mixed $value): int
     {
-        if (!is_string($value) || preg_match('/^[1-9][0-9]{0,17}$/D', $value) !== 1 ||
-            filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
+        if (
+            !is_string($value) || preg_match('/^[1-9][0-9]{0,17}$/D', $value) !== 1 ||
+            filter_var($value, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false
+        ) {
             throw new InvalidArgumentException('Invalid ID');
         }
+
         return (int)$value;
     }
 
@@ -82,6 +87,7 @@ final class EditorialInput
                 $output[$key] = $item;
             }
         }
+
         return $output;
     }
 
@@ -97,6 +103,7 @@ final class EditorialInput
         if ($length > $maxChars || ($required && $value === '')) {
             throw new InvalidArgumentException('Invalid text length');
         }
+
         return $value;
     }
 }

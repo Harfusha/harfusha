@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace App\Test\Unit;
 
 use App\Security\TestDatabaseGuard;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 final class TestDatabaseGuardTest extends TestCase

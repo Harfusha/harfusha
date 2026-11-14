@@ -41,6 +41,7 @@ final class OperationsStatus
         } elseif (!$databaseReachable) {
             $github = 'unknown';
         }
+
         return [
             'database' => $database,
             'storage' => $storage,

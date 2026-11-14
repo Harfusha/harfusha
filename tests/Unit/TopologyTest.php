@@ -1,9 +1,12 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Test\Unit;
 
+use App\Domain\NetworkFlow;
 use App\Domain\ProjectCatalog;
 use App\Domain\TopologyGraph;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class TopologyTest extends TestCase
@@ -21,8 +24,8 @@ final class TopologyTest extends TestCase
         $invalid['path'] = ['clients', 'nas'];
         $invalid['steps_cs'] = ['A', 'B'];
         $invalid['steps_en'] = ['A', 'B'];
-        $this->expectException(\InvalidArgumentException::class);
-        \App\Domain\NetworkFlow::fromArray($invalid, $catalog->topology());
+        $this->expectException(InvalidArgumentException::class);
+        NetworkFlow::fromArray($invalid, $catalog->topology());
     }
 
     public function testDependenciesAreInternalToPublicModel(): void

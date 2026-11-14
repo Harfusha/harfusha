@@ -1,9 +1,12 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Test\Unit;
+
 use App\Domain\JournalFeed;
 use App\Support\Language;
 use PHPUnit\Framework\TestCase;
+
 final class JournalFeedTest extends TestCase
 {
     public function testXmlEscapesUserTextAndPreservesDates(): void

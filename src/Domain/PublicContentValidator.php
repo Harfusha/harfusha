@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
+use DateTimeImmutable;
+use Exception;
 use InvalidArgumentException;
 
 /**
@@ -72,6 +74,7 @@ final class PublicContentValidator
         }
         self::stringList($row, 'stack', $label, 1, 30, 70);
         self::stringList($row, 'features', $label, 1, 30, 200);
+
         return $slug;
     }
 
@@ -94,6 +97,7 @@ final class PublicContentValidator
         self::stringList($row, 'tech', $label, 0, 30, 80);
         self::stringList($row, 'services', $label, 0, 50, 100);
         self::stringList($row, 'depends', $label, 0, 30, 32);
+
         return $id;
     }
 
@@ -113,6 +117,7 @@ final class PublicContentValidator
         if (count($path) !== count($stepsCs) || count($path) !== count($stepsEn)) {
             throw new InvalidArgumentException('Public flow steps do not match path: ' . $label);
         }
+
         return $id;
     }
 
@@ -122,6 +127,7 @@ final class PublicContentValidator
         $from = self::string($row, 'from', $label, 1, 80);
         $to = self::string($row, 'to', $label, 1, 80);
         self::string($row, 'type', $label, 2, 40);
+
         return $from . '>' . $to;
     }
 
@@ -139,6 +145,7 @@ final class PublicContentValidator
             throw new InvalidArgumentException('Contribution URL/repository mismatch: ' . $label);
         }
         self::date(self::string($row, 'published_at', $label, 10, 32), $label);
+
         return $url;
     }
 
@@ -154,6 +161,7 @@ final class PublicContentValidator
         if ($link !== '' && preg_match('~^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_./%-]+)?$~D', $link) !== 1) {
             throw new InvalidArgumentException('Unsafe journal source: ' . $label);
         }
+
         return $when . '|' . self::string($row, 'title_en', $label, 1, 4000);
     }
 
@@ -167,11 +175,14 @@ final class PublicContentValidator
         foreach (['title_cs','title_en','summary_cs','summary_en','method_cs','method_en','category','related'] as $key) {
             self::string($row, $key, $label, 1, $key === 'related' ? 80 : 2000);
         }
-        if (!in_array($row['status'] ?? null, ['planned','prototype','in-use'], true) ||
-            !in_array($row['visual'] ?? null, ['spool','sun','gear','grid','code'], true)) {
+        if (
+            !in_array($row['status'] ?? null, ['planned','prototype','in-use'], true) ||
+            !in_array($row['visual'] ?? null, ['spool','sun','gear','grid','code'], true)
+        ) {
             throw new InvalidArgumentException('Unknown maker status/visual: ' . $label);
         }
         self::stringList($row, 'tags', $label, 1, 12, 60);
+
         return $id;
     }
 
@@ -180,15 +191,20 @@ final class PublicContentValidator
     {
         $id = self::string($row, 'id', $label, 2, 80);
         $project = self::string($row, 'project', $label, 2, 80);
-        if (preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $id) !== 1 ||
+        if (
+            preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $id) !== 1 ||
             preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $project) !== 1 ||
-            !in_array($row['status'] ?? null, ['documented','prototype','planned'], true)) {
+            !in_array($row['status'] ?? null, ['documented','prototype','planned'], true)
+        ) {
             throw new InvalidArgumentException('Invalid decision identifier, status or project: ' . $label);
         }
-        foreach (['title_cs','title_en','context_cs','context_en','decision_cs','decision_en',
-            'tradeoff_cs','tradeoff_en','evidence_cs','evidence_en'] as $field) {
+        foreach (
+            ['title_cs','title_en','context_cs','context_en','decision_cs','decision_en',
+            'tradeoff_cs','tradeoff_en','evidence_cs','evidence_en'] as $field
+        ) {
             self::string($row, $field, $label, 1, 1800);
         }
+
         return $id;
     }
 
@@ -203,6 +219,7 @@ final class PublicContentValidator
         if (function_exists('mb_strlen') && mb_strlen($value, 'UTF-8') > $max) {
             throw new InvalidArgumentException('Field too long ' . $key . ': ' . $label);
         }
+
         return $value;
     }
 
@@ -220,14 +237,15 @@ final class PublicContentValidator
         foreach ($items as $item) {
             $validated[] = self::string(['item' => $item], 'item', $label, 1, $maxChars);
         }
+
         return $validated;
     }
 
     private static function date(string $value, string $label): void
     {
         try {
-            $date = new \DateTimeImmutable($value);
-        } catch (\Exception $error) {
+            $date = new DateTimeImmutable($value);
+        } catch (Exception $error) {
             throw new InvalidArgumentException('Invalid date: ' . $label, 0, $error);
         }
         if ($date->format('Y') < '2000' || $date->format('Y') > '2100') {

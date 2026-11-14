@@ -1,16 +1,18 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Controller;
 
-use App\Service\ContentRepository;
 use App\Domain\JournalFeed;
-use App\Support\Language;
-use Cake\Http\Exception\NotFoundException;
+use App\Domain\PublicSitemap;
+use App\Service\ContentRepository;
 use App\Service\GithubSyncService;
 use App\Support\Html;
-use App\Domain\PublicSitemap;
+use App\Support\Language;
 use Cake\Core\Configure;
+use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
+use RuntimeException;
 use Throwable;
 
 final class SystemController extends AppController
@@ -24,8 +26,9 @@ final class SystemController extends AppController
     {
         $value = Configure::read('App.fullBaseUrl');
         if (!is_string($value) || $value === '') {
-            throw new \RuntimeException('Missing canonical application origin');
+            throw new RuntimeException('Missing canonical application origin');
         }
+
         return rtrim($value, '/');
     }
 
@@ -36,6 +39,7 @@ final class SystemController extends AppController
         foreach ((new ContentRepository())->projects() as $project) {
             $pages[] = 'projects/' . $project->slug;
         }
+
         return $this->response->withType('xml')
             ->withHeader('Cache-Control', 'public, max-age=3600, must-revalidate')
             ->withStringBody(PublicSitemap::render($origin, $pages));
@@ -52,6 +56,7 @@ final class SystemController extends AppController
             new Language($code),
             (new ContentRepository())->journal(),
         );
+
         return $this->response->withHeader('Content-Type', 'application/rss+xml; charset=UTF-8')
             ->withHeader('Cache-Control', 'public, max-age=300')
             ->withStringBody($xml);
@@ -66,9 +71,11 @@ final class SystemController extends AppController
         }
         try {
             $summary = (new GithubSyncService())->synchronize();
+
             return $this->response->withType('json')->withStringBody(Html::json($summary));
         } catch (Throwable $error) {
             error_log('GitHub synchronization failed: ' . $error->getMessage());
+
             return $this->response->withStatus(502)->withStringBody('Synchronization failed');
         }
     }

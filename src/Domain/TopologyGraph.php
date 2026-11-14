@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Domain;
 
 use InvalidArgumentException;
@@ -9,7 +10,9 @@ use InvalidArgumentException;
  */
 final readonly class TopologyGraph
 {
-    /** @var array<string,list<string>> */
+    /**
+     * @var array<string,list<string>>
+     */
     private array $dependencies;
 
     /** @param list<array<string,mixed>> $nodes */
@@ -66,6 +69,7 @@ final readonly class TopologyGraph
     /**
      * A deterministic simulated impact from losing a component.
      * Real networks may have redundancy and alternative paths not reflected here.
+     *
      * @return list<string>
      */
     public function affectedBy(string $failed): array
@@ -82,6 +86,7 @@ final readonly class TopologyGraph
                 }
             }
         } while (count($down) > $before);
+
         return $down;
     }
 }

@@ -1,7 +1,9 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Test\Unit;
 
+use App\Domain\Project;
 use App\Domain\ProjectCatalog;
 use PHPUnit\Framework\TestCase;
 
@@ -12,7 +14,7 @@ final class ProjectCatalogTest extends TestCase
         $catalog = new ProjectCatalog(ROOT . '/data');
         $projects = $catalog->projects();
         self::assertCount(13, $projects);
-        self::assertSame(count($projects), count(array_unique(array_map(static fn (\App\Domain\Project $p): string => $p->slug, $projects))));
+        self::assertSame(count($projects), count(array_unique(array_map(static fn(Project $p): string => $p->slug, $projects))));
         foreach ($projects as $project) {
             self::assertNotSame('', $project->name);
             self::assertNotSame('', $project->summaryCs);

@@ -41,6 +41,7 @@ final class PublicSitemap
                 $xml .= '</url>' . "\n";
             }
         }
+
         return $xml . '</urlset>';
     }
 

@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Service;
 
-use App\Domain\PublicRepository;
-use App\Domain\GithubSnapshot;
-use App\Domain\GithubSearchPageCollector;
 use App\Domain\GithubRepositoryPageCollector;
+use App\Domain\GithubSearchPageCollector;
+use App\Domain\GithubSnapshot;
+use App\Domain\PublicRepository;
 use Cake\Database\Connection;
 use Cake\Datasource\ConnectionManager;
 use Cake\Http\Client;
@@ -97,9 +98,12 @@ final class GithubSyncService
                     ]);
                 ++$repoCount;
             }
-            $connection->execute('INSERT INTO sync_runs (source,item_count,completed_at) VALUES (:source,:count,UTC_TIMESTAMP())',
-                ['source' => 'github', 'count' => count($records)]);
+            $connection->execute(
+                'INSERT INTO sync_runs (source,item_count,completed_at) VALUES (:source,:count,UTC_TIMESTAMP())',
+                ['source' => 'github', 'count' => count($records)],
+            );
         });
+
         return ['imported' => count($records), 'merged' => count($merged), 'issues' => count($issues), 'repositories' => $repoCount];
     }
 
@@ -113,10 +117,11 @@ final class GithubSyncService
                 break;
             }
         }
+
         return $pages->complete();
     }
 
-    /** @return array<string,mixed>|list<array<string,mixed>> */
+    /** @return list<array<string, mixed>>|array<string, mixed>*/
     private function get(string $url): array
     {
         if (!str_starts_with($url, 'https://api.github.com/')) {
@@ -143,6 +148,7 @@ final class GithubSyncService
                 /** @var array<string, mixed> $record */
                 $records[] = $record;
             }
+
             return $records;
         }
         $object = [];
@@ -152,6 +158,7 @@ final class GithubSyncService
             }
             $object[$key] = $value;
         }
+
         return $object;
     }
 }

@@ -4,10 +4,11 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Domain\OperationsStatus;
-use Cake\Datasource\ConnectionManager;
 use Cake\Database\Connection;
+use Cake\Datasource\ConnectionManager;
 use DateTimeImmutable;
 use DateTimeZone;
+use RuntimeException;
 use Throwable;
 
 /** Authenticated/CLI-only diagnostics. Never expose this output via a public route. */
@@ -23,7 +24,7 @@ final class OperationsService
             try {
                 $db = ConnectionManager::get('default');
                 if (!$db instanceof Connection) {
-                    throw new \RuntimeException('Unsupported database driver');
+                    throw new RuntimeException('Unsupported database driver');
                 }
                 $db->execute('SELECT 1');
                 $reachable = true;
@@ -40,6 +41,7 @@ final class OperationsService
                 $lastSync = null;
             }
         }
+
         return OperationsStatus::evaluate(
             $configured,
             $reachable,

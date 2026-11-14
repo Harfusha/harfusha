@@ -4,7 +4,10 @@ declare(strict_types=1);
 namespace App\Security;
 
 use Closure;
+use InvalidArgumentException;
 use JsonException;
+use stdClass;
+use Throwable;
 
 /**
  * Bounded, fail-closed login throttle for shared hosting without Redis.
@@ -24,11 +27,13 @@ final readonly class LoginLimiter
     private const int MAX_SHARD_BYTES = 262144;
     private const int DEFAULT_MAX_IDENTITIES = 512;
 
-    /** @var Closure():int */
+    /**
+     * @var \Closure():int
+     */
     private Closure $clock;
 
     /**
-     * @param (Closure():int)|null $clock Test-only deterministic clock.
+     * @param (\Closure():int)|null $clock Test-only deterministic clock.
      */
     public function __construct(
         private string $directory,
@@ -36,9 +41,9 @@ final readonly class LoginLimiter
         private int $maxIdentitiesPerShard = self::DEFAULT_MAX_IDENTITIES,
     ) {
         if ($maxIdentitiesPerShard < 1 || $maxIdentitiesPerShard > self::DEFAULT_MAX_IDENTITIES) {
-            throw new \InvalidArgumentException('Invalid per-shard identity limit');
+            throw new InvalidArgumentException('Invalid per-shard identity limit');
         }
-        $this->clock = $clock ?? static fn (): int => time();
+        $this->clock = $clock ?? static fn(): int => time();
     }
 
     /**
@@ -89,8 +94,10 @@ final readonly class LoginLimiter
             clearstatcache(true, $path);
             $pathname = @lstat($path);
             $descriptor = @fstat($handle);
-            if (!is_array($pathname) || !is_array($descriptor) ||
-                $pathname['ino'] !== $descriptor['ino'] || $pathname['dev'] !== $descriptor['dev']) {
+            if (
+                !is_array($pathname) || !is_array($descriptor) ||
+                $pathname['ino'] !== $descriptor['ino'] || $pathname['dev'] !== $descriptor['dev']
+            ) {
                 return false;
             }
             $now = ($this->clock)();
@@ -113,8 +120,9 @@ final readonly class LoginLimiter
                 $attempts[] = $now;
                 $entries[$identity] = $attempts;
             }
+
             return $this->write($handle, $entries);
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         } finally {
             @flock($handle, LOCK_UN);
@@ -125,6 +133,7 @@ final readonly class LoginLimiter
     private static function pathIsLink(string $path): bool
     {
         clearstatcache(true, $path);
+
         return is_link($path);
     }
 
@@ -141,11 +150,12 @@ final readonly class LoginLimiter
         if (!is_array($info) || ($info['mode'] & 0170000) !== 0040000) {
             return false;
         }
+
         return is_writable($this->directory);
     }
 
     /** @param resource $handle
-     *  @return array<string,list<int>>|null
+     * @return array<string,list<int>>|null
      */
     private function read($handle, int $now): ?array
     {
@@ -164,15 +174,19 @@ final readonly class LoginLimiter
         } catch (JsonException) {
             return null;
         }
-        if (!is_array($decoded) || array_is_list($decoded) && $decoded !== [] ||
-            count($decoded) > $this->maxIdentitiesPerShard) {
+        if (
+            !is_array($decoded) || array_is_list($decoded) && $decoded !== [] ||
+            count($decoded) > $this->maxIdentitiesPerShard
+        ) {
             return null;
         }
         $clean = [];
         foreach ($decoded as $key => $timestamps) {
-            if (!is_string($key) || preg_match('/^[a-f0-9]{64}$/D', $key) !== 1 ||
+            if (
+                !is_string($key) || preg_match('/^[a-f0-9]{64}$/D', $key) !== 1 ||
                 !is_array($timestamps) || !array_is_list($timestamps) ||
-                count($timestamps) > self::MAX_ATTEMPTS) {
+                count($timestamps) > self::MAX_ATTEMPTS
+            ) {
                 return null;
             }
             $recent = [];
@@ -193,15 +207,16 @@ final readonly class LoginLimiter
                 $clean[$key] = $recent;
             }
         }
+
         return $clean;
     }
 
     /** @param resource $handle
-     *  @param array<string,list<int>> $entries
+     * @param array<string,list<int>> $entries
      */
     private function write($handle, array $entries): bool
     {
-        $json = json_encode($entries === [] ? new \stdClass() : $entries, JSON_THROW_ON_ERROR);
+        $json = json_encode($entries === [] ? new stdClass() : $entries, JSON_THROW_ON_ERROR);
         if (strlen($json) > self::MAX_SHARD_BYTES || @fseek($handle, 0, SEEK_SET) !== 0 || !@ftruncate($handle, 0)) {
             return false;
         }
@@ -214,6 +229,7 @@ final readonly class LoginLimiter
             }
             $offset += $written;
         }
+
         return @fflush($handle);
     }
 }

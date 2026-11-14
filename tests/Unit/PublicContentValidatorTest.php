@@ -6,6 +6,7 @@ namespace App\Test\Unit;
 use App\Domain\PublicContentValidator;
 use Cake\TestSuite\TestCase;
 use InvalidArgumentException;
+use RuntimeException;
 
 final class PublicContentValidatorTest extends TestCase
 {
@@ -28,7 +29,7 @@ final class PublicContentValidatorTest extends TestCase
         $projects = json_decode($bytes, true, 512, JSON_THROW_ON_ERROR);
         $projects = self::rows($projects);
         if (!isset($projects[0])) {
-            throw new \RuntimeException('Expected at least one project');
+            throw new RuntimeException('Expected at least one project');
         }
         $projects[0]['private'] = true;
         $this->expectException(InvalidArgumentException::class);
@@ -49,9 +50,9 @@ final class PublicContentValidatorTest extends TestCase
     public function testDuplicateJournalContentIsRejected(): void
     {
         $entries = [[
-            'category'=>'Development','title_cs'=>'Změna','title_en'=>'Change',
-            'body_cs'=>'Text','body_en'=>'Text','source_url'=>'',
-            'published_at'=>'2026-11-12',
+            'category' => 'Development','title_cs' => 'Změna','title_en' => 'Change',
+            'body_cs' => 'Text','body_en' => 'Text','source_url' => '',
+            'published_at' => '2026-11-12',
         ]];
         $this->expectException(InvalidArgumentException::class);
         PublicContentValidator::validate('journal.json', [$entries[0],$entries[0]]);
@@ -61,25 +62,26 @@ final class PublicContentValidatorTest extends TestCase
     private static function rows(mixed $value): array
     {
         if (!is_array($value) || !array_is_list($value)) {
-            throw new \RuntimeException('Expected JSON list');
+            throw new RuntimeException('Expected JSON list');
         }
         $rows = [];
         foreach ($value as $row) {
             if (!is_array($row)) {
-                throw new \RuntimeException('Expected JSON object record');
+                throw new RuntimeException('Expected JSON object record');
             }
             /** @var array<string, mixed> $row */
             $rows[] = $row;
         }
+
         return $rows;
     }
 
     public function testMissingTopologyCoordinatesAreRejected(): void
     {
         $row = [
-            'id'=>'server','name'=>'Host','kind'=>'compute',
-            'description_cs'=>'Popis','description_en'=>'Description',
-            'tech'=>['Linux'],'services'=>[],'depends'=>[],
+            'id' => 'server','name' => 'Host','kind' => 'compute',
+            'description_cs' => 'Popis','description_en' => 'Description',
+            'tech' => ['Linux'],'services' => [],'depends' => [],
         ];
         $this->expectException(InvalidArgumentException::class);
         PublicContentValidator::validate('topology.json', [$row]);

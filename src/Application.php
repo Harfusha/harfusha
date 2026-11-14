@@ -15,6 +15,7 @@ use Cake\Http\MiddlewareQueue;
 use Cake\Http\ServerRequest;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
+use RuntimeException;
 
 final class Application extends BaseApplication
 {
@@ -30,10 +31,11 @@ final class Application extends BaseApplication
         $url = is_string($configuredUrl) ? $configuredUrl : '';
         $config = Configure::read('Error');
         if (!is_array($config)) {
-            throw new \RuntimeException('CakePHP error configuration must be an array');
+            throw new RuntimeException('CakePHP error configuration must be an array');
         }
         $csrf = new CsrfProtectionMiddleware(['httponly' => true, 'samesite' => 'Strict', 'secure' => str_starts_with($url, 'https://')]);
-        $csrf->skipCheckCallback(static fn (ServerRequest $request): bool => $request->getUri()->getPath() === '/cron/github');
+        $csrf->skipCheckCallback(static fn(ServerRequest $request): bool => $request->getUri()->getPath() === '/cron/github');
+
         return $middlewareQueue
             ->add(new SecurityHeadersMiddleware())
             ->add(new ErrorHandlerMiddleware($config, $this))

@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
-use Cake\I18n\DateTime;
 use Cake\ORM\Entity;
 
 /**
@@ -15,11 +14,13 @@ use Cake\ORM\Entity;
  * @property string $body_en
  * @property bool $is_public
  * @property string $source_url
- * @property DateTime $published_at
+ * @property \Cake\I18n\DateTime $published_at
  */
 final class JournalEntry extends Entity
 {
-    /** @var array<string,bool> */
+    /**
+     * @var array<string,bool>
+     */
     protected array $_accessible = [
         'category' => true, 'title_cs' => true, 'title_en' => true,
         'body_cs' => true, 'body_en' => true, 'is_public' => true,

@@ -14,21 +14,21 @@ final class AdminControllerTest extends TestCase
     {
         $this->get('/admin');
         $this->assertResponseOk();
-        $this->assertHeaderContains('Cache-Control','no-store');
-        $this->assertHeaderContains('X-Robots-Tag','noindex');
+        $this->assertHeaderContains('Cache-Control', 'no-store');
+        $this->assertHeaderContains('X-Robots-Tag', 'noindex');
     }
 
     public function testProjectEditFailsWithoutSession(): void
     {
         $this->enableCsrfToken();
-        $this->post('/admin/project', ['slug'=>'local-ai-hub','summary_cs'=>'x','summary_en'=>'y','status'=>'active']);
+        $this->post('/admin/project', ['slug' => 'local-ai-hub','summary_cs' => 'x','summary_en' => 'y','status' => 'active']);
         $this->assertResponseCode(403);
     }
 
     public function testJournalUpdateFailsWithoutSession(): void
     {
         $this->enableCsrfToken();
-        $this->post('/admin/journal/update', ['id'=>'1','operation'=>'publish']);
+        $this->post('/admin/journal/update', ['id' => '1','operation' => 'publish']);
         $this->assertResponseCode(403);
     }
 

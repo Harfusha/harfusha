@@ -13,8 +13,10 @@ final class PublicRoutesTest extends TestCase
 
     public function testPublicPagesAndProjectDetails(): void
     {
-        foreach (['/cs/', '/en/', '/cs/projects', '/cs/homelab', '/en/maker',
-            '/cs/connections', '/en/decisions', '/en/open-source', '/cs/journal'] as $path) {
+        foreach (
+            ['/cs/', '/en/', '/cs/projects', '/cs/homelab', '/en/maker',
+            '/cs/connections', '/en/decisions', '/en/open-source', '/cs/journal'] as $path
+        ) {
             $this->get($path);
             $this->assertResponseOk();
             $this->assertResponseContains('HARFUSHA');

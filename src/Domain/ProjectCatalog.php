@@ -13,14 +13,16 @@ use UnexpectedValueException;
  */
 final class ProjectCatalog
 {
-    /** @var list<Project>|null */
+    /**
+     * @var list<\App\Domain\Project>|null
+     */
     private ?array $cache = null;
 
     public function __construct(private readonly string $directory)
     {
     }
 
-    /** @return list<Project> */
+    /** @return list<\App\Domain\Project> */
     public function projects(): array
     {
         if ($this->cache !== null) {
@@ -39,6 +41,7 @@ final class ProjectCatalog
             $slugs[$project->slug] = true;
             $result[] = $project;
         }
+
         return $this->cache = $result;
     }
 
@@ -55,6 +58,7 @@ final class ProjectCatalog
                 return $project;
             }
         }
+
         return null;
     }
 
@@ -63,15 +67,17 @@ final class ProjectCatalog
     {
         $nodes = $this->read('topology.json');
         new TopologyGraph($nodes);
+
         return $nodes;
     }
 
-    /** @return list<NetworkFlow> */
+    /** @return list<\App\Domain\NetworkFlow> */
     public function flows(): array
     {
         $topology = $this->topology();
+
         return array_map(
-            static fn (array $row): NetworkFlow => NetworkFlow::fromArray($row, $topology),
+            static fn(array $row): NetworkFlow => NetworkFlow::fromArray($row, $topology),
             $this->read('flows.json'),
         );
     }
@@ -85,10 +91,11 @@ final class ProjectCatalog
                 throw new UnexpectedValueException('Unknown related project in maker catalogue');
             }
         }
+
         return $items;
     }
 
-    /** @return list<EngineeringDecision> */
+    /** @return list<\App\Domain\EngineeringDecision> */
     public function decisions(): array
     {
         $decisions = [];
@@ -99,6 +106,7 @@ final class ProjectCatalog
             }
             $decisions[] = $entry;
         }
+
         return $decisions;
     }
 
@@ -139,6 +147,7 @@ final class ProjectCatalog
             $records[] = $item;
         }
         PublicContentValidator::validate($file, $records);
+
         return $records;
     }
 }

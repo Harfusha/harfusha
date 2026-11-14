@@ -17,7 +17,9 @@ use Cake\ORM\Entity;
  */
 final class ProjectOverride extends Entity
 {
-    /** @var array<string,bool> */
+    /**
+     * @var array<string,bool>
+     */
     protected array $_accessible = [
         'slug' => true, 'summary_cs' => true, 'summary_en' => true,
         'problem_cs' => true, 'problem_en' => true,

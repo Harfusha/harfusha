@@ -33,12 +33,19 @@ final readonly class EngineeringDecision
     public static function fromArray(array $row): self
     {
         return new self(
-            self::textField($row, 'id'), self::textField($row, 'project'), self::textField($row, 'status'),
-            self::textField($row, 'title_cs'), self::textField($row, 'title_en'),
-            self::textField($row, 'context_cs'), self::textField($row, 'context_en'),
-            self::textField($row, 'decision_cs'), self::textField($row, 'decision_en'),
-            self::textField($row, 'tradeoff_cs'), self::textField($row, 'tradeoff_en'),
-            self::textField($row, 'evidence_cs'), self::textField($row, 'evidence_en'),
+            self::textField($row, 'id'),
+            self::textField($row, 'project'),
+            self::textField($row, 'status'),
+            self::textField($row, 'title_cs'),
+            self::textField($row, 'title_en'),
+            self::textField($row, 'context_cs'),
+            self::textField($row, 'context_en'),
+            self::textField($row, 'decision_cs'),
+            self::textField($row, 'decision_en'),
+            self::textField($row, 'tradeoff_cs'),
+            self::textField($row, 'tradeoff_en'),
+            self::textField($row, 'evidence_cs'),
+            self::textField($row, 'evidence_en'),
         );
     }
 
@@ -49,12 +56,32 @@ final readonly class EngineeringDecision
         if (!is_string($value)) {
             throw new InvalidArgumentException('Invalid decision field: ' . $key);
         }
+
         return $value;
     }
 
-    public function title(Language $lang): string { return $lang->value($this->titleCs, $this->titleEn); }
-    public function context(Language $lang): string { return $lang->value($this->contextCs, $this->contextEn); }
-    public function choice(Language $lang): string { return $lang->value($this->decisionCs, $this->decisionEn); }
-    public function tradeoff(Language $lang): string { return $lang->value($this->tradeoffCs, $this->tradeoffEn); }
-    public function evidence(Language $lang): string { return $lang->value($this->evidenceCs, $this->evidenceEn); }
+    public function title(Language $lang): string
+    {
+        return $lang->value($this->titleCs, $this->titleEn);
+    }
+
+    public function context(Language $lang): string
+    {
+        return $lang->value($this->contextCs, $this->contextEn);
+    }
+
+    public function choice(Language $lang): string
+    {
+        return $lang->value($this->decisionCs, $this->decisionEn);
+    }
+
+    public function tradeoff(Language $lang): string
+    {
+        return $lang->value($this->tradeoffCs, $this->tradeoffEn);
+    }
+
+    public function evidence(Language $lang): string
+    {
+        return $lang->value($this->evidenceCs, $this->evidenceEn);
+    }
 }

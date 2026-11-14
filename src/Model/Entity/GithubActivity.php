@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
-use Cake\I18n\DateTime;
 use Cake\ORM\Entity;
 
 /**
@@ -12,10 +11,12 @@ use Cake\ORM\Entity;
  * @property string $repository
  * @property string $kind
  * @property string $state
- * @property DateTime $published_at
+ * @property \Cake\I18n\DateTime $published_at
  */
 final class GithubActivity extends Entity
 {
-    /** Public GitHub data is written by the importer only, not mass assigned. @var array<string,bool> */
+    /**
+     * Public GitHub data is written by the importer only, not mass assigned. @var array<string,bool>
+     */
     protected array $_accessible = ['*' => false];
 }

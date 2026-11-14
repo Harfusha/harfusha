@@ -11,10 +11,14 @@ final class GithubRepositoryPageCollector
     private int $nextPage = 1;
     private bool $finished = false;
 
-    /** @var list<array<string,mixed>> */
+    /**
+     * @var list<array<string,mixed>>
+     */
     private array $records = [];
 
-    /** @var array<string,true> */
+    /**
+     * @var array<string,true>
+     */
     private array $seen = [];
 
     /**
@@ -23,8 +27,10 @@ final class GithubRepositoryPageCollector
      */
     public function append(array $response, int $page, int $maxPages): bool
     {
-        if ($this->finished || $page !== $this->nextPage || $page < 1 || $maxPages < 1 || $page > $maxPages ||
-            !array_is_list($response) || count($response) > 100) {
+        if (
+            $this->finished || $page !== $this->nextPage || $page < 1 || $maxPages < 1 || $page > $maxPages ||
+            !array_is_list($response) || count($response) > 100
+        ) {
             throw new InvalidArgumentException('Invalid GitHub repository pagination');
         }
         foreach ($response as $item) {
@@ -46,11 +52,13 @@ final class GithubRepositoryPageCollector
         $this->nextPage++;
         if (count($response) < 100) {
             $this->finished = true;
+
             return false;
         }
         if ($page === $maxPages) {
             throw new InvalidArgumentException('GitHub repository listing exceeds pagination limit');
         }
+
         return true;
     }
 
@@ -60,6 +68,7 @@ final class GithubRepositoryPageCollector
         if (!$this->finished) {
             throw new InvalidArgumentException('Repository snapshot not complete');
         }
+
         return $this->records;
     }
 }

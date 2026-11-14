@@ -23,6 +23,7 @@ final class EditorialPersistenceTest extends TestCase
         if (!$connection instanceof Connection) {
             throw new RuntimeException('Test requires a real CakePHP database connection');
         }
+
         return $connection;
     }
 
@@ -45,6 +46,7 @@ final class EditorialPersistenceTest extends TestCase
         if (!is_string($value)) {
             throw new RuntimeException('Expected text from the database');
         }
+
         return $value;
     }
 

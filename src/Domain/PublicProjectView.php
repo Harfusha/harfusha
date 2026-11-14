@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
-use App\Support\Language;
 use App\Support\Html;
+use App\Support\Language;
 
 /**
  * Allowlisted API representation: the public endpoint must never serialize

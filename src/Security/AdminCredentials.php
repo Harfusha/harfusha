@@ -12,10 +12,13 @@ final class AdminCredentials
 
     public static function verify(mixed $submitted, mixed $storedHash): bool
     {
-        if (!is_string($submitted) || $submitted === '' || strlen($submitted) > 1024 ||
-            !is_string($storedHash) || $storedHash === '') {
+        if (
+            !is_string($submitted) || $submitted === '' || strlen($submitted) > 1024 ||
+            !is_string($storedHash) || $storedHash === ''
+        ) {
             return false;
         }
+
         return password_verify($submitted, $storedHash);
     }
 }

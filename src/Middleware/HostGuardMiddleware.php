@@ -22,11 +22,14 @@ final class HostGuardMiddleware implements MiddlewareInterface
         $expectedHost = parse_url($configured, PHP_URL_HOST);
         $expectedPort = parse_url($configured, PHP_URL_PORT);
         $uri = $request->getUri();
-        if (!is_string($expectedHost) || $expectedHost === '' ||
+        if (
+            !is_string($expectedHost) || $expectedHost === '' ||
             strcasecmp($uri->getHost(), $expectedHost) !== 0 ||
-            ($uri->getPort() !== null && $expectedPort !== $uri->getPort())) {
+            ($uri->getPort() !== null && $expectedPort !== $uri->getPort())
+        ) {
             throw new BadRequestException('Unexpected host');
         }
+
         return $handler->handle($request);
     }
 }

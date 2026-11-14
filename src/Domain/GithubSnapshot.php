@@ -19,7 +19,7 @@ final class GithubSnapshot
      * @param list<array<string,mixed>> $pullRequests
      * @param list<array<string,mixed>> $mergedPullRequests
      * @param list<array<string,mixed>> $issues
-     * @return list<GithubRecord>
+     * @return list<\App\Domain\GithubRecord>
      */
     public static function externalActivity(array $pullRequests, array $mergedPullRequests, array $issues, string $author): array
     {
@@ -68,6 +68,7 @@ final class GithubSnapshot
             $record = GithubRecord::fromGithub($item, 'issue', $state);
             self::includeExternal($records, $record, $author);
         }
+
         return array_values($records);
     }
 
@@ -81,7 +82,7 @@ final class GithubSnapshot
         }
     }
 
-    /** @param array<string,GithubRecord> $records */
+    /** @param array<string,\App\Domain\GithubRecord> $records */
     private static function includeExternal(array &$records, GithubRecord $record, string $author): void
     {
         $repositoryOwner = explode('/', $record->repository, 2)[0];

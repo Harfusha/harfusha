@@ -20,6 +20,7 @@ final class LabHealthCommand extends Command
         if ($report['github_age_hours'] !== null) {
             $io->out('github age: ' . $report['github_age_hours'] . ' hours');
         }
+
         return $report['ready'] ? static::CODE_SUCCESS : static::CODE_ERROR;
     }
 }

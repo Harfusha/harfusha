@@ -6,6 +6,7 @@ namespace App\Domain;
 use App\Support\Language;
 use DateTimeImmutable;
 use DateTimeZone;
+use Exception;
 use InvalidArgumentException;
 
 /** Strict RSS 2.0 export of already-public engineering notes. No private drafts. */
@@ -39,7 +40,7 @@ final class JournalFeed
             try {
                 $date = (new DateTimeImmutable($published, new DateTimeZone('UTC')))
                     ->setTimezone(new DateTimeZone('UTC'))->format(DATE_RSS);
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 throw new InvalidArgumentException('Invalid public journal timestamp', 0, $exception);
             }
             $link = $base . '/journal';
@@ -50,6 +51,7 @@ final class JournalFeed
             $xml .= '<description>' . self::escape($body) . '</description>';
             $xml .= '<pubDate>' . self::escape($date) . '</pubDate></item>';
         }
+
         return $xml . '</channel></rss>';
     }
 

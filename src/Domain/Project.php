@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Domain;
 
 use App\Support\Language;
+use InvalidArgumentException;
 
 final readonly class Project
 {
@@ -31,10 +32,10 @@ final readonly class Project
         public string $year,
     ) {
         if (ProjectStatus::tryFrom($status) === null) {
-            throw new \InvalidArgumentException('Invalid project status');
+            throw new InvalidArgumentException('Invalid project status');
         }
         if (preg_match('/^[a-z0-9-]+$/D', $slug) !== 1) {
-            throw new \InvalidArgumentException('Invalid slug');
+            throw new InvalidArgumentException('Invalid slug');
         }
     }
 
@@ -42,12 +43,23 @@ final readonly class Project
     public static function fromArray(array $value): self
     {
         return new self(
-            self::str($value, 'slug'), self::str($value, 'name'), self::str($value, 'category'),
-            self::str($value, 'status'), (bool)($value['featured'] ?? false), (bool)($value['private'] ?? true),
-            self::str($value, 'repo'), self::str($value, 'demo'), self::str($value, 'summary_cs'),
-            self::str($value, 'summary_en'), self::str($value, 'problem_cs'), self::str($value, 'problem_en'),
-            self::str($value, 'solution_cs'), self::str($value, 'solution_en'),
-            self::strings($value, 'stack'), self::strings($value, 'features'), self::str($value, 'year'),
+            self::str($value, 'slug'),
+            self::str($value, 'name'),
+            self::str($value, 'category'),
+            self::str($value, 'status'),
+            (bool)($value['featured'] ?? false),
+            (bool)($value['private'] ?? true),
+            self::str($value, 'repo'),
+            self::str($value, 'demo'),
+            self::str($value, 'summary_cs'),
+            self::str($value, 'summary_en'),
+            self::str($value, 'problem_cs'),
+            self::str($value, 'problem_en'),
+            self::str($value, 'solution_cs'),
+            self::str($value, 'solution_en'),
+            self::strings($value, 'stack'),
+            self::strings($value, 'features'),
+            self::str($value, 'year'),
         );
     }
 
@@ -73,6 +85,7 @@ final readonly class Project
                 $strings[] = $item;
             }
         }
+
         return $strings;
     }
 

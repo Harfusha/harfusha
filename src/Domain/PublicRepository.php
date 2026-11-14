@@ -5,6 +5,7 @@ namespace App\Domain;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use Exception;
 use InvalidArgumentException;
 
 /** Public-only GitHub repository snapshot; rejects incomplete upstream data. */
@@ -41,10 +42,12 @@ final readonly class PublicRepository
             }
             $fullName = $record['full_name'] ?? null;
             $url = $record['html_url'] ?? null;
-            if (!is_string($fullName) || !is_string($url) ||
+            if (
+                !is_string($fullName) || !is_string($url) ||
                 preg_match('~^([A-Za-z0-9-]{1,39})/([A-Za-z0-9_.-]{1,100})$~D', $fullName, $match) !== 1 ||
                 strcasecmp($match[1], $account) !== 0 ||
-                $url !== 'https://github.com/' . $fullName) {
+                $url !== 'https://github.com/' . $fullName
+            ) {
                 throw new InvalidArgumentException('Untrusted repository identity');
             }
             if ($fork) {
@@ -56,7 +59,7 @@ final readonly class PublicRepository
             }
             try {
                 $when = new DateTimeImmutable($pushed);
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 throw new InvalidArgumentException('Invalid repository timestamp', 0, $exception);
             }
             $description = $record['description'] ?? null;
@@ -81,6 +84,7 @@ final readonly class PublicRepository
         if ($result === []) {
             throw new InvalidArgumentException('Empty public repository listing; previous cache preserved');
         }
+
         return array_values($result);
     }
 }

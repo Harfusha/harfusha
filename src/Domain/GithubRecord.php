@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Domain;
 
 use DateTimeImmutable;
@@ -40,8 +41,14 @@ final readonly class GithubRecord
         if (!is_string($title) || $title === '') {
             throw new InvalidArgumentException('Missing event title');
         }
-        return new self($url, mb_substr($title, 0, 250),
-            $parts[1] . '/' . $parts[2], $kind, $state,
-            $created->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s'));
+
+        return new self(
+            $url,
+            mb_substr($title, 0, 250),
+            $parts[1] . '/' . $parts[2],
+            $kind,
+            $state,
+            $created->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s'),
+        );
     }
 }

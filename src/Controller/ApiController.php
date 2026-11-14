@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Domain\PublicProjectView;
 use App\Domain\Project;
+use App\Domain\PublicProjectView;
 use App\Service\ContentRepository;
 use App\Support\Html;
 use App\Support\Language;
@@ -22,7 +22,7 @@ final class ApiController extends AppController
     {
         $language = $this->language();
         $records = array_map(
-            static fn (Project $project): array => (new PublicProjectView($project))->toArray($language),
+            static fn(Project $project): array => (new PublicProjectView($project))->toArray($language),
             (new ContentRepository())->projects(),
         );
 

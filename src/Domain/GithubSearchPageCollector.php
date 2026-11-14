@@ -16,10 +16,14 @@ final class GithubSearchPageCollector
     private int $nextPage = 1;
     private bool $finished = false;
 
-    /** @var list<array<string,mixed>> */
+    /**
+     * @var list<array<string,mixed>>
+     */
     private array $records = [];
 
-    /** @var array<string,true> */
+    /**
+     * @var array<string,true>
+     */
     private array $seen = [];
 
     /**
@@ -33,8 +37,10 @@ final class GithubSearchPageCollector
         }
         $items = $response['items'] ?? null;
         $count = $response['total_count'] ?? null;
-        if (!is_array($items) || !array_is_list($items) || count($items) > 100 ||
-            ($response['incomplete_results'] ?? null) !== false || !is_int($count) || $count < 0 || $count > 1000) {
+        if (
+            !is_array($items) || !array_is_list($items) || count($items) > 100 ||
+            ($response['incomplete_results'] ?? null) !== false || !is_int($count) || $count < 0 || $count > 1000
+        ) {
             throw new InvalidArgumentException('Malformed or incomplete GitHub Search page');
         }
         if ($this->total !== null && $count !== $this->total) {
@@ -63,11 +69,13 @@ final class GithubSearchPageCollector
         $this->nextPage++;
         if ($size === $count) {
             $this->finished = true;
+
             return false;
         }
         if ($page === $maxPages) {
             throw new InvalidArgumentException('GitHub Search results exceed the page budget');
         }
+
         return true;
     }
 
@@ -77,6 +85,7 @@ final class GithubSearchPageCollector
         if (!$this->finished || $this->total === null || count($this->records) !== $this->total) {
             throw new InvalidArgumentException('GitHub Search snapshot is incomplete');
         }
+
         return $this->records;
     }
 }

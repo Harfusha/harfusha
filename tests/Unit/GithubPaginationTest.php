@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace App\Test\Unit;
 
-use App\Domain\GithubSearchPageCollector;
 use App\Domain\GithubRepositoryPageCollector;
+use App\Domain\GithubSearchPageCollector;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
@@ -23,7 +23,7 @@ final class GithubPaginationTest extends TestCase
     }
 
     /** @param list<array<string,mixed>> $items
-     *  @return array<string,mixed>
+     * @return array<string,mixed>
      */
     private static function page(array $items, int $count): array
     {

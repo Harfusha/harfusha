@@ -71,12 +71,15 @@ final readonly class NetworkFlow
             $previous = $path[$index - 1] ?? null;
             $previousNeighbors = $previous !== null ? ($neighbors[$previous] ?? null) : null;
             $currentNeighbors = $neighbors[$nodeId];
-            if ($previous === null || $previousNeighbors === null ||
+            if (
+                $previous === null || $previousNeighbors === null ||
                 $previous === $nodeId ||
-                (!in_array($previous, $currentNeighbors, true) && !in_array($nodeId, $previousNeighbors, true))) {
+                (!in_array($previous, $currentNeighbors, true) && !in_array($nodeId, $previousNeighbors, true))
+            ) {
                 throw new InvalidArgumentException('Public flow includes a disconnected hop');
             }
         }
+
         return new self($id, $titleCs, $titleEn, $descriptionCs, $descriptionEn, $path, $cs, $en);
     }
 
@@ -97,6 +100,7 @@ final readonly class NetworkFlow
         if (!is_string($value) || trim($value) === '' || mb_strlen($value, 'UTF-8') > 600) {
             throw new InvalidArgumentException('Invalid public flow text: ' . $key);
         }
+
         return $value;
     }
 
@@ -113,6 +117,7 @@ final readonly class NetworkFlow
             }
             $result[] = $item;
         }
+
         return $result;
     }
 }

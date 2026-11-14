@@ -1,21 +1,23 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Controller;
 
-use App\Security\LoginLimiter;
-use App\Security\AdminCredentials;
 use App\Domain\EditorialInput;
-use InvalidArgumentException;
-use App\Service\ContentRepository;
-use App\Service\OperationsService;
-use App\Service\EditorialAuditTrail;
-use App\Model\Table\ProjectOverridesTable;
 use App\Model\Table\JournalEntriesTable;
-use Cake\Http\Response;
-use Cake\ORM\TableRegistry;
+use App\Model\Table\ProjectOverridesTable;
+use App\Security\AdminCredentials;
+use App\Security\LoginLimiter;
+use App\Service\ContentRepository;
+use App\Service\EditorialAuditTrail;
+use App\Service\OperationsService;
 use Cake\Database\Connection;
 use Cake\Datasource\ConnectionManager;
+use Cake\Http\Response;
+use Cake\ORM\TableRegistry;
 use DateTimeImmutable;
+use InvalidArgumentException;
+use RuntimeException;
 use Throwable;
 
 final class AdminController extends AppController
@@ -32,6 +34,7 @@ final class AdminController extends AppController
             return '';
         }
         $value = trim($value);
+
         return mb_strlen($value, 'UTF-8') <= $max ? $value : '';
     }
 
@@ -45,6 +48,7 @@ final class AdminController extends AppController
         if (!$this->authenticated()) {
             $this->set('enabled', is_string(getenv('ADMIN_PASSWORD_HASH')) && getenv('ADMIN_PASSWORD_HASH') !== '');
             $this->set('loginError', $this->request->getQuery('error') !== null);
+
             return $this->render('login');
         }
         $content = new ContentRepository();
@@ -53,6 +57,7 @@ final class AdminController extends AppController
         $this->set('journalEntries', $content->editorialJournal());
         $this->set('auditEntries', $content->editorialAudit());
         $this->set('operations', (new OperationsService())->report());
+
         return $this->render('index');
     }
 
@@ -79,6 +84,7 @@ final class AdminController extends AppController
         $session = $this->request->getSession();
         $session->renew();
         $session->write('lab.admin', true);
+
         return $this->redirect('/admin', 303) ?? $this->response;
     }
 
@@ -86,6 +92,7 @@ final class AdminController extends AppController
     {
         $this->request->getSession()->delete('lab.admin');
         $this->request->getSession()->renew();
+
         return $this->redirect('/admin', 303) ?? $this->response;
     }
 
@@ -108,25 +115,29 @@ final class AdminController extends AppController
             $record = $table->find()->where(['slug' => $data['slug']])->first() ?? $table->newEmptyEntity();
             $db = ConnectionManager::get('default');
             if (!$db instanceof Connection) {
-                throw new \RuntimeException('Invalid editorial database');
+                throw new RuntimeException('Invalid editorial database');
             }
             $committed = $db->transactional(static function (Connection $connection) use ($table, $record, $data): bool {
                 try {
                     $table->saveOrFail($table->patchEntity($record, $data));
                     EditorialAuditTrail::record($connection, 'project', $data['slug'], 'update', $data);
+
                     return true;
                 } catch (Throwable $error) {
                     error_log('Project transaction rollback: ' . $error->getMessage());
+
                     return false;
                 }
             });
             if ($committed !== true) {
-                throw new \RuntimeException('Project transaction failed');
+                throw new RuntimeException('Project transaction failed');
             }
         } catch (Throwable $error) {
             error_log('Project update failed: ' . $error->getMessage());
+
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
+
         return $this->redirect('/admin?saved=1', 303) ?? $this->response;
     }
 
@@ -150,7 +161,7 @@ final class AdminController extends AppController
             ]);
             $db = ConnectionManager::get('default');
             if (!$db instanceof Connection) {
-                throw new \RuntimeException('Invalid editorial database');
+                throw new RuntimeException('Invalid editorial database');
             }
             $committed = $db->transactional(static function (Connection $connection) use ($table, $record, $values): bool {
                 try {
@@ -160,19 +171,23 @@ final class AdminController extends AppController
                         return false;
                     }
                     EditorialAuditTrail::record($connection, 'journal', (string)$id, 'create', $values);
+
                     return true;
                 } catch (Throwable $error) {
                     error_log('Journal transaction rollback: ' . $error->getMessage());
+
                     return false;
                 }
             });
             if ($committed !== true) {
-                throw new \RuntimeException('Journal transaction failed');
+                throw new RuntimeException('Journal transaction failed');
             }
         } catch (Throwable $error) {
             error_log('Journal update failed: ' . $error->getMessage());
+
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
+
         return $this->redirect('/admin?saved=1', 303) ?? $this->response;
     }
 
@@ -219,27 +234,35 @@ final class AdminController extends AppController
             }
             $db = ConnectionManager::get('default');
             if (!$db instanceof Connection) {
-                throw new \RuntimeException('Invalid editorial database');
+                throw new RuntimeException('Invalid editorial database');
             }
             $committed = $db->transactional(static function (Connection $connection) use ($table, $entry, $id, $action, $auditValues): bool {
                 try {
                     $table->saveOrFail($entry);
-                    EditorialAuditTrail::record($connection, 'journal', (string)$id,
-                        $action === 'save' ? 'update' : $action, $auditValues);
+                    EditorialAuditTrail::record(
+                        $connection,
+                        'journal',
+                        (string)$id,
+                        $action === 'save' ? 'update' : $action,
+                        $auditValues,
+                    );
+
                     return true;
                 } catch (Throwable $error) {
                     error_log('Journal transaction rollback: ' . $error->getMessage());
+
                     return false;
                 }
             });
             if ($committed !== true) {
-                throw new \RuntimeException('Journal update transaction failed');
+                throw new RuntimeException('Journal update transaction failed');
             }
         } catch (Throwable $error) {
             error_log('Journal update failed: ' . $error->getMessage());
+
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
+
         return $this->redirect('/admin?saved=1', 303) ?? $this->response;
     }
-
 }

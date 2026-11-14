@@ -5,10 +5,13 @@ namespace App\Test\Unit;
 
 use App\Security\LoginLimiter;
 use Cake\TestSuite\TestCase;
+use RuntimeException;
 
 final class LoginLimiterTest extends TestCase
 {
-    /** @var list<string> */
+    /**
+     * @var list<string>
+     */
     private array $directories = [];
 
     protected function tearDown(): void
@@ -16,7 +19,7 @@ final class LoginLimiterTest extends TestCase
         foreach ($this->directories as $directory) {
             $files = glob($directory . '/*');
             if ($files === false) {
-                throw new \RuntimeException('Could not enumerate test limiter files');
+                throw new RuntimeException('Could not enumerate test limiter files');
             }
             foreach ($files as $file) {
                 unlink($file);
@@ -32,6 +35,7 @@ final class LoginLimiterTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/harfusha-rate-' . bin2hex(random_bytes(8));
         $this->directories[] = $dir;
+
         return $dir;
     }
 
@@ -138,7 +142,10 @@ final class LoginLimiterTest extends TestCase
     public function testClockRollbackDoesNotSilentlyResetCounters(): void
     {
         $now = 1700000000;
-        $clock = static function () use (&$now): int { return $now; };
+        $clock = static function () use (&$now): int {
+
+            return $now;
+        };
         $limiter = new LoginLimiter($this->directory(), $clock);
         self::assertTrue($limiter->consume('192.0.2.40'));
         --$now;

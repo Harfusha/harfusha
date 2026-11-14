@@ -5,18 +5,18 @@ namespace App\Service;
 
 use App\Domain\Project;
 use App\Domain\ProjectCatalog;
-use App\Model\Table\ProjectOverridesTable;
-use App\Model\Table\JournalEntriesTable;
 use App\Model\Table\GithubActivityTable;
 use App\Model\Table\GithubPublicReposTable;
+use App\Model\Table\JournalEntriesTable;
+use App\Model\Table\ProjectOverridesTable;
 use App\Model\Table\SyncRunsTable;
 use Cake\Core\Configure;
-use Cake\Datasource\ConnectionManager;
 use Cake\Database\Connection;
-use UnexpectedValueException;
+use Cake\Datasource\ConnectionManager;
 use Cake\ORM\TableRegistry;
 use DateTimeInterface;
 use Throwable;
+use UnexpectedValueException;
 
 /** ORM enrichment of a private, reviewed, static source of truth. */
 final class ContentRepository
@@ -28,7 +28,7 @@ final class ContentRepository
         $this->catalog = $catalog ?? new ProjectCatalog(ROOT . '/data');
     }
 
-    /** @return list<Project> */
+    /** @return list<\App\Domain\Project> */
     public function projects(): array
     {
         $base = $this->catalog->projects();
@@ -44,6 +44,7 @@ final class ContentRepository
                     $overrides[$slug] = $row;
                 }
             }
+
             return array_map(static function (Project $project) use ($overrides): Project {
                 $override = $overrides[$project->slug] ?? null;
                 if ($override === null) {
@@ -59,20 +60,30 @@ final class ContentRepository
                 if (!is_string($summaryCs) || !is_string($summaryEn) || !is_string($status)) {
                     return $project;
                 }
+
                 return new Project(
-                    $project->slug, $project->name, $project->category, $status,
-                    $project->featured, $project->private, $project->repo, $project->demo,
-                    $summaryCs, $summaryEn,
+                    $project->slug,
+                    $project->name,
+                    $project->category,
+                    $status,
+                    $project->featured,
+                    $project->private,
+                    $project->repo,
+                    $project->demo,
+                    $summaryCs,
+                    $summaryEn,
                     is_string($problemCs) && $problemCs !== '' ? $problemCs : $project->problemCs,
                     is_string($problemEn) && $problemEn !== '' ? $problemEn : $project->problemEn,
                     is_string($solutionCs) && $solutionCs !== '' ? $solutionCs : $project->solutionCs,
                     is_string($solutionEn) && $solutionEn !== '' ? $solutionEn : $project->solutionEn,
                     $project->stack,
-                    $project->features, $project->year,
+                    $project->features,
+                    $project->year,
                 );
             }, $base);
         } catch (Throwable $error) {
             error_log('Project catalogue ORM fallback: ' . $error->getMessage());
+
             return $base;
         }
     }
@@ -92,6 +103,7 @@ final class ContentRepository
             $relatedSlug = $edge['from'] === $slug ? $edge['to'] : $edge['from'];
             $results[] = ['slug' => $relatedSlug, 'name' => $titles[$relatedSlug] ?? $relatedSlug, 'type' => $edge['type']];
         }
+
         return $results;
     }
 
@@ -108,6 +120,7 @@ final class ContentRepository
                 return $project;
             }
         }
+
         return null;
     }
 
@@ -157,10 +170,11 @@ final class ContentRepository
             }
         }
         // Editorial changes should appear immediately in the latest workshop feed.
-        usort($rows, static fn (array $a, array $b): int => strcmp(
+        usort($rows, static fn(array $a, array $b): int => strcmp(
             is_string($b['published_at'] ?? null) ? $b['published_at'] : '',
             is_string($a['published_at'] ?? null) ? $a['published_at'] : '',
         ));
+
         return $rows;
     }
 
@@ -188,11 +202,13 @@ final class ContentRepository
                 error_log('Activity ORM fallback: ' . $error->getMessage());
             }
         }
+
         return $this->catalog->contributions();
     }
 
     /**
      * Publication provenance, not an invented real-time server status.
+     *
      * @return array{source:string,last_sync:?string}
      */
     public function githubProvenance(): array
@@ -203,6 +219,7 @@ final class ContentRepository
                     ->find()->where(['source' => 'github'])->orderByDesc('completed_at')->first();
                 if ($run !== null) {
                     $time = $run->get('completed_at');
+
                     return [
                         'source' => 'github-public-api',
                         'last_sync' => $time instanceof DateTimeInterface ? $time->format('Y-m-d H:i:s') . ' UTC' : null,
@@ -212,6 +229,7 @@ final class ContentRepository
                 error_log('Sync provenance unavailable: ' . $error->getMessage());
             }
         }
+
         return ['source' => 'reviewed-snapshot', 'last_sync' => null];
     }
 
@@ -239,6 +257,7 @@ final class ContentRepository
                 error_log('Repo feed ORM fallback: ' . $error->getMessage());
             }
         }
+
         return [
             ['repository' => 'Harfusha/MutaUI', 'description' => 'GitHub snapshot 2026-11-12', 'repo_url' => 'https://github.com/Harfusha/MutaUI', 'pushed_at' => '2026-11-12 18:53:55'],
             ['repository' => 'Harfusha/local-ai-hub', 'description' => 'GitHub snapshot 2026-11-12', 'repo_url' => 'https://github.com/Harfusha/local-ai-hub', 'pushed_at' => '2026-11-12 11:45:05'],
@@ -266,15 +285,18 @@ final class ContentRepository
                     'is_public' => $entry->get('is_public') === true || $entry->get('is_public') === 1,
                 ];
             }
+
             return $result;
         } catch (Throwable $error) {
             error_log('Editorial journal could not be listed: ' . $error->getMessage());
+
             return [];
         }
     }
 
     /**
      * Redacted, append-only editorial change receipts; content is never duplicated.
+     *
      * @return list<array{type:string,key:string,action:string,date:string,digest:string}>
      */
     public function editorialAudit(): array
@@ -302,9 +324,11 @@ final class ContentRepository
                     'digest' => self::requiredString($row['content_digest'] ?? null, 'content_digest'),
                 ];
             }
+
             return $output;
         } catch (Throwable $error) {
             error_log('Editorial audit history unavailable: ' . $error->getMessage());
+
             return [];
         }
     }
@@ -314,6 +338,7 @@ final class ContentRepository
         if (!is_string($value)) {
             throw new UnexpectedValueException('Invalid persisted string: ' . $column);
         }
+
         return $value;
     }
 

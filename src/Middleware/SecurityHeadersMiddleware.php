@@ -34,6 +34,7 @@ final class SecurityHeadersMiddleware implements MiddlewareInterface
         if (str_starts_with($path, '/admin') || str_starts_with($path, '/cron')) {
             $response = $response->withHeader('Cache-Control', 'no-store, private');
         }
+
         return $response;
     }
 }
