@@ -35,7 +35,7 @@ composer cs-check
 node --check webroot/assets/js/app.js
 ```
 
-**Do not deploy if any check fails.** To prepare a production build after the gates are green:
+**Do not deploy if any check fails.** To prepare a production build after the gates are green **and human public-content approval has been recorded**:
 
 ```sh
 # Na build stroji s úspěšnými testy a schváleným veřejným obsahem:
@@ -112,6 +112,10 @@ If the host only supports URL cron, configure `CRON_SECRET` and send an HTTPS PO
 - Set `APP_ENV=production`, `DEBUG=false`, HTTPS and verify no debug pages.
 - View page source / Network panel: no internal addresses, passwords, `.env`, vendor directories or unexpected third-party calls.
 - Test backup and restore of MySQL database, config and content.
+- Confirm PHP-FPM and Apache use the **same patched PHP branch** as CLI; verify needed extensions and permissions under the real hosting account.
+- Download the freshly built archive and run `python3 scripts/verify_archive.py <path-to-zip> --variant production` before upload.
+- Verify development-server-specific dotfile protection is not used as a substitute for Apache access controls; request `/.env`, `/.htaccess`, `/composer.lock`, and `/vendor/autoload.php` from staging and ensure none disclose file contents.
+- Confirm the deployment has the exact same source revision as the reviewed ZIP, and record rollback instructions before DNS cutover.
 
 ## Rollback
 
@@ -120,7 +124,7 @@ Keep the previous directory intact, replace only application release files atomi
 
 ## Revised production packaging and upgrade
 
-1. On real PHP 8.5.12+ with Composer, create and review `composer.lock`; CI must show green PHPStan/PHPCS/PHPUnit/MySQL.
+1. Use the committed, reviewed `composer.lock` via `composer install` on PHP 8.5.12+; require a fresh green PHPStan/PHPCS/PHPUnit/MySQL CI run for the release commit.
 2. If upgrading from the initial source candidate, run **all three** migrations. `20261112000200_AddEditorialFields.php` adds nullable project narrative fields and `20261113000100_AddEditorialAudit.php` adds audit receipts; do not use `db/schema.sql` for migration on an already populated database.
 3. On a suitable local CI build machine, install TypeScript 5.8.3 for the client-core strict type check and run `python3 scripts/build-release.py --output ../harfusha-lab-deploy.zip`. This script runs all configured quality gates and then installs production-only packages.
 4. Test the deployable ZIP on **staging**, compare behavior under target PHP-FPM and MySQL, test cron and backups and only then deploy. Do not upload `compose.dev.yml` or its test credentials.
