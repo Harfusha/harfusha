@@ -14,7 +14,12 @@ require_once dirname(__DIR__) . '/src/Security/TestDatabaseGuard.php';
 require dirname(__DIR__) . '/vendor/autoload.php';
 require dirname(__DIR__) . '/config/bootstrap.php';
 
-// All integration tests use the explicitly confirmed disposable test database.
-// CakePHP fixture connections and schema must be initialized after the guard.
+// The guard above has confirmed this is an isolated disposable database.
+// CakePHP Migrations 5 requires an explicit datasource named "test".
+$testConfig = \Cake\Datasource\ConnectionManager::getConfig('default');
+if (!is_array($testConfig)) {
+    throw new \RuntimeException('Test database configuration is missing');
+}
+\Cake\Datasource\ConnectionManager::setConfig('test', $testConfig);
 \Cake\TestSuite\ConnectionHelper::addTestAliases();
 (new \Migrations\TestSuite\Migrator())->run();
