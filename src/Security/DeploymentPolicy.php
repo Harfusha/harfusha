@@ -31,8 +31,9 @@ final class DeploymentPolicy
             throw new InvalidArgumentException('Production requires a cryptographically random hexadecimal salt');
         }
         $parts = parse_url($origin);
+        $host = is_array($parts) ? ($parts['host'] ?? null) : null;
         if (!is_array($parts) || ($parts['scheme'] ?? null) !== 'https' ||
-            !is_string($parts['host'] ?? null) || ($parts['host'] ?? '') === '' ||
+            !is_string($host) || $host === '' ||
             isset($parts['path']) || isset($parts['query']) || isset($parts['fragment']) ||
             isset($parts['user']) || isset($parts['pass']) ||
             filter_var($origin, FILTER_VALIDATE_URL) === false) {

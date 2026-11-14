@@ -20,9 +20,18 @@ final class SystemController extends AppController
         return $this->response->withType('text')->withHeader('Cache-Control', 'no-store')->withStringBody('ok');
     }
 
+    private function origin(): string
+    {
+        $value = Configure::read('App.fullBaseUrl');
+        if (!is_string($value) || $value === '') {
+            throw new \RuntimeException('Missing canonical application origin');
+        }
+        return rtrim($value, '/');
+    }
+
     public function sitemap(): Response
     {
-        $origin = rtrim((string)Configure::read('App.fullBaseUrl'), '/');
+        $origin = $this->origin();
         $pages = ['', 'projects','connections','decisions','homelab','maker','playground','open-source','now','journal','about'];
         foreach ((new ContentRepository())->projects() as $project) {
             $pages[] = 'projects/' . $project->slug;
@@ -39,7 +48,7 @@ final class SystemController extends AppController
             throw new NotFoundException();
         }
         $xml = JournalFeed::render(
-            rtrim((string)Configure::read('App.fullBaseUrl'), '/'),
+            $this->origin(),
             new Language($code),
             (new ContentRepository())->journal(),
         );

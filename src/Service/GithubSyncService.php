@@ -23,7 +23,8 @@ final class GithubSyncService
     public function __construct(?Client $http = null)
     {
         $this->http = $http ?? new Client();
-        $author = getenv('GITHUB_LOGIN') ?: 'Harfusha';
+        $configuredAuthor = getenv('GITHUB_LOGIN');
+        $author = is_string($configuredAuthor) && $configuredAuthor !== '' ? $configuredAuthor : 'Harfusha';
         if (preg_match('/^[A-Za-z0-9-]{1,39}$/D', $author) !== 1) {
             throw new RuntimeException('Invalid GitHub username');
         }

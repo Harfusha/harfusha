@@ -26,7 +26,8 @@ final class SecurityHeadersMiddleware implements MiddlewareInterface
                 "form-action 'self'", "script-src 'self'", "style-src 'self'",
                 "img-src 'self' data: blob:", "font-src 'self'", "connect-src 'self'",
             ]));
-        if (str_starts_with((string)Configure::read('App.fullBaseUrl'), 'https://')) {
+        $origin = Configure::read('App.fullBaseUrl');
+        if (is_string($origin) && str_starts_with($origin, 'https://')) {
             $response = $response->withHeader('Strict-Transport-Security', 'max-age=31536000');
         }
         $path = $request->getUri()->getPath();

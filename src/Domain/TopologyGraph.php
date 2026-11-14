@@ -44,14 +44,21 @@ final readonly class TopologyGraph
         $this->dependencies = $deps;
     }
 
-    /** @param array<string,list<string>> $deps @param list<string> $path */
+    /**
+     * @param array<string,list<string>> $deps
+     * @param list<string> $path
+     */
     private function assertAcyclic(string $id, array $deps, array $path): void
     {
         if (in_array($id, $path, true)) {
             throw new InvalidArgumentException('Cyclic public topology');
         }
         $path[] = $id;
-        foreach ($deps[$id] as $related) {
+        $dependencies = $deps[$id] ?? null;
+        if ($dependencies === null) {
+            throw new InvalidArgumentException('Unknown dependency node');
+        }
+        foreach ($dependencies as $related) {
             $this->assertAcyclic($related, $deps, $path);
         }
     }

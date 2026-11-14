@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Domain\OperationsStatus;
 use Cake\Datasource\ConnectionManager;
+use Cake\Database\Connection;
 use DateTimeImmutable;
 use DateTimeZone;
 use Throwable;
@@ -21,6 +22,9 @@ final class OperationsService
         if ($configured) {
             try {
                 $db = ConnectionManager::get('default');
+                if (!$db instanceof Connection) {
+                    throw new \RuntimeException('Unsupported database driver');
+                }
                 $db->execute('SELECT 1');
                 $reachable = true;
                 $row = $db->execute('SELECT MAX(completed_at) AS last_sync FROM sync_runs WHERE source = :source', [

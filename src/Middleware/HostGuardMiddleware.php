@@ -15,7 +15,10 @@ final class HostGuardMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $configured = (string)Configure::read('App.fullBaseUrl');
+        $configured = Configure::read('App.fullBaseUrl');
+        if (!is_string($configured)) {
+            throw new BadRequestException('Invalid configured origin');
+        }
         $expectedHost = parse_url($configured, PHP_URL_HOST);
         $expectedPort = parse_url($configured, PHP_URL_PORT);
         $uri = $request->getUri();

@@ -49,20 +49,22 @@ final class PublicContentValidator
         foreach (['name','category','status','year','repo','demo','summary_cs','summary_en','problem_cs','problem_en','solution_cs','solution_en'] as $field) {
             self::string($row, $field, $label, in_array($field, ['repo','demo'], true) ? 0 : 1, 3000);
         }
-        if (!is_bool($row['featured'] ?? null) || !is_bool($row['private'] ?? null)) {
+        $featured = $row['featured'] ?? null;
+        $isPrivate = $row['private'] ?? null;
+        if (!is_bool($featured) || !is_bool($isPrivate)) {
             throw new InvalidArgumentException('Project privacy and feature flags must be boolean: ' . $label);
         }
-        if (ProjectStatus::tryFrom((string)$row['status']) === null) {
+        if (ProjectStatus::tryFrom(self::string($row, 'status', $label, 1, 20)) === null) {
             throw new InvalidArgumentException('Unknown project status: ' . $label);
         }
-        if (preg_match('/^20\d{2}$/D', (string)$row['year']) !== 1) {
+        if (preg_match('/^20\d{2}$/D', self::string($row, 'year', $label, 4, 4)) !== 1) {
             throw new InvalidArgumentException('Invalid project year: ' . $label);
         }
-        if (!in_array($row['demo'], ['','ai','sync','world','cad','homelab'], true)) {
+        if (!in_array(self::string($row, 'demo', $label, 0, 30), ['','ai','sync','world','cad','homelab'], true)) {
             throw new InvalidArgumentException('Unknown project demonstration: ' . $label);
         }
-        $repo = (string)$row['repo'];
-        if ($row['private'] === true && $repo !== '') {
+        $repo = self::string($row, 'repo', $label, 0, 255);
+        if ($isPrivate && $repo !== '') {
             throw new InvalidArgumentException('Private repository link is forbidden: ' . $label);
         }
         if ($repo !== '' && preg_match('~^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+$~D', $repo) !== 1) {
@@ -105,10 +107,10 @@ final class PublicContentValidator
         foreach (['title_cs','title_en','description_cs','description_en'] as $key) {
             self::string($row, $key, $label, 1, 600);
         }
-        self::stringList($row, 'path', $label, 2, 16, 32);
-        self::stringList($row, 'steps_cs', $label, 2, 16, 200);
-        self::stringList($row, 'steps_en', $label, 2, 16, 200);
-        if (count($row['path']) !== count($row['steps_cs']) || count($row['path']) !== count($row['steps_en'])) {
+        $path = self::stringList($row, 'path', $label, 2, 16, 32);
+        $stepsCs = self::stringList($row, 'steps_cs', $label, 2, 16, 200);
+        $stepsEn = self::stringList($row, 'steps_en', $label, 2, 16, 200);
+        if (count($path) !== count($stepsCs) || count($path) !== count($stepsEn)) {
             throw new InvalidArgumentException('Public flow steps do not match path: ' . $label);
         }
         return $id;
@@ -152,7 +154,7 @@ final class PublicContentValidator
         if ($link !== '' && preg_match('~^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_./%-]+)?$~D', $link) !== 1) {
             throw new InvalidArgumentException('Unsafe journal source: ' . $label);
         }
-        return $when . '|' . (string)$row['title_en'];
+        return $when . '|' . self::string($row, 'title_en', $label, 1, 4000);
     }
 
     /** @param array<string,mixed> $row */
@@ -204,24 +206,26 @@ final class PublicContentValidator
         return $value;
     }
 
-    /** @param array<string,mixed> $row */
-    private static function stringList(array $row, string $key, string $label, int $min, int $max, int $maxChars): void
+    /** @param array<string,mixed> $row @return list<string> */
+    private static function stringList(array $row, string $key, string $label, int $min, int $max, int $maxChars): array
     {
         $items = $row[$key] ?? null;
         if (!is_array($items) || !array_is_list($items) || count($items) < $min || count($items) > $max) {
             throw new InvalidArgumentException('Invalid list ' . $key . ': ' . $label);
         }
+        $validated = [];
         foreach ($items as $item) {
-            self::string(['item' => $item], 'item', $label, 1, $maxChars);
+            $validated[] = self::string(['item' => $item], 'item', $label, 1, $maxChars);
         }
+        return $validated;
     }
 
     private static function date(string $value, string $label): void
     {
         try {
             $date = new \DateTimeImmutable($value);
-        } catch (\Exception) {
-            throw new InvalidArgumentException('Invalid date: ' . $label);
+        } catch (\Exception $error) {
+            throw new InvalidArgumentException('Invalid date: ' . $label, 0, $error);
         }
         if ($date->format('Y') < '2000' || $date->format('Y') > '2100') {
             throw new InvalidArgumentException('Date outside permitted range: ' . $label);

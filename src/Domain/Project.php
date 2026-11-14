@@ -7,7 +7,10 @@ use App\Support\Language;
 
 final readonly class Project
 {
-    /** @param list<string> $stack @param list<string> $features */
+    /**
+     * @param list<string> $stack
+     * @param list<string> $features
+     */
     public function __construct(
         public string $slug,
         public string $name,
@@ -30,7 +33,7 @@ final readonly class Project
         if (ProjectStatus::tryFrom($status) === null) {
             throw new \InvalidArgumentException('Invalid project status');
         }
-        if (!preg_match('/^[a-z0-9-]+$/D', $slug)) {
+        if (preg_match('/^[a-z0-9-]+$/D', $slug) !== 1) {
             throw new \InvalidArgumentException('Invalid slug');
         }
     }
@@ -58,7 +61,16 @@ final readonly class Project
     private static function strings(array $values, string $key): array
     {
         $input = $values[$key] ?? [];
-        return is_array($input) ? array_values(array_filter($input, static fn (mixed $v): bool => is_string($v))) : [];
+        if (!is_array($input)) {
+            return [];
+        }
+        $strings = [];
+        foreach ($input as $item) {
+            if (is_string($item)) {
+                $strings[] = $item;
+            }
+        }
+        return $strings;
     }
 
     public function summary(Language $lang): string
