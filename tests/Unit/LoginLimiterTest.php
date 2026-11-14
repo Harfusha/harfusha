@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Test\Unit;
 
 use App\Security\LoginLimiter;
+use App\Test\Support\MutableClock;
 use Cake\TestSuite\TestCase;
 use RuntimeException;
 
@@ -55,17 +56,15 @@ final class LoginLimiterTest extends TestCase
     public function testWindowExpiresExactlyAfterFifteenMinutes(): void
     {
         $dir = $this->directory();
-        $clockState = new class {
-            public int $now = 1700000000;
-        };
-        $clock = static fn(): int => $clockState->now;
+        $clockState = new MutableClock(1700000000);
+        $clock = static fn(): int => $clockState->now();
         $limiter = new LoginLimiter($dir, $clock);
         for ($i = 0; $i < 5; $i++) {
             self::assertTrue($limiter->consume('198.51.100.18'));
         }
-        $clockState->now += 899;
+        $clockState->advance(899);
         self::assertFalse($limiter->consume('198.51.100.18'));
-        ++$clockState->now;
+        $clockState->advance(1);
         self::assertTrue($limiter->consume('198.51.100.18'));
     }
 
@@ -143,13 +142,11 @@ final class LoginLimiterTest extends TestCase
 
     public function testClockRollbackDoesNotSilentlyResetCounters(): void
     {
-        $clockState = new class {
-            public int $now = 1700000000;
-        };
-        $clock = static fn(): int => $clockState->now;
+        $clockState = new MutableClock(1700000000);
+        $clock = static fn(): int => $clockState->now();
         $limiter = new LoginLimiter($this->directory(), $clock);
         self::assertTrue($limiter->consume('192.0.2.40'));
-        --$clockState->now;
+        $clockState->advance(-1);
         self::assertFalse($limiter->consume('192.0.2.40'));
         self::assertFalse($limiter->clear('192.0.2.40'));
     }
