@@ -4,6 +4,12 @@
 >
 > Uživatel požaduje **CakePHP 5.4, PHP 8.5.12+, MySQL, maximální PHPStan, ShipMonk, strict rules, důraz na typy, bezpečnost, výkon a interaktivní technický obsah** na běžném sdíleném hostingu. Toto jsou pevné požadavky, nikoliv volitelný backlog.
 
+## Aktuální stav automatických kontrol — 14. 11. 2026
+
+**PASS v GitHub Actions:** [běh #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069) na PHP 8.5 / MySQL 8.4 úspěšně dokončil všechny tři joby (`application`, `static`, `browser-offline`). Testované: uzamčené Composer závislosti a audit, CakePHP HTTP smoke, tři migrace nad izolovanou MySQL, PHPUnit, PHPStan `level: max` + CakeDC/strict/ShipMonk, CakePHP PHPCS, kontrola veřejných dat, JavaScript strict types a Chromium. `composer.lock` je v Git.
+
+**Nevyřešené podmínky produkčního vydání:** PHP-FPM a Apache na konkrétním hostingu, bezpečné nastavení domény/cron, staging s úplnými HTTP testy, test záloh a návratu databáze, ruční schválení všech zveřejněných údajů a autentických fotografií/screenshotů. **CI PASS není automaticky production ready.** Pozdější oddíly s datovanými záznamy uchovávají historický stav jednotlivých iterací, nikoliv nynější výsledek.
+
 ## A. Cílový produkt a kritéria hotovosti
 
 **Výsledek:** dvojjazyčný digitální workshop, kde lze procházet skutečné vlastní projekty, jejich vazby, anonymizovanou domácí infrastrukturu, výsledky open-source práce a ručně schválené vývojové poznámky. Veřejné interaktivní nástroje jsou **lokální bezpečné simulace**, nikoliv přístup do domácí sítě, k AI agentům, hernímu enginu či soukromému kódu.
@@ -21,15 +27,15 @@
 
 | Stav | Modul | Implementace | Ověření / poznámka |
 |---|---|---|---|
-| DONE | PHP 8.5/CakePHP struktura | `composer.json`, `src/Application.php`, `config/`, `templates/`, `webroot/` | Syntaxe a statické šablony; Cake runtime dosud BLOCKED |
+| DONE | PHP 8.5/CakePHP struktura | `composer.json`, `src/Application.php`, `config/`, `templates/`, `webroot/` | CI PHP 8.5 / CakePHP runtime / HTTP smoke PASS; cílový hosting neověřen |
 | DONE | Výběr reálných projektů | `data/projects.json`, `ProjectCatalog`, stránka `/projects`, detail `/{lang}/projects/{slug}` | Ověřený model + 13 studií; fotografie jsou nedodané |
 | DONE | Dvojjazyčná navigace | CS/EN URL a texty, canonical/alternate | 48 offline stránek a kontrola odkazů |
 | DONE | Vazby projektů | `data/connections.json`, `ProjectConnections`, `/connections` | 13 uzlů, klávesnice, dotyk, filtrování; browser smoke |
 | DONE | Engineering Decisions | `data/decisions.json`, typovaná `EngineeringDecision`, `/{lang}/decisions` | 7 kontextů, voleb a kompromisů; browser + validace; nenahrazuje skutečné benchmarky |
-| DONE | Redigovaná historie editoru | `editorial_audit`, `EditorialAuditTrail`, administrace | Transakční audit receipt + korekce publikování draftu; MySQL E2E BLOCKED |
+| DONE | Redigovaná historie editoru | `editorial_audit`, `EditorialAuditTrail`, administrace | Transakční audit receipt a publikování draftů; MySQL integrační testy PASS v CI |
 | DONE | Bezpečný GitHub repo parser | `PublicRepository` | Odmítá privátní/neúplné/nesprávné/duplicitní záznamy před transakcí |
-| DONE | Produkční konfigurace | `DeploymentPolicy`, bootstrap, preflight | Vynucuje explicitní APP_ENV, HTTPS, sůl a vypnutý debug; PHP8.5 runtime BLOCKED |
-| DONE | Reálné HTTP smoke CI | `scripts/http-smoke.py`, `.github/workflows/ci.yml` | Implementováno jako povinný gate; lokálně nelze spustit Cake runtime |
+| DONE | Produkční konfigurace | `DeploymentPolicy`, bootstrap, preflight | Vynucuje APP_ENV/HTTPS/sůl/debug; runtime PHP 8.5 PASS v CI; hosting neověřen |
+| DONE | Reálné HTTP smoke CI | `scripts/http-smoke.py`, `.github/workflows/ci.yml` | Reálný CakePHP HTTP smoke prošel v CI; externí staging neověřen |
 | DONE | Homelab explorer | `data/topology.json`, `/homelab`, `lab-core.js` | 7 anonymizovaných uzlů; výpadky / závislosti; DOM smoke |
 | DONE | Conceptual Data Paths | `data/flows.json`, `NetworkFlow`, `/homelab`, `traceFlow()` | Four bilingual scenarios, topology-adjacent hop validation, outage propagation, PHP/JS/Chromium tests; not real network monitoring |
 | DONE | Pět simulátorů | `/playground#ai,#sync,#world,#cad,#request` | 13 JS unit testů + browser smoke; **ne skutečné runtime systémy** |
@@ -37,13 +43,13 @@
 | DONE | Open Source browser | `/open-source`, `data/contributions.json`, GitHub sync | Kurátorovaný fallback 14 položek, plný veřejný import vyžaduje cron a DB |
 | DONE | Aktuální práce | `/now`, feed veřejných repo pushů, vývojový deník | Označení zdroje a času; fallback je historický snímek |
 | DONE | RSS | `/cs/feed.xml`, `/en/feed.xml`, `JournalFeed` | Typovaný XML export, bezpečné escapování a testy |
-| DONE | Typované JSON API | `ApiController`, `PublicProjectView`, `/api/v1/projects` | Redigovaná CS/EN data, ETag/304; skutečné Cake HTTP E2E BLOCKED |
-| DONE | Multijazyčný sitemap | `PublicSitemap`, `/sitemap.xml` | Testované cs/en/x-default; reálné Cake HTTP E2E BLOCKED |
-| DONE | MySQL modely | `config/Migrations`, `src/Model`, `ContentRepository` | Zdroje a příprava; reálné MySQL testy BLOCKED |
-| DONE | Editor | `/admin`, login, editace projektů, drafty, publikování | Pure `EditorialInput` validátor + CSRF middleware; HTTP testy BLOCKED |
+| DONE | Typované JSON API | `ApiController`, `PublicProjectView`, `/api/v1/projects` | Redigovaná CS/EN data, ETag/304; CakePHP testy PASS v CI |
+| DONE | Multijazyčný sitemap | `PublicSitemap`, `/sitemap.xml` | Testované cs/en/x-default; CakePHP integrační sada PASS v CI |
+| DONE | MySQL modely | `config/Migrations`, `src/Model`, `ContentRepository` | Tři migrace a PHPUnit s izolovanou MySQL 8.4 PASS v CI; rollback neověřen |
+| DONE | Editor | `/admin`, login, editace projektů, drafty, publikování | Pure `EditorialInput`, CSRF a integrační HTTP testy PASS v CI |
 | DONE | GitHub import | `GithubSyncService`, `GithubSnapshot`, `GithubSyncCommand` | Veřejné API bez tokenu, atomické refresh, lock, kontrola úplnosti; remote E2E BLOCKED |
 | DONE | Bezpečnostní bariéry | `PublicContentValidator`, HostGuard, SecurityHeaders, `Html::escape` | Unit/standalone testy a privacy heuristika, ale nikoliv penetrační audit |
-| DONE | CI a sestavení | `.github/workflows/ci.yml`, `scripts/build-release.py`, `scripts/release_package.py` | Nově izolovaný staging, SHA256 manifest a PHPUnit disposable-DB guard; reálný Composer runtime stále BLOCKED |
+| DONE | CI a sestavení | `.github/workflows/ci.yml`, `scripts/build-release.py`, `scripts/release_package.py` | Izolovaný build a DB guard; Composer závislosti / PHPStan / PHPUnit PASS v CI, host staging čeká |
 | DONE | Offline browser QA | `tests/Browser/smoke.py` | Skutečné Chromium vykreslení DOM; ne HTTP E2E |
 | DONE | Source ZIP + manifest | `scripts/build-source.py` | Přepočitatelné SHA256 a CRC kontrola ZIP |
 
@@ -54,11 +60,11 @@ Každý bod vyžaduje **vnější prostředí, přístup, autorství skutečnýc
 ### P0. Composer/PHPStan/MySQL/runtime (release blokující)
 
 1. [ ] Připravit **reálné** PHP 8.5.12+ (CLI i FPM), MySQL 8.4/MariaDB, rozšíření a Composer 2. `php -v` a `php -m` obou SAPI musí potvrdit kompatibilitu.
-2. [ ] `composer update --no-interaction --prefer-dist` **jednorázově** na PHP 8.5, zkontrolovat verze a advisories, uložit `composer.lock` do Git. Potom všude **pouze** `composer install --no-interaction`.
-3. [ ] Před PHPUnit a migracemi nastavit `LAB_TEST_DB_CONFIRM=DB_NAME` pro izolovanou testovací MySQL s neprivilegovaným účtem. Nikdy nepoužívat produkční DB.
-4. [ ] `composer validate --strict`, `composer audit --locked`, `composer stan`, `composer test`, `composer cs-check`. Opravit reálné výsledky bez downgrade PHPStan levelu, baseline/ignore a bez `--ignore-platform-reqs`.
-5. [ ] Projít všechny tři migrace na prázdné DB, rollback v *kopii* DB, upgrade DB ze staré verze, návrat kódu bez ztráty obsahu. Porovnat schéma s `db/schema.sql` (referenční, nikoliv instalační cesta).
-6. [ ] HTTP integration testy **přihlášení, CSRF, sessions, host validation, 404, sitemap, RSS, editorových POST, ORM persist/read, publikování/stažení draftů a chyb DB**. Test DB musí být izolovaná; produkční DB se nepoužívá.
+2. [x] Jednorázově vyřešené závislosti na PHP 8.5, `composer.lock` uložený v Git a `composer install` úspěšný v CI. Příště používat `composer install`, aktualizace lockfile pouze v kontrolovaném PR.
+3. [x] GitHub Actions používají izolovanou MySQL 8.4, neprivilegovaného uživatele a `LAB_TEST_DB_CONFIRM=DB_NAME`. Pro hosting ověřit samostatně.
+4. [x] `composer validate --strict`, `composer audit --locked`, `composer stan`, `composer test`, `composer cs-check` PASS v CI [#43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069). PHPStan `level: max` a přísná rozšíření zůstávají zapnutá.
+5. [ ] Všechny tři migrace na prázdné izolované MySQL **PASS v CI**. Zbývá test rollbacku na kopii databáze, upgrade z předchozí verze, obnova zálohy a porovnání schématu s `db/schema.sql`.
+6. [ ] Automatické CakePHP HTTP smoke a PHPUnit integrační testy **PASS v CI** včetně relací a MySQL. Zbývá ověřit úplnou sadu scénářů na stagingu, chybové stavy databáze a zásahy administrace s bezpečnou kopií dat.
 7. [ ] Založit a otestovat cron, včetně reálných HTTP 403/429/502 a návratu k poslednímu platnému snímku, případně ručně auditovat upstream výsledky. `GithubSnapshot` odmítá rozpor PR/merge i neúplné stránky.
 8. [ ] Zajistit staging deployment **vendor-inclusive** buildu; teprve potom produkční publikace. Testovat stejné PHP-FPM/OPcache/rewrite/chmod jako na hostingu.
 

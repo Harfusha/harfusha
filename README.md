@@ -64,7 +64,7 @@ Tento repozitář má dvě role:
 
 **Technická dokumentace aplikace:** [PROJECT-README.md](docs/PROJECT-README.md) · [Český start](START-CZ.md) · [Architektura](docs/ARCHITECTURE.md) · [Plán a kritéria dokončení](docs/MASTER_PLAN.md).
 
-> **Stav:** Zdrojový projekt je dostupný, ale produkční nasazení zatím není ověřené. Pro úspěšné vydání musí projít instalace Composer závislostí, PHPStan, integrační testy CakePHP a MySQL i testy nasazení. [Podrobnosti](docs/PROJECT-README.md#quality-gates).
+> **Stav:** Zdrojový projekt má [úspěšné CI na PHP 8.5](https://github.com/Harfusha/harfusha/actions/runs/43648999069): Composer, PHPStan max se striktními pravidly, CakePHP/PHPUnit, izolované MySQL migrace, PHPCS i prohlížečové kontroly. **Produkční nasazení ještě není ověřené** — zbývá staging na cílovém hostingu, test obnovy databáze a schválení veřejných podkladů. [Technické podrobnosti](docs/PROJECT-README.md#quality-gates).
 
 ---
 

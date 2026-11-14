@@ -4,7 +4,7 @@
 
 This site is an interactive engineering workshop, not just a self-promotion page. It shows real projects and upstream contributions, a privacy-reviewed model of a home network, and **clearly labelled simulations** visitors can explore themselves. Its own source demonstrates CakePHP MVC/ORM, typed domain objects, migrations, security controls, careful browser code and reproducible validation scripts.
 
-> **Verification status, 14 Nov 2026:** The full source project is delivered, but **not a production-verified deployable**. Authoring environment: PHP 8.4, no Composer, no vendor packages, no PHP 8.5 runtime, MySQL driver or server. We ran standalone PHP, JavaScript/TypeScript and offline SSR/privacy checks, but **could not run CakePHP itself, PHPUnit integrations, real MySQL migrations, Composer dependency solving or PHPStan**. CI is configured to run them on PHP 8.5 + MySQL. Do not publicly deploy until that pipeline passes; never interpret a configured test as a passed test. See `docs/RELEASE.md` and `RELEASE-NOTES.md`.
+> **Verification status, 14 Nov 2026:** All three GitHub Actions jobs passed in [verified run #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069) on PHP 8.5: locked Composer dependencies, actual CakePHP HTTP checks, isolated MySQL 8.4 migrations, PHPUnit, PHPStan max with CakeDC/strict/ShipMonk extensions, PHPCS, JavaScript type checks and Chromium browser tests. This confirms the **CI environment**, not the target shared hosting. **Still not production-verified:** shared-host staging, database rollback and restore, deployment-specific configuration, and manual review of descriptions and images from private projects. The local authoring container cannot independently reproduce PHP 8.5/MySQL, but GitHub Actions did.
 
 ## Explore the site
 
@@ -90,7 +90,7 @@ node --test tests/Client/*.test.cjs
 npx --no-install tsc --noEmit --allowJs --checkJs --strict --target ES2022 --lib ES2022,DOM webroot/assets/js/lab-core.js
 ```
 
-The GitHub Actions workflow provisions PHP 8.5 and MySQL 8.4, **requires an already committed Composer lockfile**, runs all three migrations and checks both real CakePHP HTTP routes and standalone/static/JS tests. Static and browser CI jobs have passed; full PHP/MySQL integration and PHPStan verification are still in progress.
+The GitHub Actions workflow provisions PHP 8.5 and MySQL 8.4, **requires an already committed Composer lockfile**, runs all three migrations and checks both real CakePHP HTTP routes and standalone/static/JS tests. All three required CI jobs (application, static, browser-offline) passed on 14 Nov 2026; see [run #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069). Hosting-specific staging, restore/rollback and manual public-content approval remain release gates.
 
 ## Deploying on shared hosting
 
@@ -170,7 +170,7 @@ For future controlled updates to `composer.lock`, GitHub Actions provides the **
 - GitHub sync has two independently tested, typed pagination collectors. Duplicates, inconsistent Search API totals, truncated pages and unexpected repository pages fail before destructive MySQL refresh. See `docs/GITHUB-IMPORT-INTEGRITY.md`.
 - A production ZIP cannot be built without explicit manual review of public content: run `python3 scripts/review-public-content.py --review` then, **after actual human review**, `--approve --reviewer '...'` interactively. The private hash receipt is excluded from every ZIP; edits invalidate it. See `docs/CONTENT-APPROVAL.md`.
 - Python review-gate tests run in CI and source ZIP building; this is not evidence that a human has approved the content.
-- The real PHP 8.5 runner resolved and committed `composer.lock` on 14 Nov 2026. Source archives remain **vendor-free**; production approval still requires successful migrations, PHPStan, PHPUnit and deployment checks.
+- The PHP 8.5 runner resolved and committed `composer.lock` on 14 Nov 2026. Composer, migrations on disposable MySQL, PHPStan max, PHPUnit and PHPCS passed in [CI run #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069). Source archives remain **vendor-free**; target-host staging, backup/rollback and editorial approval still gate production deployment.
 
 ### Release hardening (14 Nov 2026)
 

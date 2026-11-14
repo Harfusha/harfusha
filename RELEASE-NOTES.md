@@ -1,5 +1,9 @@
 # Harfusha Lab — source candidate 2026-11-13
 
+## Verified CI milestone — 14 Nov 2026
+
+All three GitHub Actions jobs passed on PHP 8.5 and MySQL 8.4 in [run #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069): application, static and browser-offline. The reproducible `composer.lock` is committed; PHPStan max + strict/CakeDC/ShipMonk, PHPUnit, CakePHP HTTP checks, real MySQL migrations, PHPCS and Chromium regressions passed. This is **CI verification only**, not authorization to deploy to shared hosting. Target-host staging, rollback/restore tests and human review of any private-project descriptions/screenshots remain release blockers.
+
 ## New in final follow-up (2026-11-13)
 
 - **Type-safe read-only public JSON API**: `/api/v1/projects` and `/api/v1/projects/{slug}`, CS/EN, reviewed DTO fields, no private source URLs, conditional SHA-256 ETag/304, no auth or permissive CORS. Added unit tests and real HTTP smoke gate code (`docs/API.md`).
