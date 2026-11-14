@@ -82,7 +82,10 @@ def main() -> None:
     require(['python3','scripts/audit-rendered.py'])
     require(['node','--check','webroot/assets/js/app.js'])
     require(['node','--check','webroot/assets/js/lab-core.js'])
-    require(['node','--test','tests/Client/lab-core.test.cjs'])
+    client_tests = sorted((ROOT / 'tests/Client').glob('*.test.cjs'))
+    if not client_tests:
+        raise SystemExit('No browser-core regression tests found')
+    require(['node', '--test', *(str(path.relative_to(ROOT)) for path in client_tests)])
     # Real Chromium DOM smoke (renders offline templates, not CakePHP HTTP E2E).
     require(['python3','tests/Browser/smoke.py'] + (['--chromium', os.environ['CHROMIUM_PATH']] if os.environ.get('CHROMIUM_PATH') else []))
     # Optional TypeScript checker is a required release gate, not hosted code.
