@@ -28,6 +28,8 @@ final class ProjectOverridesTable extends Table
             ->notEmptyString('summary_cs')->scalar('summary_en')->maxLength('summary_en', 2000)
             ->notEmptyString('summary_en')
             ->allowEmptyString('problem_cs')->allowEmptyString('problem_en')
-            ->allowEmptyString('solution_cs')->allowEmptyString('solution_en')->inList('status', ['active','prototype','maintenance','archived']);
+            ->allowEmptyString('solution_cs')
+            ->allowEmptyString('solution_en')
+            ->inList('status', ['active', 'prototype', 'maintenance', 'archived']);
     }
 }

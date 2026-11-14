@@ -29,7 +29,12 @@ final class ApiController extends AppController
             (new ContentRepository())->projects(),
         );
 
-        return $this->json(['version' => '1', 'language' => $language->code, 'count' => count($records), 'projects' => $records]);
+        return $this->json([
+            'version' => '1',
+            'language' => $language->code,
+            'count' => count($records),
+            'projects' => $records,
+        ]);
     }
 
     /**
@@ -47,7 +52,11 @@ final class ApiController extends AppController
         }
         $language = $this->language();
 
-        return $this->json(['version' => '1', 'language' => $language->code, 'project' => (new PublicProjectView($project))->toArray($language)]);
+        return $this->json([
+            'version' => '1',
+            'language' => $language->code,
+            'project' => (new PublicProjectView($project))->toArray($language),
+        ]);
     }
 
     /**

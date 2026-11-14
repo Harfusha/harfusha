@@ -135,7 +135,8 @@ final class AdminController extends AppController
             if (!$db instanceof Connection) {
                 throw new RuntimeException('Invalid editorial database');
             }
-            $committed = $db->transactional(static function (Connection $connection) use ($table, $record, $data): bool {
+            $committed = $db->transactional(
+                static function (Connection $connection) use ($table, $record, $data): bool {
                 try {
                     $table->saveOrFail($table->patchEntity($record, $data));
                     EditorialAuditTrail::record($connection, 'project', $data['slug'], 'update', $data);
@@ -184,7 +185,8 @@ final class AdminController extends AppController
             if (!$db instanceof Connection) {
                 throw new RuntimeException('Invalid editorial database');
             }
-            $committed = $db->transactional(static function (Connection $connection) use ($table, $record, $values): bool {
+            $committed = $db->transactional(
+                static function (Connection $connection) use ($table, $record, $values): bool {
                 try {
                     $table->saveOrFail($record);
                     $id = $record->get('id');
@@ -257,7 +259,8 @@ final class AdminController extends AppController
             if (!$db instanceof Connection) {
                 throw new RuntimeException('Invalid editorial database');
             }
-            $committed = $db->transactional(static function (Connection $connection) use ($table, $entry, $id, $action, $auditValues): bool {
+            $committed = $db->transactional(
+                static function (Connection $connection) use ($table, $entry, $id, $action, $auditValues): bool {
                 try {
                     $table->saveOrFail($entry);
                     EditorialAuditTrail::record(

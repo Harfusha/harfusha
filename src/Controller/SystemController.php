@@ -44,7 +44,10 @@ final class SystemController extends AppController
     public function sitemap(): Response
     {
         $origin = $this->origin();
-        $pages = ['', 'projects','connections','decisions','homelab','maker','playground','open-source','now','journal','about'];
+        $pages = [
+            '', 'projects', 'connections', 'decisions', 'homelab', 'maker',
+            'playground', 'open-source', 'now', 'journal', 'about',
+        ];
         foreach ((new ContentRepository())->projects() as $project) {
             $pages[] = 'projects/' . $project->slug;
         }

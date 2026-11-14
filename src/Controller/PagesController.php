@@ -45,7 +45,15 @@ final class PagesController extends AppController
     }
 
     /** @param array<string,mixed> $data */
-    private function show(string $template, string $csTitle, string $enTitle, string $csDescription, string $enDescription, string $route, array $data = []): Response
+    private function show(
+        string $template,
+        string $csTitle,
+        string $enTitle,
+        string $csDescription,
+        string $enDescription,
+        string $route,
+        array $data = [],
+    ): Response
     {
         $lang = $this->lang();
         $this->set([...$data,
@@ -70,7 +78,10 @@ final class PagesController extends AppController
      */
     public function home(): Response
     {
-        $featured = array_values(array_filter($this->content()->projects(), static fn(Project $p): bool => $p->featured));
+        $featured = array_values(array_filter(
+            $this->content()->projects(),
+            static fn(Project $p): bool => $p->featured,
+        ));
 
         return $this->show(
             'home',

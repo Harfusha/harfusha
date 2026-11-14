@@ -104,7 +104,11 @@ final class ContentRepository
                 continue;
             }
             $relatedSlug = $edge['from'] === $slug ? $edge['to'] : $edge['from'];
-            $results[] = ['slug' => $relatedSlug, 'name' => $titles[$relatedSlug] ?? $relatedSlug, 'type' => $edge['type']];
+            $results[] = [
+                'slug' => $relatedSlug,
+                'name' => $titles[$relatedSlug] ?? $relatedSlug,
+                'type' => $edge['type'],
+            ];
         }
 
         return $results;
@@ -168,7 +172,9 @@ final class ContentRepository
                         'title_cs' => $record->get('title_cs'), 'title_en' => $record->get('title_en'),
                         'body_cs' => $record->get('body_cs'), 'body_en' => $record->get('body_en'),
                         'category' => $record->get('category'), 'source_url' => $record->get('source_url'),
-                        'published_at' => $published instanceof DateTimeInterface ? $published->format('Y-m-d H:i:s') : '',
+                        'published_at' => $published instanceof DateTimeInterface
+                            ? $published->format('Y-m-d H:i:s')
+                            : '',
                     ];
                 }
             } catch (Throwable $error) {
@@ -228,7 +234,9 @@ final class ContentRepository
 
                     return [
                         'source' => 'github-public-api',
-                        'last_sync' => $time instanceof DateTimeInterface ? $time->format('Y-m-d H:i:s') . ' UTC' : null,
+                        'last_sync' => $time instanceof DateTimeInterface
+                            ? $time->format('Y-m-d H:i:s') . ' UTC'
+                            : null,
                     ];
                 }
             } catch (Throwable $error) {
@@ -265,12 +273,27 @@ final class ContentRepository
         }
 
         return [
-            ['repository' => 'Harfusha/MutaUI', 'description' => 'GitHub snapshot 2026-11-12', 'repo_url' => 'https://github.com/Harfusha/MutaUI', 'pushed_at' => '2026-11-12 18:53:55'],
-            ['repository' => 'Harfusha/local-ai-hub', 'description' => 'GitHub snapshot 2026-11-12', 'repo_url' => 'https://github.com/Harfusha/local-ai-hub', 'pushed_at' => '2026-11-12 11:45:05'],
+            [
+                'repository' => 'Harfusha/MutaUI',
+                'description' => 'GitHub snapshot 2026-11-12',
+                'repo_url' => 'https://github.com/Harfusha/MutaUI',
+                'pushed_at' => '2026-11-12 18:53:55',
+            ],
+            [
+                'repository' => 'Harfusha/local-ai-hub',
+                'description' => 'GitHub snapshot 2026-11-12',
+                'repo_url' => 'https://github.com/Harfusha/local-ai-hub',
+                'pushed_at' => '2026-11-12 11:45:05',
+            ],
         ];
     }
 
-    /** @return list<array{id:int,category:string,title_cs:string,title_en:string,body_cs:string,body_en:string,is_public:bool}> */
+    /**
+     * @return list<array{
+     *     id:int,category:string,title_cs:string,title_en:string,
+     *     body_cs:string,body_en:string,is_public:bool
+     * }>
+     */
     public function editorialJournal(): array
     {
         if (!$this->hasDatabase()) {

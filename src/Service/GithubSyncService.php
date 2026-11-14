@@ -67,7 +67,10 @@ final class GithubSyncService
         $records = GithubSnapshot::externalActivity($prs, $merged, $issues, $this->author);
         $repositoryPages = new GithubRepositoryPageCollector();
         for ($page = 1; $page <= 5; $page++) {
-            $data = $this->get('https://api.github.com/users/' . rawurlencode($this->author) . '/repos?type=owner&per_page=100&sort=pushed&page=' . $page);
+            $data = $this->get(
+                'https://api.github.com/users/' . rawurlencode($this->author)
+                    . '/repos?type=owner&per_page=100&sort=pushed&page=' . $page,
+            );
             if (!$repositoryPages->append($data, $page, 5)) {
                 break;
             }
@@ -107,7 +110,12 @@ final class GithubSyncService
             );
         });
 
-        return ['imported' => count($records), 'merged' => count($merged), 'issues' => count($issues), 'repositories' => $repoCount];
+        return [
+            'imported' => count($records),
+            'merged' => count($merged),
+            'issues' => count($issues),
+            'repositories' => $repoCount,
+        ];
     }
 
     /** @return list<array<string,mixed>> */
@@ -115,7 +123,10 @@ final class GithubSyncService
     {
         $pages = new GithubSearchPageCollector();
         for ($page = 1; $page <= $maxPages; $page++) {
-            $data = $this->get('https://api.github.com/search/issues?q=' . rawurlencode($query) . '&per_page=100&page=' . $page . '&sort=created&order=desc');
+            $data = $this->get(
+                'https://api.github.com/search/issues?q=' . rawurlencode($query)
+                    . '&per_page=100&page=' . $page . '&sort=created&order=desc',
+            );
             if (!$pages->append($data, $page, $maxPages)) {
                 break;
             }

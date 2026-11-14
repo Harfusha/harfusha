@@ -18,7 +18,11 @@ final class GithubSyncCommand extends Command
     {
         try {
             $result = (new GithubSyncService())->synchronize();
-            $io->out(sprintf('Imported %d public contributions, %d repos.', $result['imported'], $result['repositories']));
+            $io->out(sprintf(
+                'Imported %d public contributions, %d repos.',
+                $result['imported'],
+                $result['repositories'],
+            ));
 
             return static::CODE_SUCCESS;
         } catch (Throwable $error) {
