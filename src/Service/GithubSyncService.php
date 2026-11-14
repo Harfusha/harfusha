@@ -21,6 +21,9 @@ final class GithubSyncService
     private readonly Client $http;
     private readonly string $author;
 
+    /**
+     * Initialize required services and explicitly typed dependencies.
+     */
     public function __construct(?Client $http = null)
     {
         $this->http = $http ?? new Client();

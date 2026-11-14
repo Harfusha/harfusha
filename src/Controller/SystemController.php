@@ -17,11 +17,17 @@ use Throwable;
 
 final class SystemController extends AppController
 {
+    /**
+     * Return a minimal public liveness response.
+     */
     public function health(): Response
     {
         return $this->response->withType('text')->withHeader('Cache-Control', 'no-store')->withStringBody('ok');
     }
 
+    /**
+     * Resolve the configured canonical web origin.
+     */
     private function origin(): string
     {
         $value = Configure::read('App.fullBaseUrl');
@@ -32,6 +38,9 @@ final class SystemController extends AppController
         return rtrim($value, '/');
     }
 
+    /**
+     * Return the discoverable localized website URLs.
+     */
     public function sitemap(): Response
     {
         $origin = $this->origin();
@@ -45,6 +54,9 @@ final class SystemController extends AppController
             ->withStringBody(PublicSitemap::render($origin, $pages));
     }
 
+    /**
+     * Return the public, read-only activity feed.
+     */
     public function feed(): Response
     {
         $code = $this->request->getParam('lang');
@@ -62,6 +74,9 @@ final class SystemController extends AppController
             ->withStringBody($xml);
     }
 
+    /**
+     * Authorize the scheduled GitHub synchronization endpoint.
+     */
     public function sync(): Response
     {
         $secret = getenv('CRON_SECRET');

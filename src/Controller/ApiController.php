@@ -18,6 +18,9 @@ use Cake\Http\Response;
  */
 final class ApiController extends AppController
 {
+    /**
+     * List publicly visible projects.
+     */
     public function projects(): Response
     {
         $language = $this->language();
@@ -29,6 +32,9 @@ final class ApiController extends AppController
         return $this->json(['version' => '1', 'language' => $language->code, 'count' => count($records), 'projects' => $records]);
     }
 
+    /**
+     * Display a public project or apply a validated editorial update.
+     */
     public function project(): Response
     {
         $slug = $this->request->getParam('slug');
@@ -44,6 +50,9 @@ final class ApiController extends AppController
         return $this->json(['version' => '1', 'language' => $language->code, 'project' => (new PublicProjectView($project))->toArray($language)]);
     }
 
+    /**
+     * Resolve a supported language for the API response.
+     */
     private function language(): Language
     {
         $code = $this->request->getQuery('lang', 'cs');

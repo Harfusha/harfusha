@@ -14,17 +14,26 @@ final class PagesController extends AppController
 {
     private ?ContentRepository $content = null;
 
+    /**
+     * Resolve the curated public content repository.
+     */
     private function content(): ContentRepository
     {
         return $this->content ??= new ContentRepository();
     }
 
+    /**
+     * Initialize controller components and request services.
+     */
     public function initialize(): void
     {
         parent::initialize();
         $this->content = new ContentRepository();
     }
 
+    /**
+     * Resolve the validated locale from the request.
+     */
     private function lang(): Language
     {
         $code = $this->request->getParam('lang');
@@ -48,11 +57,17 @@ final class PagesController extends AppController
         return $this->render($template);
     }
 
+    /**
+     * Redirect to the localized landing page.
+     */
     public function redirectToHome(): Response
     {
         return $this->redirect('/cs/', 302) ?? $this->response;
     }
 
+    /**
+     * Render the localized landing page.
+     */
     public function home(): Response
     {
         $featured = array_values(array_filter($this->content()->projects(), static fn(Project $p): bool => $p->featured));
@@ -72,6 +87,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * List publicly visible projects.
+     */
     public function projects(): Response
     {
         return $this->show(
@@ -85,6 +103,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * Display a public project or apply a validated editorial update.
+     */
     public function project(): Response
     {
         $slug = $this->request->getParam('slug');
@@ -111,6 +132,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * Render the interactive project relationship graph.
+     */
     public function connections(): Response
     {
         return $this->show(
@@ -124,6 +148,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * Display the sanitized homelab topology and its simulations.
+     */
     public function homelab(): Response
     {
         return $this->show(
@@ -137,6 +164,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * Render the browser-side engineering demonstrations.
+     */
     public function playground(): Response
     {
         return $this->show(
@@ -149,6 +179,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * Show the documented engineering trade-offs.
+     */
     public function decisions(): Response
     {
         return $this->show(
@@ -162,6 +195,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * Render the documented physical engineering projects.
+     */
     public function maker(): Response
     {
         return $this->show(
@@ -175,6 +211,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * Show public upstream contributions.
+     */
     public function openSource(): Response
     {
         return $this->show(
@@ -188,6 +227,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * Show the current engineering workbench.
+     */
     public function now(): Response
     {
         return $this->show(
@@ -205,6 +247,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * Display or update the published engineering journal.
+     */
     public function journal(): Response
     {
         return $this->show(
@@ -218,6 +263,9 @@ final class PagesController extends AppController
         );
     }
 
+    /**
+     * Render the developer biography.
+     */
     public function about(): Response
     {
         return $this->show(

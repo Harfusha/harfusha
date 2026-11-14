@@ -23,6 +23,9 @@ final class ContentRepository
 {
     private readonly ProjectCatalog $catalog;
 
+    /**
+     * Initialize required services and explicitly typed dependencies.
+     */
     public function __construct(?ProjectCatalog $catalog = null)
     {
         $this->catalog = $catalog ?? new ProjectCatalog(ROOT . '/data');
@@ -113,6 +116,9 @@ final class ContentRepository
         return $this->catalog->connections();
     }
 
+    /**
+     * Find a published project by its canonical slug.
+     */
     public function findProject(string $slug): ?Project
     {
         foreach ($this->projects() as $project) {
@@ -333,6 +339,9 @@ final class ContentRepository
         }
     }
 
+    /**
+     * Extract a required nonempty string from a validated record.
+     */
     private static function requiredString(mixed $value, string $column): string
     {
         if (!is_string($value)) {
@@ -342,6 +351,9 @@ final class ContentRepository
         return $value;
     }
 
+    /**
+     * Extract a required persistent positive integer identifier.
+     */
     private static function requiredId(mixed $value): int
     {
         if (is_int($value) && $value > 0) {
@@ -353,6 +365,9 @@ final class ContentRepository
         throw new UnexpectedValueException('Invalid persisted editorial id');
     }
 
+    /**
+     * Check if the persistent database is configured and available.
+     */
     public function hasDatabase(): bool
     {
         return (bool)Configure::read('Lab.databaseEnabled', false);

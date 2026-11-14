@@ -22,11 +22,17 @@ use Throwable;
 
 final class AdminController extends AppController
 {
+    /**
+     * Check the server-side authenticated session.
+     */
     private function authenticated(): bool
     {
         return $this->request->getSession()->read('lab.admin') === true;
     }
 
+    /**
+     * Read a validated scalar from an editorial form.
+     */
     private function formValue(string $key, int $max): string
     {
         $value = $this->request->getData($key);
@@ -38,6 +44,9 @@ final class AdminController extends AppController
         return mb_strlen($value, 'UTF-8') <= $max ? $value : '';
     }
 
+    /**
+     * Render the private administrative dashboard.
+     */
     public function index(): Response
     {
         $this->viewBuilder()->disableAutoLayout();
@@ -61,6 +70,9 @@ final class AdminController extends AppController
         return $this->render('index');
     }
 
+    /**
+     * Validate credentials and create an authenticated session.
+     */
     public function login(): Response
     {
         $this->request->allowMethod(['post']);
@@ -88,6 +100,9 @@ final class AdminController extends AppController
         return $this->redirect('/admin', 303) ?? $this->response;
     }
 
+    /**
+     * Invalidate the active administrator session.
+     */
     public function logout(): Response
     {
         $this->request->getSession()->delete('lab.admin');
@@ -96,6 +111,9 @@ final class AdminController extends AppController
         return $this->redirect('/admin', 303) ?? $this->response;
     }
 
+    /**
+     * Display a public project or apply a validated editorial update.
+     */
     public function project(): Response
     {
         $this->request->allowMethod(['post']);
@@ -141,6 +159,9 @@ final class AdminController extends AppController
         return $this->redirect('/admin?saved=1', 303) ?? $this->response;
     }
 
+    /**
+     * Display or update the published engineering journal.
+     */
     public function journal(): Response
     {
         $this->request->allowMethod(['post']);

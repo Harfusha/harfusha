@@ -9,6 +9,9 @@ use InvalidArgumentException;
 /** Append-only write receipt inside the SAME transaction as the ORM mutation. */
 final class EditorialAuditTrail
 {
+    /**
+     * Initialize required services and explicitly typed dependencies.
+     */
     private function __construct()
     {
     }
