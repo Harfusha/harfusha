@@ -8,6 +8,9 @@ use Cake\Validation\Validator;
 
 final class JournalEntriesTable extends Table
 {
+    /**
+     * Configure the CakePHP table schema and persistence metadata.
+     */
     public function initialize(array $config): void
     {
         parent::initialize($config);
@@ -15,6 +18,9 @@ final class JournalEntriesTable extends Table
         $this->setPrimaryKey('id');
     }
 
+    /**
+     * Define the validation constraints for incoming entity data.
+     */
     public function validationDefault(Validator $validator): Validator
     {
         return $validator->scalar('title_cs')->maxLength('title_cs', 240)->notEmptyString('title_cs')

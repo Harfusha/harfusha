@@ -12,6 +12,9 @@ use InvalidArgumentException;
 /** Strict RSS 2.0 export of already-public engineering notes. No private drafts. */
 final class JournalFeed
 {
+    /**
+     * Initialize validated domain state and required dependencies.
+     */
     private function __construct()
     {
     }
@@ -55,6 +58,9 @@ final class JournalFeed
         return $xml . '</channel></rss>';
     }
 
+    /**
+     * Encode untrusted text for safe inclusion in this output format.
+     */
     private static function escape(string $text): string
     {
         return htmlspecialchars($text, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');

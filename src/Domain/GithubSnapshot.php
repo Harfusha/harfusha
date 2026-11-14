@@ -11,6 +11,9 @@ use InvalidArgumentException;
  */
 final class GithubSnapshot
 {
+    /**
+     * Initialize validated domain state and required dependencies.
+     */
     private function __construct()
     {
     }

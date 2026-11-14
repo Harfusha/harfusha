@@ -12,6 +12,9 @@ use InvalidArgumentException;
  */
 final class PublicSitemap
 {
+    /**
+     * Initialize validated domain state and required dependencies.
+     */
     private function __construct()
     {
     }
@@ -45,6 +48,9 @@ final class PublicSitemap
         return $xml . '</urlset>';
     }
 
+    /**
+     * Encode untrusted text for safe inclusion in this output format.
+     */
     private static function escape(string $value): string
     {
         return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');

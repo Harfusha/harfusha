@@ -5,6 +5,9 @@ namespace App\Support;
 
 final class Html
 {
+    /**
+     * Encode untrusted text for safe inclusion in this output format.
+     */
     public static function escape(string|int|float|null $value): string
     {
         return htmlspecialchars((string)($value ?? ''), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5, 'UTF-8');
@@ -18,6 +21,9 @@ final class Html
         return $encoded;
     }
 
+    /**
+     * Build a safe URL path for the selected locale.
+     */
     public static function path(string $lang, string $route = '/'): string
     {
         $route = '/' . ltrim($route, '/');
@@ -25,6 +31,9 @@ final class Html
         return '/' . ($lang === 'en' ? 'en' : 'cs') . ($route === '/' ? '/' : $route);
     }
 
+    /**
+     * Check an outbound hyperlink against the allowed URL policy.
+     */
     public static function safeUrl(string $url): string
     {
         if ($url === '' || preg_match('~^https://(github\.com|www\.github\.com|github\.io)/~i', $url) !== 1) {

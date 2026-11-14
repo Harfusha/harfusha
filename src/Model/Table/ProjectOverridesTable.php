@@ -8,6 +8,9 @@ use Cake\Validation\Validator;
 
 final class ProjectOverridesTable extends Table
 {
+    /**
+     * Configure the CakePHP table schema and persistence metadata.
+     */
     public function initialize(array $config): void
     {
         parent::initialize($config);
@@ -15,6 +18,9 @@ final class ProjectOverridesTable extends Table
         $this->setPrimaryKey('slug');
     }
 
+    /**
+     * Define the validation constraints for incoming entity data.
+     */
     public function validationDefault(Validator $validator): Validator
     {
         return $validator->scalar('slug')->maxLength('slug', 80)->requirePresence('slug', 'create')

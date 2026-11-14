@@ -7,6 +7,9 @@ use Cake\ORM\Table;
 
 final class GithubActivityTable extends Table
 {
+    /**
+     * Configure the CakePHP table schema and persistence metadata.
+     */
     public function initialize(array $config): void
     {
         parent::initialize($config);
