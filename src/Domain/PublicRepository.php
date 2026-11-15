@@ -63,9 +63,7 @@ final readonly class PublicRepository
                 throw new InvalidArgumentException('Invalid repository description');
             }
             $description ??= '';
-            if (preg_match('//u', $description) !== 1) {
-                throw new InvalidArgumentException('Invalid UTF-8 description');
-            }
+            PublicText::assertRenderable($description);
             $key = strtolower($fullName);
             if (isset($result[$key])) {
                 throw new InvalidArgumentException('Duplicate public repository');
