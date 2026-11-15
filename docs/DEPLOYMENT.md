@@ -35,7 +35,7 @@ composer cs-check
 node --check webroot/assets/js/app.js
 ```
 
-**Do not deploy if any check fails.** The production packager, source packager and independent ZIP verifier reject sensitive configuration files and editorial approval receipts regardless of filename case (for example `.env` and `.ENV.production`). To prepare a production build after the gates are green **and human public-content approval has been recorded**:
+**Do not deploy if any check fails.** On the configured production host, run `php scripts/preflight.php` from the private application tree before enabling traffic. This uses the **same** `DeploymentPolicy` as CakePHP bootstrap; an origin with a path, query, fragment, credentials, or a repeated/default salt must fail even if basic PHP and filesystem prerequisites are present. The production packager, source packager and independent ZIP verifier reject sensitive configuration files and editorial approval receipts regardless of filename case (for example `.env` and `.ENV.production`). To prepare a production build after the gates are green **and human public-content approval has been recorded**:
 
 ```sh
 # Na build stroji s úspěšnými testy a schváleným veřejným obsahem:
