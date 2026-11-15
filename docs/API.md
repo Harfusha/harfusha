@@ -6,7 +6,7 @@ The API exists to make the portfolio inspectable, reusable and auditable, not to
 
 | Method | URL | Result |
 |---|---|---|
-| GET | `/api/v1/projects` | All 13 curated project case studies |
+| GET | `/api/v1/projects` | All currently reviewed project case studies |
 | GET | `/api/v1/projects/{slug}` | One study, or HTTP 404 |
 | GET | `/api/v1/projects?lang=en` | English prose, default is Czech |
 | GET | `/api/v1/projects?lang=cs` | Czech prose |
@@ -36,17 +36,17 @@ Invalid languages return 400. Mutation methods are not registered. There is no C
       "features": ["..."],
       "year": "2026",
       "repository": "https://github.com/Harfusha/local-ai-hub",
-      "demo": null
+      "demo": "/en/playground#ai"
     }
   ]
 }
 ```
 
-The fields above show **shape only**, not a guaranteed current project status or a full sample record. The `repository` field is `null` for non-public projects. The `demo` field is a **same-origin, locale-aware path** to one of the explicitly curated interactive simulations (for example `/en/playground#ai` or `/cs/homelab`), or `null` when none is available. These are not live demos of private infrastructure and never disclose internal addresses or external service endpoints. Internal hostnames, IP addresses, authentication, unpublished notes, service endpoints and server telemetry are never serialized.
+The sample record above shows **shape only**, not a guaranteed current project status or a full sample record. The `repository` field is `null` for non-public projects. The `demo` field is a **same-origin, locale-aware path** to one of the explicitly curated interactive simulations (for example `/en/playground#ai` or `/cs/homelab`), or `null` when none is available. These are not live demos of private infrastructure and never disclose internal addresses or external service endpoints. Internal hostnames, IP addresses, authentication, unpublished notes, service endpoints and server telemetry are never serialized.
 
 ### Cache semantics
 
-Responses include `ETag` (SHA-256 of the actual serialized body) and `Cache-Control: public, max-age=120, must-revalidate`. Clients may send `If-None-Match`; an exact match returns 304 with no body. Because the ETag hashes the complete output, a changed editorial override changes the ETag. The API sets no cross-origin sharing policy. The global CSP and security headers apply here too.
+Responses include `ETag` (SHA-256 of the actual serialized body) and `Cache-Control: public, max-age=120, must-revalidate`. Clients may send `If-None-Match`; matching strong or weak validators, a comma-delimited validator list containing the current validator, or `*` return HTTP 304 with no body for GET. Because the ETag hashes the complete output, a changed editorial override changes the ETag. The API sets no cross-origin sharing policy. The global CSP and security headers apply here too.
 
 ### Test coverage and deployment
 
