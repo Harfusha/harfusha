@@ -16,6 +16,7 @@ COMMON = {
     'content-security-policy': "default-src 'self'; frame-ancestors 'none'",
     'strict-transport-security': 'max-age=31536000',
 }
+MUTABLE = {**COMMON, 'cache-control': 'no-store'}
 
 
 def good_response(base: str, path: str):
@@ -33,20 +34,20 @@ def good_response(base: str, path: str):
         return 200, b'<?xml version="1.0"?><urlset></urlset>', COMMON
     if path == '/api/v1/projects?lang=en':
         return 200, b'{"projects":[{"slug":"local-ai-hub"}],"count":1}', {
-            **COMMON, 'content-type': 'application/json', 'etag': '"etag"',
+            **MUTABLE, 'content-type': 'application/json', 'etag': '"etag"',
         }
     if path in ('/cs/journal', '/en/journal'):
-        return 200, b'<article id="entry-sample123">Workshop note</article>', COMMON
+        return 200, b'<article id="entry-sample123">Workshop note</article>', MUTABLE
     if path in ('/cs/feed.xml', '/en/feed.xml'):
         lang = path.split('/')[1]
         link = f'https://stage.example.test/{lang}/journal#entry-sample123'
         xml = ('<rss><channel><item><link>' + link + '</link>'
                '<guid isPermaLink="true">' + link + '</guid></item></channel></rss>')
-        return 200, xml.encode(), COMMON
+        return 200, xml.encode(), MUTABLE
     if path in ('/cs/', '/en/'):
-        return 200, b'HARFUSHA', COMMON
+        return 200, b'HARFUSHA', MUTABLE
     if path in ('/cs/projects', '/en/projects'):
-        return 200, b'Local AI Hub', COMMON
+        return 200, b'Local AI Hub', MUTABLE
     raise AssertionError('Unexpected request ' + path)
 
 
@@ -92,6 +93,18 @@ class StagingSmokeTests(unittest.TestCase):
             return good_response(base, path)
 
         self.assertTrue(any('/.env' in error for error in STAGING.verify('https://stage.example.test', exposed)))
+
+    def test_mutable_public_cache_headers_are_required(self) -> None:
+        def cached(base: str, path: str):
+            code, body, headers = good_response(base, path)
+            if path in ('/en/', '/cs/feed.xml', '/api/v1/projects?lang=en'):
+                return code, body, {**headers, 'cache-control': 'public, max-age=120'}
+            return code, body, headers
+
+        failures = STAGING.verify('https://stage.example.test', cached)
+        self.assertTrue(any('/en/' in error and 'cached' in error for error in failures))
+        self.assertTrue(any('/cs/feed.xml' in error and 'cached' in error for error in failures))
+        self.assertTrue(any('/api/v1/projects' in error and 'cached' in error for error in failures))
 
     def test_missing_security_headers_and_api_shape_are_detected(self) -> None:
         def invalid(base: str, path: str):
