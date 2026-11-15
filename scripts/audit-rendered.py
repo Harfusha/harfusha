@@ -6,6 +6,7 @@ from __future__ import annotations
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlparse, unquote
+from xml.etree import ElementTree
 import subprocess
 import sys
 
@@ -53,6 +54,30 @@ for html in htmls:
         f=PAGES/target.lstrip('/')
         if not (f.is_file() or (f/'index.html').is_file()):
             errors.append(f'{rel}: broken link or missing asset {href}')
+# Validate that RSS item permalinks actually resolve to visible journal IDs.
+# Static previews are generated for both locales, so no external HTTP is needed.
+for locale in ('cs', 'en'):
+    journal = PAGES / locale / 'journal' / 'index.html'
+    feed_path = PAGES / locale / 'feed.xml'
+    page = Parse()
+    page.feed(journal.read_text(encoding='utf-8'))
+    anchors = set(page.ids)
+    try:
+        entries = ElementTree.parse(feed_path).findall('./channel/item')
+    except (OSError, ElementTree.ParseError) as exc:
+        errors.append(f'{locale}: invalid or missing RSS document: {exc}')
+        continue
+    if not entries:
+        errors.append(f'{locale}: no RSS journal entries')
+    for entry in entries:
+        link = entry.findtext('link') or ''
+        guid = entry.find('guid')
+        url = urlparse(link)
+        if url.path != f'/{locale}/journal' or not url.fragment or url.fragment not in anchors:
+            errors.append(f'{locale}: RSS permalink lacks a matching journal anchor')
+        if guid is None or guid.get('isPermaLink') != 'true' or guid.text != link:
+            errors.append(f'{locale}: RSS GUID does not match its permanent article URL')
+
 if errors:
     print('Rendered HTML audit failed:',*errors,sep='\n - ')
     sys.exit(1)
