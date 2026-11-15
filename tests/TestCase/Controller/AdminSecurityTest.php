@@ -37,6 +37,18 @@ final class AdminSecurityTest extends HttpIntegrationTestCase
         $this->assertResponseCode(422);
     }
 
+    public function testAuthenticatedEditorRejectsAmbiguousJournalVisibility(): void
+    {
+        $this->session(['lab.admin' => true]);
+        $this->enableCsrfToken();
+        $this->post('/admin/journal', [
+            'category' => 'Development', 'title_cs' => 'Zápis', 'title_en' => 'Entry',
+            'body_cs' => 'Text', 'body_en' => 'Text',
+            'visibility' => 'published',
+        ]);
+        $this->assertResponseCode(422);
+    }
+
     public function testCronRequiresSecretHeader(): void
     {
         $this->post('/cron/github', []);
