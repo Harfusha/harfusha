@@ -85,7 +85,7 @@ final class ContentRepository
                 );
             }, $base);
         } catch (Throwable $error) {
-            error_log('Project catalogue ORM fallback: ' . $error->getMessage());
+            error_log('Project catalogue ORM fallback: ' . get_class($error));
 
             return $base;
         }
@@ -179,7 +179,7 @@ final class ContentRepository
                     ];
                 }
             } catch (Throwable $error) {
-                error_log('Journal ORM fallback: ' . $error->getMessage());
+                error_log('Journal ORM fallback: ' . get_class($error));
             }
         }
         // Editorial changes should appear immediately in the latest workshop feed.
@@ -194,35 +194,40 @@ final class ContentRepository
     /** @return list<array<string,mixed>> */
     public function activity(): array
     {
-        if ($this->hasDatabase()) {
-            try {
-                $entities = TableRegistry::getTableLocator()->get(GithubActivityTable::class)
-                    ->find()->orderByDesc('published_at')->limit(500)->all();
-                $rows = [];
-                foreach ($entities as $record) {
-                    $created = $record->get('published_at');
-                    $rows[] = [
-                        'source_url' => $record->get('source_url'), 'title' => $record->get('title'),
-                        'repository' => $record->get('repository'), 'kind' => $record->get('kind'),
-                        'state' => $record->get('state'),
-                        'published_at' => $created instanceof DateTimeInterface ? $created->format('Y-m-d H:i:s') : '',
-                    ];
-                }
-                // An empty *completed* import is authoritative: do not
-                // resurrect historical static entries after a privacy change.
-                if ($rows !== [] || $this->githubProvenance()['source'] !== 'reviewed-snapshot') {
-                    return $rows;
-                }
-            } catch (Throwable $error) {
-                // A database outage must not republish historic GitHub entries
-                // that may have been removed from the last accepted import.
-                error_log('Activity ORM unavailable: ' . $error->getMessage());
-
-                return [];
-            }
+        if (!$this->hasDatabase()) {
+            return $this->catalog->contributions();
         }
+        // Rows are not publishable until a complete GitHub import has an
+        // authoritative sync receipt. Partial/manual cache rows stay private.
+        $source = $this->githubProvenance()['source'];
+        if ($source === 'reviewed-snapshot') {
+            return $this->catalog->contributions();
+        }
+        if ($source !== 'github-public-api') {
+            return [];
+        }
+        try {
+            $entities = TableRegistry::getTableLocator()->get(GithubActivityTable::class)
+                ->find()->orderByDesc('published_at')->limit(500)->all();
+            $rows = [];
+            foreach ($entities as $record) {
+                $created = $record->get('published_at');
+                $rows[] = [
+                    'source_url' => $record->get('source_url'), 'title' => $record->get('title'),
+                    'repository' => $record->get('repository'), 'kind' => $record->get('kind'),
+                    'state' => $record->get('state'),
+                    'published_at' => $created instanceof DateTimeInterface ? $created->format('Y-m-d H:i:s') : '',
+                ];
+            }
 
-        return $this->catalog->contributions();
+            // Even an empty completed import is authoritative.
+            return $rows;
+        } catch (Throwable $error) {
+            // Database driver messages may contain bound private field values.
+            error_log('Activity ORM unavailable: ' . get_class($error));
+
+            return [];
+        }
     }
 
     /**
@@ -247,7 +252,7 @@ final class ContentRepository
                     ];
                 }
             } catch (Throwable $error) {
-                error_log('Sync provenance unavailable: ' . $error->getMessage());
+                error_log('Sync provenance unavailable: ' . get_class($error));
 
                 return ['source' => 'unavailable', 'last_sync' => null];
             }
@@ -260,32 +265,36 @@ final class ContentRepository
     public function publicRepoUpdates(): array
     {
         if ($this->hasDatabase()) {
-            try {
-                $entities = TableRegistry::getTableLocator()->get(GithubPublicReposTable::class)
-                    ->find()->orderByDesc('pushed_at')->limit(6)->all();
-                $rows = [];
-                foreach ($entities as $record) {
-                    $date = $record->get('pushed_at');
-                    $rows[] = [
-                        'repository' => self::requiredString($record->get('repository'), 'repository'),
-                        'description' => self::requiredString($record->get('description'), 'description'),
-                        'repo_url' => self::requiredString($record->get('repo_url'), 'repo_url'),
-                        'pushed_at' => $date instanceof DateTimeInterface ? $date->format('Y-m-d H:i:s') : '',
-                    ];
-                }
-                // An empty *completed* import is authoritative: do not
-                // resurrect historical static entries after a privacy change.
-                if ($rows !== [] || $this->githubProvenance()['source'] !== 'reviewed-snapshot') {
-                    return $rows;
-                }
-            } catch (Throwable $error) {
-                // Never resurrect withdrawn repositories from a dated snapshot.
-                error_log('Repo feed ORM unavailable: ' . $error->getMessage());
-
+            // A cache row alone cannot authorize a public GitHub listing.
+            $source = $this->githubProvenance()['source'];
+            if ($source === 'unavailable') {
                 return [];
+            }
+            if ($source === 'github-public-api') {
+                try {
+                    $entities = TableRegistry::getTableLocator()->get(GithubPublicReposTable::class)
+                        ->find()->orderByDesc('pushed_at')->limit(6)->all();
+                    $rows = [];
+                    foreach ($entities as $record) {
+                        $date = $record->get('pushed_at');
+                        $rows[] = [
+                            'repository' => self::requiredString($record->get('repository'), 'repository'),
+                            'description' => self::requiredString($record->get('description'), 'description'),
+                            'repo_url' => self::requiredString($record->get('repo_url'), 'repo_url'),
+                            'pushed_at' => $date instanceof DateTimeInterface ? $date->format('Y-m-d H:i:s') : '',
+                        ];
+                    }
+
+                    return $rows;
+                } catch (Throwable $error) {
+                    error_log('Repo feed ORM unavailable: ' . get_class($error));
+
+                    return [];
+                }
             }
         }
 
+        // Before the first successful import only reviewed static data is public.
         return [
             [
                 'repository' => 'Harfusha/MutaUI',
@@ -331,7 +340,7 @@ final class ContentRepository
 
             return $result;
         } catch (Throwable $error) {
-            error_log('Editorial journal could not be listed: ' . $error->getMessage());
+            error_log('Editorial journal could not be listed: ' . get_class($error));
 
             return [];
         }
@@ -370,7 +379,7 @@ final class ContentRepository
 
             return $output;
         } catch (Throwable $error) {
-            error_log('Editorial audit history unavailable: ' . $error->getMessage());
+            error_log('Editorial audit history unavailable: ' . get_class($error));
 
             return [];
         }
