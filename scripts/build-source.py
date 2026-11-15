@@ -13,6 +13,7 @@ import subprocess
 import sys
 import zipfile
 
+from client_gates import client_test_files
 from verify_archive import verify_archive
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +29,14 @@ RUNTIME_PLACEHOLDERS = {
     'tmp/.gitkeep', 'tmp/cache/.gitkeep', 'tmp/cache/models/.gitkeep',
     'tmp/cache/persistent/.gitkeep', 'tmp/cache/views/.gitkeep', 'logs/.gitkeep',
 }
+
+
+def verify_client_tests(root: Path) -> None:
+    """Run every client regression test, not just the initial lab-core file."""
+    subprocess.run(
+        ['node', '--test', *client_test_files(root)],
+        cwd=root, check=True, stdout=subprocess.DEVNULL,
+    )
 
 
 def included_files() -> list[Path]:
@@ -70,9 +79,9 @@ def main() -> int:
             ['python3', 'scripts/audit-rendered.py'],
             ['node', '--check', 'webroot/assets/js/app.js'],
             ['node', '--check', 'webroot/assets/js/lab-core.js'],
-            ['node', '--test', 'tests/Client/lab-core.test.cjs'],
         ):
             subprocess.run(command, cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+        verify_client_tests(ROOT)
     files = included_files()
     archive_manifest: list[str] = []
     out.parent.mkdir(parents=True, exist_ok=True)
