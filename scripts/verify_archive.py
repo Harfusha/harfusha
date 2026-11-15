@@ -31,11 +31,12 @@ def _safe_name(name: str) -> bool:
     parts = PurePosixPath(name).parts
     if not parts or name.startswith('/') or '\\' in name or '\x00' in name or re.match(r'^[A-Za-z]:', name):
         return False
+    folded = tuple(part.lower() for part in parts)
     if any(part in ('', '.', '..') for part in name.split('/')):
         return False
-    if any(part in PROHIBITED_PARTS or part in PROHIBITED_NAMES for part in parts):
+    if any(part in PROHIBITED_PARTS or part in PROHIBITED_NAMES for part in folded):
         return False
-    if any(part.startswith('.env') for part in parts) and name != '.env.example':
+    if any(part.startswith('.env') for part in folded) and name != '.env.example':
         return False
     return PurePosixPath(name).suffix.lower() not in PROHIBITED_SUFFIXES
 
@@ -75,7 +76,7 @@ def verify_archive(path: Path, *, variant: str) -> int:
         if variant == 'production':
             if not {'composer.lock', 'vendor/autoload.php', 'scripts/preflight.php'}.issubset(actual):
                 raise ArchiveVerificationError('Production bundle has no locked Composer runtime')
-            if any(name.startswith(('tests/', '.github/')) or name.endswith('.env.example') for name in actual):
+            if any(name.lower().startswith(('tests/', '.github/')) or name.lower().endswith('.env.example') for name in actual):
                 raise ArchiveVerificationError('Development files in production bundle')
         elif any(name.startswith('vendor/') for name in actual):
             raise ArchiveVerificationError('Source package must not ship vendor dependencies')
