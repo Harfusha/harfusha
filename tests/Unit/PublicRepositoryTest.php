@@ -38,6 +38,14 @@ final class PublicRepositoryTest extends TestCase
         PublicRepository::fromGithub([$row], 'Harfusha');
     }
 
+    public function testRejectsUnrenderablePublicRepositoryDescription(): void
+    {
+        $row = self::fixture();
+        $row['description'] = "Hidden control \\x01 in a public summary";
+        $this->expectException(InvalidArgumentException::class);
+        PublicRepository::fromGithub([$row], 'Harfusha');
+    }
+
     public function testSkipsForkButKeepsOriginal(): void
     {
         $fork = self::fixture();
