@@ -93,6 +93,15 @@ jobs:
           node --check webroot/assets/js/lab-core.js
           npx --no-install tsc --noEmit --allowJs --checkJs --strict --target ES2022 --lib ES2022,DOM webroot/assets/js/lab-core.js
           node --test tests/Client/*.test.cjs
+      - name: Install and validate isolated production-only Composer dependencies (not a deployable release)
+        run: |
+          export LAB_PROD_STAGE="$RUNNER_TEMP/harfusha-production-stage"
+          python3 -c 'from pathlib import Path; import os; from scripts.release_package import stage_application; p=Path(os.environ["LAB_PROD_STAGE"]); p.mkdir(parents=True, exist_ok=True); stage_application(Path.cwd(), p)'
+          (
+            cd "$LAB_PROD_STAGE"
+            composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
+            composer check-platform-reqs --no-dev
+          )
   static:
     runs-on: ubuntu-latest
     timeout-minutes: 8
