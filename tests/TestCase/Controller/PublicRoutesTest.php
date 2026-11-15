@@ -3,14 +3,11 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
-use Cake\TestSuite\IntegrationTestTrait;
-use Cake\TestSuite\TestCase;
+use App\Test\Support\HttpIntegrationTestCase;
 
 /** Exercises the actual CakePHP middleware, routing and template pipeline. */
-final class PublicRoutesTest extends TestCase
+final class PublicRoutesTest extends HttpIntegrationTestCase
 {
-    use IntegrationTestTrait;
-
     public function testPublicPagesAndProjectDetails(): void
     {
         foreach (
