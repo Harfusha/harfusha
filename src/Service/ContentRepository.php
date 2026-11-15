@@ -207,7 +207,9 @@ final class ContentRepository
                         'published_at' => $created instanceof DateTimeInterface ? $created->format('Y-m-d H:i:s') : '',
                     ];
                 }
-                if ($rows !== []) {
+                // An empty *completed* import is authoritative: do not
+                // resurrect historical static entries after a privacy change.
+                if ($rows !== [] || $this->githubProvenance()['source'] === 'github-public-api') {
                     return $rows;
                 }
             } catch (Throwable $error) {
@@ -264,7 +266,9 @@ final class ContentRepository
                         'pushed_at' => $date instanceof DateTimeInterface ? $date->format('Y-m-d H:i:s') : '',
                     ];
                 }
-                if ($rows !== []) {
+                // An empty *completed* import is authoritative: do not
+                // resurrect historical static entries after a privacy change.
+                if ($rows !== [] || $this->githubProvenance()['source'] === 'github-public-api') {
                     return $rows;
                 }
             } catch (Throwable $error) {
