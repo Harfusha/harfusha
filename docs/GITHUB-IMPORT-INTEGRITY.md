@@ -13,6 +13,7 @@ The portfolio does not expose a personal GitHub token to the web or to browser J
 ## Guarantees and limitations
 
 - Duplicate or changing Search API pages cannot silently replace good data.
+- Public cache readers require a completed `sync_runs` receipt before publishing database GitHub activity or repositories. Unexpected cache rows without a receipt are ignored, and an unreadable receipt suppresses GitHub data instead of publishing an unverified snapshot.
 - The `imported`, `merged`, and `issues` counts in the synchronization receipt are calculated from accepted **external** entries only. Raw GitHub Search totals can also include authored work in owned repositories and must not be presented as published import counts.
 - GitHub titles and repository descriptions must be valid UTF-8 with XML-safe public text. Impossible upstream UTC timestamps and malformed contribution URLs fail validation before database mutation.
 - GitHub API is eventually consistent and the separate merged-PR query is not an atomic upstream transaction. If the searches disagree, synchronization **fails** and should be retried at a later time.
