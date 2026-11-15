@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
+use App\Test\Support\HttpIntegrationTestCase;
 use Cake\Database\Connection;
 use Cake\Datasource\ConnectionManager;
-use App\Test\Support\HttpIntegrationTestCase;
 use RuntimeException;
 
 /**
