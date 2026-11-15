@@ -55,6 +55,14 @@ final class PagesController extends AppController
         array $data = [],
     ): Response {
         $lang = $this->lang();
+        // Mutable public content should not linger in shared caches following
+        // an editorial unpublish or a completed GitHub import.
+        if (
+            in_array($route, ['/', '/projects', '/journal', '/now', '/open-source'], true) ||
+            str_starts_with($route, '/projects/')
+        ) {
+            $this->response = $this->response->withHeader('Cache-Control', 'no-store');
+        }
         $this->set([...$data,
             'lang' => $lang, 'route' => $route,
             'title' => $lang->value($csTitle, $enTitle),
@@ -242,7 +250,8 @@ final class PagesController extends AppController
             'Reálné příspěvky do dalších projektů.',
             'Real upstream contributions.',
             '/open-source',
-            ['activity' => $this->content()->activity()],
+            ['activity' => $this->content()->activity(),
+                'provenance' => $this->content()->githubProvenance()],
         );
     }
 
