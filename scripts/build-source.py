@@ -20,7 +20,8 @@ EXCLUDED_DIRS = {
     '.git', 'vendor', 'node_modules', 'tmp', 'logs', '__pycache__', '.phpunit.cache',
     '.idea', '.vscode', '.serena', 'scratch', 'test-results', 'coverage',
 }
-EXCLUDED_FILES = {'SHA256SUMS', '.DS_Store', 'app_local.php'}
+EXCLUDED_FILES = {'sha256sums', '.ds_store', 'app_local.php', '.lab-content-approval.json',
+                  'id_rsa', 'id_ed25519'}
 EXCLUDED_SUFFIXES = {'.key', '.pem', '.p12', '.pfx', '.sqlite', '.db', '.log', '.pyc'}
 ALLOW_ROOT_DOTFILES = {'.env.example', '.gitignore', '.htaccess'}
 RUNTIME_PLACEHOLDERS = {
