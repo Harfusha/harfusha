@@ -30,7 +30,7 @@ final readonly class GithubRecord
         if (
             !is_string($url)
             || preg_match(
-                '~^https://github\.com/([A-Za-z0-9-]+)/([A-Za-z0-9_.-]+)/(pull|issues)/[0-9]+$~D',
+                '~^https://github\.com/([A-Za-z0-9-]+)/([A-Za-z0-9_.-]+)/(pull|issues)/[1-9][0-9]*$~D',
                 $url,
                 $parts,
             ) !== 1
@@ -46,9 +46,10 @@ final readonly class GithubRecord
         }
         $created = GithubTimestamp::normalize($date);
         $title = $item['title'] ?? null;
-        if (!is_string($title) || $title === '') {
+        if (!is_string($title) || trim($title) === '') {
             throw new InvalidArgumentException('Missing event title');
         }
+        PublicText::assertRenderable($title);
 
         return new self(
             $url,
