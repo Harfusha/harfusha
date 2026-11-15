@@ -34,17 +34,25 @@ final class AdminControllerTest extends HttpIntegrationTestCase
         $this->assertHeaderContains('X-Robots-Tag', 'noindex');
     }
 
-    public function testSaveConfirmationOnlyAppearsAfterSuccessfulRedirect(): void
+    public function testSaveConfirmationCannotBeForgedByQueryString(): void
     {
         $this->session(['lab.admin' => true]);
-        $this->get('/admin');
+        $this->get('/admin?saved=1');
         $this->assertResponseOk();
         $this->assertResponseNotContains('Changes saved successfully.');
+    }
 
-        $this->get('/admin?saved=1');
+    public function testSuccessfulSaveReceiptIsOnlyDisplayedOnce(): void
+    {
+        $this->session(['lab.admin' => true, 'lab.saveConfirmed' => true]);
+        $this->get('/admin');
         $this->assertResponseOk();
         $this->assertResponseContains('role="status"');
         $this->assertResponseContains('Changes saved successfully.');
+
+        $this->get('/admin?saved=1');
+        $this->assertResponseOk();
+        $this->assertResponseNotContains('Changes saved successfully.');
     }
 
     public function testIncompleteDatabaseSchemaDisablesAdminEditorButtons(): void

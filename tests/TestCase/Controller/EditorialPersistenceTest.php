@@ -102,6 +102,11 @@ final class EditorialPersistenceTest extends HttpIntegrationTestCase
         try {
             $this->post('/admin/journal', $values);
             $this->assertRedirect('/admin?saved=1');
+            $this->get('/admin?saved=1');
+            $this->assertResponseOk();
+            $this->assertResponseContains('Changes saved successfully.');
+            $this->get('/admin?saved=1');
+            $this->assertResponseNotContains('Changes saved successfully.');
             $row = self::row($db, 'SELECT id,is_public FROM journal_entries WHERE title_en = :title ORDER BY id DESC LIMIT 1', [
                 'title' => 'One-time test',
             ]);
@@ -113,6 +118,17 @@ final class EditorialPersistenceTest extends HttpIntegrationTestCase
             $row = self::row($db, 'SELECT is_public,published_at FROM journal_entries WHERE id = :id', ['id' => $id]);
             self::assertSame(1, self::number($row['is_public'] ?? null));
             self::assertNotEmpty($row['published_at'] ?? null);
+
+            // An already public note must keep its original publication date
+            // even when an administrator submits the publish operation again.
+            $connectionDate = '2024-01-02 03:04:05';
+            $db->execute('UPDATE journal_entries SET published_at = :published WHERE id = :id', [
+                'published' => $connectionDate, 'id' => $id,
+            ]);
+            $this->post('/admin/journal/update', ['id' => (string)$id, 'operation' => 'publish']);
+            $this->assertRedirect('/admin?saved=1');
+            $row = self::row($db, 'SELECT published_at FROM journal_entries WHERE id = :id', ['id' => $id]);
+            self::assertSame($connectionDate, self::text($row['published_at'] ?? null));
 
             $this->get('/cs/journal');
             $this->assertResponseOk();

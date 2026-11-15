@@ -61,7 +61,11 @@ final class AdminController extends AppController
             return $this->render('login');
         }
         $content = new ContentRepository();
-        $this->set('saveConfirmed', $this->request->getQuery('saved') === '1');
+        // A query string is not evidence of a successful write. Show the
+        // receipt only once, after the server actually commits an edit.
+        $session = $this->request->getSession();
+        $this->set('saveConfirmed', $session->read('lab.saveConfirmed') === true);
+        $session->delete('lab.saveConfirmed');
         $this->set('projects', $content->projects());
         $operations = (new OperationsService())->report();
         // Editing requires a reachable database with all required migrations,
@@ -110,6 +114,7 @@ final class AdminController extends AppController
     public function logout(): Response
     {
         $this->request->getSession()->delete('lab.admin');
+        $this->request->getSession()->delete('lab.saveConfirmed');
         $this->request->getSession()->renew();
 
         return $this->redirect('/admin', 303) ?? $this->response;
@@ -161,6 +166,8 @@ final class AdminController extends AppController
 
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
+
+        $this->request->getSession()->write('lab.saveConfirmed', true);
 
         return $this->redirect('/admin?saved=1', 303) ?? $this->response;
     }
@@ -218,6 +225,8 @@ final class AdminController extends AppController
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
 
+        $this->request->getSession()->write('lab.saveConfirmed', true);
+
         return $this->redirect('/admin?saved=1', 303) ?? $this->response;
     }
 
@@ -256,7 +265,7 @@ final class AdminController extends AppController
             } else {
                 $status = $action === 'publish';
                 $changes = ['is_public' => $status];
-                if ($status && $entry->get('is_public') !== true) {
+                if ($status && !in_array($entry->get('is_public'), [true, 1, '1'], true)) {
                     // A saved draft becomes an actual publication only now.
                     $changes['published_at'] = new DateTimeImmutable('now');
                 }
@@ -294,6 +303,8 @@ final class AdminController extends AppController
 
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
+
+        $this->request->getSession()->write('lab.saveConfirmed', true);
 
         return $this->redirect('/admin?saved=1', 303) ?? $this->response;
     }

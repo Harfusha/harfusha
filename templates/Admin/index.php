@@ -19,8 +19,8 @@ use App\Support\Html;
 <label>Title (EN)<input name="title_en" value="<?= Html::escape($entry['title_en']) ?>" required maxlength="240"></label>
 <label>Body (CZ)<textarea name="body_cs" required maxlength="4000"><?= Html::escape($entry['body_cs']) ?></textarea></label>
 <label>Body (EN)<textarea name="body_en" required maxlength="4000"><?= Html::escape($entry['body_en']) ?></textarea></label>
-<button class="mini-button" type="submit">Save changes</button></form>
-<form action="/admin/journal/update" method="post"><input type="hidden" name="_csrfToken" value="<?= Html::escape($csrf) ?>"><input type="hidden" name="id" value="<?= $entry['id'] ?>"><input type="hidden" name="operation" value="<?= $entry['is_public'] ? 'unpublish' : 'publish' ?>"><button class="mini-button" type="submit"><?= $entry['is_public'] ? 'Unpublish' : 'Publish' ?></button></form>
+<button class="mini-button" type="submit" <?= !$dbEnabled ? 'disabled' : '' ?>>Save changes</button></form>
+<form action="/admin/journal/update" method="post"><input type="hidden" name="_csrfToken" value="<?= Html::escape($csrf) ?>"><input type="hidden" name="id" value="<?= $entry['id'] ?>"><input type="hidden" name="operation" value="<?= $entry['is_public'] ? 'unpublish' : 'publish' ?>"><button class="mini-button" type="submit" <?= !$dbEnabled ? 'disabled' : '' ?>><?= $entry['is_public'] ? 'Unpublish' : 'Publish' ?></button></form>
 </details>
 <?php endforeach; ?>
 </div></section><section class="admin-panel admin-help"><span class="eyebrow">CHANGE RECEIPTS</span>
