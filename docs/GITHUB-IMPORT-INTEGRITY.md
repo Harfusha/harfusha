@@ -13,6 +13,7 @@ The portfolio does not expose a personal GitHub token to the web or to browser J
 ## Guarantees and limitations
 
 - Duplicate or changing Search API pages cannot silently replace good data.
+- The `imported`, `merged`, and `issues` counts in the synchronization receipt are calculated from accepted **external** entries only. Raw GitHub Search totals can also include authored work in owned repositories and must not be presented as published import counts.
 - GitHub titles and repository descriptions must be valid UTF-8 with XML-safe public text. Impossible upstream UTC timestamps and malformed contribution URLs fail validation before database mutation.
 - GitHub API is eventually consistent and the separate merged-PR query is not an atomic upstream transaction. If the searches disagree, synchronization **fails** and should be retried at a later time.
 - The GitHub Search API caps access to 1,000 items per query. This code refuses truncated records; accounts with larger histories need year-scoped search and deterministic merging before expansion.
