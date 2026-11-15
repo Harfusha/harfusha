@@ -3,14 +3,11 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
-use Cake\TestSuite\IntegrationTestTrait;
-use Cake\TestSuite\TestCase;
+use App\Test\Support\HttpIntegrationTestCase;
 
 /** Refusal tests must pass even when MySQL is unavailable or uninitialized. */
-final class AdminSecurityTest extends TestCase
+final class AdminSecurityTest extends HttpIntegrationTestCase
 {
-    use IntegrationTestTrait;
-
     public function testAnonymousEditorPostIsForbidden(): void
     {
         $this->enableCsrfToken();
