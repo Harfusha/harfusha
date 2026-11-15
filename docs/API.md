@@ -46,7 +46,7 @@ The sample record above shows **shape only**, not a guaranteed current project s
 
 ### Cache semantics
 
-Responses include `ETag` (SHA-256 of the actual serialized body) and `Cache-Control: public, max-age=120, must-revalidate`. Clients may send `If-None-Match`; matching strong or weak validators, a comma-delimited validator list containing the current validator, or `*` return HTTP 304 with no body for GET. Because the ETag hashes the complete output, a changed editorial override changes the ETag. The API sets no cross-origin sharing policy. The global CSP and security headers apply here too.
+Responses include `ETag` (SHA-256 of the actual serialized body) and `Cache-Control: no-store` because project descriptions can be edited or withdrawn. The validator may still be used for an explicit conditional request; it does not authorize reuse from a shared cache. Clients may send `If-None-Match`; matching strong or weak validators, a comma-delimited validator list containing the current validator, or `*` return HTTP 304 with no body for GET. Because the ETag hashes the complete output, a changed editorial override changes the ETag. The API sets no cross-origin sharing policy. The global CSP and security headers apply here too.
 
 ### Test coverage and deployment
 
