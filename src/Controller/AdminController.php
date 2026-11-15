@@ -164,7 +164,7 @@ final class AdminController extends AppController
 
                         return true;
                     } catch (Throwable $error) {
-                        error_log('Project transaction rollback: ' . $error->getMessage());
+                        error_log('Project transaction rollback: ' . get_class($error));
 
                         return false;
                     }
@@ -174,7 +174,7 @@ final class AdminController extends AppController
                 throw new RuntimeException('Project transaction failed');
             }
         } catch (Throwable $error) {
-            error_log('Project update failed: ' . $error->getMessage());
+            error_log('Project update failed: ' . get_class($error));
 
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
@@ -225,7 +225,7 @@ final class AdminController extends AppController
 
                         return true;
                     } catch (Throwable $error) {
-                        error_log('Journal transaction rollback: ' . $error->getMessage());
+                        error_log('Journal transaction rollback: ' . get_class($error));
 
                         return false;
                     }
@@ -235,7 +235,7 @@ final class AdminController extends AppController
                 throw new RuntimeException('Journal transaction failed');
             }
         } catch (Throwable $error) {
-            error_log('Journal update failed: ' . $error->getMessage());
+            error_log('Journal update failed: ' . get_class($error));
 
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
@@ -307,7 +307,7 @@ final class AdminController extends AppController
 
                         return true;
                     } catch (Throwable $error) {
-                        error_log('Journal transaction rollback: ' . $error->getMessage());
+                        error_log('Journal transaction rollback: ' . get_class($error));
 
                         return false;
                     }
@@ -317,7 +317,7 @@ final class AdminController extends AppController
                 throw new RuntimeException('Journal update transaction failed');
             }
         } catch (Throwable $error) {
-            error_log('Journal update failed: ' . $error->getMessage());
+            error_log('Journal update failed: ' . get_class($error));
 
             return $this->response->withStatus(503)->withStringBody('Database write failed');
         }
