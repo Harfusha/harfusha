@@ -492,8 +492,21 @@ try {
     verify(true, 'Unsafe RSS origin blocked');
 }
 $renderer = new StandaloneRenderer();
+$mergedPrCount = count(array_filter(
+    $catalog->contributions(),
+    static fn(array $entry): bool => ($entry['kind'] ?? null) === 'pr'
+        && ($entry['state'] ?? null) === 'merged',
+));
 $fixtures = [
-    'home' => ['projects' => array_slice($projects, 0, 4), 'recentRepos' => [['repository' => 'Harfusha/MutaUI','description' => 'snapshot','repo_url' => 'https://github.com/Harfusha/MutaUI','pushed_at' => '2026-11-12 18:53:55']], 'journal' => $catalog->journal()],
+    'home' => [
+        'projects' => array_slice($projects, 0, 4),
+        'projectCount' => count($projects),
+        'mergedPrCount' => $mergedPrCount,
+        'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null],
+        'recentRepos' => [['repository' => 'Harfusha/MutaUI', 'description' => 'snapshot',
+            'repo_url' => 'https://github.com/Harfusha/MutaUI', 'pushed_at' => '2026-11-12 18:53:55']],
+        'journal' => $catalog->journal(),
+    ],
     'projects' => ['projects' => $projects],
     'connections' => ['projects' => $projects, 'edges' => $links],
     'decisions' => ['decisions' => $catalog->decisions()],
