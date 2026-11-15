@@ -173,6 +173,7 @@ final class AdminController extends AppController
         }
         try {
             $values = EditorialInput::journal($this->request->getData());
+            $isPublic = EditorialInput::isPublic($this->request->getData('visibility'));
         } catch (InvalidArgumentException) {
             return $this->response->withStatus(422)->withStringBody('Invalid journal entry');
         }
@@ -181,7 +182,7 @@ final class AdminController extends AppController
             $record = $table->newEntity([...$values,
                 'published_at' => new DateTimeImmutable('now'),
                 'source_url' => '',
-                'is_public' => $this->formValue('visibility', 10) === 'public',
+                'is_public' => $isPublic,
             ]);
             $db = ConnectionManager::get('default');
             if (!$db instanceof Connection) {
