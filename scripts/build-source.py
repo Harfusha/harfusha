@@ -35,15 +35,16 @@ def included_files() -> list[Path]:
         if not path.is_file():
             continue
         rel = path.relative_to(ROOT)
-        if any(part in EXCLUDED_DIRS for part in rel.parts) and rel.as_posix() not in RUNTIME_PLACEHOLDERS:
+        folded = tuple(part.lower() for part in rel.parts)
+        if any(part in EXCLUDED_DIRS for part in folded) and rel.as_posix() not in RUNTIME_PLACEHOLDERS:
             continue
-        if path.name in EXCLUDED_FILES or path.suffix.lower() in EXCLUDED_SUFFIXES:
+        if path.name.lower() in EXCLUDED_FILES or path.suffix.lower() in EXCLUDED_SUFFIXES:
             continue
-        if path.name.startswith('.env') and path.name != '.env.example':
+        if any(part.startswith('.env') for part in folded) and rel.as_posix() != '.env.example':
             continue
         if path.name.startswith('.') and len(rel.parts) == 1 and path.name not in ALLOW_ROOT_DOTFILES:
             continue
-        if any(part in {'.ssh', '.config'} for part in rel.parts):
+        if any(part in {'.ssh', '.config'} for part in folded):
             continue
         if path.is_symlink():
             raise RuntimeError(f'Symlink not included in source package: {rel}')
