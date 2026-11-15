@@ -21,7 +21,7 @@ use App\Support\Language;
       <option value="prototype">Prototype</option>
       <option value="planned"><?= $lang->value('Plánované','Planned') ?></option>
     </select>
-    <span class="filter-count" data-count><?= count($items) ?> <?= $lang->value('záznamů','results') ?></span>
+    <span class="filter-count" data-count role="status" aria-live="polite" aria-atomic="true"><?= count($items) ?> <?= $lang->value('záznamů','results') ?></span>
   </div>
   <div class="maker-grid">
   <?php foreach ($items as $item):
