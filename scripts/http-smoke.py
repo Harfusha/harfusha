@@ -178,6 +178,21 @@ def main() -> int:
     if code!=304:
         print('FAIL API conditional 304',file=sys.stderr)
         return 1
+    for condition, wanted in (
+        ('W/' + etag, 304),
+        ('"not-a-match", W/' + etag, 304),
+        ('*', 304),
+        ('"definitely-not-current"', 200),
+    ):
+        request = Request(BASE + '/api/v1/projects?lang=en', headers={'If-None-Match': condition})
+        try:
+            with OPENER.open(request, timeout=5) as response:
+                conditional_status = response.status
+        except HTTPError as error:
+            conditional_status = error.code
+        if conditional_status != wanted:
+            print(f'FAIL API If-None-Match {condition}: {conditional_status} != {wanted}', file=sys.stderr)
+            return 1
     if fetch('/api/v1/projects?lang=fr')[0] != 400 or fetch('/api/v1/projects/does-not-exist')[0] != 404:
         print('FAIL API input bounds',file=sys.stderr)
         return 1
