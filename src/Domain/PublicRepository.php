@@ -3,9 +3,6 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
-use DateTimeImmutable;
-use DateTimeZone;
-use Exception;
 use InvalidArgumentException;
 
 /** Public-only GitHub repository snapshot; rejects incomplete upstream data. */
@@ -60,11 +57,7 @@ final readonly class PublicRepository
             if (!is_string($pushed) || preg_match('/^20\d\d-\d\d-\d\dT\d\d:\d\d:\d\dZ$/D', $pushed) !== 1) {
                 throw new InvalidArgumentException('Repository timestamp missing');
             }
-            try {
-                $when = new DateTimeImmutable($pushed);
-            } catch (Exception $exception) {
-                throw new InvalidArgumentException('Invalid repository timestamp', 0, $exception);
-            }
+            $when = GithubTimestamp::normalize($pushed);
             $description = $record['description'] ?? null;
             if ($description !== null && !is_string($description)) {
                 throw new InvalidArgumentException('Invalid repository description');
@@ -81,7 +74,7 @@ final readonly class PublicRepository
                 $fullName,
                 mb_substr($description, 0, 350, 'UTF-8'),
                 $url,
-                $when->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s'),
+                $when,
             );
         }
         if ($result === []) {
