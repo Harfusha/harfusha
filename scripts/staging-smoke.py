@@ -16,6 +16,12 @@ from urllib.request import HTTPSHandler, HTTPRedirectHandler, Request, build_ope
 from xml.etree import ElementTree
 
 MAX_BODY = 2 * 1024 * 1024
+SENSITIVE_PATHS = (
+    '/.env', '/.htaccess', '/composer.lock', '/vendor/autoload.php',
+    '/config/app.php', '/data/projects.json', '/src/Application.php',
+    '/tests/standalone.php', '/.git/HEAD', '/logs/error.log',
+    '/db/schema.sql', '/scripts/preflight.php',
+)
 
 
 class NoRedirect(HTTPRedirectHandler):
@@ -73,13 +79,19 @@ def verify(
         '/en/projects': b'Local AI Hub',
         '/api/v1/projects?lang=en': b'"projects"',
         '/sitemap.xml': b'<urlset',
+        '/cs/feed.xml': b'<rss',
+        '/en/feed.xml': b'<rss',
+        '/cs/journal': b'id="entry-',
+        '/en/journal': b'id="entry-',
         '/admin': b'Admin Login',
     }
+    successful_bodies: dict[str, bytes] = {}
     for path, expected in pages.items():
         status, body, headers = get(base, path)
         if status != 200 or expected not in body or len(body) > MAX_BODY:
             errors.append(f'{path}: unexpected HTTP status, page content, or response size')
             continue
+        successful_bodies[path] = body
         if headers.get('x-content-type-options') != 'nosniff':
             errors.append(f'{path}: missing nosniff')
         if 'frame-ancestors' not in headers.get('content-security-policy', ''):
@@ -109,7 +121,34 @@ def verify(
             except (ValueError, KeyError, TypeError):
                 errors.append('API JSON is invalid')
 
-    for path in ('/.env', '/.htaccess', '/composer.lock', '/vendor/autoload.php'):
+    for locale in ('cs', 'en'):
+        feed = successful_bodies.get(f'/{locale}/feed.xml')
+        journal = successful_bodies.get(f'/{locale}/journal')
+        if feed is None or journal is None:
+            continue
+        try:
+            root = ElementTree.fromstring(feed)
+        except ElementTree.ParseError:
+            errors.append(f'{locale}: RSS is not well-formed XML')
+            continue
+        entries = root.findall('./channel/item')
+        if not entries:
+            errors.append(f'{locale}: RSS feed has no entries')
+        for entry in entries:
+            link = entry.findtext('link')
+            guid = entry.find('guid')
+            expected_prefix = base + f'/{locale}/journal#'
+            if not isinstance(link, str) or not link.startswith(expected_prefix):
+                errors.append(f'{locale}: RSS article link is not a same-origin permalink')
+                continue
+            fragment = link[len(expected_prefix):]
+            if (not fragment or not fragment.startswith('entry-')
+                    or ('id="' + fragment + '"').encode('utf-8') not in journal):
+                errors.append(f'{locale}: RSS permalink has no visible article anchor')
+            if guid is None or guid.get('isPermaLink') != 'true' or guid.text != link:
+                errors.append(f'{locale}: RSS GUID does not match the article permalink')
+
+    for path in SENSITIVE_PATHS:
         status, _, _ = get(base, path)
         if status not in (403, 404):
             errors.append(f'{path}: sensitive path did not return 403/404')
