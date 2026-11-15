@@ -4,7 +4,7 @@
 
 This site is an interactive engineering workshop, not just a self-promotion page. It shows real projects and upstream contributions, a privacy-reviewed model of a home network, and **clearly labelled simulations** visitors can explore themselves. Its own source demonstrates CakePHP MVC/ORM, typed domain objects, migrations, security controls, careful browser code and reproducible validation scripts.
 
-> **Verification status, 14 Nov 2026:** All three GitHub Actions jobs passed in [verified run #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069) on PHP 8.5: locked Composer dependencies, actual CakePHP HTTP checks, isolated MySQL 8.4 migrations, PHPUnit, PHPStan max with CakeDC/strict/ShipMonk extensions, PHPCS, JavaScript type checks and Chromium browser tests. This confirms the **CI environment**, not the target shared hosting. **Still not production-verified:** shared-host staging, database rollback and restore, deployment-specific configuration, and manual review of descriptions and images from private projects. The local authoring container cannot independently reproduce PHP 8.5/MySQL, but GitHub Actions did.
+> **Verification status, 15 Nov 2026:** All three GitHub Actions jobs passed for commit `57d7608` in [verified run #43658555206](https://github.com/Harfusha/harfusha/actions/runs/43658555206) on PHP 8.5: locked Composer dependencies, actual CakePHP HTTP security checks, isolated MySQL 8.4 migrations, PHPUnit (including persistent editorial and empty-import regressions), PHPStan max with CakeDC/strict/ShipMonk, PHPCS, strict client JS checks and Chromium browser tests (including STL upload). CI also completed a clean, isolated **production-only Composer install and platform check**. This verifies the CI environment **only**. It is not evidence that `scripts/build-release.py` has built an approved distributable archive, or that the app has been deployed to shared hosting. **Still required:** target-host HTTPS staging, database restore/rollback, configuration and human content/image review.
 
 ## Explore the site
 
@@ -104,6 +104,17 @@ APP_ENV=testing APP_URL=http://localhost:8765 DB_HOST=127.0.0.1 DB_NAME=harfusha
 ```
 
 Unlike the source ZIP, the production builder **runs** Composer quality, static privacy/SSR tests, browser-core tests and strict client type checking; it aborts on failure before packaging a `vendor/`-inclusive artifact. Production Composer dependencies are installed into a temporary **clean staging directory**, never over the audited development `vendor/`. It requires the reviewed `composer.lock`, installed dev dependencies, PHP 8.5.12+, an explicitly confirmed disposable MySQL database (`LAB_TEST_DB_CONFIRM=DB_NAME`) configured for integration tests and a working local HTTP smoke server. Set `CHROMIUM_PATH=/usr/bin/chromium` if using system Chromium.
+
+## Latest improvements (15 Nov 2026)
+
+- GitHub profile `README.md` is English-only; bilingual web pages remain available at `/cs/` and `/en/`.
+- API `demo` fields now contain localized first-party routes, not rejected external URLs. Conditional `If-None-Match` honors weak validators, multiple tags and `*`.
+- Project/PR counters reflect current records; successfully imported empty GitHub activity no longer resurrects outdated curated fallback entries.
+- CSS and JS URLs are content-fingerprinted to invalidate stale browser caches without manual release timestamps.
+- Browser STL visualization samples up to 6,000 triangles for drawing, batches pointer-driven renders with `requestAnimationFrame` and ignores stale asynchronous file reads. This is a viewer, not an STL repair service.
+- Public source dates are strictly validated as real UTC calendar dates; CI checks include date, browser STL upload and persistence regressions.
+- GitHub Actions are pinned to verified action commit SHAs and cancel outdated branch runs; a clean no-dev Composer install is checked without creating a public deployment artifact.
+- `scripts/staging-smoke.py --base-url https://staging.example.com` offers read-only HTTPS post-deploy checks. It never logs into admin or approves private content.
 
 ## Documentation
 
