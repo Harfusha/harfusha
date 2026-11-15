@@ -189,15 +189,16 @@ def main() -> int:
         return 1
 
     # An attacker-controlled Host must never become an accepted canonical origin.
-    hostile_host = Request(BASE + '/healthz', headers={'Host': 'attacker.invalid'})
-    try:
-        with OPENER.open(hostile_host, timeout=5) as response:
-            hostile_status = response.status
-    except HTTPError as error:
-        hostile_status = error.code
-    if hostile_status != 400:
-        print(f'FAIL untrusted Host was not rejected: {hostile_status}', file=sys.stderr)
-        return 1
+    for host in ('attacker.invalid', 'localhost:9876'):
+        hostile_host = Request(BASE + '/healthz', headers={'Host': host})
+        try:
+            with OPENER.open(hostile_host, timeout=5) as response:
+                hostile_status = response.status
+        except HTTPError as error:
+            hostile_status = error.code
+        if hostile_status != 400:
+            print(f'FAIL untrusted Host {host} was not rejected: {hostile_status}', file=sys.stderr)
+            return 1
 
     status, _, headers = fetch('/cron/github', method='POST')
     if status != 403 or 'no-store' not in headers.get('Cache-Control', '') or 'noindex' not in headers.get('X-Robots-Tag', ''):
