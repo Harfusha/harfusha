@@ -30,6 +30,27 @@ final class GithubRecordTest extends TestCase
         ], 'pr', 'merged');
     }
 
+    public function testRejectsZeroNumberAndControlCharacters(): void
+    {
+        foreach (
+            [
+                ['html_url' => 'https://github.com/cakephp/cakephp/pull/0',
+                    'created_at' => '2026-11-12T12:00:00Z', 'title' => 'Invalid number'],
+                ['html_url' => 'https://github.com/cakephp/cakephp/pull/20',
+                    'created_at' => '2026-11-12T12:00:00Z', 'title' => "Bad \\x01 title"],
+                ['html_url' => 'https://github.com/cakephp/cakephp/issues/20',
+                    'created_at' => '2026-11-12T12:00:00Z', 'title' => '  '],
+            ] as $case
+        ) {
+            try {
+                GithubRecord::fromGithub($case, str_contains($case['html_url'], '/pull/') ? 'pr' : 'issue', 'open');
+                self::fail('Invalid upstream issue was accepted');
+            } catch (InvalidArgumentException) {
+                // A bad external record must not enter the public database.
+            }
+        }
+    }
+
     public function testRejectsUntrustedEventUrl(): void
     {
         $this->expectException(InvalidArgumentException::class);
