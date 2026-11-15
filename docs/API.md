@@ -42,7 +42,7 @@ Invalid languages return 400. Mutation methods are not registered. There is no C
 }
 ```
 
-The fields above show **shape only**, not a guaranteed current project status or a full sample record. The `repository` field is `null` for non-public projects. An external `demo` URL is sent only when the allowlisted URL validator accepts it. Internal hostnames, IP addresses, authentication, unpublished notes, service endpoints and server telemetry are never serialized.
+The fields above show **shape only**, not a guaranteed current project status or a full sample record. The `repository` field is `null` for non-public projects. The `demo` field is a **same-origin, locale-aware path** to one of the explicitly curated interactive simulations (for example `/en/playground#ai` or `/cs/homelab`), or `null` when none is available. These are not live demos of private infrastructure and never disclose internal addresses or external service endpoints. Internal hostnames, IP addresses, authentication, unpublished notes, service endpoints and server telemetry are never serialized.
 
 ### Cache semantics
 
@@ -51,7 +51,7 @@ Responses include `ETag` (SHA-256 of the actual serialized body) and `Cache-Cont
 ### Test coverage and deployment
 
 - `tests/Unit/PublicProjectViewTest.php`: typed redaction and bilingual DTO behavior.
-- `tests/TestCase/Controller/ApiControllerTest.php`: real CakePHP routing and HTTP behavior (**not executable in the isolated authoring environment**).
+- `tests/TestCase/Controller/ApiControllerTest.php`: real CakePHP routing and HTTP behavior (executed in the GitHub Actions PHP 8.5 / MySQL test environment).
 - `scripts/http-smoke.py`: expected HTTP JSON and 304 behavior (**requires a running CakePHP server**).
 - `tests/standalone.php`: serializer checks without CakePHP dependencies.
 
