@@ -26,6 +26,24 @@ final class PublicProjectViewTest extends TestCase
         self::assertArrayNotHasKey('private', $cs);
     }
 
+    public function testDemoLinksAreLocalAndUseTheRequestedLanguage(): void
+    {
+        $catalog = new ProjectCatalog(dirname(__DIR__, 2) . '/data');
+        $ai = $catalog->find('local-ai-hub');
+        $private = $catalog->find('woodbound');
+        $homelab = $catalog->find('home-infrastructure');
+        $withoutDemo = $catalog->find('tiskov');
+        self::assertNotNull($ai);
+        self::assertNotNull($private);
+        self::assertNotNull($homelab);
+        self::assertNotNull($withoutDemo);
+
+        self::assertSame('/en/playground#ai', (new PublicProjectView($ai))->toArray(new Language('en'))['demo']);
+        self::assertSame('/cs/playground#world', (new PublicProjectView($private))->toArray(new Language('cs'))['demo']);
+        self::assertSame('/en/homelab', (new PublicProjectView($homelab))->toArray(new Language('en'))['demo']);
+        self::assertNull((new PublicProjectView($withoutDemo))->toArray(new Language('en'))['demo']);
+    }
+
     public function testApiAllowsOnlyReviewedPublicRepositoryLinks(): void
     {
         $catalog = new ProjectCatalog(dirname(__DIR__, 2) . '/data');
