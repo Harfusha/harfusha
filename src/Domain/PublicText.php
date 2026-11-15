@@ -16,6 +16,7 @@ final class PublicText
     {
     }
 
+    /** Reject malformed Unicode and XML-forbidden characters before publication. */
     public static function assertRenderable(string $value): void
     {
         // XML 1.0 permits TAB, LF and CR but not the other C0 controls,
