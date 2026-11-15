@@ -169,6 +169,7 @@ final class ContentRepository
                 foreach ($entities as $record) {
                     $published = $record->get('published_at');
                     $rows[] = [
+                        'id' => self::requiredId($record->get('id')),
                         'title_cs' => $record->get('title_cs'), 'title_en' => $record->get('title_en'),
                         'body_cs' => $record->get('body_cs'), 'body_en' => $record->get('body_en'),
                         'category' => $record->get('category'), 'source_url' => $record->get('source_url'),
