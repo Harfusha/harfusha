@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
-use DateTimeImmutable;
-use Exception;
 use InvalidArgumentException;
 
 /**
@@ -278,17 +276,30 @@ final class PublicContentValidator
     }
 
     /**
-     * Validate and normalize a published ISO date.
+     * Validate a stable UTC publication date without PHP's permissive relative
+     * date parser (which accepts strings like "tomorrow" and rolls over Feb 30).
+     * Accepted: YYYY-MM-DD, YYYY-MM-DD HH:MM:SS, and RFC3339 UTC with Z.
      */
     private static function date(string $value, string $label): void
     {
-        try {
-            $date = new DateTimeImmutable($value);
-        } catch (Exception $error) {
-            throw new InvalidArgumentException('Invalid date: ' . $label, 0, $error);
+        if (
+            preg_match(
+                '/^([0-9]{4})-([0-9]{2})-([0-9]{2})(?:(?: ([0-9]{2}):([0-9]{2}):([0-9]{2}))|(?:T([0-9]{2}):([0-9]{2}):([0-9]{2})Z))?$/D',
+                $value,
+                $matches,
+            ) !== 1
+        ) {
+            throw new InvalidArgumentException('Invalid date format: ' . $label);
         }
-        if ($date->format('Y') < '2000' || $date->format('Y') > '2100') {
-            throw new InvalidArgumentException('Date outside permitted range: ' . $label);
+        $year = (int)$matches[1];
+        if ($year < 2000 || $year > 2100 || !checkdate((int)$matches[2], (int)$matches[3], $year)) {
+            throw new InvalidArgumentException('Invalid calendar date: ' . $label);
+        }
+        $hour = $matches[4] !== '' ? (int)$matches[4] : (int)($matches[7] ?? 0);
+        $minute = $matches[5] !== '' ? (int)$matches[5] : (int)($matches[8] ?? 0);
+        $second = $matches[6] !== '' ? (int)$matches[6] : (int)($matches[9] ?? 0);
+        if ($hour > 23 || $minute > 59 || $second > 59) {
+            throw new InvalidArgumentException('Invalid publication time: ' . $label);
         }
     }
 }
