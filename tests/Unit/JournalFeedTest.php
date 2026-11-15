@@ -31,6 +31,41 @@ final class JournalFeedTest extends TestCase
         }
     }
 
+    public function testPublicationDateFormatsAreStrictAndUtc(): void
+    {
+        $entry = ['title_en' => 'Note', 'body_en' => 'Body'];
+        foreach (
+            ['2024-02-29', '2026-11-12 12:00:00', '2026-11-12T12:00:00Z'] as $when
+        ) {
+            $rss = JournalFeed::render(
+                'https://portfolio.example',
+                new Language('en'),
+                [[...$entry, 'published_at' => $when]],
+            );
+            self::assertStringContainsString('<pubDate>', $rss);
+            self::assertStringContainsString(' +0000</pubDate>', $rss);
+        }
+    }
+
+    public function testImpossibleDatesCannotBeSilentlyNormalizedInRss(): void
+    {
+        $entry = ['title_en' => 'Note', 'body_en' => 'Body'];
+        foreach (
+            ['tomorrow', '2026-02-30', '2026-11-12 24:00:00', '2026-11-12T25:00:00Z'] as $when
+        ) {
+            try {
+                JournalFeed::render(
+                    'https://portfolio.example',
+                    new Language('en'),
+                    [[...$entry, 'published_at' => $when]],
+                );
+                self::fail('Noncanonical date accepted in public RSS');
+            } catch (\InvalidArgumentException) {
+                // No unchecked dates may reach an RSS client.
+            }
+        }
+    }
+
     public function testXmlEscapesUserTextAndPreservesDates(): void
     {
         $feed = JournalFeed::render('https://portfolio.example', new Language('en'), [[
