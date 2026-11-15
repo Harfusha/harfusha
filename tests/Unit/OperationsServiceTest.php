@@ -15,13 +15,17 @@ use RuntimeException;
  */
 final class OperationsServiceTest extends TestCase
 {
+    public function testCompleteMigratedSchemaPassesTheDatabaseProbe(): void
+    {
+        self::assertSame('ok', (new OperationsService())->report()['database']);
+    }
+
     public function testMissingEditorialMigrationIsNotReportedAsReady(): void
     {
         $connection = ConnectionManager::get('default');
         if (!$connection instanceof Connection) {
             throw new RuntimeException('Expected disposable CakePHP MySQL test database');
         }
-        self::assertSame('ok', (new OperationsService())->report()['database']);
         $connection->execute('CREATE TEMPORARY TABLE editorial_audit (id BIGINT NOT NULL)');
         try {
             $report = (new OperationsService())->report();
@@ -30,6 +34,5 @@ final class OperationsServiceTest extends TestCase
         } finally {
             $connection->execute('DROP TEMPORARY TABLE IF EXISTS editorial_audit');
         }
-        self::assertSame('ok', (new OperationsService())->report()['database']);
     }
 }
