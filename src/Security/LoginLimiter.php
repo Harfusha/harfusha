@@ -115,7 +115,8 @@ final readonly class LoginLimiter
                 }
                 clearstatcache(true, $path);
                 $secured = @lstat($path);
-                if (!is_array($secured) || ($secured['mode'] & 0077) !== 0 ||
+                if (
+                    !is_array($secured) || ($secured['mode'] & 0077) !== 0 ||
                     $secured['ino'] !== $descriptor['ino'] || $secured['dev'] !== $descriptor['dev']
                 ) {
                     return false;
@@ -185,7 +186,8 @@ final readonly class LoginLimiter
             }
             clearstatcache(true, $this->directory);
             $secured = @lstat($this->directory);
-            if (!is_array($secured) || ($secured['mode'] & 0077) !== 0 ||
+            if (
+                !is_array($secured) || ($secured['mode'] & 0077) !== 0 ||
                 $secured['ino'] !== $info['ino'] || $secured['dev'] !== $info['dev']
             ) {
                 return false;
