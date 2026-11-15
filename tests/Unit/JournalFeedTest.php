@@ -5,6 +5,7 @@ namespace App\Test\Unit;
 
 use App\Domain\JournalFeed;
 use App\Support\Language;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class JournalFeedTest extends TestCase
@@ -60,7 +61,7 @@ final class JournalFeedTest extends TestCase
                     [[...$entry, 'published_at' => $when]],
                 );
                 self::fail('Noncanonical date accepted in public RSS');
-            } catch (\InvalidArgumentException) {
+            } catch (InvalidArgumentException) {
                 // No unchecked dates may reach an RSS client.
             }
         }
