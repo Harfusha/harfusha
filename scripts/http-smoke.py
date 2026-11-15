@@ -146,6 +146,10 @@ def main() -> int:
         if headers.get('X-Content-Type-Options') != 'nosniff' or 'frame-ancestors' not in headers.get('Content-Security-Policy', ''):
             print(f'FAIL {path}: security headers missing', file=sys.stderr)
             return 1
+        if path in ('/cs/', '/en/', '/cs/projects', '/cs/feed.xml', '/api/v1/projects?lang=en'):
+            if 'no-store' not in headers.get('Cache-Control', ''):
+                print(f'FAIL {path}: mutable public content was cacheable', file=sys.stderr)
+                return 1
         if path == '/admin':
             if 'no-store' not in headers.get('Cache-Control', ''):
                 print('FAIL admin cache policy', file=sys.stderr)
@@ -169,14 +173,22 @@ def main() -> int:
     if not etag:
         print('FAIL missing API ETag',file=sys.stderr)
         return 1
+    if 'no-store' not in api_headers.get('Cache-Control', ''):
+        print('FAIL cacheable editorial API response', file=sys.stderr)
+        return 1
     req=Request(BASE+'/api/v1/projects?lang=en',headers={'If-None-Match':etag})
     try:
         with OPENER.open(req,timeout=5) as response:
             code=response.status
+            not_modified_headers = dict(response.headers)
     except HTTPError as error:
         code=error.code
+        not_modified_headers = dict(error.headers)
     if code!=304:
         print('FAIL API conditional 304',file=sys.stderr)
+        return 1
+    if 'no-store' not in not_modified_headers.get('Cache-Control', ''):
+        print('FAIL cached API 304 response',file=sys.stderr)
         return 1
     for condition, wanted in (
         ('W/' + etag, 304),
