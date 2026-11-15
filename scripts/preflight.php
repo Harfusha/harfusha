@@ -21,15 +21,23 @@ if (!in_array($environment, ['development','testing','production'], true)) {
     $issues[] = 'APP_ENV must explicitly select development, testing or production';
 }
 if ($environment === 'production') {
-    $origin = getenv('APP_URL') ?: '';
-    $parts = parse_url($origin);
-    if (!is_array($parts) || ($parts['scheme'] ?? null) !== 'https' ||
-        !is_string($parts['host'] ?? null) || isset($parts['path']) ||
-        isset($parts['query']) || isset($parts['user'])) {
-        $issues[] = 'APP_URL must be an HTTPS origin without a path';
-    }
-    if (!preg_match('/^[a-fA-F0-9]{64,128}$/D', getenv('SECURITY_SALT') ?: '')) {
-        $issues[] = 'SECURITY_SALT must be random hexadecimal';
+    // Use the exact same production policy as CakePHP bootstrap. A separate,
+    // weaker preflight check could approve URLs with fragments/credentials or
+    // default repeated salts that the live application then rejects.
+    if (!class_exists(\\App\\Security\\DeploymentPolicy::class)) {
+        $issues[] = 'Deployment policy unavailable: install Composer dependencies';
+    } else {
+        try {
+            \\App\\Security\\DeploymentPolicy::assertEnvironment(
+                $environment,
+                filter_var(getenv('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN),
+                (string)(getenv('APP_URL') ?: ''),
+                (string)(getenv('SECURITY_SALT') ?: ''),
+            );
+        } catch (\\InvalidArgumentException $error) {
+            // DeploymentPolicy emits fixed messages, never input secrets.
+            $issues[] = $error->getMessage();
+        }
     }
     $adminHash = getenv('ADMIN_PASSWORD_HASH');
     if (!is_string($adminHash) || $adminHash === '' || password_get_info($adminHash)['algoName'] === 'unknown') {
@@ -38,9 +46,6 @@ if ($environment === 'production') {
     $cron = getenv('CRON_SECRET');
     if ($cron !== false && $cron !== '' && strlen($cron) < 32) {
         $issues[] = 'Configured CRON_SECRET must be at least 32 characters';
-    }
-    if (filter_var(getenv('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN)) {
-        $issues[] = 'DEBUG must be disabled in production';
     }
 }
 if (!is_file($root . '/vendor/autoload.php')) { $issues[] = 'Composer dependencies missing: run composer install'; }
