@@ -429,7 +429,7 @@
       }
       return base;
     };
-    let mesh=sample(),ax=-.3,ay=.65,zoom=1,drag=false,previous=[0,0];
+    let mesh=sample(),ax=-.3,ay=.65,zoom=1,drag=false,previous=[0,0],loadGeneration=0,renderQueued=false;
     const normMesh = core.normalizeMesh;
     mesh=normMesh(mesh);
     renderCad=()=>{
@@ -451,24 +451,41 @@
         ctx.strokeStyle=wire.checked?'rgba(103,238,194,.55)':'rgba(163,247,225,.3)';ctx.lineWidth=wire.checked?1.1:.5;ctx.stroke();
       }
     };
+    // Render at most once per animation frame even if pointer events arrive faster.
+    const queueCadRender=()=>{
+      if(renderQueued)return;
+      renderQueued=true;
+      requestAnimationFrame(()=>{renderQueued=false;renderCad();});
+    };
     const info=$('[data-cad-info]',root);
     const setInfo=msg=>info.textContent=msg;
     const loadStl = async input => {
       if(input.size > 8 * 1024 * 1024) throw new Error('File exceeds 8 MB');
-      return normMesh(core.parseStl(await input.arrayBuffer()));
+      // A bounded display sample keeps rotation responsive even for large STL files.
+      return normMesh(core.parseStl(await input.arrayBuffer(),6000));
     };
     file.addEventListener('change',async()=>{
-      if(!file.files?.length)return;
-      try{mesh=await loadStl(file.files[0]);ax=-.3;ay=.65;zoom=1;setInfo(`${mesh.length.toLocaleString()} triangles · local STL`);renderCad();}
-      catch(e){setInfo(`Cannot open STL: ${e.message}`);}
+      const input=file.files?.[0];
+      if(!input)return;
+      const generation=++loadGeneration;
+      setInfo(local('Načítám STL…','Loading STL…'));
+      try{
+        const nextMesh=await loadStl(input);
+        if(generation!==loadGeneration)return;
+        mesh=nextMesh;ax=-.3;ay=.65;zoom=1;
+        setInfo(`${mesh.length.toLocaleString()} displayed triangles · local STL sample`);
+        queueCadRender();
+      }catch(e){
+        if(generation===loadGeneration)setInfo(`Cannot open STL: ${e instanceof Error?e.message:'Invalid file'}`);
+      }
     });
-    wire.addEventListener('change',renderCad);
-    $('[data-cad-reset]',root).addEventListener('click',()=>{mesh=normMesh(sample());ax=-.3;ay=.65;zoom=1;file.value='';setInfo(`${mesh.length} triangles · sample geometry`);renderCad();});
+    wire.addEventListener('change',queueCadRender);
+    $('[data-cad-reset]',root).addEventListener('click',()=>{loadGeneration++;mesh=normMesh(sample());ax=-.3;ay=.65;zoom=1;file.value='';setInfo(`${mesh.length} triangles · sample geometry`);queueCadRender();});
     canvas.addEventListener('pointerdown',e=>{drag=true;previous=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);});
-    canvas.addEventListener('pointermove',e=>{if(!drag)return;ay+=(e.clientX-previous[0])*.009;ax+=(e.clientY-previous[1])*.009;ax=Math.max(-1.5,Math.min(1.5,ax));previous=[e.clientX,e.clientY];renderCad();});
+    canvas.addEventListener('pointermove',e=>{if(!drag)return;ay+=(e.clientX-previous[0])*.009;ax+=(e.clientY-previous[1])*.009;ax=Math.max(-1.5,Math.min(1.5,ax));previous=[e.clientX,e.clientY];queueCadRender();});
     canvas.addEventListener('pointerup',()=>{drag=false;});
     canvas.addEventListener('pointercancel',()=>{drag=false;});
-    canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.28,Math.min(3,zoom*(e.deltaY>0?.88:1.12)));renderCad();},{passive:false});
+    canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.28,Math.min(3,zoom*(e.deltaY>0?.88:1.12)));queueCadRender();},{passive:false});
     setInfo(`${mesh.length} triangles · sample geometry`);
     renderCad();
   }
