@@ -27,8 +27,11 @@ final class OperationsStatus
         bool $storageWritable,
         ?DateTimeImmutable $lastGithubSync,
         DateTimeImmutable $now,
+        bool $schemaReady = true,
     ): array {
-        $database = !$databaseConfigured ? 'not-configured' : ($databaseReachable ? 'ok' : 'unreachable');
+        $database = !$databaseConfigured ? 'not-configured' : (
+            !$databaseReachable ? 'unreachable' : ($schemaReady ? 'ok' : 'schema-incomplete')
+        );
         $storage = $storageWritable ? 'ok' : 'unwritable';
         $github = 'not-synced';
         $age = null;
