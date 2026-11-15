@@ -13,7 +13,7 @@
     const input = $('[data-search]', root);
     const count = $('[data-count]', root);
     const empty = $('[data-empty]', root);
-    const items = $(itemSelector, root);
+    const items = $$(itemSelector, root);
     // Search text comes from immutable server-rendered cards: normalize once,
     // rather than repeating Unicode decomposition on every keystroke.
     const indexed = items.map(item => ({item, text: normalizeSearch(item.dataset.searchText || '')}));
