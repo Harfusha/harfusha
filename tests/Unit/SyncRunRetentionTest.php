@@ -12,6 +12,23 @@ use RuntimeException;
 /** Exercises bounded operational receipts on the disposable CI MySQL. */
 final class SyncRunRetentionTest extends TestCase
 {
+    /** Extract a strictly positive-or-zero SQL count from mixed driver output. */
+    private static function numberField(mixed $row, string $field): int
+    {
+        if (!is_array($row)) {
+            throw new RuntimeException('Missing SQL aggregate row');
+        }
+        $value = $row[$field] ?? null;
+        if (is_int($value)) {
+            return $value;
+        }
+        if (is_string($value) && ctype_digit($value)) {
+            return (int)$value;
+        }
+
+        throw new RuntimeException('Invalid SQL aggregate value');
+    }
+
     public function testOldReceiptsArePrunedWithoutAffectingOtherSources(): void
     {
         $connection = ConnectionManager::get('default');
@@ -39,16 +56,16 @@ final class SyncRunRetentionTest extends TestCase
                 ['source' => 'retention-test'],
             )->fetch('assoc');
             self::assertIsArray($row);
-            self::assertSame(64, (int)$row['total']);
-            self::assertSame(6, (int)$row['oldest']);
-            self::assertSame(69, (int)$row['newest']);
+            self::assertSame(64, self::numberField($row, 'total'));
+            self::assertSame(6, self::numberField($row, 'oldest'));
+            self::assertSame(69, self::numberField($row, 'newest'));
 
             $other = $connection->execute(
                 'SELECT COUNT(*) AS total FROM sync_runs WHERE source = :source',
                 ['source' => 'another-test'],
             )->fetch('assoc');
             self::assertIsArray($other);
-            self::assertSame(1, (int)$other['total']);
+            self::assertSame(1, self::numberField($other, 'total'));
 
             // Idempotent: repeated pruning never discards any of the 64 newest.
             SyncRunRetention::prune($connection, 'retention-test');
@@ -57,7 +74,7 @@ final class SyncRunRetentionTest extends TestCase
                 ['source' => 'retention-test'],
             )->fetch('assoc');
             self::assertIsArray($same);
-            self::assertSame(64, (int)$same['total']);
+            self::assertSame(64, self::numberField($same, 'total'));
         } finally {
             $connection->rollback();
         }
@@ -82,7 +99,7 @@ final class SyncRunRetentionTest extends TestCase
                 ['source' => 'short-history-test'],
             )->fetch('assoc');
             self::assertIsArray($row);
-            self::assertSame(1, (int)$row['total']);
+            self::assertSame(1, self::numberField($row, 'total'));
         } finally {
             $connection->rollback();
         }
