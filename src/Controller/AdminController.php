@@ -61,6 +61,7 @@ final class AdminController extends AppController
             return $this->render('login');
         }
         $content = new ContentRepository();
+        $this->set('saveConfirmed', $this->request->getQuery('saved') === '1');
         $this->set('projects', $content->projects());
         $this->set('dbEnabled', $content->hasDatabase());
         $this->set('journalEntries', $content->editorialJournal());
