@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Domain\GithubImportSummary;
 use App\Domain\GithubRepositoryPageCollector;
 use App\Domain\GithubSearchPageCollector;
 use App\Domain\GithubSnapshot;
@@ -82,10 +83,9 @@ final class GithubSyncService
         if (!$db instanceof Connection) {
             throw new RuntimeException('Unexpected database driver');
         }
-        $repoCount = 0;
         // Atomic full replacement prevents stale records from surviving privacy/status changes.
         // Never start the transaction until *all* remote searches have completed.
-        $db->transactional(function (Connection $connection) use ($records, $publicRepos, &$repoCount): void {
+        $db->transactional(function (Connection $connection) use ($records, $publicRepos): void {
             $connection->execute('DELETE FROM github_activity');
             $connection->execute('DELETE FROM github_public_repos');
             foreach ($records as $event) {
@@ -102,8 +102,7 @@ final class GithubSyncService
                         'repo' => $repo->name, 'description' => $repo->description,
                         'url' => $repo->url, 'pushed' => $repo->pushedAt,
                     ]);
-                ++$repoCount;
-            }
+             }
             $connection->execute(
                 'INSERT INTO sync_runs (source,item_count,completed_at) VALUES (:source,:count,UTC_TIMESTAMP())',
                 ['source' => 'github', 'count' => count($records)],
@@ -111,12 +110,9 @@ final class GithubSyncService
             SyncRunRetention::prune($connection, 'github');
         });
 
-        return [
-            'imported' => count($records),
-            'merged' => count($merged),
-            'issues' => count($issues),
-            'repositories' => $repoCount,
-        ];
+        // Raw Search totals also contain contributions to the owner's own
+        // repositories, which the public activity snapshot excludes.
+        return GithubImportSummary::fromRecords($records, count($publicRepos));
     }
 
     /** @return list<array<string,mixed>> */
