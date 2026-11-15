@@ -14,8 +14,8 @@ final class DeploymentPolicyTest extends TestCase
 
     public function testValidProductionOriginAndSaltAreAccepted(): void
     {
+        $this->expectNotToPerformAssertions();
         DeploymentPolicy::assertEnvironment('production', false, 'https://example.com', self::GOOD_SALT);
-        self::assertTrue(true);
     }
 
     public function testUnsafeProductionOriginsAreRejected(): void
@@ -67,8 +67,8 @@ final class DeploymentPolicyTest extends TestCase
 
     public function testLocalDevelopmentDoesNotRequireProductionSecrets(): void
     {
+        $this->expectNotToPerformAssertions();
         DeploymentPolicy::assertEnvironment('development', true, 'http://localhost:8765', '');
         DeploymentPolicy::assertEnvironment('testing', false, 'http://localhost:8765', '');
-        self::assertTrue(true);
     }
 }
