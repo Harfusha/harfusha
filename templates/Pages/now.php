@@ -8,13 +8,15 @@ use App\Support\Language;
 /** @var list<array<string,mixed>> $journal */
 /** @var array{source:string,last_sync:?string} $provenance */
 $githubSynced = $provenance['source'] === 'github-public-api';
+$githubUnavailable = $provenance['source'] === 'unavailable';
 ?>
 <section class="page-hero shell">
   <span class="eyebrow">NOW / WORK IN PROGRESS / EVIDENCE</span>
   <h1><?= $lang->value('Co právě vzniká.','What I am building now.') ?></h1>
   <p><?= $lang->value('Žádný falešný stav „online“ ani domnělý živý přenos. Tohle je veřejná historie GitHubu a ručně schvalované poznámky z vývoje.','No fabricated online indicators or fake live stream. This page shows public GitHub history and manually reviewed engineering notes.') ?></p>
-  <div class="page-meta"><?= $githubSynced ? 'PUBLIC GITHUB API' : 'REVIEWED SNAPSHOT' ?> <span>·</span>
+  <div class="page-meta"><?= $githubSynced ? 'PUBLIC GITHUB API' : ($githubUnavailable ? 'DATA UNAVAILABLE' : 'REVIEWED SNAPSHOT') ?> <span>·</span>
   <?php if ($provenance['last_sync'] !== null): ?><?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?>
+  <?php elseif ($githubUnavailable): ?><?= $lang->value('GitHub data nejsou dostupná; staré záznamy nezobrazujeme', 'GitHub data unavailable; historical entries are withheld') ?>
   <?php else: ?><?= $lang->value('Automatická synchronizace zatím není potvrzena','Automated synchronization has not been confirmed') ?><?php endif; ?></div>
 </section>
 <section class="shell section">
