@@ -30,7 +30,7 @@ The builder checks PHP and required extensions and executes:
 5. Kopie schváleného zdrojového stromu do izolovaného staging adresáře a Composer production install (`--no-dev`) **pouze v něm**
 6. vendor-inclusive ZIP včetně `scripts/preflight.php` a SHA256 manifestu, excluding `.env`, local secrets, caches, test files and unneeded dev folders
 
-**Current evidence (14 Nov 2026):** [GitHub Actions run #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069) passed all three jobs on PHP 8.5 / MySQL 8.4, including Composer, migration, PHPStan, PHPUnit, HTTP smoke and browser checks. That run does **not** prove that the production builder has completed, a production ZIP has been deployed, human content review has happened or shared-host staging/restore has passed.
+**Latest confirmed CI evidence (15 Nov 2026):** [GitHub Actions run #43658555206](https://github.com/Harfusha/harfusha/actions/runs/43658555206) passed all three jobs on PHP 8.5 / MySQL 8.4, including locked Composer installation and audit, migrations, PHPStan max/strict/ShipMonk, PHPUnit, HTTP smoke, PHPCS, Chromium and an isolated `composer install --no-dev` plus platform requirements check. This **does not** prove that the production builder has completed its human-approved release process, a production ZIP has been deployed, or that shared-host staging, manual editorial review and database restore/rollback have passed.
 
 ## Apache/shared hosting
 
