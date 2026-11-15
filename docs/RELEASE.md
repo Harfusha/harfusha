@@ -9,7 +9,7 @@
 - CakePHP CodeSniffer and privacy checks pass; 48 bilingual pages are rendered and their internal links, assets and IDs audited.
 - Browser manual QA: keyboard navigation, focus, mobile, both languages, graph interaction, sync conflicts, STL upload on real browsers, reduced motion preference, CSP and console errors.
 - Manual review approves publication of every case study derived from a **private** GitHub repository; public topology reveals no private addressing, hostnames, secrets or administrative links.
-- Verify `composer install --no-dev` results and test production artifact under an isolated staging domain before DNS cutover.
+- Verify `composer install --no-dev` results and test the production artifact under an isolated HTTPS staging domain before DNS cutover. Run `python3 scripts/staging-smoke.py --base-url https://staging.example.com` from the source checkout and require zero findings; this is a read-only HTTP check, not a deployment substitute.
 - Test MySQL backup **and restore**, error responses, cron behavior, failure fallback and rollback of the previous release.
 
 ## Automated production builder
