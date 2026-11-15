@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+use App\Domain\JournalFeed;
 use App\Support\Html;
 use App\Support\Language;
 /** @var Language $lang */
@@ -28,7 +29,7 @@ $githubSynced = $provenance['source'] === 'github-public-api';
   <div class="section-heading"><div><span class="eyebrow">WORKSHOP NOTES</span><h2><?= $lang->value('Ověřitelné vývojové zápisky','Traceable development notes') ?></h2></div><a class="inline-link" href="<?= $lang->path('/journal') ?>"><?= $lang->value('Celý deník','Full journal') ?> ↗</a></div>
   <div class="journal-timeline">
   <?php foreach ($journal as $entry): ?>
-    <article class="timeline-item"><div class="timeline-marker"></div><time><?= Html::escape(substr((string)$entry['published_at'],0,10)) ?></time><div class="timeline-copy"><span class="category"><?= Html::escape((string)$entry['category']) ?></span><h2><?= Html::escape((string)$entry['title_'.$lang->code]) ?></h2><p><?= Html::escape((string)$entry['body_'.$lang->code]) ?></p><?php $source = Html::safeUrl((string)($entry['source_url'] ?? '')); if ($source !== '#'): ?><a class="inline-link" href="<?= Html::escape($source) ?>" target="_blank" rel="noopener noreferrer">SOURCE ↗</a><?php endif; ?></div></article>
+    <article class="timeline-item"><div class="timeline-marker"></div><time><?= Html::escape(substr((string)$entry['published_at'],0,10)) ?></time><div class="timeline-copy"><span class="category"><?= Html::escape((string)$entry['category']) ?></span><h2><a href="<?= Html::escape($lang->path('/journal') . '#' . JournalFeed::entryId($entry)) ?>"><?= Html::escape((string)$entry['title_'.$lang->code]) ?></a></h2><p><?= Html::escape((string)$entry['body_'.$lang->code]) ?></p><?php $source = Html::safeUrl((string)($entry['source_url'] ?? '')); if ($source !== '#'): ?><a class="inline-link" href="<?= Html::escape($source) ?>" target="_blank" rel="noopener noreferrer">SOURCE ↗</a><?php endif; ?></div></article>
   <?php endforeach; ?>
   </div>
 </section>
