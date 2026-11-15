@@ -102,9 +102,24 @@ final readonly class LoginLimiter
             $descriptor = @fstat($handle);
             if (
                 !is_array($pathname) || !is_array($descriptor) ||
-                $pathname['ino'] !== $descriptor['ino'] || $pathname['dev'] !== $descriptor['dev']
+                $pathname['ino'] !== $descriptor['ino'] || $pathname['dev'] !== $descriptor['dev'] ||
+                ($pathname['mode'] & 0170000) !== 0100000
             ) {
                 return false;
+            }
+            // fopen normally honors the umask and might create a readable file.
+            // Protect the login-state shard before writing or reading metadata.
+            if (($pathname['mode'] & 0077) !== 0) {
+                if (!@chmod($path, 0600)) {
+                    return false;
+                }
+                clearstatcache(true, $path);
+                $secured = @lstat($path);
+                if (!is_array($secured) || ($secured['mode'] & 0077) !== 0 ||
+                    $secured['ino'] !== $descriptor['ino'] || $secured['dev'] !== $descriptor['dev']
+                ) {
+                    return false;
+                }
             }
             $now = ($this->clock)();
             $entries = $this->read($handle, $now);
@@ -161,6 +176,20 @@ final readonly class LoginLimiter
         $info = @lstat($this->directory);
         if (!is_array($info) || ($info['mode'] & 0170000) !== 0040000) {
             return false;
+        }
+        // Legacy storage may have been created with an unsafe 0755 mode.
+        // Tighten it if possible; never silently permit shared access.
+        if (($info['mode'] & 0077) !== 0) {
+            if (!@chmod($this->directory, 0700)) {
+                return false;
+            }
+            clearstatcache(true, $this->directory);
+            $secured = @lstat($this->directory);
+            if (!is_array($secured) || ($secured['mode'] & 0077) !== 0 ||
+                $secured['ino'] !== $info['ino'] || $secured['dev'] !== $info['dev']
+            ) {
+                return false;
+            }
         }
 
         return is_writable($this->directory);
