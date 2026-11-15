@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
+use App\Service\ContentRepository;
 use App\Support\Html;
 use App\Test\Support\HttpIntegrationTestCase;
 
@@ -20,6 +21,26 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->get('/en/projects/not-a-real-project');
         $this->assertResponseCode(404);
         $this->assertResponseContains($css);
+    }
+
+    public function testHomeStatisticsReflectActualVisibleSources(): void
+    {
+        $content = new ContentRepository();
+        $allProjects = $content->projects();
+        $mergedPrCount = count(array_filter(
+            $content->activity(),
+            static fn(array $entry): bool => ($entry['kind'] ?? null) === 'pr'
+                && ($entry['state'] ?? null) === 'merged',
+        ));
+        $recentRepoCount = count($content->publicRepoUpdates());
+
+        $this->get('/en/');
+        $this->assertResponseOk();
+        $this->assertResponseContains('<strong>' . count($allProjects) . '</strong><span>curated project studies');
+        $this->assertResponseContains('<strong>' . $mergedPrCount . '</strong><span>merged external PRs');
+        $this->assertResponseContains('<strong>' . $recentRepoCount . '</strong><span>recent repository updates');
+        $this->assertResponseNotContains('<strong>26</strong><span>repositories inventoried');
+        $this->assertResponseNotContains('<strong>62</strong><span>merged external PRs');
     }
 
     public function testLandingPageWorksWithoutDatabase(): void
