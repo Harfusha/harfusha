@@ -77,9 +77,15 @@ final class PagesController extends AppController
      */
     public function home(): Response
     {
+        $projects = $this->content()->projects();
         $featured = array_values(array_filter(
-            $this->content()->projects(),
+            $projects,
             static fn(Project $p): bool => $p->featured,
+        ));
+        $mergedPrCount = count(array_filter(
+            $this->content()->activity(),
+            static fn(array $entry): bool => ($entry['kind'] ?? null) === 'pr'
+                && ($entry['state'] ?? null) === 'merged',
         ));
 
         return $this->show(
@@ -91,8 +97,11 @@ final class PagesController extends AppController
             '/',
             [
                 'projects' => array_slice($featured, 0, 4),
+                'projectCount' => count($projects),
+                'mergedPrCount' => $mergedPrCount,
                 'journal' => array_slice($this->content()->journal(), 0, 3),
                 'recentRepos' => $this->content()->publicRepoUpdates(),
+                'provenance' => $this->content()->githubProvenance(),
             ],
         );
     }
