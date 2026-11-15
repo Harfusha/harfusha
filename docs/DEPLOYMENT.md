@@ -35,7 +35,7 @@ composer cs-check
 node --check webroot/assets/js/app.js
 ```
 
-**Do not deploy if any check fails.** To prepare a production build after the gates are green **and human public-content approval has been recorded**:
+**Do not deploy if any check fails.** The production packager, source packager and independent ZIP verifier reject sensitive configuration files and editorial approval receipts regardless of filename case (for example `.env` and `.ENV.production`). To prepare a production build after the gates are green **and human public-content approval has been recorded**:
 
 ```sh
 # Na build stroji s úspěšnými testy a schváleným veřejným obsahem:
@@ -125,7 +125,7 @@ After uploading the reviewed production archive to a **separate HTTPS staging ho
 python3 scripts/staging-smoke.py --base-url https://staging.example.com
 ```
 
-The command uses verified TLS and GET requests only; it checks public CS/EN routes, API JSON/ETag, sitemap, security headers, admin no-store/noindex and denial of sensitive paths such as `/.env`, `/.htaccess`, `/composer.lock` and `/vendor/autoload.php`. It does not send credentials, write records, exercise cron or alter the database. **A pass does not replace** manual visual/mobile QA, content approval, actual PHP-FPM/version verification or backup-and-restore drills.
+The command uses verified TLS and GET requests only; it checks public CS/EN routes, API JSON/ETag, sitemap, both language RSS feeds and their corresponding visible journal anchors, security headers, admin no-store/noindex, and denial of sensitive paths such as `/.env`, `/config/app.php`, `/data/projects.json`, `/src/Application.php`, `/.git/HEAD`, `/composer.lock` and `/vendor/autoload.php`. It does not send credentials, write records, exercise cron or alter the database. **A pass does not replace** manual visual/mobile QA, content approval, actual PHP-FPM/version verification or backup-and-restore drills.
 
 ## Rollback
 
