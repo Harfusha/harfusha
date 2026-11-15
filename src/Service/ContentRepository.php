@@ -210,11 +210,15 @@ final class ContentRepository
                 }
                 // An empty *completed* import is authoritative: do not
                 // resurrect historical static entries after a privacy change.
-                if ($rows !== [] || $this->githubProvenance()['source'] === 'github-public-api') {
+                if ($rows !== [] || $this->githubProvenance()['source'] !== 'reviewed-snapshot') {
                     return $rows;
                 }
             } catch (Throwable $error) {
-                error_log('Activity ORM fallback: ' . $error->getMessage());
+                // A database outage must not republish historic GitHub entries
+                // that may have been removed from the last accepted import.
+                error_log('Activity ORM unavailable: ' . $error->getMessage());
+
+                return [];
             }
         }
 
@@ -244,6 +248,8 @@ final class ContentRepository
                 }
             } catch (Throwable $error) {
                 error_log('Sync provenance unavailable: ' . $error->getMessage());
+
+                return ['source' => 'unavailable', 'last_sync' => null];
             }
         }
 
@@ -269,11 +275,14 @@ final class ContentRepository
                 }
                 // An empty *completed* import is authoritative: do not
                 // resurrect historical static entries after a privacy change.
-                if ($rows !== [] || $this->githubProvenance()['source'] === 'github-public-api') {
+                if ($rows !== [] || $this->githubProvenance()['source'] !== 'reviewed-snapshot') {
                     return $rows;
                 }
             } catch (Throwable $error) {
-                error_log('Repo feed ORM fallback: ' . $error->getMessage());
+                // Never resurrect withdrawn repositories from a dated snapshot.
+                error_log('Repo feed ORM unavailable: ' . $error->getMessage());
+
+                return [];
             }
         }
 
