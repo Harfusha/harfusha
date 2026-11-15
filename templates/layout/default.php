@@ -38,9 +38,9 @@ $fullUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://e
   <link rel="alternate" hreflang="en" href="<?= Html::escape(rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . Html::path('en',$route)) ?>">
   <link rel="alternate" hreflang="x-default" href="<?= Html::escape(rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . Html::path('cs',$route)) ?>">
   <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/assets/css/app.css?v=20261114">
-  <script src="/assets/js/lab-core.js?v=20261114" defer></script>
-  <script src="/assets/js/app.js?v=20261114" defer></script>
+  <link rel="stylesheet" href="<?= Html::escape(Html::versionedAsset('assets/css/app.css')) ?>">
+  <script src="<?= Html::escape(Html::versionedAsset('assets/js/lab-core.js')) ?>" defer></script>
+  <script src="<?= Html::escape(Html::versionedAsset('assets/js/app.js')) ?>" defer></script>
   <title><?= Html::escape($title) ?></title>
 </head>
 <body data-language="<?= Html::escape($lang->code) ?>">
