@@ -24,7 +24,7 @@ Harfusha Lab is a *digital workshop*, not a marketing microsite. It should work 
 - `src/Domain/EditorialInput.php`: request-independent typed validation of editorial form data.
 - `src/Domain/JournalFeed.php`: safely escaped RSS 2.0 output for published notes.
 - `src/Service/ContentRepository.php`: Cake ORM reads with a read-only static fallback when DB is unconfigured.
-- `src/Service/GithubSyncService.php`: bounded complete public GitHub fetching with a nonblocking import lock + atomic refresh and stale-cache pruning via prepared MySQL `INSERT ... ON DUPLICATE KEY UPDATE` upserts. The ORM handles editorial CRUD; batched import uses prepared native Cake DB statements for efficiency.
+- `src/Service/GithubSyncService.php`: bounded, complete public GitHub fetching with a nonblocking import lock. A successful import atomically replaces both GitHub cache tables using a transaction and prepared `DELETE`/`INSERT` statements, then records provenance. Failed imports preserve the previous snapshot.
 - `src/Model/Table/*`: CakePHP tables for editor overrides, journal, GitHub activity and import receipts.
 - `src/Middleware/SecurityHeadersMiddleware.php`: strong CSP and other browser security headers.
 - `src/Controller/*`: HTTP entry points only, with input bounds, authenticated mutations and response ownership.
@@ -73,18 +73,18 @@ Browser --> self-hosted JS --> SVG home lab + Canvas world/3D + AI/sync demos (p
 
 ## External verification still required before public production
 
-- Run Composer/CI in a complete PHP environment and resolve every PHPStan/ShipMonk error without ignores.
-- Add MySQL integration tests and migration rollback tests.
+- Run the approved release builder and full automated checks against the exact release revision; successful GitHub CI alone is not deployment.
+- Verify the actual shared-host staging environment, migrations and restoration of a real database backup before public DNS cutover.
 - Optional explicit cache invalidation and a signed, reviewed homelab telemetry snapshot pipeline **only if** desired.
 - Build project-by-project proof assets: real screenshots, sanctioned benchmark traces, architecture diffs and annotated PR code snippets.
 
 
 ## Additional domain design
 
-- Six curated JSON datasets are validated by `PublicContentValidator` at the trust boundary. `data/maker.json` contains physical projects with planned/prototype/in-use status and a cross-link to a software case study.
+- Eight curated JSON datasets are validated by `PublicContentValidator` at the trust boundary. `data/maker.json` contains physical projects with planned/prototype/in-use status and a cross-link to a software case study.
 - CakePHP `ProjectOverrides` now supports optional problem/solution overrides without destroying checked-in baseline content; `JournalEntries` supports reversible visibility changes. The second migration adds nullable columns for backward compatibility.
 - `lab-core.js` is a pure browser and Node compatible simulation module. The DOM/UI layer in `app.js` delegates outage/sync/world/STL calculations to tested pure functions.
-- SSR is statically smoke-rendered for every locale and project, and the 46-page offline output is audited for broken internal paths. This complements real CakePHP integration tests, but never replaces them.
+- SSR is statically smoke-rendered for every locale and project, and the 48-page offline output is audited for broken internal paths and RSS article permalinks. This complements real CakePHP integration tests, but never replaces them.
 
 ## Engineering rationale dataset
 
@@ -99,5 +99,5 @@ Třetí migrace zavádí `editorial_audit` s časem, typem, identifikátorem a S
 - `src/Controller/ApiController.php` provides a **read-only** CakePHP GET endpoint at `/api/v1/projects[/{slug}]`. It delegates to the existing `ContentRepository`, creates typed `PublicProjectView` DTOs and serializes only allowlisted fields. Links to private repositories are not serialized. Validated language selection, Content-Type, body-hashed ETag and conditional 304 improve predictability and cache performance. See `docs/API.md`.
 - The fifth Playground tab, **CakePHP Request Lab**, simulates request routing, HostGuard, CSRF, session authorization, `EditorialInput` typed validation and a transactional write as an *illustrative diagram*. It never makes HTTP calls, modifies admin content or pretends that a failed browser-only check protects the real backend. Pure `requestTrace` logic is regression-tested alongside the existing four demos.
 - Accessibility: the SVG graph explorers re-focus the selected recreated node after redraw; ARIA tabs accept ArrowLeft/ArrowRight/Home/End. These specific interactions are covered in Chromium browser smoke.
-- The STL ASCII parser now uses two bounded scan passes rather than materializing an unbounded `matchAll` result array. It retains the 8 MB input cap and 30,000-triangle render cap. The demonstrator is not a metrology or mesh-repair tool.
+- The STL ASCII parser uses bounded scan passes rather than materializing an unbounded `matchAll` result array. The viewer accepts up to 8 MB and samples at most 6,000 triangles for interactive rendering, batching redraws per animation frame. The demonstrator is not a metrology or mesh-repair tool.
 - `PublicSitemap` is a typed, standalone-testable multilingual sitemap builder with `xhtml:link` for Czech, English and x-default. A route injection or duplicated path fails closed.
