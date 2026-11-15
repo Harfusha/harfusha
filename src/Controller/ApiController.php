@@ -79,7 +79,7 @@ final class ApiController extends AppController
         $etag = '"' . hash('sha256', $json) . '"';
         $response = $this->response->withType('json')
             ->withHeader('ETag', $etag)
-            ->withHeader('Cache-Control', 'public, max-age=120, must-revalidate')
+            ->withHeader('Cache-Control', 'no-store')
             ->withHeader('Vary', 'Accept-Encoding');
         // If-None-Match uses weak comparison for GET (RFC 9110).
         // Accept a list of validators, weak validators, or the wildcard.
