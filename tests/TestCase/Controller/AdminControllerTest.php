@@ -5,6 +5,9 @@ namespace App\Test\TestCase\Controller;
 
 use App\Support\Html;
 use App\Test\Support\HttpIntegrationTestCase;
+use Cake\Database\Connection;
+use Cake\Datasource\ConnectionManager;
+use RuntimeException;
 
 final class AdminControllerTest extends HttpIntegrationTestCase
 {
@@ -42,6 +45,25 @@ final class AdminControllerTest extends HttpIntegrationTestCase
         $this->assertResponseOk();
         $this->assertResponseContains('role="status"');
         $this->assertResponseContains('Changes saved successfully.');
+    }
+
+    public function testIncompleteDatabaseSchemaDisablesAdminEditorButtons(): void
+    {
+        $connection = ConnectionManager::get('default');
+        if (!$connection instanceof Connection) {
+            throw new RuntimeException('Expected disposable MySQL test database');
+        }
+        $connection->execute('CREATE TEMPORARY TABLE editorial_audit (id BIGINT NOT NULL)');
+        try {
+            $this->session(['lab.admin' => true]);
+            $this->get('/admin');
+            $this->assertResponseOk();
+            $this->assertResponseContains('Editorial changes are unavailable');
+            $this->assertResponseContains('type="submit" disabled>Save project</button>');
+            $this->assertResponseContains('type="submit" disabled>Save journal note</button>');
+        } finally {
+            $connection->execute('DROP TEMPORARY TABLE IF EXISTS editorial_audit');
+        }
     }
 
     public function testProjectEditFailsWithoutSession(): void
