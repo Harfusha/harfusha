@@ -26,7 +26,7 @@ final class GithubSyncCommand extends Command
 
             return static::CODE_SUCCESS;
         } catch (Throwable $error) {
-            $io->err('Import failed: ' . $error->getMessage());
+            $io->err('Import failed: ' . get_class($error));
 
             return static::CODE_ERROR;
         }
