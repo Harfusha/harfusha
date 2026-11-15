@@ -6,9 +6,10 @@ on:
 permissions:
   contents: read
 
-# Only the newest revision of a branch needs a full PHP/Chromium run.
+# Cancel superseded commits within the same event/branch. Push and
+# pull_request checks must not cancel one another's independent evidence.
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
