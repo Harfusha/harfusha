@@ -17,13 +17,13 @@ php bin/cake.php lab_health
 
 The command returns exit code **0** only when all of these are true:
 
-1. MySQL connection works **and** the `sync_runs` migration exists.
+1. MySQL connection works **and** every required migration table and representative editorial columns are present (verified with a zero-row schema query).
 2. `tmp/`, `tmp/cache/` and `logs/` are writable.
 3. A completed public GitHub snapshot exists and is no more than 48 hours old.
 
 Otherwise the exit code is nonzero. It prints only generic component states:
-`ok`, `unreachable`, `not-configured`, `unwritable`, `not-synced`,
-`invalid-timestamp`, `stale` or `unknown`. It never prints credentials, internal
+`ok`, `unreachable`, `schema-incomplete`, `not-configured`, `unwritable`,
+`not-synced`, `invalid-timestamp`, `stale` or `unknown`. It never prints credentials, internal
 network addresses, database names, SQL exceptions or topology. This output also
 appears under the **authenticated** `/admin` page.
 
@@ -37,6 +37,7 @@ as a token could change public-only visibility guarantees.
 
 - **Database unreachable**: confirm database host, migration history, user
   privileges and credential storage; do not enable `DEBUG` in production.
+- **Schema incomplete**: apply the remaining migrations before enabling editorial writes. A live MySQL connection alone is not sufficient.
 - **Storage unwritable**: fix directory ownership outside the public docroot;
   never recursively make the project world-writable.
 - **GitHub stale / not synced**: inspect private CLI cron logs, connectivity and
