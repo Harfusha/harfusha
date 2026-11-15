@@ -3,13 +3,10 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
-use Cake\TestSuite\IntegrationTestTrait;
-use Cake\TestSuite\TestCase;
+use App\Test\Support\HttpIntegrationTestCase;
 
-final class AdminControllerTest extends TestCase
+final class AdminControllerTest extends HttpIntegrationTestCase
 {
-    use IntegrationTestTrait;
-
     public function testLoginPageSetsNoStoreAndNoIndex(): void
     {
         $this->get('/admin');
