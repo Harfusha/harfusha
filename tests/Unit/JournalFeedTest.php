@@ -51,6 +51,7 @@ final class JournalFeedTest extends TestCase
     public function testImpossibleDatesCannotBeSilentlyNormalizedInRss(): void
     {
         $entry = ['title_en' => 'Note', 'body_en' => 'Body'];
+        $rejected = 0;
         foreach (
             ['tomorrow', '2026-02-30', '2026-11-12 24:00:00', '2026-11-12T25:00:00Z'] as $when
         ) {
@@ -62,9 +63,10 @@ final class JournalFeedTest extends TestCase
                 );
                 self::fail('Noncanonical date accepted in public RSS');
             } catch (InvalidArgumentException) {
-                // No unchecked dates may reach an RSS client.
+                ++$rejected;
             }
         }
+        self::assertSame(4, $rejected);
     }
 
     public function testXmlEscapesUserTextAndPreservesDates(): void

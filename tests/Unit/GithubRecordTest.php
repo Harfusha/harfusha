@@ -32,6 +32,7 @@ final class GithubRecordTest extends TestCase
 
     public function testRejectsZeroNumberAndControlCharacters(): void
     {
+        $rejected = 0;
         foreach (
             [
                 ['html_url' => 'https://github.com/cakephp/cakephp/pull/0',
@@ -46,9 +47,10 @@ final class GithubRecordTest extends TestCase
                 GithubRecord::fromGithub($case, str_contains($case['html_url'], '/pull/') ? 'pr' : 'issue', 'open');
                 self::fail('Invalid upstream issue was accepted');
             } catch (InvalidArgumentException) {
-                // A bad external record must not enter the public database.
+                ++$rejected;
             }
         }
+        self::assertSame(3, $rejected);
     }
 
     public function testRejectsUntrustedEventUrl(): void
