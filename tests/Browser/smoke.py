@@ -105,6 +105,9 @@ def main() -> None:
                             page.locator('[data-search]').fill('none-such-repo-zz')
                             assert page.locator('[data-empty]').is_visible()
                         if site == 'cs/projects':
+                            page.locator('[data-search]').fill('vitkovske')
+                            assert page.locator('[data-project]:not(.hidden)').count() == 1, 'accent-free Czech search'
+                            assert 'Vítkovské NPC' in page.locator('[data-project]:not(.hidden)').inner_text()
                             page.locator('[data-search]').fill('nonexistent-zzzzz')
                             assert page.locator('[data-project]:not(.hidden)').count() == 0
                             assert page.locator('[data-empty]').is_visible()
@@ -118,6 +121,12 @@ def main() -> None:
                             page.locator('[data-search]').fill('no-such-architecture-decision')
                             assert page.locator('[data-empty]').is_visible()
                         if site == 'cs/playground':
+                            for demo in ('ai', 'sync', 'world', 'cad', 'request'):
+                                tab = page.locator(f'[data-demo-tab="{demo}"]')
+                                panel = page.locator(f'[data-demo-panel="{demo}"]')
+                                assert tab.get_attribute('aria-controls') == demo
+                                assert panel.get_attribute('aria-labelledby') == f'tab-{demo}'
+                                assert panel.get_attribute('tabindex') == '0'
                             page.locator('[data-demo-tab="ai"]').click()
                             before = page.locator('[data-ai-index]').inner_text()
                             page.locator('[data-ai-next]').click()
@@ -127,6 +136,8 @@ def main() -> None:
                             assert page.locator('[data-demo-tab="sync"]').get_attribute('aria-selected') == 'true', 'ArrowRight tab navigation'
                             page.keyboard.press('End')
                             assert page.locator('[data-demo-tab="request"]').get_attribute('aria-selected') == 'true', 'End tab navigation'
+                            assert page.locator('[data-demo-tab="ai"]').get_attribute('tabindex') == '-1'
+                            assert page.locator('[data-demo-tab="request"]').get_attribute('tabindex') == '0'
                             page.locator('[data-demo-tab="request"]').click()
                             assert page.locator('[data-request-response]').inner_text().startswith('HTTP 200')
                             page.locator('[data-request-route]').select_option('/admin/project')
