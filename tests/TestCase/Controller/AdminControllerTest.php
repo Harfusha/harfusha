@@ -71,7 +71,7 @@ final class AdminControllerTest extends HttpIntegrationTestCase
             [
                 'title_cs' => 'Test připravenosti', 'title_en' => $title,
                 'body_cs' => 'Test', 'body_en' => 'Test', 'category' => 'Testing',
-                'source_url' => '', 'is_public' => false,
+                'source_url' => '', 'is_public' => 0,
             ],
         );
         try {
