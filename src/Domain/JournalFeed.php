@@ -38,7 +38,7 @@ final class JournalFeed
             throw new InvalidArgumentException('Incomplete journal entry identity');
         }
 
-        return 'entry-' . substr(hash('sha256', $published . "\\0" . $title), 0, 20);
+        return 'entry-' . substr(hash('sha256', $published . chr(0) . $title), 0, 20);
     }
 
     /** @param list<array<string,mixed>> $entries */
