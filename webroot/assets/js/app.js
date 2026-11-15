@@ -5,6 +5,8 @@
   const language = document.body.dataset.language === 'en' ? 'en' : 'cs';
   const local = (cs, en) => language === 'en' ? en : cs;
   const core = window.HarfushaLabCore;
+  // Match Czech and English text even when visitors omit accents.
+  const normalizeSearch = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
 
   function initFilter(root, itemSelector, extraFilters = []) {
     if (!root) return;
@@ -14,10 +16,10 @@
     const items = $$(itemSelector, root);
     const filters = extraFilters.map(([selector, attr]) => ({ element: $(selector, root), attr }));
     const run = () => {
-      const q = (input?.value ?? '').trim().toLocaleLowerCase();
+      const q = normalizeSearch((input?.value ?? '').trim());
       let visible = 0;
       for (const item of items) {
-        const text = (item.dataset.searchText || '').toLocaleLowerCase();
+        const text = normalizeSearch(item.dataset.searchText || '');
         const matched = text.includes(q) && filters.every(({element, attr}) => !element || element.value === 'all' || item.dataset[attr] === element.value);
         item.classList.toggle('hidden', !matched);
         if (matched) visible++;
