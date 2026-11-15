@@ -135,6 +135,23 @@ def main() -> None:
                             assert page.locator('[data-request-response]').inner_text().startswith('HTTP 403')
                             page.locator('[data-request-csrf]').check()
                             assert page.locator('[data-request-response]').inner_text().startswith('HTTP 303')
+                            # Exercise real browser File/ArrayBuffer STL parsing and reset.
+                            page.locator('[data-demo-tab="cad"]').click()
+                            ascii_stl = (
+                                b'solid sample\nfacet normal 0 0 1\nouter loop\n'
+                                b'vertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\n'
+                                b'endloop\nendfacet\nendsolid sample\n'
+                            )
+                            page.locator('[data-cad-file]').set_input_files({
+                                'name': 'triangle.stl', 'mimeType': 'model/stl', 'buffer': ascii_stl,
+                            })
+                            page.wait_for_function(
+                                "() => document.querySelector('[data-cad-info]').textContent.includes('local STL sample')"
+                            )
+                            assert '1 displayed triangles' in page.locator('[data-cad-info]').inner_text()
+                            page.locator('[data-cad-wire]').check()
+                            page.locator('[data-cad-reset]').click()
+                            assert 'sample geometry' in page.locator('[data-cad-info]').inner_text()
                         if args.screenshots and site in ('cs/', 'cs/homelab', 'cs/connections'):
                             image = screenshots / f"{width}_{site.strip('/').replace('/', '_') or 'home'}.png"
                             page.screenshot(path=str(image), full_page=False)
