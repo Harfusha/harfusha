@@ -92,7 +92,7 @@ final class SystemController extends AppController
 
             return $this->response->withType('json')->withStringBody(Html::json($summary));
         } catch (Throwable $error) {
-            error_log('GitHub synchronization failed: ' . $error->getMessage());
+            error_log('GitHub synchronization failed: ' . get_class($error));
 
             return $this->response->withStatus(502)->withStringBody('Synchronization failed');
         }
