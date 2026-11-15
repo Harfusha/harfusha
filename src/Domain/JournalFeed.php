@@ -19,6 +19,28 @@ final class JournalFeed
     {
     }
 
+    /**
+     * A language-independent, stable anchor for the visible journal entry.
+     * Database ids survive title edits; curated entries use their reviewed
+     * English title and publication timestamp, not mutable body text.
+     *
+     * @param array<string,mixed> $record
+     */
+    public static function entryId(array $record): string
+    {
+        $id = $record['id'] ?? null;
+        if (is_int($id) && $id > 0) {
+            return 'entry-db-' . $id;
+        }
+        $published = $record['published_at'] ?? null;
+        $title = $record['title_en'] ?? null;
+        if (!is_string($published) || $published === '' || !is_string($title) || $title === '') {
+            throw new InvalidArgumentException('Incomplete journal entry identity');
+        }
+
+        return 'entry-' . substr(hash('sha256', $published . "\\0" . $title), 0, 20);
+    }
+
     /** @param list<array<string,mixed>> $entries */
     public static function render(string $origin, Language $language, array $entries): string
     {
@@ -48,11 +70,10 @@ final class JournalFeed
             } catch (Exception $exception) {
                 throw new InvalidArgumentException('Invalid public journal timestamp', 0, $exception);
             }
-            $link = $base . '/journal';
-            $guid = $link . '#entry-' . hash('sha256', $published . $title . $body);
+            $link = $base . '/journal#' . self::entryId($record);
             $xml .= '<item><title>' . self::escape($title) . '</title>';
             $xml .= '<link>' . self::escape($link) . '</link>';
-            $xml .= '<guid isPermaLink="false">' . self::escape($guid) . '</guid>';
+            $xml .= '<guid isPermaLink="true">' . self::escape($link) . '</guid>';
             $xml .= '<description>' . self::escape($body) . '</description>';
             $xml .= '<pubDate>' . self::escape($date) . '</pubDate></item>';
         }
