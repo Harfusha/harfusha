@@ -81,8 +81,14 @@ final class ApiController extends AppController
             ->withHeader('ETag', $etag)
             ->withHeader('Cache-Control', 'public, max-age=120, must-revalidate')
             ->withHeader('Vary', 'Accept-Encoding');
-        if ($this->request->getHeaderLine('If-None-Match') === $etag) {
-            return $response->withStatus(304);
+        // If-None-Match uses weak comparison for GET (RFC 9110).
+        // Accept a list of validators, weak validators, or the wildcard.
+        $validators = explode(',', $this->request->getHeaderLine('If-None-Match'));
+        foreach ($validators as $validator) {
+            $candidate = trim($validator);
+            if ($candidate === '*' || $candidate === $etag || $candidate === 'W/' . $etag) {
+                return $response->withStatus(304);
+            }
         }
 
         return $response->withStringBody($json);
