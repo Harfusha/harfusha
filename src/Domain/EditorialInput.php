@@ -70,6 +70,19 @@ final class EditorialInput
     }
 
     /**
+     * Require an explicit publication decision instead of silently treating
+     * malformed or missing values as a draft or accidentally publishing them.
+     */
+    public static function isPublic(mixed $visibility): bool
+    {
+        return match ($visibility) {
+            'draft' => false,
+            'public' => true,
+            default => throw new InvalidArgumentException('Invalid journal visibility'),
+        };
+    }
+
+    /**
      * Parse a strictly positive persisted identifier.
      */
     public static function positiveId(mixed $value): int
