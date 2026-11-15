@@ -24,17 +24,17 @@ if ($environment === 'production') {
     // Use the exact same production policy as CakePHP bootstrap. A separate,
     // weaker preflight check could approve URLs with fragments/credentials or
     // default repeated salts that the live application then rejects.
-    if (!class_exists(\\App\\Security\\DeploymentPolicy::class)) {
+    if (!class_exists(\App\Security\DeploymentPolicy::class)) {
         $issues[] = 'Deployment policy unavailable: install Composer dependencies';
     } else {
         try {
-            \\App\\Security\\DeploymentPolicy::assertEnvironment(
+            \App\Security\DeploymentPolicy::assertEnvironment(
                 $environment,
                 filter_var(getenv('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN),
                 (string)(getenv('APP_URL') ?: ''),
                 (string)(getenv('SECURITY_SALT') ?: ''),
             );
-        } catch (\\InvalidArgumentException $error) {
+        } catch (\InvalidArgumentException $error) {
             // DeploymentPolicy emits fixed messages, never input secrets.
             $issues[] = $error->getMessage();
         }
