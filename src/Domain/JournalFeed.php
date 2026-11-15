@@ -6,7 +6,6 @@ namespace App\Domain;
 use App\Support\Language;
 use DateTimeImmutable;
 use DateTimeZone;
-use Exception;
 use InvalidArgumentException;
 
 /** Strict RSS 2.0 export of already-public engineering notes. No private drafts. */
@@ -64,12 +63,7 @@ final class JournalFeed
             if (!is_string($title) || !is_string($body) || !is_string($published)) {
                 throw new InvalidArgumentException('Incomplete public journal record');
             }
-            try {
-                $date = (new DateTimeImmutable($published, new DateTimeZone('UTC')))
-                    ->setTimezone(new DateTimeZone('UTC'))->format(DATE_RSS);
-            } catch (Exception $exception) {
-                throw new InvalidArgumentException('Invalid public journal timestamp', 0, $exception);
-            }
+            $date = self::rssDate($published);
             $link = $base . '/journal#' . self::entryId($record);
             $xml .= '<item><title>' . self::escape($title) . '</title>';
             $xml .= '<link>' . self::escape($link) . '</link>';
@@ -79,6 +73,28 @@ final class JournalFeed
         }
 
         return $xml . '</channel></rss>';
+    }
+
+    /**
+     * Format reviewed publication dates without DateTime's lenient rollover
+     * of impossible dates or relative strings such as "next Tuesday".
+     */
+    private static function rssDate(string $published): string
+    {
+        PublicText::assertRenderable($published);
+        $formats = [
+            ['!Y-m-d H:i:s', 'Y-m-d H:i:s'],
+            ['!Y-m-d', 'Y-m-d'],
+            ['!Y-m-d\TH:i:s\Z', 'Y-m-d\TH:i:s\Z'],
+        ];
+        foreach ($formats as [$inputFormat, $canonicalFormat]) {
+            $date = DateTimeImmutable::createFromFormat($inputFormat, $published, new DateTimeZone('UTC'));
+            if ($date !== false && $date->format($canonicalFormat) === $published) {
+                return $date->format(DATE_RSS);
+            }
+        }
+
+        throw new InvalidArgumentException('Invalid public journal timestamp');
     }
 
     /**
