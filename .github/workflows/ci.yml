@@ -96,7 +96,7 @@ jobs:
       - name: Install and validate isolated production-only Composer dependencies (not a deployable release)
         run: |
           export LAB_PROD_STAGE="$RUNNER_TEMP/harfusha-production-stage"
-          python3 -c 'from pathlib import Path; import os; from scripts.release_package import stage_application; p=Path(os.environ["LAB_PROD_STAGE"]); p.mkdir(parents=True, exist_ok=True); stage_application(Path.cwd(), p)'
+          python3 -c 'from pathlib import Path; import os,sys; sys.path.insert(0, "scripts"); from release_package import stage_application; p=Path(os.environ["LAB_PROD_STAGE"]); p.mkdir(parents=True, exist_ok=True); stage_application(Path.cwd(), p)'
           (
             cd "$LAB_PROD_STAGE"
             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
