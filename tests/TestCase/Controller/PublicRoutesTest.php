@@ -37,6 +37,21 @@ final class PublicRoutesTest extends HttpIntegrationTestCase
         $this->assertResponseCode(404);
     }
 
+    public function testMutablePublicPagesAndRssAreNotStoredByCaches(): void
+    {
+        foreach (
+            [
+                '/en/', '/en/projects', '/en/projects/local-ai-hub',
+                '/cs/journal', '/en/now', '/en/open-source',
+                '/cs/feed.xml', '/en/feed.xml',
+            ] as $path
+        ) {
+            $this->get($path);
+            $this->assertResponseOk();
+            $this->assertHeaderContains('Cache-Control', 'no-store');
+        }
+    }
+
     public function testSitemapAndFeeds(): void
     {
         $this->get('/sitemap.xml');
