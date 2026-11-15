@@ -19,6 +19,7 @@ final class SyncRunRetention
     {
     }
 
+    /** Remove receipts older than the 64 most recent for this source. */
     public static function prune(Connection $connection, string $source): void
     {
         // The 64th newest receipt is the oldest one we retain. A fixed SQL
