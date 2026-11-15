@@ -4,11 +4,13 @@
 >
 > Uživatel požaduje **CakePHP 5.4, PHP 8.5.12+, MySQL, maximální PHPStan, ShipMonk, strict rules, důraz na typy, bezpečnost, výkon a interaktivní technický obsah** na běžném sdíleném hostingu. Toto jsou pevné požadavky, nikoliv volitelný backlog.
 
-## Aktuální stav automatických kontrol — 14. 11. 2026
+## Aktuální stav automatických kontrol — 15. 11. 2026
 
-**PASS v GitHub Actions:** [běh #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069) na PHP 8.5 / MySQL 8.4 úspěšně dokončil všechny tři joby (`application`, `static`, `browser-offline`). Testované: uzamčené Composer závislosti a audit, CakePHP HTTP smoke, tři migrace nad izolovanou MySQL, PHPUnit, PHPStan `level: max` + CakeDC/strict/ShipMonk, CakePHP PHPCS, kontrola veřejných dat, JavaScript strict types a Chromium. `composer.lock` je v Git.
+**PASS v GitHub Actions:** [běh #43658555206](https://github.com/Harfusha/harfusha/actions/runs/43658555206), commit `57d7608`, PHP 8.5 / MySQL 8.4, úspěšné všechny tři joby (`application`, `static`, `browser-offline`). Provedeny: Composer install/audit s verzovaným lockfile, migrace, skutečný HTTP smoke včetně CSRF/sessions/HostGuard, PHPUnit a DB persistence, PHPStan max + CakeDC/strict/ShipMonk, PHPCS, kontrola veřejných dat, JavaScript strict types, Chromium (včetně STL uploadu), SHA256 audit zdrojového archivu a **čistá izolovaná instalace produkčních Composer balíčků pomocí `--no-dev`**. Následující dokumentační commity na těchto tvrzeních nic funkčně nemění, ale každý release musí mít vlastní ověření aktuální revize.
 
-**Nevyřešené podmínky produkčního vydání:** PHP-FPM a Apache na konkrétním hostingu, bezpečné nastavení domény/cron, staging s úplnými HTTP testy, test záloh a návratu databáze, ruční schválení všech zveřejněných údajů a autentických fotografií/screenshotů. **CI PASS není automaticky production ready.** Pozdější oddíly s datovanými záznamy uchovávají historický stav jednotlivých iterací, nikoliv nynější výsledek.
+**Dokončené opravy v této iteraci:** společný HTTP test bootstrap s kanonickým portem; lokalizované API demo odkazy a správná ETag validace; SHA256 verzování veřejných assetů; omezené a dávkované vykreslování CAD/STL; ochrana proti zastaralým záznamům při prázdném importu GitHubu; skutečné počítání veřejných metrik; striktní validační formáty dat; připnuté SHA GitHub Actions a automatický staging smoke nástroj pouze pro GET požadavky.
+
+**Zbývající podmínky skutečného produkčního vydání:** PHP-FPM/Apache a HTTPS na cílovém hostingu, vytvoření a ověření produkčního ZIPu se schváleným veřejným obsahem, skutečný staging podle `docs/DEPLOYMENT.md`, konfigurace domény/cron, backup + RESTORE + rollback MySQL a ruční schválení popisů a obrázků ze soukromých projektů. **Zelené CI není potvrzením production-ready.** Starší datované oddíly níže jsou historický záznam tehdejšího stavu a nelze je interpretovat jako nové otevřené blokery.
 
 ## A. Cílový produkt a kritéria hotovosti
 
