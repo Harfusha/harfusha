@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Support;
 
+use InvalidArgumentException;
+use RuntimeException;
+
 final class Html
 {
     /**
@@ -23,6 +26,25 @@ final class Html
         );
 
         return $encoded;
+    }
+
+    /**
+     * Cache-bust first-party assets using a content digest, not a manual date.
+     * A new deployment gets new URLs even when ZIP extraction keeps timestamps.
+     */
+    public static function versionedAsset(string $asset): string
+    {
+        $allowed = ['assets/css/app.css', 'assets/js/app.js', 'assets/js/lab-core.js'];
+        if (!in_array($asset, $allowed, true)) {
+            throw new InvalidArgumentException('Unsupported public asset');
+        }
+        $root = defined('WWW_ROOT') ? WWW_ROOT : dirname(__DIR__, 2) . '/webroot/';
+        $digest = hash_file('sha256', $root . str_replace('/', DIRECTORY_SEPARATOR, $asset));
+        if (!is_string($digest)) {
+            throw new RuntimeException('Cannot fingerprint required public asset');
+        }
+
+        return '/' . $asset . '?v=' . substr($digest, 0, 12);
     }
 
     /**
