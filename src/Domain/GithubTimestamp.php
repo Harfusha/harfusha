@@ -14,6 +14,7 @@ use InvalidArgumentException;
  */
 final class GithubTimestamp
 {
+    /** Prevent instantiation of the stateless timestamp validator. */
     private function __construct()
     {
     }
