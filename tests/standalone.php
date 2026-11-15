@@ -551,11 +551,12 @@ $searchPage = static function (array $items, int $total): array {
 };
 $searchItems = array_map(static fn(int $id): array => [
     'html_url' => 'https://github.com/cakephp/cakephp/pull/' . $id,
+    'created_at' => '2026-11-12T12:00:00Z',
 ], range(1, 100));
 $pages = new GithubSearchPageCollector();
 verify($pages->append($searchPage($searchItems, 101), 1, 3), 'GitHub Search first full page requests next page');
 verify(
-    !$pages->append($searchPage([['html_url' => 'https://github.com/cakephp/cakephp/pull/101']], 101), 2, 3),
+    !$pages->append($searchPage([['html_url' => 'https://github.com/cakephp/cakephp/pull/101', 'created_at' => '2026-11-11T12:00:00Z']], 101), 2, 3),
     'GitHub Search final page closes snapshot',
 );
 verify(count($pages->complete()) === 101, 'GitHub Search collects complete 101-item snapshot');
@@ -581,7 +582,7 @@ foreach ($invalidSearch as [$payload, $page, $maxPages]) {
 $pages = new GithubSearchPageCollector();
 $pages->append($searchPage($searchItems, 101), 1, 3);
 try {
-    $pages->append($searchPage([['html_url' => 'https://github.com/cakephp/cakephp/pull/20']], 101), 2, 3);
+    $pages->append($searchPage([['html_url' => 'https://github.com/cakephp/cakephp/pull/20', 'created_at' => '2026-11-11T12:00:00Z']], 101), 2, 3);
     verify(false, 'GitHub Search duplicate across pages rejected');
 } catch (InvalidArgumentException) {
     verify(true, 'GitHub Search duplicate across pages rejected');
