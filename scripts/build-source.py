@@ -98,7 +98,7 @@ def main() -> int:
         raise RuntimeError('Source manifest does not match package file count')
     digest = hashlib.sha256(out.read_bytes()).hexdigest()
     print(f'SOURCE archive: {out}\nFiles: {len(files) + 1}, bytes: {out.stat().st_size}\nSHA256: {digest}')
-    print('This archive has no Composer vendor/ or composer.lock; NOT a production deployable.')
+    print('This source archive does not contain installed Composer vendor/ packages; NOT a deployable release.')
     return 0
 
 
