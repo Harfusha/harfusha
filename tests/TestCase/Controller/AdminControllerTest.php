@@ -50,9 +50,9 @@ final class AdminControllerTest extends HttpIntegrationTestCase
         $this->assertResponseContains('role="status"');
         $this->assertResponseContains('Changes saved successfully.');
 
-        $this->get('/admin?saved=1');
-        $this->assertResponseOk();
-        $this->assertResponseNotContains('Changes saved successfully.');
+        // IntegrationTestTrait seeds its _session state afresh for every
+        // request; inspect the actual response session to test consumption.
+        $this->assertSessionNotHasKey('lab.saveConfirmed');
     }
 
     public function testIncompleteDatabaseSchemaDisablesAdminEditorButtons(): void

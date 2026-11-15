@@ -102,11 +102,15 @@ final class EditorialPersistenceTest extends HttpIntegrationTestCase
         try {
             $this->post('/admin/journal', $values);
             $this->assertRedirect('/admin?saved=1');
+            // The POST sets a server-side receipt. The CakePHP integration
+            // harness does not propagate mutated sessions between requests,
+            // so explicitly seed the next request as a redirected browser would.
+            $this->assertSession(true, 'lab.saveConfirmed');
+            $this->session(['lab.saveConfirmed' => true]);
             $this->get('/admin?saved=1');
             $this->assertResponseOk();
             $this->assertResponseContains('Changes saved successfully.');
-            $this->get('/admin?saved=1');
-            $this->assertResponseNotContains('Changes saved successfully.');
+            $this->assertSessionNotHasKey('lab.saveConfirmed');
             $row = self::row($db, 'SELECT id,is_public FROM journal_entries WHERE title_en = :title ORDER BY id DESC LIMIT 1', [
                 'title' => 'One-time test',
             ]);
