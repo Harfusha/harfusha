@@ -6,7 +6,7 @@ The public catalogue contains 13 **curated** case studies based on reviewed GitH
 
 ## GitHub data boundary
 
-`GithubSyncService` deliberately uses GitHub's **unauthenticated public API**; do not add a broad OAuth token. The act of authenticating can expose private issues or PRs through Search and make them appear in the public cache. It imports only public activity found from `author:<login>`, and original public repos. An already-cached record may remain after an upstream visibility change; require editorial review before displaying detailed historic activity if privacy requirements change.
+`GithubSyncService` deliberately uses GitHub's **unauthenticated public API**; do not add a broad OAuth token. The act of authenticating can expose private issues or PRs through Search and make them appear in the public cache. It imports only public activity found from `author:<login>`, and original public repos. An already-cached record may remain after an upstream visibility change until a complete new import; require editorial review before displaying detailed historic activity if privacy requirements change. Once the database is configured, failed cache/provenance queries fail closed rather than resurrecting the historical static selection. Dynamic journal, repository activity, edited project HTML and RSS are sent with `Cache-Control: no-store` so conforming shared caches do not prolong publication after withdrawal.
 
 ## Admin and cron
 
