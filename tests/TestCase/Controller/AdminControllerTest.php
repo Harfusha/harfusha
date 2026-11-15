@@ -31,6 +31,19 @@ final class AdminControllerTest extends HttpIntegrationTestCase
         $this->assertHeaderContains('X-Robots-Tag', 'noindex');
     }
 
+    public function testSaveConfirmationOnlyAppearsAfterSuccessfulRedirect(): void
+    {
+        $this->session(['lab.admin' => true]);
+        $this->get('/admin');
+        $this->assertResponseOk();
+        $this->assertResponseNotContains('Changes saved successfully.');
+
+        $this->get('/admin?saved=1');
+        $this->assertResponseOk();
+        $this->assertResponseContains('role="status"');
+        $this->assertResponseContains('Changes saved successfully.');
+    }
+
     public function testProjectEditFailsWithoutSession(): void
     {
         $this->enableCsrfToken();
