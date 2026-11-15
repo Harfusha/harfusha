@@ -40,6 +40,8 @@ npx --no-install tsc --noEmit --allowJs --checkJs --strict --target ES2022 --lib
 python3 tests/Browser/smoke.py  # s nainstalovaným Playwright Chromium
 ```
 
+Zdrojový i produkční balíčkovač sdílí kontrolu `scripts/client_gates.py`: provede **všechny** `tests/Client/*.test.cjs` v deterministickém pořadí, odmítne prázdnou sadu a symlinky. `scripts/preflight.php` používá totožnou produkční politiku jako bootstrap aplikace (`DeploymentPolicy`), nikoli vlastní slabší regulární výrazy. Regresní testy ověřují validaci URL a saltu i soulad těchto kontrol.
+
 **Nesnižovat PHPStan level ani nevytvářet baseline.** Povinné nadstavby: CakeDC, PHPStan strict rules, ShipMonk, deprecation rules a PHPUnit extension. Každý nový problém se řeší konkrétní opravou kódu a regresním testem.
 
 ## Testovací matice
