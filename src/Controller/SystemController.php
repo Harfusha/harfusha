@@ -73,7 +73,7 @@ final class SystemController extends AppController
         );
 
         return $this->response->withHeader('Content-Type', 'application/rss+xml; charset=UTF-8')
-            ->withHeader('Cache-Control', 'public, max-age=300')
+            ->withHeader('Cache-Control', 'no-store')
             ->withStringBody($xml);
     }
 
