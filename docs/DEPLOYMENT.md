@@ -117,6 +117,16 @@ If the host only supports URL cron, configure `CRON_SECRET` and send an HTTPS PO
 - Verify development-server-specific dotfile protection is not used as a substitute for Apache access controls; request `/.env`, `/.htaccess`, `/composer.lock`, and `/vendor/autoload.php` from staging and ensure none disclose file contents.
 - Confirm the deployment has the exact same source revision as the reviewed ZIP, and record rollback instructions before DNS cutover.
 
+## Read-only staging smoke
+
+After uploading the reviewed production archive to a **separate HTTPS staging hostname**, run from the **source checkout** (the production ZIP intentionally does not contain development smoke scripts):
+
+```sh
+python3 scripts/staging-smoke.py --base-url https://staging.example.com
+```
+
+The command uses verified TLS and GET requests only; it checks public CS/EN routes, API JSON/ETag, sitemap, security headers, admin no-store/noindex and denial of sensitive paths such as `/.env`, `/.htaccess`, `/composer.lock` and `/vendor/autoload.php`. It does not send credentials, write records, exercise cron or alter the database. **A pass does not replace** manual visual/mobile QA, content approval, actual PHP-FPM/version verification or backup-and-restore drills.
+
 ## Rollback
 
 Keep the previous directory intact, replace only application release files atomically if hosting permits; migrations need compatible backward rollback separately. Backup MySQL before schema changes.
