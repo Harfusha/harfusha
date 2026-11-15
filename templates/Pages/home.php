@@ -6,6 +6,9 @@ use App\Support\Language;
 /** @var list<App\Domain\Project> $projects */
 /** @var list<array<string,mixed>> $journal */
 /** @var list<array<string,mixed>> $recentRepos */
+/** @var int $projectCount */
+/** @var int $mergedPrCount */
+/** @var array{source:string,last_sync:?string} $provenance */
 ?>
 <section class="hero shell">
  <div class="hero-copy reveal">
@@ -32,8 +35,13 @@ use App\Support\Language;
   </div>
  </div>
 </section>
-<section class="stats-strip shell" aria-label="Public contribution snapshot">
- <div><strong>26</strong><span><?= $lang->value('repozitářů v inventáři','repositories inventoried') ?></span></div><div><strong>62</strong><span><?= $lang->value('sloučených externích PR','merged external PRs') ?></span></div><div><strong>4</strong><span><?= $lang->value('interaktivní laboratoře','interactive labs') ?></span></div><div class="stat-note"><?= $lang->value('GitHub inventář je snímek z listopadu 2026. Simulace mají vlastní výslovné označení.', 'GitHub inventory snapshot from November 2026. Simulations are explicitly labelled.') ?></div>
+<section class="stats-strip shell" aria-label="<?= $lang->value('Ověřitelné počty v katalogu', 'Verifiable catalog counts') ?>">
+ <div><strong><?= $projectCount ?></strong><span><?= $lang->value('projektových studií v katalogu', 'curated project studies') ?></span></div>
+ <div><strong><?= $mergedPrCount ?></strong><span><?= $lang->value('sloučených externích PR v přehledu', 'merged external PRs in the activity feed') ?></span></div>
+ <div><strong><?= count($recentRepos) ?></strong><span><?= $lang->value('posledních aktualizací repozitářů', 'recent repository updates') ?></span></div>
+ <div class="stat-note"><?= $provenance['source'] === 'github-public-api'
+     ? $lang->value('Údaje z posledního úspěšného veřejného importu GitHubu; nejde o celoživotní statistiky.', 'Counts use the latest successful public GitHub import, not lifetime statistics.')
+     : $lang->value('Údaje z kurátorovaného katalogu a veřejného historického snímku; nejde o živá ani celoživotní čísla.', 'Counts use the curated catalog and a reviewed historical snapshot, not live or lifetime statistics.') ?></div>
 </section>
 <section class="section shell">
  <div class="section-heading"><div><span class="eyebrow">01 / THE LAB</span><h2><?= $lang->value('Prozkoumej, jak věci fungují.','Explore how things work.') ?></h2><p><?= $lang->value('Některé systémy si můžeš rozkliknout, jiné přímo ovládat v bezpečné simulaci.', 'Inspect real architecture and try safe, interactive simulations.') ?></p></div><a class="inline-link" href="<?= $lang->path('/playground') ?>"><?= $lang->value('Všechny demonstrace','All demos') ?> ↗</a></div>
