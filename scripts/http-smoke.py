@@ -146,9 +146,13 @@ def main() -> int:
         if headers.get('X-Content-Type-Options') != 'nosniff' or 'frame-ancestors' not in headers.get('Content-Security-Policy', ''):
             print(f'FAIL {path}: security headers missing', file=sys.stderr)
             return 1
-        if path == '/admin' and 'no-store' not in headers.get('Cache-Control',''):
-            print('FAIL admin cache policy', file=sys.stderr)
-            return 1
+        if path == '/admin':
+            if 'no-store' not in headers.get('Cache-Control', ''):
+                print('FAIL admin cache policy', file=sys.stderr)
+                return 1
+            if 'noindex' not in headers.get('X-Robots-Tag', ''):
+                print('FAIL admin indexing policy', file=sys.stderr)
+                return 1
         if path.endswith('.xml'):
             ElementTree.fromstring(body)
 
@@ -196,8 +200,8 @@ def main() -> int:
         return 1
 
     status, _, headers = fetch('/cron/github', method='POST')
-    if status != 403 or 'no-store' not in headers.get('Cache-Control', ''):
-        print(f'FAIL cron authorization/cache: {status}', file=sys.stderr)
+    if status != 403 or 'no-store' not in headers.get('Cache-Control', '') or 'noindex' not in headers.get('X-Robots-Tag', ''):
+        print(f'FAIL cron authorization/cache/indexing: {status}', file=sys.stderr)
         return 1
     if not test_admin_roundtrip():
         return 1
