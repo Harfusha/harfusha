@@ -17,6 +17,37 @@ SPEC.loader.exec_module(BUILDER)
 
 
 class SourceArchivePrivacyTests(unittest.TestCase):
+    def test_source_builder_runs_every_browser_regression_file(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            tests = root / 'tests/Client'
+            tests.mkdir(parents=True)
+            (tests / 'b.test.cjs').write_text('', encoding='utf-8')
+            (tests / 'a.test.cjs').write_text('', encoding='utf-8')
+            (tests / 'fixture.cjs').write_text('', encoding='utf-8')
+            with patch.object(BUILDER.subprocess, 'run') as runner:
+                BUILDER.verify_client_tests(root)
+            runner.assert_called_once_with(
+                ['node', '--test', 'tests/Client/a.test.cjs', 'tests/Client/b.test.cjs'],
+                cwd=root, check=True, stdout=BUILDER.subprocess.DEVNULL,
+            )
+
+    def test_source_builder_fails_closed_without_browser_tests(self) -> None:
+        with TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(RuntimeError, 'No browser-core regression tests'):
+                BUILDER.verify_client_tests(Path(tmp))
+
+    def test_source_builder_rejects_symlinked_browser_test(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            tests = root / 'tests/Client'
+            tests.mkdir(parents=True)
+            target = tests / 'real.test.cjs'
+            target.write_text('', encoding='utf-8')
+            (tests / 'linked.test.cjs').symlink_to(target)
+            with self.assertRaisesRegex(RuntimeError, 'Unsafe browser-core test'):
+                BUILDER.verify_client_tests(root)
+
     def test_case_insensitive_secret_exclusions(self) -> None:
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
