@@ -37,7 +37,7 @@ as a token could change public-only visibility guarantees.
 
 - **Database unreachable**: confirm database host, migration history, user
   privileges and credential storage; do not enable `DEBUG` in production.
-- **Schema incomplete**: apply the remaining migrations before enabling editorial writes. A live MySQL connection alone is not sufficient.
+- **Schema incomplete**: apply the remaining migrations before enabling editorial writes. A live MySQL connection alone is not sufficient. Both the dashboard controls and direct authenticated editor POST routes enforce this gate; attempted writes return HTTP 503 without modifying editorial records.
 - **Storage unwritable**: fix directory ownership outside the public docroot;
   never recursively make the project world-writable.
 - **GitHub stale / not synced**: inspect private CLI cron logs, connectivity and

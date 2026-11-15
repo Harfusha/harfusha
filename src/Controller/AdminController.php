@@ -31,6 +31,15 @@ final class AdminController extends AppController
     }
 
     /**
+     * The HTTP editor must enforce the same migration readiness gate as its
+     * disabled buttons, even when a caller submits a form directly.
+     */
+    private function editableDatabase(): bool
+    {
+        return (new OperationsService())->report()['database'] === 'ok';
+    }
+
+    /**
      * Read a validated scalar from an editorial form.
      */
     private function formValue(string $key, int $max): string
@@ -137,6 +146,9 @@ final class AdminController extends AppController
         if ((new ContentRepository())->findProject($data['slug']) === null) {
             return $this->response->withStatus(422)->withStringBody('Unknown project');
         }
+        if (!$this->editableDatabase()) {
+            return $this->response->withStatus(503)->withStringBody('Editorial storage unavailable');
+        }
         try {
             $table = TableRegistry::getTableLocator()->get(ProjectOverridesTable::class);
             $record = $table->find()->where(['slug' => $data['slug']])->first() ?? $table->newEmptyEntity();
@@ -186,6 +198,9 @@ final class AdminController extends AppController
             $isPublic = EditorialInput::isPublic($this->request->getData('visibility'));
         } catch (InvalidArgumentException) {
             return $this->response->withStatus(422)->withStringBody('Invalid journal entry');
+        }
+        if (!$this->editableDatabase()) {
+            return $this->response->withStatus(503)->withStringBody('Editorial storage unavailable');
         }
         try {
             $table = TableRegistry::getTableLocator()->get(JournalEntriesTable::class);
@@ -245,6 +260,9 @@ final class AdminController extends AppController
         $action = $this->formValue('operation', 20);
         if (!in_array($action, ['save','publish','unpublish'], true)) {
             return $this->response->withStatus(422)->withStringBody('Invalid operation');
+        }
+        if (!$this->editableDatabase()) {
+            return $this->response->withStatus(503)->withStringBody('Editorial storage unavailable');
         }
         try {
             $table = TableRegistry::getTableLocator()->get(JournalEntriesTable::class);
