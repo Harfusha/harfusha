@@ -51,6 +51,20 @@ final class EditorialInputTest extends TestCase
         ]);
     }
 
+    public function testJournalPublicationDecisionMustBeExplicit(): void
+    {
+        self::assertTrue(EditorialInput::isPublic('public'));
+        self::assertFalse(EditorialInput::isPublic('draft'));
+        foreach ([null, '', 'PUBLIC', 'published', false, true, [], ' private '] as $value) {
+            try {
+                EditorialInput::isPublic($value);
+                self::fail('Invalid publication decision accepted');
+            } catch (InvalidArgumentException) {
+                // Invalid editor payloads cannot silently alter publication state.
+            }
+        }
+    }
+
     public function testPositiveIdGuardsOverflow(): void
     {
         self::assertSame(42, EditorialInput::positiveId('42'));
