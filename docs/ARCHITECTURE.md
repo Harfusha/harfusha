@@ -92,7 +92,7 @@ Browser --> self-hosted JS --> SVG home lab + Canvas world/3D + AI/sync demos (p
 
 ## Transactional editorial audit
 
-Třetí migrace zavádí `editorial_audit` s časem, typem, identifikátorem a SHA-256 otiskem normalizovaného vstupu; neukládá plný text ani přihlašovací údaje. Editace projektů a poznámek běží v jediné DB transakci s auditním zápisem. Pokud audit insert selže, rollback chrání jednotnost změny.
+Třetí migrace zavádí `editorial_audit` s časem, typem, identifikátorem a SHA-256 otiskem normalizovaného vstupu; neukládá plný text ani přihlašovací údaje. Editace projektů a poznámek běží v jediné DB transakci s auditním zápisem. Pokud audit insert selže, rollback chrání jednotnost změny. Tento postup ověřují MySQL integrační testy: vynucené selhání auditního INSERT nesmí ponechat novou poznámku ani projektový override.
 
 ## Public API v1 and request-lifecycle teaching model (2026-11-13)
 
