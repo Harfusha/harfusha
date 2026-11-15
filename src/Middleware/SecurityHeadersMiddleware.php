@@ -35,7 +35,9 @@ final class SecurityHeadersMiddleware implements MiddlewareInterface
         }
         $path = $request->getUri()->getPath();
         if (str_starts_with($path, '/admin') || str_starts_with($path, '/cron')) {
-            $response = $response->withHeader('Cache-Control', 'no-store, private');
+            $response = $response
+                ->withHeader('Cache-Control', 'no-store, private')
+                ->withHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
         }
 
         return $response;
