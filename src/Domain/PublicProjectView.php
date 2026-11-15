@@ -27,7 +27,12 @@ final readonly class PublicProjectView
         $repository = !$this->project->private && Html::safeUrl($this->project->repo) !== '#'
             ? $this->project->repo
             : null;
-        $demo = Html::safeUrl($this->project->demo) !== '#' ? $this->project->demo : null;
+        // Curated demos are local route IDs, never external URLs.
+        $demo = match ($this->project->demo) {
+            'ai', 'sync', 'world', 'cad' => $language->path('/playground') . '#' . $this->project->demo,
+            'homelab' => $language->path('/homelab'),
+            default => null,
+        };
 
         return [
             'slug' => $this->project->slug,
