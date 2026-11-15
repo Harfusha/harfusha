@@ -42,7 +42,9 @@ use App\Support\Language;
  <div><strong><?= count($recentRepos) ?></strong><span><?= $lang->value('posledních aktualizací repozitářů', 'recent repository updates') ?></span></div>
  <div class="stat-note"><?= $provenance['source'] === 'github-public-api'
      ? $lang->value('Údaje z posledního úspěšného veřejného importu GitHubu; nejde o celoživotní statistiky.', 'Counts use the latest successful public GitHub import, not lifetime statistics.')
-     : $lang->value('Údaje z kurátorovaného katalogu a veřejného historického snímku; nejde o živá ani celoživotní čísla.', 'Counts use the curated catalog and a reviewed historical snapshot, not live or lifetime statistics.') ?></div>
+     : ($provenance['source'] === 'unavailable'
+         ? $lang->value('GitHub údaje jsou dočasně nedostupné; nezobrazujeme zastaralý historický seznam.', 'GitHub data is temporarily unavailable; the old historical list is intentionally withheld.')
+         : $lang->value('Údaje z kurátorovaného katalogu a veřejného historického snímku; nejde o živá ani celoživotní čísla.', 'Counts use the curated catalog and a reviewed historical snapshot, not live or lifetime statistics.')) ?></div>
 </section>
 <section class="section shell">
  <div class="section-heading"><div><span class="eyebrow">01 / THE LAB</span><h2><?= $lang->value('Prozkoumej, jak věci fungují.','Explore how things work.') ?></h2><p><?= $lang->value('Některé systémy si můžeš rozkliknout, jiné přímo ovládat v bezpečné simulaci.', 'Inspect real architecture and try safe, interactive simulations.') ?></p></div><a class="inline-link" href="<?= $lang->path('/playground') ?>"><?= $lang->value('Všechny demonstrace','All demos') ?> ↗</a></div>
