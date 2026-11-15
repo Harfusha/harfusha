@@ -40,6 +40,40 @@ final class LoginLimiterTest extends TestCase
         return $dir;
     }
 
+    public function testThrottleStorageIsPrivateEvenWithPermissiveUmask(): void
+    {
+        $dir = $this->directory();
+        self::assertTrue(mkdir($dir, 0755));
+        self::assertTrue(chmod($dir, 0755));
+        $oldUmask = umask(0022);
+        try {
+            self::assertTrue((new LoginLimiter($dir))->consume('203.0.113.210'));
+        } finally {
+            umask($oldUmask);
+        }
+        clearstatcache(true, $dir);
+        self::assertSame(0700, fileperms($dir) & 0777);
+        $files = glob($dir . '/login-*.json');
+        self::assertIsArray($files);
+        self::assertCount(1, $files);
+        clearstatcache(true, $files[0]);
+        self::assertSame(0600, fileperms($files[0]) & 0777);
+    }
+
+    public function testLegacyReadableShardIsTightenedBeforeUse(): void
+    {
+        $dir = $this->directory();
+        $limiter = new LoginLimiter($dir);
+        self::assertTrue($limiter->consume('203.0.113.211'));
+        $files = glob($dir . '/login-*.json');
+        self::assertIsArray($files);
+        self::assertCount(1, $files);
+        self::assertTrue(chmod($files[0], 0644));
+        self::assertTrue($limiter->consume('203.0.113.211'));
+        clearstatcache(true, $files[0]);
+        self::assertSame(0600, fileperms($files[0]) & 0777);
+    }
+
     public function testFiveAttemptsAreAtomicAndDifferentAddressesAreIsolated(): void
     {
         $dir = $this->directory();
