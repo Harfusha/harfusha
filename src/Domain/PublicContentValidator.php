@@ -249,6 +249,7 @@ final class PublicContentValidator
         ) {
             throw new InvalidArgumentException('Invalid field ' . $key . ': ' . $label);
         }
+        PublicText::assertRenderable($value);
         // Length is measured in UTF-8 characters in production (mbstring requirement).
         if (function_exists('mb_strlen') && mb_strlen($value, 'UTF-8') > $max) {
             throw new InvalidArgumentException('Field too long ' . $key . ': ' . $label);
