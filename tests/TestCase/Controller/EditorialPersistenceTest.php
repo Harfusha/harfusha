@@ -215,6 +215,17 @@ final class EditorialPersistenceTest extends HttpIntegrationTestCase
             $this->assertRedirect('/admin?saved=1');
             $row = self::row($db, 'SELECT is_public FROM journal_entries WHERE id = :id', ['id' => $id]);
             self::assertSame(0, self::number($row['is_public'] ?? null));
+
+            // Unpublication must disappear immediately from both languages
+            // and their RSS feeds, not just from the database flag.
+            foreach (['cs', 'en'] as $locale) {
+                $this->get('/' . $locale . '/journal');
+                $this->assertResponseOk();
+                $this->assertResponseNotContains('id="entry-db-' . $id . '"');
+                $this->get('/' . $locale . '/feed.xml');
+                $this->assertResponseOk();
+                $this->assertResponseNotContains('/' . $locale . '/journal#entry-db-' . $id);
+            }
         } finally {
             if ($id !== 0) {
                 $db->execute('DELETE FROM editorial_audit WHERE entity_type = :type AND entity_key = :key', [
