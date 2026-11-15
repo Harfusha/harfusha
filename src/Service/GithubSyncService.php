@@ -108,6 +108,7 @@ final class GithubSyncService
                 'INSERT INTO sync_runs (source,item_count,completed_at) VALUES (:source,:count,UTC_TIMESTAMP())',
                 ['source' => 'github', 'count' => count($records)],
             );
+            SyncRunRetention::prune($connection, 'github');
         });
 
         return [
