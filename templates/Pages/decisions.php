@@ -26,7 +26,7 @@ use App\Support\Language;
       <option value="prototype"><?= $lang->value('Prototyp / rozpracováno', 'Prototype / in progress') ?></option>
       <option value="planned"><?= $lang->value('Plán', 'Planned') ?></option>
     </select>
-    <span class="filter-count" data-count><?= count($decisions) ?> <?= $lang->value('rozhodnutí','decisions') ?></span>
+    <span class="filter-count" data-count role="status" aria-live="polite" aria-atomic="true"><?= count($decisions) ?> <?= $lang->value('rozhodnutí','decisions') ?></span>
   </div>
   <div class="decision-grid">
     <?php foreach ($decisions as $decision): ?>
