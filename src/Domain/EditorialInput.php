@@ -126,6 +126,7 @@ final class EditorialInput
             throw new InvalidArgumentException('Invalid text value');
         }
         $value = trim($value);
+        PublicText::assertRenderable($value);
         $length = function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
         if ($length > $maxChars || ($required && $value === '')) {
             throw new InvalidArgumentException('Invalid text length');
