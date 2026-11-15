@@ -55,7 +55,8 @@ class ArchiveVerifierTests(unittest.TestCase):
 
     def test_rejects_unsafe_members(self) -> None:
         for name in ('../escape.txt', 'webroot/.env', 'src/../../escape.php', 'config/app_local.php',
-                     'webroot\\hack.php', 'C:/malware.php', '/root/leak.php', 'webroot/.env.example'):
+                     'webroot\\hack.php', 'C:/malware.php', '/root/leak.php', 'webroot/.env.example', 'webroot/.ENV.production', 'config/APP_LOCAL.PHP',
+                     'data/.LAB-CONTENT-APPROVAL.JSON', 'vendor/.Env.Local'):
             with self.subTest(name=name):
                 self.make(files={**self.files, name: b'secret'})
                 with self.assertRaises(ArchiveVerificationError):
