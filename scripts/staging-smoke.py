@@ -103,6 +103,12 @@ def verify(
                 errors.append('Admin must be non-cacheable and non-indexable')
         if path == '/healthz' and 'no-store' not in headers.get('cache-control', ''):
             errors.append('Liveness endpoint must not be cached')
+        if path in (
+            '/cs/', '/en/', '/cs/projects', '/en/projects',
+            '/cs/journal', '/en/journal', '/cs/feed.xml', '/en/feed.xml',
+            '/api/v1/projects?lang=en',
+        ) and 'no-store' not in headers.get('cache-control', ''):
+            errors.append(f'{path}: mutable public content must not be cached')
         if path == '/sitemap.xml':
             try:
                 ElementTree.fromstring(body)
