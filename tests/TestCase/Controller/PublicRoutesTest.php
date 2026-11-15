@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
+use App\Domain\JournalFeed;
+use App\Domain\ProjectCatalog;
 use App\Test\Support\HttpIntegrationTestCase;
 
 /** Exercises the actual CakePHP middleware, routing and template pipeline. */
@@ -45,6 +47,23 @@ final class PublicRoutesTest extends HttpIntegrationTestCase
         $this->get('/cs/feed.xml');
         $this->assertResponseOk();
         $this->assertResponseContains('<rss version="2.0"');
+    }
+
+    public function testRssPermalinksResolveToPublishedJournalArticles(): void
+    {
+        $entries = (new ProjectCatalog(ROOT . '/data'))->journal();
+        self::assertNotEmpty($entries);
+        $id = JournalFeed::entryId($entries[0]);
+
+        foreach (['cs', 'en'] as $locale) {
+            $this->get('/' . $locale . '/feed.xml');
+            $this->assertResponseOk();
+            $this->assertResponseContains('/' . $locale . '/journal#' . $id);
+
+            $this->get('/' . $locale . '/journal');
+            $this->assertResponseOk();
+            $this->assertResponseContains('id="' . $id . '"');
+        }
     }
 
     public function testHealthDoesNotLeakDependencies(): void
