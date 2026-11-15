@@ -3,14 +3,11 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
-use Cake\TestSuite\IntegrationTestTrait;
-use Cake\TestSuite\TestCase;
+use App\Test\Support\HttpIntegrationTestCase;
 
 /** These integration tests require installed CakePHP vendor dependencies. */
-final class PagesControllerTest extends TestCase
+final class PagesControllerTest extends HttpIntegrationTestCase
 {
-    use IntegrationTestTrait;
-
     public function testLandingPageWorksWithoutDatabase(): void
     {
         $this->get('/cs/');
