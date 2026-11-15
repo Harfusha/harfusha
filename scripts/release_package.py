@@ -34,9 +34,12 @@ class ReleasePackagingError(RuntimeError):
 
 
 def _allowed(relative: Path) -> bool:
-    if any(part in EXCLUDE_PARTS for part in relative.parts):
+    # Do not rely on filesystem case sensitivity for secret names. A release
+    # built on Linux may later be extracted onto another filesystem.
+    parts = tuple(part.lower() for part in relative.parts)
+    if any(part in EXCLUDE_PARTS for part in parts):
         return False
-    if any(part.startswith('.env') or part in EXCLUDE_NAMES for part in relative.parts):
+    if any(part.startswith('.env') or part in EXCLUDE_NAMES for part in parts):
         return False
     if relative.suffix.lower() in EXCLUDE_SUFFIXES:
         return False
