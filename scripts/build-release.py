@@ -8,6 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from release_package import stage_application, write_archive
+from client_gates import client_test_files
 import argparse
 import secrets
 import os
@@ -22,14 +23,6 @@ ROOT=Path(__file__).resolve().parents[1]
 def require(command: list[str]) -> None:
     print('Gate:', ' '.join(command), flush=True)
     subprocess.run(command, cwd=ROOT, check=True)
-
-
-def client_test_files(root: Path) -> list[str]:
-    """Return the full deterministic browser regression suite; never silently skip it."""
-    files = sorted((root / 'tests/Client').glob('*.test.cjs'))
-    if not files:
-        raise RuntimeError('No browser-core regression tests found')
-    return [str(path.relative_to(root)) for path in files]
 
 
 def verify_client_tests(root: Path) -> None:
