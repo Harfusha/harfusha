@@ -43,8 +43,14 @@ final class GithubSnapshotFallbackTest extends TestCase
         }
         // Both cache tables are readable but empty; the receipt is corrupted.
         // An unknown import state must not be mistaken for "not yet imported".
-        $connection->execute('CREATE TEMPORARY TABLE github_activity LIKE github_activity');
-        $connection->execute('CREATE TEMPORARY TABLE github_public_repos LIKE github_public_repos');
+        $connection->execute('CREATE TEMPORARY TABLE github_activity (
+            source_url VARCHAR(255), title VARCHAR(250), repository VARCHAR(180),
+            kind VARCHAR(10), state VARCHAR(10), published_at DATETIME
+        )');
+        $connection->execute('CREATE TEMPORARY TABLE github_public_repos (
+            repository VARCHAR(180), description VARCHAR(350),
+            repo_url VARCHAR(255), pushed_at DATETIME
+        )');
         $connection->execute('CREATE TEMPORARY TABLE sync_runs (id BIGINT NOT NULL)');
         try {
             $content = new ContentRepository();
