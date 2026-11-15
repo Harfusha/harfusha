@@ -3,10 +3,26 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
+use App\Support\Html;
 use App\Test\Support\HttpIntegrationTestCase;
 
 final class AdminControllerTest extends HttpIntegrationTestCase
 {
+    public function testAdminPagesAlwaysUseFingerprintBasedAssets(): void
+    {
+        $css = Html::versionedAsset('assets/css/app.css');
+        $this->get('/admin');
+        $this->assertResponseOk();
+        $this->assertResponseContains($css);
+
+        $this->session(['lab.admin' => true]);
+        $this->get('/admin');
+        $this->assertResponseOk();
+        $this->assertResponseContains($css);
+        $this->assertResponseContains(Html::versionedAsset('assets/js/app.js'));
+        $this->assertResponseContains(Html::versionedAsset('assets/js/lab-core.js'));
+    }
+
     public function testLoginPageSetsNoStoreAndNoIndex(): void
     {
         $this->get('/admin');
