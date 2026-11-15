@@ -19,6 +19,14 @@ final class ProjectCatalog
     private ?array $cache = null;
 
     /**
+     * Immutable-on-read datasets, cached only for this catalog instance.
+     * A new HTTP request constructs a new catalog and sees new deployments.
+     *
+     * @var array<string,list<array<string,mixed>>>
+     */
+    private array $datasetCache = [];
+
+    /**
      * Initialize the immutable domain model with validated inputs.
      */
     public function __construct(private readonly string $directory)
@@ -131,6 +139,9 @@ final class ProjectCatalog
     /** @return list<array<string,mixed>> */
     private function read(string $file): array
     {
+        if (isset($this->datasetCache[$file])) {
+            return $this->datasetCache[$file];
+        }
         $path = $this->directory . '/' . $file;
         $contents = file_get_contents($path);
         if (!is_string($contents)) {
@@ -154,6 +165,6 @@ final class ProjectCatalog
         }
         PublicContentValidator::validate($file, $records);
 
-        return $records;
+        return $this->datasetCache[$file] = $records;
     }
 }
