@@ -35,6 +35,17 @@ class ReleaseClientGateTests(unittest.TestCase):
                 'node', '--test', 'tests/Client/a.test.cjs', 'tests/Client/z.test.cjs',
             ])
 
+    def test_production_builder_rejects_symlinked_regression_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            tests = root / 'tests/Client'
+            tests.mkdir(parents=True)
+            real = tests / 'safe.test.cjs'
+            real.write_text('', encoding='utf-8')
+            (tests / 'external.test.cjs').symlink_to(real)
+            with self.assertRaisesRegex(RuntimeError, 'Unsafe browser-core test'):
+                BUILDER.client_test_files(root)
+
     def test_missing_client_suite_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             with self.assertRaisesRegex(RuntimeError, 'No browser-core regression tests'):
