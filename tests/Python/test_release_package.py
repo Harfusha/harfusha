@@ -27,6 +27,9 @@ class ReleasePackageTests(unittest.TestCase):
             'README.md': 'Hello', 'tests/secret.txt': 'not for production',
             '.env': 'DB_PASS=SECRET', 'config/app_local.php': '<?php // password',
             'webroot/.env.production': 'exposed?', 'logs/secret.log': 'private',
+            'webroot/.ENV.production': 'mixed-case-secret',
+            'config/APP_LOCAL.PHP': 'mixed-case-config',
+            'data/.LAB-CONTENT-APPROVAL.JSON': 'private approval',
         }.items():
             file = self.src / name
             file.parent.mkdir(parents=True, exist_ok=True)
@@ -43,7 +46,10 @@ class ReleasePackageTests(unittest.TestCase):
         self.assertFalse((stage / '.env').exists())
         self.assertFalse((stage / 'tests/secret.txt').exists())
         self.assertFalse((stage / 'config/app_local.php').exists())
+        self.assertFalse((stage / 'config/APP_LOCAL.PHP').exists())
+        self.assertFalse((stage / 'data/.LAB-CONTENT-APPROVAL.JSON').exists())
         self.assertFalse((stage / 'webroot/.env.production').exists())
+        self.assertFalse((stage / 'webroot/.ENV.production').exists())
         self.assertFalse((stage / 'logs/secret.log').exists())
 
     def test_zip_has_manifest_and_runtime_dependencies_without_secrets(self) -> None:
