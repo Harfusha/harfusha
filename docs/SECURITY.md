@@ -6,7 +6,7 @@ The public catalogue contains 13 **curated** case studies based on reviewed GitH
 
 ## GitHub data boundary
 
-`GithubSyncService` deliberately uses GitHub's **unauthenticated public API**; do not add a broad OAuth token. The act of authenticating can expose private issues or PRs through Search and make them appear in the public cache. It imports only public activity found from `author:<login>`, and original public repos. An already-cached record may remain after an upstream visibility change until a complete new import; require editorial review before displaying detailed historic activity if privacy requirements change. Once the database is configured, failed cache/provenance queries fail closed rather than resurrecting the historical static selection. Dynamic journal, repository activity, edited project HTML and RSS are sent with `Cache-Control: no-store` so conforming shared caches do not prolong publication after withdrawal.
+`GithubSyncService` deliberately uses GitHub's **unauthenticated public API**; do not add a broad OAuth token. The act of authenticating can expose private issues or PRs through Search and make them appear in the public cache. It imports only public activity found from `author:<login>`, and original public repos. An already-cached record may remain after an upstream visibility change until a complete new import; require editorial review before displaying detailed historic activity if privacy requirements change. Once the database is configured, failed cache/provenance queries fail closed rather than resurrecting the historical static selection. Cache rows are never published before a completed GitHub synchronization receipt exists; until the first successful import, only the reviewed static selection is displayed. Dynamic journal, repository activity, edited project HTML and RSS are sent with `Cache-Control: no-store` so conforming shared caches do not prolong publication after withdrawal.
 
 ## Admin and cron
 
@@ -42,7 +42,8 @@ The public catalogue contains 13 **curated** case studies based on reviewed GitH
 - `PublicContentValidator` rejects malformed entries and private repository links at the public content boundary. The privacy scanner is heuristic; every private-derived description still needs author approval.
 - CakePHP Entity classes restrict mass assignment to explicit editorial fields. Public GitHub cache Entities are not mass assignable.
 - Admin journals start as drafts unless explicitly selected as public and can be unlisted again; updates and visibility changes require POST + CSRF + session. Public presentation escapes all submitted text.
-- Caught administrative database failures log only an exception **class**, never the raw driver error message. CakePHP query error messages can include bound SQL values, such as unpublished journal text; these values must not be duplicated in operation logs.
+- Caught administrative, public content-read and GitHub import failures log only an exception **class**, never the raw driver error message. CakePHP query error messages can include bound SQL values, such as unpublished journal text; these values must not be duplicated in operation logs.
+- Database journal rendering appends published rows only after the complete bounded batch is read and validated; malformed rows cannot expose a partially loaded batch.
 - The public JavaScript core has no network/storage access and rejects malformed or excessive STL uploads; browsing a model still carries ordinary browser resource risks, so do not offer untrusted public file hosting.
 
 ## 13 November hardening
