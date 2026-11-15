@@ -28,6 +28,16 @@ final class ApiControllerTest extends HttpIntegrationTestCase
         $this->assertResponseCode(400);
     }
 
+    public function testEditableApiResponsesCannotBeReusedFromHttpCaches(): void
+    {
+        foreach (['/api/v1/projects?lang=en', '/api/v1/projects/local-ai-hub?lang=cs'] as $path) {
+            $this->get($path);
+            $this->assertResponseOk();
+            $this->assertHeaderContains('Cache-Control', 'no-store');
+            $this->assertHeaderContains('ETag', '"');
+        }
+    }
+
     public function testWriteMethodsAreNotExposed(): void
     {
         $this->post('/api/v1/projects');
