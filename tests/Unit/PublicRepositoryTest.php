@@ -30,6 +30,14 @@ final class PublicRepositoryTest extends TestCase
         self::assertSame('2026-11-12 11:45:05', $repos[0]->pushedAt);
     }
 
+    public function testRejectsImpossibleGitHubRepositoryPushDates(): void
+    {
+        $row = self::fixture();
+        $row['pushed_at'] = '2026-11-31T11:45:05Z';
+        $this->expectException(InvalidArgumentException::class);
+        PublicRepository::fromGithub([$row], 'Harfusha');
+    }
+
     public function testSkipsForkButKeepsOriginal(): void
     {
         $fork = self::fixture();
