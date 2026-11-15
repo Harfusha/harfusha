@@ -6,6 +6,11 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class EditorialLogPrivacyTests(unittest.TestCase):
+    def test_public_data_reads_never_log_raw_database_exception_messages(self) -> None:
+        repository = (ROOT / 'src/Service/ContentRepository.php').read_text(encoding='utf-8')
+        self.assertNotIn('$error->getMessage()', repository)
+        self.assertGreaterEqual(repository.count('get_class($error)'), 7)
+
     def test_admin_never_logs_raw_database_exception_messages(self) -> None:
         controller = (ROOT / 'src/Controller/AdminController.php').read_text(encoding='utf-8')
         # CakePHP QueryException::getMessage() can include SQL bind values,
