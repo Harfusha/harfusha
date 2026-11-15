@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
+use App\Domain\JournalFeed;
+use App\Domain\ProjectCatalog;
 use App\Service\ContentRepository;
 use App\Support\Html;
 use App\Test\Support\HttpIntegrationTestCase;
@@ -41,6 +43,21 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->assertResponseContains('<strong>' . $recentRepoCount . '</strong><span>recent repository updates');
         $this->assertResponseNotContains('<strong>26</strong><span>repositories inventoried');
         $this->assertResponseNotContains('<strong>62</strong><span>merged external PRs');
+    }
+
+    public function testJournalPreviewsLinkToRealArticleAnchors(): void
+    {
+        $entries = (new ProjectCatalog(ROOT . '/data'))->journal();
+        self::assertNotEmpty($entries);
+        $id = JournalFeed::entryId($entries[0]);
+        foreach (['/en/', '/en/now'] as $path) {
+            $this->get($path);
+            $this->assertResponseOk();
+            $this->assertResponseContains('/en/journal#' . $id);
+        }
+        $this->get('/en/journal');
+        $this->assertResponseOk();
+        $this->assertResponseContains('id="' . $id . '"');
     }
 
     public function testLandingPageWorksWithoutDatabase(): void
