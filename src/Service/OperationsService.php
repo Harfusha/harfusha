@@ -19,6 +19,7 @@ final class OperationsService
     {
         $configured = (new ContentRepository())->hasDatabase();
         $reachable = false;
+        $schemaReady = false;
         $lastSync = null;
         if ($configured) {
             try {
@@ -28,6 +29,15 @@ final class OperationsService
                 }
                 $db->execute('SELECT 1');
                 $reachable = true;
+                // Zero-row probe validates all three migrations and the columns
+                // required by public rendering, import and editorial audit.
+                // Unlike a mere SELECT 1, incomplete installations cannot be ready.
+                $db->execute('SELECT p.problem_cs, p.solution_en, j.is_public, a.content_digest,
+                    ga.repository, gr.pushed_at, sr.completed_at
+                    FROM project_overrides p, journal_entries j, editorial_audit a,
+                    github_activity ga, github_public_repos gr, sync_runs sr
+                    LIMIT 0');
+                $schemaReady = true;
                 $row = $db->execute('SELECT MAX(completed_at) AS last_sync FROM sync_runs WHERE source = :source', [
                     'source' => 'github',
                 ])->fetch('assoc');
@@ -35,9 +45,10 @@ final class OperationsService
                     $lastSync = new DateTimeImmutable($row['last_sync'], new DateTimeZone('UTC'));
                 }
             } catch (Throwable) {
-                // A missing table/migration must not disclose DB internals to the admin UI.
-                // If the connection works but schema does not, readiness still fails.
-                $reachable = false;
+                // Never disclose table names or database driver errors publicly.
+                // Distinguish a live connection with missing migrations from an
+                // unreachable database; both must fail readiness.
+                $schemaReady = false;
                 $lastSync = null;
             }
         }
@@ -48,6 +59,7 @@ final class OperationsService
             is_writable(TMP) && is_writable(CACHE) && is_writable(LOGS),
             $lastSync,
             new DateTimeImmutable('now', new DateTimeZone('UTC')),
+            $schemaReady,
         );
     }
 }
