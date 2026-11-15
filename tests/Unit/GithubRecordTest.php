@@ -37,7 +37,7 @@ final class GithubRecordTest extends TestCase
                 ['html_url' => 'https://github.com/cakephp/cakephp/pull/0',
                     'created_at' => '2026-11-12T12:00:00Z', 'title' => 'Invalid number'],
                 ['html_url' => 'https://github.com/cakephp/cakephp/pull/20',
-                    'created_at' => '2026-11-12T12:00:00Z', 'title' => "Bad \\x01 title"],
+                    'created_at' => '2026-11-12T12:00:00Z', 'title' => "Bad \x01 title"],
                 ['html_url' => 'https://github.com/cakephp/cakephp/issues/20',
                     'created_at' => '2026-11-12T12:00:00Z', 'title' => '  '],
             ] as $case
