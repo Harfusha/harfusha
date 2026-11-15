@@ -42,6 +42,7 @@ The public catalogue contains 13 **curated** case studies based on reviewed GitH
 - `PublicContentValidator` rejects malformed entries and private repository links at the public content boundary. The privacy scanner is heuristic; every private-derived description still needs author approval.
 - CakePHP Entity classes restrict mass assignment to explicit editorial fields. Public GitHub cache Entities are not mass assignable.
 - Admin journals start as drafts unless explicitly selected as public and can be unlisted again; updates and visibility changes require POST + CSRF + session. Public presentation escapes all submitted text.
+- Caught administrative database failures log only an exception **class**, never the raw driver error message. CakePHP query error messages can include bound SQL values, such as unpublished journal text; these values must not be duplicated in operation logs.
 - The public JavaScript core has no network/storage access and rejects malformed or excessive STL uploads; browsing a model still carries ordinary browser resource risks, so do not offer untrusted public file hosting.
 
 ## 13 November hardening
