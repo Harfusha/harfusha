@@ -8,11 +8,12 @@ The portfolio does not expose a personal GitHub token to the web or to browser J
 2. `GithubRepositoryPageCollector` requires ordered pages of at most 100 objects, rejects duplicate `full_name` across pages and requires a final page with fewer than 100 records. Unlike Search API there is no declared total count.
 3. `GithubSnapshot` validates author, PR kind and merge-state consistency, and strips activity authored against owned repositories.
 4. `PublicRepository` validates public visibility, owner, canonical URL, UTF-8 description and timestamp. It rejects an unexpected private repository and an entirely empty list of original public repositories.
-5. Only after all steps succeed does the code replace both caches and record a successful sync **in one MySQL transaction**. A nonblocking `flock()` prevents overlapping CLI/HTTP imports. On any failure the last valid database snapshot remains unchanged.
+5. Only after all steps succeed does the code replace both caches and record a successful sync **in one MySQL transaction**. In that transaction, it also retains only the latest **64** successful GitHub sync receipts in `sync_runs` (other sources are untouched). A nonblocking `flock()` prevents overlapping CLI/HTTP imports. On any failure the last valid database snapshot remains unchanged.
 
 ## Guarantees and limitations
 
 - Duplicate or changing Search API pages cannot silently replace good data.
+- GitHub titles and repository descriptions must be valid UTF-8 with XML-safe public text. Impossible upstream UTC timestamps and malformed contribution URLs fail validation before database mutation.
 - GitHub API is eventually consistent and the separate merged-PR query is not an atomic upstream transaction. If the searches disagree, synchronization **fails** and should be retried at a later time.
 - The GitHub Search API caps access to 1,000 items per query. This code refuses truncated records; accounts with larger histories need year-scoped search and deterministic merging before expansion.
 - A public GitHub repository could be made private after the most recent sync. Cached snapshots are **not instantaneous revocation**. The owner must periodically audit visibility or disable the importer if the privacy model changes.
