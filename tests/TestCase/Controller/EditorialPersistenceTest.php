@@ -58,6 +58,74 @@ final class EditorialPersistenceTest extends HttpIntegrationTestCase
         throw new RuntimeException('Expected integer from the database');
     }
 
+    /**
+     * The audit insert can fail even when the schema's required columns exist.
+     * No partially updated project must survive that failed transaction.
+     */
+    public function testProjectChangeRollsBackWhenAuditInsertFails(): void
+    {
+        $db = self::db();
+        $slug = 'local-ai-hub';
+        $db->execute('DELETE FROM project_overrides WHERE slug = :slug', ['slug' => $slug]);
+        $db->execute('CREATE TEMPORARY TABLE editorial_audit (
+            id INT AUTO_INCREMENT PRIMARY KEY, entity_type VARCHAR(32),
+            entity_key VARCHAR(100), action VARCHAR(32),
+            content_digest CHAR(1) NOT NULL, occurred_at DATETIME
+        )');
+        try {
+            $this->session(['lab.admin' => true]);
+            $this->enableCsrfToken();
+            $this->post('/admin/project', [
+                'slug' => $slug,
+                'status' => 'maintenance',
+                'summary_cs' => 'Test rollback',
+                'summary_en' => 'Audit failure must roll back',
+                'problem_cs' => '',
+                'problem_en' => '',
+                'solution_cs' => '',
+                'solution_en' => '',
+            ]);
+            $this->assertResponseCode(503);
+            $row = self::row($db, 'SELECT COUNT(*) AS total
+                FROM project_overrides WHERE slug = :slug', ['slug' => $slug]);
+            self::assertSame(0, self::number($row['total'] ?? null));
+        } finally {
+            $db->execute('DROP TEMPORARY TABLE IF EXISTS editorial_audit');
+            $db->execute('DELETE FROM project_overrides WHERE slug = :slug', ['slug' => $slug]);
+        }
+    }
+
+    /** An audit failure must not leave a partially published journal record. */
+    public function testJournalCreationRollsBackWhenAuditInsertFails(): void
+    {
+        $db = self::db();
+        $title = 'Audit receipt failure regression';
+        $db->execute('CREATE TEMPORARY TABLE editorial_audit (
+            id INT AUTO_INCREMENT PRIMARY KEY, entity_type VARCHAR(32),
+            entity_key VARCHAR(100), action VARCHAR(32),
+            content_digest CHAR(1) NOT NULL, occurred_at DATETIME
+        )');
+        try {
+            $this->session(['lab.admin' => true]);
+            $this->enableCsrfToken();
+            $this->post('/admin/journal', [
+                'category' => 'Integration',
+                'title_cs' => 'Test vrácení změny',
+                'title_en' => $title,
+                'body_cs' => 'Původní zápis',
+                'body_en' => 'No partial publication',
+                'visibility' => 'public',
+            ]);
+            $this->assertResponseCode(503);
+            $row = self::row($db, 'SELECT COUNT(*) AS total
+                FROM journal_entries WHERE title_en = :title', ['title' => $title]);
+            self::assertSame(0, self::number($row['total'] ?? null));
+        } finally {
+            $db->execute('DROP TEMPORARY TABLE IF EXISTS editorial_audit');
+            $db->execute('DELETE FROM journal_entries WHERE title_en = :title', ['title' => $title]);
+        }
+    }
+
     public function testProjectOverridePersistsAndProducesAuditReceipt(): void
     {
         $this->session(['lab.admin' => true]);
