@@ -3,14 +3,11 @@ declare(strict_types=1);
 
 namespace App\Test\TestCase\Controller;
 
-use Cake\TestSuite\IntegrationTestTrait;
-use Cake\TestSuite\TestCase;
+use App\Test\Support\HttpIntegrationTestCase;
 
 /** Requires real CakePHP middleware and routing; never substituted by offline tests. */
-final class ApiControllerTest extends TestCase
+final class ApiControllerTest extends HttpIntegrationTestCase
 {
-    use IntegrationTestTrait;
-
     public function testReadOnlyCatalogueHasTypedContractAndRedaction(): void
     {
         $this->get('/api/v1/projects?lang=en');
