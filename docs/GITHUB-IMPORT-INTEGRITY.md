@@ -4,7 +4,7 @@ The portfolio does not expose a personal GitHub token to the web or to browser J
 
 ## Before any database mutation
 
-1. `GithubSearchPageCollector` checks `total_count`, `incomplete_results`, valid canonical GitHub issue/PR URLs, page order, unique records and the GitHub 1,000-result ceiling. A shortened page is only allowed if the accumulated count exactly equals `total_count`.
+1. `GithubSearchPageCollector` checks `total_count`, `incomplete_results`, valid canonical GitHub issue/PR URLs, page order and descending `created_at` chronology across page boundaries, unique records and the GitHub 1,000-result ceiling. A shortened page is only allowed if the accumulated count exactly equals `total_count`.
 2. `GithubRepositoryPageCollector` requires ordered pages of at most 100 objects, rejects duplicate `full_name` across pages and requires a final page with fewer than 100 records. Unlike Search API there is no declared total count.
 3. `GithubSnapshot` validates author, PR kind and merge-state consistency, and strips activity authored against owned repositories.
 4. `PublicRepository` validates public visibility, owner, canonical URL, UTF-8 description and timestamp. It rejects an unexpected private repository and an entirely empty list of original public repositories.
@@ -12,7 +12,8 @@ The portfolio does not expose a personal GitHub token to the web or to browser J
 
 ## Guarantees and limitations
 
-- Duplicate or changing Search API pages cannot silently replace good data.
+- Duplicate, out-of-order or changing Search API pages cannot silently replace good data.
+- Each GitHub HTTP response is limited to 8 MiB before JSON decoding to avoid processing unexpectedly oversized API payloads; this is a decoder bound, not a streaming transfer limit.
 - Public cache readers require a completed `sync_runs` receipt before publishing database GitHub activity or repositories. Unexpected cache rows without a receipt are ignored, and an unreadable receipt suppresses GitHub data instead of publishing an unverified snapshot.
 - The `imported`, `merged`, and `issues` counts in the synchronization receipt are calculated from accepted **external** entries only. Raw GitHub Search totals can also include authored work in owned repositories and must not be presented as published import counts.
 - GitHub titles and repository descriptions must be valid UTF-8 with XML-safe public text. Impossible upstream UTC timestamps and malformed contribution URLs fail validation before database mutation.

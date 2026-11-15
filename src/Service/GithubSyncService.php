@@ -19,6 +19,8 @@ use RuntimeException;
  */
 final class GithubSyncService
 {
+    private const MAX_RESPONSE_BYTES = 8 * 1024 * 1024;
+
     private readonly Client $http;
     private readonly string $author;
 
@@ -145,6 +147,11 @@ final class GithubSyncService
         $response = $this->http->get($url, [], ['headers' => $headers, 'timeout' => 15, 'redirect' => 0]);
         if ($response->getStatusCode() !== 200) {
             throw new RuntimeException('GitHub request failed with HTTP ' . $response->getStatusCode());
+        }
+        // CakePHP buffers HTTP responses. Bound JSON decoding memory even when
+        // a malicious or unexpectedly oversized upstream body returns 200.
+        if (strlen($response->getStringBody()) > self::MAX_RESPONSE_BYTES) {
+            throw new RuntimeException('GitHub API response exceeds the safe JSON size limit');
         }
         $json = $response->getJson();
         if (!is_array($json)) {

@@ -13,6 +13,7 @@ use InvalidArgumentException;
 final class GithubSearchPageCollector
 {
     private ?int $total = null;
+    private ?string $lastCreatedAt = null;
     private int $nextPage = 1;
     private bool $finished = false;
 
@@ -61,9 +62,17 @@ final class GithubSearchPageCollector
             ) {
                 throw new InvalidArgumentException('Invalid GitHub Search result URL');
             }
+            // The import requests sort=created&order=desc. Without checking
+            // chronology across page boundaries, a changing pagination window
+            // can silently omit events even when total_count remains stable.
+            $createdAt = GithubTimestamp::normalize($item['created_at'] ?? null);
+            if ($this->lastCreatedAt !== null && strcmp($createdAt, $this->lastCreatedAt) > 0) {
+                throw new InvalidArgumentException('GitHub Search chronological order changed');
+            }
             if (isset($this->seen[$url])) {
                 throw new InvalidArgumentException('Duplicate GitHub result in paginated snapshot');
             }
+            $this->lastCreatedAt = $createdAt;
             $this->seen[$url] = true;
             /** @var array<string,mixed> $item */
             $this->records[] = $item;
