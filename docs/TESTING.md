@@ -137,3 +137,14 @@ paths, symlinks, secret config filenames, incomplete or stale SHA-256 manifests,
 and missing required application files. Production additionally requires
 `composer.lock` and `vendor/autoload.php`. ZIP integrity alone does not
 validate dependency vulnerability status or correct CakePHP behavior.
+
+## Mocked GitHub API / MySQL integration (15 Nov 2026)
+
+`tests/Unit/GithubSyncIntegrationTest.php` executes the actual `GithubSyncService`
+using CakePHP HTTP client mocks and disposable MySQL. It checks successful
+replacement of both cache tables, the filtered import receipt, no mutation on
+an unexpected private repository, and fail-closed handling of oversized JSON
+responses. The surrounding test transaction is rolled back after each
+database scenario. The suite never uses credentials or sends live GitHub
+requests. A successful CI run validates this controlled integration, not
+live upstream pagination or a staging import on the target host.
