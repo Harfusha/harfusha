@@ -27,8 +27,10 @@ final class HostGuardMiddleware implements MiddlewareInterface
         $scheme = parse_url($configured, PHP_URL_SCHEME);
         // PSR-7 URI implementations represent default HTTP(S) ports as null.
         // Normalize explicit :80 / :443 in the configured canonical URL too.
-        if (($scheme === 'http' && $expectedPort === 80) ||
-            ($scheme === 'https' && $expectedPort === 443)) {
+        if (
+            ($scheme === 'http' && $expectedPort === 80) ||
+            ($scheme === 'https' && $expectedPort === 443)
+        ) {
             $expectedPort = null;
         }
         $uri = $request->getUri();
