@@ -6,6 +6,13 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class EditorialLogPrivacyTests(unittest.TestCase):
+    def test_github_import_endpoints_never_log_raw_sql_or_remote_errors(self) -> None:
+        for path in ('src/Controller/SystemController.php', 'src/Command/GithubSyncCommand.php'):
+            with self.subTest(path=path):
+                content = (ROOT / path).read_text(encoding='utf-8')
+                self.assertNotIn('$error->getMessage()', content)
+                self.assertIn('get_class($error)', content)
+
     def test_public_data_reads_never_log_raw_database_exception_messages(self) -> None:
         repository = (ROOT / 'src/Service/ContentRepository.php').read_text(encoding='utf-8')
         self.assertNotIn('$error->getMessage()', repository)
