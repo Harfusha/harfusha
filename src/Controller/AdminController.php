@@ -63,10 +63,13 @@ final class AdminController extends AppController
         $content = new ContentRepository();
         $this->set('saveConfirmed', $this->request->getQuery('saved') === '1');
         $this->set('projects', $content->projects());
-        $this->set('dbEnabled', $content->hasDatabase());
+        $operations = (new OperationsService())->report();
+        // Editing requires a reachable database with all required migrations,
+        // not merely the presence of DB_NAME in the environment.
+        $this->set('dbEnabled', $operations['database'] === 'ok');
         $this->set('journalEntries', $content->editorialJournal());
         $this->set('auditEntries', $content->editorialAudit());
-        $this->set('operations', (new OperationsService())->report());
+        $this->set('operations', $operations);
 
         return $this->render('index');
     }
