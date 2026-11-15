@@ -47,6 +47,32 @@ final class PublicContentValidatorTest extends TestCase
         PublicContentValidator::validate('contributions.json', $rows);
     }
 
+    public function testPublicationDatesUseStrictCalendarAndTimeValidation(): void
+    {
+        $row = [
+            'source_url' => 'https://github.com/cakephp/cakephp/pull/17827',
+            'repository' => 'cakephp/cakephp', 'title' => 'Typed associations',
+            'kind' => 'pr', 'state' => 'merged', 'published_at' => '2024-08-22',
+        ];
+        foreach (['2024-08-22', '2024-02-29', '2026-11-12 07:43:52', '2026-11-12T07:43:52Z'] as $date) {
+            PublicContentValidator::validate('contributions.json', [[...$row, 'published_at' => $date]]);
+        }
+        $rejected = 0;
+        foreach (
+            [
+                'tomorrow', '2026-02-30', '2026-13-01', '2026-11-15 24:00:00',
+                '2026-11-15 13:99:00', '2026-11-15T25:25:00Z', '1999-12-31',
+            ] as $date
+        ) {
+            try {
+                PublicContentValidator::validate('contributions.json', [[...$row, 'published_at' => $date]]);
+            } catch (InvalidArgumentException) {
+                $rejected++;
+            }
+        }
+        self::assertSame(7, $rejected);
+    }
+
     public function testDuplicateJournalContentIsRejected(): void
     {
         $entries = [[
