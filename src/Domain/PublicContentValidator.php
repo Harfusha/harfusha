@@ -295,9 +295,9 @@ final class PublicContentValidator
         if ($year < 2000 || $year > 2100 || !checkdate((int)$matches[2], (int)$matches[3], $year)) {
             throw new InvalidArgumentException('Invalid calendar date: ' . $label);
         }
-        $hour = $matches[4] !== '' ? (int)$matches[4] : (int)($matches[7] ?? 0);
-        $minute = $matches[5] !== '' ? (int)$matches[5] : (int)($matches[8] ?? 0);
-        $second = $matches[6] !== '' ? (int)$matches[6] : (int)($matches[9] ?? 0);
+        $hour = ($matches[4] ?? '') !== '' ? (int)$matches[4] : (int)($matches[7] ?? 0);
+        $minute = ($matches[5] ?? '') !== '' ? (int)$matches[5] : (int)($matches[8] ?? 0);
+        $second = ($matches[6] ?? '') !== '' ? (int)$matches[6] : (int)($matches[9] ?? 0);
         if ($hour > 23 || $minute > 59 || $second > 59) {
             throw new InvalidArgumentException('Invalid publication time: ' . $label);
         }
