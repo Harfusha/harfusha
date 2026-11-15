@@ -20,6 +20,16 @@ final class GithubRecordTest extends TestCase
         self::assertSame('2025-10-09 12:45:00', $event->createdAt);
     }
 
+    public function testRejectsInvalidGitHubCreationDates(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        GithubRecord::fromGithub([
+            'html_url' => 'https://github.com/cakephp/cakephp/pull/18957',
+            'created_at' => '2026-02-30T12:45:00Z',
+            'title' => 'Bad upstream timestamp',
+        ], 'pr', 'merged');
+    }
+
     public function testRejectsUntrustedEventUrl(): void
     {
         $this->expectException(InvalidArgumentException::class);
