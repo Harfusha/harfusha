@@ -117,6 +117,11 @@ final class EditorialPersistenceTest extends HttpIntegrationTestCase
             $this->get('/cs/journal');
             $this->assertResponseOk();
             $this->assertResponseContains('&lt;script&gt;alert(1)&lt;/script&gt;');
+            $this->assertResponseContains('id="entry-db-' . $id . '"');
+
+            $this->get('/cs/feed.xml');
+            $this->assertResponseOk();
+            $this->assertResponseContains('/cs/journal#entry-db-' . $id);
 
             $this->post('/admin/journal/update', ['id' => (string)$id, 'operation' => 'unpublish']);
             $this->assertRedirect('/admin?saved=1');
