@@ -124,7 +124,15 @@ final class GithubSyncIntegrationTest extends TestCase
                 ['source' => 'github'],
             )->fetchAll('assoc');
             self::assertCount(1, $runs);
-            self::assertSame(2, (int)($runs[0]['item_count'] ?? -1));
+            $run = $runs[0] ?? null;
+            if (!is_array($run)) {
+                throw new RuntimeException('Expected a single completed sync receipt');
+            }
+            $count = $run['item_count'] ?? null;
+            if (!is_int($count) && !(is_string($count) && ctype_digit($count))) {
+                throw new RuntimeException('Expected an integer sync receipt count');
+            }
+            self::assertSame(2, (int)$count);
         } finally {
             $db->rollback();
         }
