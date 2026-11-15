@@ -25,6 +25,20 @@ final class OperationsStatusTest extends TestCase
         self::assertTrue($report['ready']);
     }
 
+    public function testLiveDatabaseMissingMigrationsIsNotReady(): void
+    {
+        $report = OperationsStatus::evaluate(
+            true,
+            true,
+            true,
+            $this->time('2026-11-13 11:00:00'),
+            $this->time(self::NOW),
+            false,
+        );
+        self::assertSame('schema-incomplete', $report['database']);
+        self::assertFalse($report['ready']);
+    }
+
     public function testUnsyncedOrStaleSnapshotsCannotBeReady(): void
     {
         $missing = OperationsStatus::evaluate(true, true, true, null, $this->time(self::NOW));
