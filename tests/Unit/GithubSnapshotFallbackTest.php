@@ -108,8 +108,11 @@ final class GithubSnapshotFallbackTest extends TestCase
             );
             $verified = new ContentRepository();
             self::assertSame('github-public-api', $verified->githubProvenance()['source']);
-            self::assertSame('Not an approved import', $verified->activity()[0]['title']);
-            self::assertSame('Harfusha/test-unapproved', $verified->publicRepoUpdates()[0]['repository']);
+            self::assertSame(['Not an approved import'], array_column($verified->activity(), 'title'));
+            self::assertSame(
+                ['Harfusha/test-unapproved'],
+                array_column($verified->publicRepoUpdates(), 'repository'),
+            );
         } finally {
             $connection->rollback();
         }
