@@ -86,6 +86,8 @@ final class JournalFeed
      */
     private static function escape(string $text): string
     {
+        PublicText::assertRenderable($text);
+
         return htmlspecialchars($text, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 }
