@@ -15,8 +15,8 @@ final class PublicTextTest extends TestCase
 {
     public function testAcceptsMultilingualTextAndLegitimateWhitespace(): void
     {
+        $this->expectNotToPerformAssertions();
         PublicText::assertRenderable("Český text\nEnglish\trow\rnewline 😀");
-        self::assertTrue(true);
     }
 
     public function testRejectsInvalidXmlControlsAndMalformedUtf8(): void
