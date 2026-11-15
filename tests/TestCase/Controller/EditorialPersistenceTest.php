@@ -5,18 +5,15 @@ namespace App\Test\TestCase\Controller;
 
 use Cake\Database\Connection;
 use Cake\Datasource\ConnectionManager;
-use Cake\TestSuite\IntegrationTestTrait;
-use Cake\TestSuite\TestCase;
+use App\Test\Support\HttpIntegrationTestCase;
 use RuntimeException;
 
 /**
  * Real HTTP -> ORM -> MySQL persistence verification.
  * Runs only against the explicitly confirmed disposable CI database.
  */
-final class EditorialPersistenceTest extends TestCase
+final class EditorialPersistenceTest extends HttpIntegrationTestCase
 {
-    use IntegrationTestTrait;
-
     private static function db(): Connection
     {
         $connection = ConnectionManager::get('default');
