@@ -113,6 +113,10 @@ Unlike the source ZIP, the production builder **runs** Composer quality, static 
 - CSS and JS URLs are content-fingerprinted to invalidate stale browser caches without manual release timestamps.
 - Browser STL visualization samples up to 6,000 triangles for drawing, batches pointer-driven renders with `requestAnimationFrame` and ignores stale asynchronous file reads. This is a viewer, not an STL repair service.
 - Public source dates are strictly validated as real UTC calendar dates; CI checks include date, browser STL upload and persistence regressions.
+- Login attempt counters are stored in a private directory with restrictive file permissions; legacy permissions are tightened and failure to secure storage denies new login attempts.
+- GitHub API timestamps now require canonical UTC dates with valid calendar days and time components. Impossible dates cannot silently be normalized during import.
+- Journal creation requires an explicit `draft` or `public` publication choice; malformed values fail before database writes.
+- Admin readiness checks all required migration tables and representative columns without reading user rows; an incomplete schema reports `schema-incomplete` and disables editing controls. This is independent of the GitHub sync freshness check.
 - GitHub Actions are pinned to verified action commit SHAs and cancel outdated branch runs; a clean no-dev Composer install is checked without creating a public deployment artifact.
 - `scripts/staging-smoke.py --base-url https://staging.example.com` offers read-only HTTPS post-deploy checks. It never logs into admin or approves private content.
 
