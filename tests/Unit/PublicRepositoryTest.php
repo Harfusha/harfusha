@@ -41,7 +41,7 @@ final class PublicRepositoryTest extends TestCase
     public function testRejectsUnrenderablePublicRepositoryDescription(): void
     {
         $row = self::fixture();
-        $row['description'] = "Hidden control \\x01 in a public summary";
+        $row['description'] = "Hidden control \x01 in a public summary";
         $this->expectException(InvalidArgumentException::class);
         PublicRepository::fromGithub([$row], 'Harfusha');
     }
