@@ -20,17 +20,19 @@ final class DeploymentPolicyTest extends TestCase
 
     public function testUnsafeProductionOriginsAreRejected(): void
     {
-        foreach ([
-            'http://example.com',
-            'https://example.com/',
-            'https://example.com/path',
-            'https://example.com?q=1',
-            'https://example.com#fragment',
-            'https://user:pass@example.com',
-            'https://example.com:99999',
-            'https://example.com/hidden?x=1',
-            '',
-        ] as $origin) {
+        foreach (
+            [
+                'http://example.com',
+                'https://example.com/',
+                'https://example.com/path',
+                'https://example.com?q=1',
+                'https://example.com#fragment',
+                'https://user:pass@example.com',
+                'https://example.com:99999',
+                'https://example.com/hidden?x=1',
+                '',
+            ] as $origin
+        ) {
             try {
                 DeploymentPolicy::assertEnvironment('production', false, $origin, self::GOOD_SALT);
                 self::fail('Unsafe origin was accepted: ' . $origin);
