@@ -30,6 +30,9 @@ final class SyncRunRetention
         if ($row === false) {
             return;
         }
+        if (!is_array($row)) {
+            throw new UnexpectedValueException('Invalid sync history query result');
+        }
         $id = $row['id'] ?? null;
         if (!is_int($id) && !(is_string($id) && ctype_digit($id))) {
             throw new UnexpectedValueException('Invalid sync retention boundary');
