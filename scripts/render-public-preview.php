@@ -70,8 +70,18 @@ namespace {
     $catalog = new ProjectCatalog($root . '/data');
     $projects = $catalog->projects();
     $featured = array_values(array_filter($projects, static fn (Project $p): bool => $p->featured));
+    $mergedPrCount = count(array_filter(
+        $catalog->contributions(),
+        static fn (array $entry): bool => ($entry['kind'] ?? null) === 'pr'
+            && ($entry['state'] ?? null) === 'merged',
+    ));
     $fixtures = [
-        'home' => ['projects' => array_slice($featured, 0, 4), 'journal' => $catalog->journal(), 'recentRepos' => [
+        'home' => [
+            'projects' => array_slice($featured, 0, 4),
+            'projectCount' => count($projects),
+            'mergedPrCount' => $mergedPrCount,
+            'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null],
+            'journal' => $catalog->journal(), 'recentRepos' => [
             ['repository'=>'Harfusha/MutaUI','description'=>'Static snapshot','repo_url'=>'https://github.com/Harfusha/MutaUI','pushed_at'=>'2026-11-12 18:53:55'],
         ]],
         'projects' => ['projects' => $projects],
