@@ -13,13 +13,15 @@
     const input = $('[data-search]', root);
     const count = $('[data-count]', root);
     const empty = $('[data-empty]', root);
-    const items = $$(itemSelector, root);
+    const items = $(itemSelector, root);
+    // Search text comes from immutable server-rendered cards: normalize once,
+    // rather than repeating Unicode decomposition on every keystroke.
+    const indexed = items.map(item => ({item, text: normalizeSearch(item.dataset.searchText || '')}));
     const filters = extraFilters.map(([selector, attr]) => ({ element: $(selector, root), attr }));
     const run = () => {
       const q = normalizeSearch((input?.value ?? '').trim());
       let visible = 0;
-      for (const item of items) {
-        const text = normalizeSearch(item.dataset.searchText || '');
+      for (const {item, text} of indexed) {
         const matched = text.includes(q) && filters.every(({element, attr}) => !element || element.value === 'all' || item.dataset[attr] === element.value);
         item.classList.toggle('hidden', !matched);
         if (matched) visible++;
