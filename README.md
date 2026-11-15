@@ -60,7 +60,7 @@ This repository serves two purposes:
 
 **Project documentation:** [Technical guide](docs/PROJECT-README.md) · [Architecture](docs/ARCHITECTURE.md) · [Deployment](docs/DEPLOYMENT.md) · [Testing](docs/TESTING.md) · [Release criteria](docs/RELEASE.md) · [Czech quick start](START-CZ.md)
 
-**Verification:** The project has a [successful PHP 8.5 GitHub Actions run](https://github.com/Harfusha/harfusha/actions/runs/43648999069), covering Composer, PHPStan, CakePHP/PHPUnit, isolated MySQL migrations, PHPCS, and browser tests. This verifies that CI run, **not a production deployment**. Target-host staging, database restore, and manual approval of public content remain separate release requirements.
+**Verification:** The project has a [successful PHP 8.5 GitHub Actions run](https://github.com/Harfusha/harfusha/actions/runs/43658555206), covering locked Composer dependencies, PHPStan, CakePHP/PHPUnit, isolated MySQL migrations, PHPCS, Chromium tests, and an isolated production-only Composer installation. This verifies that CI run, **not a production deployment**. Target-host staging, database restore, and manual approval of public content remain separate release requirements.
 
 ---
 
