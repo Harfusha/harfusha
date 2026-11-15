@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Test\Unit;
 
+use App\Domain\GithubImportSummary;
 use App\Domain\GithubSnapshot;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -25,6 +26,33 @@ final class GithubSnapshotTest extends TestCase
         self::assertCount(2, $result);
         self::assertSame('merged', $result[0]->state);
         self::assertSame('issue', $result[1]->kind);
+    }
+
+    public function testReportedCountsExcludeTheOwnersOwnContributions(): void
+    {
+        $externalMerged = self::record('https://github.com/cakephp/cakephp/pull/18957');
+        $ownMerged = self::record('https://github.com/Harfusha/local-ai-hub/pull/4');
+        $externalIssue = self::record('https://github.com/phpstan/phpstan/issues/13291');
+        $ownIssue = self::record('https://github.com/Harfusha/MutaUI/issues/9');
+        $externalOpen = self::record('https://github.com/rectorphp/rector/pull/123', 'open');
+        $records = GithubSnapshot::externalActivity(
+            [$externalMerged, $ownMerged, $externalOpen],
+            [$externalMerged, $ownMerged],
+            [$externalIssue, $ownIssue],
+            'Harfusha',
+        );
+        self::assertSame([
+            'imported' => 3,
+            'merged' => 1,
+            'issues' => 1,
+            'repositories' => 12,
+        ], GithubImportSummary::fromRecords($records, 12));
+        self::assertSame([
+            'imported' => 0,
+            'merged' => 0,
+            'issues' => 0,
+            'repositories' => 0,
+        ], GithubImportSummary::fromRecords([], 0));
     }
 
     public function testConflictingMergedSearchFailsClosed(): void
