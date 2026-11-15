@@ -166,9 +166,12 @@ final class ContentRepository
             try {
                 $entities = TableRegistry::getTableLocator()->get(JournalEntriesTable::class)
                     ->find()->where(['is_public' => true])->orderByDesc('published_at')->limit(60)->all();
+                // Keep DB records separate until every row has been validated.
+                // A broken row must not publish a partially read journal.
+                $publishedRows = [];
                 foreach ($entities as $record) {
                     $published = $record->get('published_at');
-                    $rows[] = [
+                    $publishedRows[] = [
                         'id' => self::requiredId($record->get('id')),
                         'title_cs' => $record->get('title_cs'), 'title_en' => $record->get('title_en'),
                         'body_cs' => $record->get('body_cs'), 'body_en' => $record->get('body_en'),
@@ -178,6 +181,7 @@ final class ContentRepository
                             : '',
                     ];
                 }
+                $rows = array_merge($rows, $publishedRows);
             } catch (Throwable $error) {
                 error_log('Journal ORM fallback: ' . get_class($error));
             }
