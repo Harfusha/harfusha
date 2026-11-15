@@ -31,6 +31,18 @@ final class PublicRoutesTest extends HttpIntegrationTestCase
         $this->assertResponseCode(404);
     }
 
+    public function testClientErrorTemplateNeverClaimsAnIncorrectStatusCode(): void
+    {
+        $this->get('/fr/projects');
+        $this->assertResponseCode(404);
+        $this->assertResponseContains('4XX / CLIENT ERROR');
+
+        $this->get('/api/v1/projects?lang=fr');
+        $this->assertResponseCode(400);
+        $this->assertResponseContains('4XX / CLIENT ERROR');
+        $this->assertResponseNotContains('404 / CLIENT ERROR');
+    }
+
     public function testUnknownLanguageIs404(): void
     {
         $this->get('/fr/projects');
