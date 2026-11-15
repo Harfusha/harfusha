@@ -20,7 +20,7 @@ COMMON = {
 
 def good_response(base: str, path: str):
     assert base == 'https://stage.example.test'
-    if path in ('/.env', '/.htaccess', '/composer.lock', '/vendor/autoload.php'):
+    if path in STAGING.SENSITIVE_PATHS:
         return 404, b'Not found', COMMON
     if path == '/healthz':
         return 200, b'ok', {**COMMON, 'cache-control': 'no-store'}
@@ -35,6 +35,14 @@ def good_response(base: str, path: str):
         return 200, b'{"projects":[{"slug":"local-ai-hub"}],"count":1}', {
             **COMMON, 'content-type': 'application/json', 'etag': '"etag"',
         }
+    if path in ('/cs/journal', '/en/journal'):
+        return 200, b'<article id="entry-sample123">Workshop note</article>', COMMON
+    if path in ('/cs/feed.xml', '/en/feed.xml'):
+        lang = path.split('/')[1]
+        link = f'https://stage.example.test/{lang}/journal#entry-sample123'
+        xml = ('<rss><channel><item><link>' + link + '</link>'
+               '<guid isPermaLink="true">' + link + '</guid></item></channel></rss>')
+        return 200, xml.encode(), COMMON
     if path in ('/cs/', '/en/'):
         return 200, b'HARFUSHA', COMMON
     if path in ('/cs/projects', '/en/projects'):
@@ -53,6 +61,29 @@ class StagingSmokeTests(unittest.TestCase):
 
     def test_non_mutating_checks_pass_with_appropriate_responses(self) -> None:
         self.assertEqual([], STAGING.verify('https://stage.example.test', good_response))
+
+    def test_live_rss_links_must_target_visible_same_origin_entries(self) -> None:
+        def broken(base: str, path: str):
+            if path == '/cs/feed.xml':
+                return (200, b'<rss><channel><item><link>https://evil.example/feed</link>'
+                        b'<guid isPermaLink="true">https://evil.example/feed</guid>'
+                        b'</item></channel></rss>', COMMON)
+            if path == '/en/journal':
+                return 200, b'<article id="entry-unrelated">Workshop</article>', COMMON
+            return good_response(base, path)
+
+        failures = STAGING.verify('https://stage.example.test', broken)
+        self.assertTrue(any('same-origin' in message for message in failures))
+        self.assertTrue(any('article anchor' in message for message in failures))
+
+    def test_incorrect_document_root_exposes_application_files(self) -> None:
+        def exposed(base: str, path: str):
+            if path == '/config/app.php':
+                return 200, b'<?php private config', COMMON
+            return good_response(base, path)
+
+        self.assertTrue(any('/config/app.php' in message
+                            for message in STAGING.verify('https://stage.example.test', exposed)))
 
     def test_exposed_private_file_is_a_hard_failure(self) -> None:
         def exposed(base: str, path: str):
