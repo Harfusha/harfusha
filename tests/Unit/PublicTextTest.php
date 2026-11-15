@@ -22,16 +22,14 @@ final class PublicTextTest extends TestCase
     public function testRejectsInvalidXmlControlsAndMalformedUtf8(): void
     {
         $invalid = ["A\x01B", "A\x0BB", "A\x1FB", "A\xEF\xBF\xBEB", "A\xFFB"];
-        $rejected = 0;
         foreach ($invalid as $value) {
             try {
                 PublicText::assertRenderable($value);
                 self::fail('Forbidden Unicode character was accepted');
-            } catch (InvalidArgumentException) {
-                ++$rejected;
+            } catch (InvalidArgumentException $error) {
+                self::assertNotSame('', $error->getMessage());
             }
         }
-        self::assertSame(count($invalid), $rejected);
     }
 
     public function testUnrenderableEditorContentIsRejectedBeforePersistence(): void

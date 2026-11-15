@@ -31,15 +31,13 @@ final class GithubTimestampTest extends TestCase
             '',
             123,
         ];
-        $rejected = 0;
         foreach ($invalid as $value) {
             try {
                 GithubTimestamp::normalize($value);
                 self::fail('Unexpectedly accepted malformed upstream timestamp');
-            } catch (InvalidArgumentException) {
-                ++$rejected;
+            } catch (InvalidArgumentException $error) {
+                self::assertNotSame('', $error->getMessage());
             }
         }
-        self::assertSame(count($invalid), $rejected);
     }
 }
