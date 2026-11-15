@@ -15,6 +15,49 @@ use RuntimeException;
  */
 final class GithubSnapshotFallbackTest extends TestCase
 {
+    public function testFailedGithubCacheReadsNeverResurrectHistoricActivity(): void
+    {
+        $connection = ConnectionManager::get('default');
+        if (!$connection instanceof Connection) {
+            throw new RuntimeException('Test requires the disposable MySQL database');
+        }
+        // Temporary tables shadow the real cache without modifying production
+        // data or relying on an actual database outage during CI.
+        $connection->execute('CREATE TEMPORARY TABLE github_activity (id BIGINT NOT NULL)');
+        $connection->execute('CREATE TEMPORARY TABLE github_public_repos (id BIGINT NOT NULL)');
+        try {
+            $content = new ContentRepository();
+            self::assertSame([], $content->activity());
+            self::assertSame([], $content->publicRepoUpdates());
+        } finally {
+            $connection->execute('DROP TEMPORARY TABLE IF EXISTS github_activity');
+            $connection->execute('DROP TEMPORARY TABLE IF EXISTS github_public_repos');
+        }
+    }
+
+    public function testUnreadableSyncReceiptNeverResurrectsStaticSelection(): void
+    {
+        $connection = ConnectionManager::get('default');
+        if (!$connection instanceof Connection) {
+            throw new RuntimeException('Test requires the disposable MySQL database');
+        }
+        // Both cache tables are readable but empty; the receipt is corrupted.
+        // An unknown import state must not be mistaken for "not yet imported".
+        $connection->execute('CREATE TEMPORARY TABLE github_activity LIKE github_activity');
+        $connection->execute('CREATE TEMPORARY TABLE github_public_repos LIKE github_public_repos');
+        $connection->execute('CREATE TEMPORARY TABLE sync_runs (id BIGINT NOT NULL)');
+        try {
+            $content = new ContentRepository();
+            self::assertSame('unavailable', $content->githubProvenance()['source']);
+            self::assertSame([], $content->activity());
+            self::assertSame([], $content->publicRepoUpdates());
+        } finally {
+            $connection->execute('DROP TEMPORARY TABLE IF EXISTS sync_runs');
+            $connection->execute('DROP TEMPORARY TABLE IF EXISTS github_activity');
+            $connection->execute('DROP TEMPORARY TABLE IF EXISTS github_public_repos');
+        }
+    }
+
     public function testCompletedEmptyGithubSyncOverridesStaticFallback(): void
     {
         $connection = ConnectionManager::get('default');
