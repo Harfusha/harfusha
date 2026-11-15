@@ -17,7 +17,7 @@ final class GithubImportSummary
     }
 
     /**
-     * @param list<GithubRecord> $records
+     * @param list<\App\Domain\GithubRecord> $records
      * @return array{imported:int,merged:int,issues:int,repositories:int}
      */
     public static function fromRecords(array $records, int $repositories): array
