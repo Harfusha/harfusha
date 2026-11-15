@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
-use DateTimeImmutable;
-use DateTimeZone;
 use InvalidArgumentException;
 
 final readonly class GithubRecord
@@ -46,7 +44,7 @@ final readonly class GithubRecord
         if (!is_string($date)) {
             throw new InvalidArgumentException('Missing creation time');
         }
-        $created = new DateTimeImmutable($date);
+        $created = GithubTimestamp::normalize($date);
         $title = $item['title'] ?? null;
         if (!is_string($title) || $title === '') {
             throw new InvalidArgumentException('Missing event title');
@@ -58,7 +56,7 @@ final readonly class GithubRecord
             $parts[1] . '/' . $parts[2],
             $kind,
             $state,
-            $created->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s'),
+            $created,
         );
     }
 }
