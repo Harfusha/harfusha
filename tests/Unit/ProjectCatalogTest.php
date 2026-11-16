@@ -41,7 +41,7 @@ final class ProjectCatalogTest extends TestCase
         }
         $mutaui = (new ProjectCatalog(ROOT . '/data'))->find('mutaui');
         self::assertNotNull($mutaui);
-        self::assertContains('Správa synchronizace a forwardingu', $mutaui->localizedFeatures($cs));
+        self::assertContains('Přehled synchronizačních a forwarding relací', $mutaui->localizedFeatures($cs));
     }
 
     public function testValidatedDatasetsAreReadOncePerCatalogInstance(): void
