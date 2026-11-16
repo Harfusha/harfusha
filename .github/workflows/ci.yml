@@ -57,6 +57,9 @@ jobs:
           extensions: intl, mbstring, pdo_mysql, simplexml, openssl
           coverage: none
           tools: composer:v2
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
       - name: Require reproducible dependency lockfile
         run: |
           test -f composer.lock || { echo 'composer.lock is required: resolve on PHP 8.5, review, commit'; exit 1; }
@@ -129,6 +132,8 @@ jobs:
       - name: Record reviewed public-content approval and build deployable archive
         if: github.event_name == 'workflow_dispatch'
         run: |
+          python3 -m pip install playwright==1.56.0
+          python3 -m playwright install --with-deps chromium
           python3 scripts/review-public-content.py --approve --reviewer 'Adam Halfar'
           python3 scripts/build-release.py --output "$RUNNER_TEMP/harfusha-lab-deploy.zip"
           python3 scripts/verify_archive.py "$RUNNER_TEMP/harfusha-lab-deploy.zip" --variant production
