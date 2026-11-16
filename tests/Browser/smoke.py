@@ -88,6 +88,11 @@ def main() -> None:
                                         const rect = element.getBoundingClientRect();
                                         return {className: element.className, left: Math.round(rect.left), right: Math.round(rect.right), width: Math.round(rect.width), scrollWidth: element.scrollWidth, clientWidth: element.clientWidth, minWidth: style.minWidth, gridTemplateColumns: style.gridTemplateColumns, overflowX: style.overflowX};
                                     }),
+                                    inspectorChildren: [...(document.querySelector('.connection-inspector')?.querySelectorAll('*') ?? [])].map((element) => {
+                                        const style = getComputedStyle(element);
+                                        const rect = element.getBoundingClientRect();
+                                        return {tag: element.tagName.toLowerCase(), className: element.className, left: Math.round(rect.left), right: Math.round(rect.right), width: Math.round(rect.width), scrollWidth: element.scrollWidth, clientWidth: element.clientWidth, whiteSpace: style.whiteSpace, text: (element.innerText || '').trim().replace(/\s+/g, ' ').slice(0, 45)};
+                                    }),
                                     offenders: [...document.querySelectorAll('body *')]
                                     .map((element) => {
                                         const rect = element.getBoundingClientRect();
