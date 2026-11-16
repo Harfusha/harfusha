@@ -4,7 +4,7 @@
 
 This site is an interactive engineering workshop, not just a self-promotion page. It shows real projects and upstream contributions, a privacy-reviewed model of a home network, and **clearly labelled simulations** visitors can explore themselves. Its own source demonstrates CakePHP MVC/ORM, typed domain objects, migrations, security controls, careful browser code and reproducible validation scripts.
 
-> **Last deployed baseline, 16 Nov 2026:** Commit `a4c39ca` passed all three GitHub Actions jobs in [run #43884556832](https://github.com/Harfusha/harfusha/actions/runs/43884556832). Its verified archive and post-deploy checks are evidence for that exact snapshot only. Isolated HTTPS staging was not available; it is not claimed as passed. The case-study and workbench changes documented below are a newer candidate and need their own validation and public-content approval before release.
+> **Live site-content snapshot, 16 Nov 2026:** Commit `f05adfe` passed all three jobs in [manual GitHub Actions run #43950641423](https://github.com/Harfusha/harfusha/actions/runs/43950641423). Its verified production archive contains 1,449 packaged files (SHA-256 `6868d237f8cb61d44addd5394b7c9ae59ffeca9bceaca1e74c64e1f45b2f9635`). Post-deploy HTTPS smoke passed; all 40 sitemap URLs and 10 referenced assets returned successfully. The current Tiskov and Discord copy distinguishes catalog/design claims from verified source. No separate staging hostname or production PHP-FPM version check was available.
 
 ## Current project-story direction (16 Nov 2026)
 
@@ -42,7 +42,7 @@ Fresh browser captures for the current source snapshot:
 | `/journal` | Engineering log, newest first; unlisted notes can be drafts in MySQL |
 | `/about` | Engineering profile and values |
 
-Additional endpoints: `/healthz` (simple public liveness, not DB health), `/sitemap.xml`, `/admin` (editor), `/cron/github` (authenticated POST; alternative to CLI cron). No publicly routable CRUD fallback actions.
+Additional endpoints: `/healthz` (simple public liveness, not DB health), `/sitemap.xml`, `/admin` (editor), `/cron/github` (authenticated POST endpoint, not scheduled). **No cron or scheduled task is configured** in the current deployment. No publicly routable CRUD fallback actions.
 
 ## Architecture
 
@@ -88,7 +88,7 @@ Public static content is bounded and validated at load time. The privacy audit a
 
 ### GitHub import
 
-Prefer a **daily PHP CLI cron**, `php bin/cake.php github_sync`. For hosts offering only HTTP cron, POST `/cron/github` with a high-entropy token in the `X-Cron-Token` header (never URL/query). The importer uses GitHub's **unauthenticated public API**, rejects incomplete pages, explicitly validates public repository ownership and visibility, uses a local `flock` lock, commits only after all remote reads succeed and replaces stale database snapshots transactionally. It will fail on remote rate limits rather than silently present a partial import. Historical/project summaries must still be reviewed manually.
+The current deployment intentionally has **no cron or scheduled GitHub sync**. When a refresh is requested, run `php bin/cake.php github_sync` manually from the private application tree; the authenticated `/cron/github` POST endpoint exists but is not scheduled or exposed as a public CRUD action. The importer uses GitHub's **unauthenticated public API**, rejects incomplete pages, explicitly validates public repository ownership and visibility, uses a local `flock` lock, commits only after all remote reads succeed and replaces stale database snapshots transactionally. It fails on remote rate limits rather than silently present a partial import. Historical/project summaries still require manual review.
 
 ## Quality gates
 
@@ -100,7 +100,7 @@ composer stan                # PHPStan level max + strict + CakeDC + ShipMonk
 composer test                # PHPUnit + CakePHP integration tests (explicit disposable DB only)
 composer cs-check            # CakePHP coding standard
 python3 scripts/audit-public.py
-python3 scripts/audit-rendered.py   # renders 48 pages and checks internal links/IDs/assets
+python3 scripts/audit-rendered.py   # renders 40 pages and checks internal links/IDs/assets
 node --check webroot/assets/js/app.js
 node --check webroot/assets/js/lab-core.js
 node --test tests/Client/*.test.cjs
@@ -108,7 +108,7 @@ node --test tests/Client/*.test.cjs
 npx --no-install tsc --noEmit --allowJs --checkJs --strict --target ES2022 --lib ES2022,DOM webroot/assets/js/lab-core.js
 ```
 
-The GitHub Actions workflow provisions PHP 8.5 and MySQL 8.4, **requires an already committed Composer lockfile**, runs all three migrations and checks both real CakePHP HTTP routes and standalone/static/JS tests. The last deployed baseline CI run is [#43884556832](https://github.com/Harfusha/harfusha/actions/runs/43884556832) for commit `a4c39ca`; all three required jobs passed. Its evidence does not apply to unvalidated changes made afterward. Content approval binds a release to an exact snapshot.
+The GitHub Actions workflow provisions PHP 8.5 and MySQL 8.4, requires the committed Composer lockfile, runs all three migrations and checks CakePHP HTTP routes plus standalone, static and JS tests. The deployed site-content snapshot `f05adfe` passed all three jobs in [run #43950641423](https://github.com/Harfusha/harfusha/actions/runs/43950641423); its approved production archive was deployed and passed post-deploy HTTPS checks. Every later release still requires CI and approval of its exact public-content snapshot.
 
 ## Deploying on shared hosting
 
@@ -169,7 +169,7 @@ The source builder runs the locally executable checks, excludes private `.env`, 
 - Nové veřejné API **`GET /api/v1/projects[/{slug}]?lang=cs|en`** s DTO allowlistem, zamítnutím soukromých URL, `ETag` a podmíněným `304`; specifikace v `docs/API.md`.
 - Zlepšené ovládání SVG grafů klávesnicí (obnovení focusu po překreslení), šipkové ovládání ARIA záložek, úspornější ASCII STL parser a vícejazyčný sitemap.
 - Snímky skutečně implementovaného request-labu: `docs/screenshots/desktop-cakephp-request.webp` a `docs/screenshots/mobile-cakephp-request.webp`.
-- Zdrojový ZIP stále **není release s Composer vendor/**; všechny P0 v `docs/MASTER_PLAN.md` potřebují skutečné PHP 8.5, MySQL, Composer a staging.
+- V době tohoto milníku byl zdrojový ZIP bez Composer `vendor/`. Současný produkční release se balí odděleně přes schválený workflow s produkčními závislostmi; aktuální stav nasazení je uveden nahoře.
 
 
 ## Operational readiness (private)
@@ -193,17 +193,18 @@ file lock, caps entries/storage size, rejects corruption and I/O failures, and
 clears state only after a verified password. This replaces unbounded per-IP
 files and closes the old concurrent check-then-record race. See
 `docs/AUTH-THROTTLE.md` for threat model, false-positive capacity trade-offs
-and legacy cleanup. This change has isolated tests but still needs real CakePHP
-HTTP, PHPStan and hosting verification.
+and legacy cleanup. PHPStan, PHPUnit and real CakePHP HTTP flows passed in the
+deployed release CI. The shared-host smoke covered public GET routes and security
+headers; production admin authentication and PHP-FPM version remain unverified.
 
-For future controlled updates to `composer.lock`, GitHub Actions provides the **manual** `Resolve Composer lockfile on PHP 8.5` workflow. Review the exported artifact and its dependency advisories before updating the tracked lockfile. The main CI intentionally runs `composer install`, not an uncontrolled dependency update. Neither workflow has been run in this delivery.
+For future controlled updates to `composer.lock`, GitHub Actions provides the **manual** `Resolve Composer lockfile on PHP 8.5` workflow. Review the exported artifact and its dependency advisories before updating the tracked lockfile. The lockfile resolver was not needed for this delivery; the main CI used the committed lockfile and passed on the deployed release commit.
 
 ## New source-candidate hardening (14 Nov 2026)
 
 - GitHub sync has two independently tested, typed pagination collectors. Duplicates, inconsistent Search API totals, truncated pages and unexpected repository pages fail before destructive MySQL refresh. See `docs/GITHUB-IMPORT-INTEGRITY.md`.
 - A production ZIP cannot be built without explicit manual review of public content: run `python3 scripts/review-public-content.py --review` then, **after actual human review**, `--approve --reviewer '...'` interactively. The private hash receipt is excluded from every ZIP; edits invalidate it. See `docs/CONTENT-APPROVAL.md`.
 - Python review-gate tests run in CI and source ZIP building; this is not evidence that a human has approved the content.
-- The PHP 8.5 runner resolved and committed `composer.lock` on 14 Nov 2026. Composer, migrations on disposable MySQL, PHPStan max, PHPUnit and PHPCS passed in [CI run #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069). Source archives remain **vendor-free**; target-host staging, backup/rollback and editorial approval still gate production deployment.
+- This 14 Nov source-candidate milestone recorded Composer, disposable-MySQL migrations, PHPStan max, PHPUnit and PHPCS in [CI run #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069). That archive was source-only. The 16 Nov release and current live checks are recorded at the top of this README.
 
 ### Release hardening (14 Nov 2026)
 
@@ -219,7 +220,7 @@ The test bootstrap refuses to run integration tests unless `APP_ENV=testing`, `D
   every distributed file against SHA-256, rejects unsafe ZIP entries and secrets,
   and requires Composer vendor/lock files in production packages.
 - Local isolated and browser-core checks do **not** replace `composer quality`,
-  MySQL migration/rollback, actual HTTP smoke, or a successful shared-host staging test.
+  MySQL migration/rollback, actual HTTP smoke, or post-deploy production GET checks.
   See `docs/VERIFICATION-ARCHIVE-AUTH-2026-11-14.md`.
 
 

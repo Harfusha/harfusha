@@ -15,10 +15,10 @@ Based in Czechia. My current work ranges from repository tooling and desktop uti
 | Home Infrastructure | Git-backed Ansible automation for Pi-hole/Unbound DNS, Jellyfin, BookStack, CUPS printing, NAS backups, routing and on-demand Proxmox tests. | Private infrastructure, described through a redacted role model rather than live telemetry. |
 | Woodbound | Unity prototype for layered world generation, routes and spatial validation. | A generated candidate is not yet an accepted playable release. |
 | Scan2CAD Studio | Turns reviewed 3D scans and reference photos into editable CAD candidates. | Beta; computed dimensions still need physical and engineering review. |
-| Tiskov | Symfony intake and queued processing for 3D-print estimates. | Prototype; estimate is indicative and final agreement is manual. |
+| Tiskov | Portfolio-documented design for a local 3D-print request, queue and worker flow. | No source checkout, application demo, slicer run or live service is available to verify; the portfolio interaction uses synthetic jobs and calculates no price. The original motive is undocumented. |
 | Shpotify | Private music rooms, shared queues and explainable recommendations. | Prototype; end-to-end playback is still being integrated. |
 | Software Inc co-op mod | Separates collaboration rules from the game adapter. | In development; no playable multiplayer release has been accepted. |
-| Discord bot | Application commands and a separate maintenance feature. | Under repair; the current maintenance source does not pass syntax validation. |
+| Discord bot | Portfolio-catalog description of application commands and a maintenance path. | The source checkout is unavailable. The catalog preserves an earlier syntax-error report; exact commands, permissions and live operation are unverified. The original motive is undocumented. |
 
 The portfolio explains each system with a concrete walkthrough and an architecture map. Private repositories are described at a curated level; private addresses, credentials and live infrastructure state are not published.
 
