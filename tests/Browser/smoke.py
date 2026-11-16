@@ -83,6 +83,11 @@ def main() -> None:
                                 return {
                                     document: {scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, innerWidth: width},
                                     connectionChain,
+                                    connectionChildren: [...(document.querySelector('.connection-layout')?.children ?? [])].map((element) => {
+                                        const style = getComputedStyle(element);
+                                        const rect = element.getBoundingClientRect();
+                                        return {className: element.className, left: Math.round(rect.left), right: Math.round(rect.right), width: Math.round(rect.width), scrollWidth: element.scrollWidth, clientWidth: element.clientWidth, minWidth: style.minWidth, gridTemplateColumns: style.gridTemplateColumns, overflowX: style.overflowX};
+                                    }),
                                     offenders: [...document.querySelectorAll('body *')]
                                     .map((element) => {
                                         const rect = element.getBoundingClientRect();
