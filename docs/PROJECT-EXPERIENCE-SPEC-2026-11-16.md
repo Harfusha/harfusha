@@ -45,10 +45,10 @@ Each case study must answer the harder question: **why build this when alternati
 | Home Infrastructure | Service and dependency map: DNS, media, documentation, print, backup, orchestration, network and test host, with documented role details; never live monitoring. |
 | Woodbound | Layered world-building canvas tied to real pipeline stages, spatial checks and a source-backed region; never imply an accepted playable build. |
 | Scan2CAD Studio | Scan-to-CAD bench showing scale, cleanup, camera/photo alignment, uncertainty and human review; never imply certified measurements. |
-| Tiskov | Request-to-worker queue and human quote review; distinguish indicative estimate from confirmed price or live order. |
+| Tiskov | Document the proposed request-to-worker queue and human review without presenting it as implemented; distinguish a synthetic interaction from a real job, price or live order. |
 | Shpotify | Shared-room queue and recommendation flow; expose the playback/agent boundary and what is not end-to-end proven. |
 | Software Inc co-op | Collaboration state across domain core, persistence and game adapter; show only verified protocol/game behavior and state when in-game acceptance is absent. |
-| Discord bot | Command-to-maintenance decision path with permission and failure states; do not claim a live bot or hide known defects. |
+| Discord bot | Schematic command-to-maintenance path with unknown permission rules and the prior catalog-reported syntax issue; do not claim a live bot or current source validation. |
 
 ## Sections
 

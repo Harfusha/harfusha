@@ -31,8 +31,8 @@ $detail = match ($project->slug) {
     ],
     'tiskov' => [
         [$lang->value('Poptávka a oddělené zpracování', 'Intake and separate processing'),
-         $lang->value('Symfony aplikace přijímá podklady, ukládá soubory a metadata a zapisuje úlohy do MySQL. Slicování provádí samostatný worker na Raspberry Pi; webová část nespouští PrusaSlicer přímo.', 'The Symfony application accepts submissions, stores files and metadata, and queues jobs in MySQL. A separate Raspberry Pi worker performs slicing; the web application does not run PrusaSlicer directly.'),
-         $lang->value('Projekt je určen pro odhady tisku na Bambu Lab A1. Podle dokumentace nejde o automatickou platbu ani konečnou nabídku: cena je orientační a finální dohoda probíhá ručně. Přesnost konkrétního výpočtu jsme neověřovali.', 'The project targets Bambu Lab A1 print estimates. According to its documentation, there is no automatic payment or final offer: the price is indicative and the final agreement is manual. We have not verified the accuracy of a particular calculation.')],
+         $lang->value('Portfolio popisuje návrh, v němž webová aplikace přijme podklady, MySQL fronta oddělí příjem od zpracování a Raspberry Pi worker vrátí výsledek k posouzení. Repozitář ani běžící aplikace nejsou k dispozici, takže tento tok není ověřenou implementací.', 'The portfolio record describes a design where a web app receives files, a MySQL queue separates intake from processing, and a Raspberry Pi worker returns a result for review. The repository and running app are unavailable, so this flow is not a verified implementation.'),
+         $lang->value('Výpočet ceny, slicer, automatická platba ani konkrétní provoz nejsou doložené. Stránka proto ukazuje pouze smyšlenou frontu; původní důvod projektu se v dostupných podkladech nedochoval.', 'Pricing calculations, a slicer, automatic payment and actual operation are not evidenced. The page therefore shows only a synthetic queue; the original reason for the project is not preserved in the available material.')],
     ],
     'shpotify' => [
         [$lang->value('Místnosti, fronta a doporučení', 'Rooms, queues and recommendations'),
@@ -46,8 +46,8 @@ $detail = match ($project->slug) {
     ],
     'discord-bot' => [
         [$lang->value('Příkazy a správa služby', 'Commands and service maintenance'),
-         $lang->value('Dostupný zdroj obsahuje klienta pro Discord, registraci příkazů a modul údržby s kontrolou oprávněných uživatelů. Samostatný soubor nápovědy je zatím prázdný.', 'The available source includes a Discord client, command registration and a maintenance module with an authorized-user check. The separate help file is currently empty.'),
-         $lang->value('Modul údržby má v aktuálně dostupném zdroji syntaktickou chybu, a proto nelze tvrdit, že daný checkout funguje. Příkladem zamýšlené činnosti je požadavek správce na restart služby.', 'The available maintenance module has a syntax error, so this checkout cannot be presented as working. One intended operation is an administrator’s request to restart the service.')],
+         $lang->value('Portfolio katalog popisuje aplikační příkazy a samostatnou údržbovou větev. Zdrojový checkout ale není dostupný k nezávislé kontrole; přesnou implementaci klienta, příkazů ani oprávnění proto nelze potvrdit.', 'The portfolio catalog describes application commands and a separate maintenance path. The source checkout is unavailable for independent review, so the client, commands and permissions cannot be confirmed.'),
+         $lang->value('Starší poznámka katalogu hlásí syntaktickou chybu údržbového modulu. Ber ji jako evidované předchozí zjištění, nikoli jako novou kontrolu současného zdroje. Následující diagram je pouze schematický příklad.', 'An earlier catalog note reports a syntax error in the maintenance module. Treat this as a recorded prior finding, not a fresh check of current source. The diagram below is only a schematic example.')],
     ],
     default => null,
 };
@@ -79,9 +79,9 @@ $architecture = match ($project->slug) {
         ['Nejistoty','Uncertainty','Kontrola odchylek','Deviation review'], ['STEP / DXF','STEP / DXF','Export ke kontrole','Export for review'],
     ], [[0,1],[1,2],[2,5],[3,4],[4,5],[5,6],[6,7]]],
     'tiskov' => [[
-        ['Poptávka','Request','Model a požadavky','Model and requirements'], ['Symfony','Symfony','Příjem a validace','Intake and validation'], ['Soubor + metadata','File + metadata','Uložené podklady','Stored input'],
-        ['MySQL fronta','MySQL queue','Oddělená úloha','Queued job'], ['Worker na Pi','Pi worker','Asynchronní zpracování','Asynchronous processing'], ['Slicer','Slicer','Analýza tiskové úlohy','Print-job analysis'],
-        ['Odhad','Estimate','Orientační výsledek','Indicative result'], ['Ruční potvrzení','Manual review','Finální dohoda','Final agreement'],
+        ['Poptávka','Request','Zamýšlený vstup','Proposed intake'], ['Web / Symfony','Web / Symfony','Popsáno v návrhu','Described in design'], ['Soubor + metadata','File + metadata','Předpokládané podklady','Proposed input'],
+        ['MySQL fronta','MySQL queue','Navržená komponenta','Proposed component'], ['Worker na Pi','Pi worker','Navržené oddělení','Proposed separation'], ['Slicer','Slicer','Běh není doložen','Run not evidenced'],
+        ['Odhad','Estimate','Výpočet nedoložen','Calculation not evidenced'], ['Ruční potvrzení','Manual review','Zamýšlený krok','Intended step'],
     ], [[0,1],[1,2],[1,3],[3,4],[4,5],[5,6],[6,7]]],
     'shpotify' => [[
         ['Účet','Account','Přihlášený člen','Signed-in member'], ['Pozvánka','Invitation','Vstup do místnosti','Room access'], ['Místnost','Room','Osobní či sdílená','Personal or shared'],
@@ -94,9 +94,9 @@ $architecture = match ($project->slug) {
         ['Game build','Game build','Cílová verze hry','Target game version'], ['Herní přijetí','In-game acceptance','Dosud neověřeno','Not yet verified'],
     ], [[0,1],[1,2],[2,3],[2,4],[2,5],[1,6],[6,7]]],
     'discord-bot' => [[
-        ['Discord event','Discord event','Příchozí interakce','Incoming interaction'], ['Klient','Client','Aplikační příkazy','Application commands'], ['Registr příkazů','Command registry','Testovací / globální sync','Test / global sync'],
-        ['Oprávnění','Authorization','Kontrola před akcí','Check before action'], ['Údržbový modul','Maintenance module','Aktuální syntax error','Current syntax error'], ['Systemd služba','Systemd service','Zamýšlená správa','Intended management'],
-        ['Běh v Discordu','Live Discord run','Zatím neověřen','Not yet verified'],
+        ['Katalog','Catalog','Popisuje příkazy','Describes commands'], ['Příkazová cesta','Command path','Detaily nedoložené','Details not evidenced'], ['Údržbová větev','Maintenance path','Nahlášena katalogem','Reported by catalog'],
+        ['Oprávnění','Authorization','Konkrétní pravidla neznámá','Exact rules unknown'], ['Starší zjištění','Prior finding','Syntax chyba hlášená dříve','Syntax issue reported earlier'], ['Zdrojový checkout','Source checkout','Není k dispozici','Unavailable'],
+        ['Živý běh','Live run','Neověřen','Unverified'],
     ], [[0,1],[1,2],[1,3],[3,4],[4,5],[5,6]]],
     default => null,
 };
@@ -132,10 +132,10 @@ $walkthrough = match ($project->slug) {
         ['04','Exportuj CAD kandidáta','Export a CAD candidate','STEP/DXF a vypočtená odchylka pomáhají kontrole; nenahrazují fyzické měření.','STEP/DXF and computed deviation aid review; they do not replace physical measurement.'],
     ],
     'tiskov' => [
-        ['01','Přijmi model','Receive a model','Webová žádost uloží soubor a metadata, ale slicer neběží v HTTP požadavku.','The web request stores the file and metadata; the slicer does not run inside the HTTP request.'],
-        ['02','Odděl práci frontou','Separate work with a queue','MySQL drží stav mezi Symfony aplikací a workerem, zatímco web přijímá další poptávky.','MySQL holds state between Symfony and the worker while the web app accepts more requests.'],
-        ['03','Zpracuj mimo web','Process outside the web app','Worker na Raspberry Pi provede slicing a předá výsledek k dalšímu posouzení.','The Raspberry Pi worker performs slicing and returns a result for review.'],
-        ['04','Potvrď dohodu ručně','Agree manually','Cena je orientační, bez online platby; konečná dohoda probíhá s člověkem.','The price is indicative, with no online payment; a person confirms the final agreement.'],
+        ['01','Představ modelovou poptávku','Start with a hypothetical request','Jde o ilustraci návrhu, nikoli formulář napojený na službu.','This illustrates a design; it is not a form connected to a service.'],
+        ['02','Odděl příjem a práci','Separate intake and processing','Dokumentovaný návrh vkládá mezi web a výpočet frontu; její nasazení není ověřené.','The documented design puts a queue between the web app and processing; its deployment is unverified.'],
+        ['03','Worker je navržený','Worker is proposed','Raspberry Pi worker je součástí popisu architektury, jeho běh ale není doložen.','A Raspberry Pi worker appears in the architecture description, but no run is evidenced.'],
+        ['04','Výsledek potřebuje důkaz','The result needs evidence','Ukázková fronta nic neslicuje ani nepočítá cenu; dostupné podklady neukazují původní motiv.','The sample queue slices nothing and calculates no price; available material does not state the original motive.'],
     ],
     'shpotify' => [
         ['01','Vstup do místnosti','Enter a room','Účet a pozvánka určují, zda jde o osobní nebo sdílený prostor.','The account and invitation determine whether the space is personal or shared.'],
@@ -150,10 +150,10 @@ $walkthrough = match ($project->slug) {
         ['04','Hratelné vydání není potvrzené','A playable release is not confirmed','Testy jádra proběhly pro konkrétní DLL, ale kandidát nebyl spuštěn ve hře.','Core tests ran for a specific DLL, but the candidate was not launched in-game.'],
     ],
     'discord-bot' => [
-        ['01','Discord předá interakci','Discord sends an interaction','Klient vytváří strom aplikačních příkazů a synchronizuje ho podle nastavení.','The client builds an application-command tree and syncs it according to configuration.'],
-        ['02','Zkontroluj oprávnění','Check authorization','Zamýšlená údržbová akce nejprve kontroluje správce.','The intended maintenance action checks for an authorized operator first.'],
-        ['03','Zastav se u syntaxe','Stop at the syntax gate','Dostupný modul údržby nyní neprojde syntaxí, proto nelze tvrdit, že cesta funguje.','The available maintenance module currently fails syntax validation, so the path cannot be called working.'],
-        ['04','Běh není doložen','Runtime is unverified','Zdroj je potřeba opravit a bota ověřit na testovacím serveru před funkční ukázkou.','Repair the source and verify the bot on a test server before claiming a working demo.'],
+        ['01','Začni u katalogu','Start from the catalog','Portfolio katalog zmiňuje aplikační příkazy; checkout není k dispozici k nezávislé kontrole.','The portfolio catalog mentions application commands; no checkout is available for independent review.'],
+        ['02','Oprávnění zůstávají otázkou','Authorization remains unknown','Konkrétní příkazy, role a kontroly oprávnění nejsou z dostupného zdroje potvrzené.','Exact commands, roles and permission checks are not confirmed by available source.'],
+        ['03','Odděl starší hlášení','Separate the prior report','Katalog uchovává dřívější hlášení syntaktické chyby; současný kód jsme znovu nekontrolovali.','The catalog retains an earlier syntax-error report; current code was not rechecked.'],
+        ['04','Běh není doložen','Runtime is unverified','Diagram je schematický. Není k dispozici důkaz spuštěného bota ani služby.','The diagram is schematic. There is no evidence of a running bot or service.'],
     ],
     default => [],
 };
@@ -165,10 +165,10 @@ $more = match ($project->slug) {
  'home-infrastructure' => $lang->value('Názorný příklad je DNS: domácí klient pošle dotaz přes router, který za běžných podmínek používá lokální filtr a resolver. Dokumentace popisuje záložní resolver při jejich nedostupnosti. Zálohovací úložiště a testovací server mají odlišný režim dostupnosti; mapa není živé měření.', 'DNS offers a concrete example: a home client sends a query through the router, which normally uses a local filter and resolver. Documentation describes a fallback resolver if they are unavailable. Backup storage and the test server have different availability patterns; the map is not live telemetry.'),
  'woodbound' => $lang->value('Návrhová dokumentace popisuje několik oblastí, průmyslové body a různé typy dopravních spojení. Záměr trasy ovšem ještě není důkazem její fyzické průchodnosti: kontrola musí vyhodnotit skutečně vytvořený terén a konkrétní kandidátní svět.', 'Design documents describe several regions, industrial locations and different transport connections. A route intent is not proof of physical traversability: a check must evaluate the terrain and the specific generated candidate.'),
  'scan2cad' => $lang->value('Při práci s fotografií dokumentace popisuje alespoň šest odpovídajících dvojic bodů a odhad polohy kamery. Před projekcí označených oblastí uživatel odhad potvrdí; výsledek rozlišuje pozorované a nejisté plochy a sám geometrii neopravuje.', 'For a photograph, the documentation describes at least six matching point pairs and a camera-pose estimate. The user confirms the estimate before projecting marked regions; the result distinguishes observed and uncertain areas and does not itself repair geometry.'),
- 'tiskov' => $lang->value('Provozní dokumentace popisuje přehled fronty a odezvy workeru, diagnostiku dostupnosti i postup pro obnovení zaseknutých úloh. Přehled nezakládá důkaz aktuálního nasazení nebo spolehlivosti; výsledky konkrétního běhu je nutné ověřit zvlášť.', 'Operational documentation describes queue and worker-heartbeat views, health diagnostics and recovery for stuck jobs. The documentation does not establish current deployment or reliability; results of a specific run require separate verification.'),
+ 'tiskov' => $lang->value('K dispozici je jen portfolio záznam a návrhový tok. Repozitář, skutečná fronta, worker, slicer ani cenový výpočet nejsou ověřené; interakce používá výhradně smyšlené položky.', 'Only a portfolio record and proposed flow are available. No repository, real queue, worker, slicer or pricing calculation is verified; the interaction uses synthetic items only.'),
  'shpotify' => $lang->value('Ve zdrojovém popisu jsou uvedené osobní, dočasné a trvalé místnosti, práce s frontou a doporučování. Zároveň výslovně odlišuje tyto moduly od rozpracovaného přehrávání v prohlížeči a vzdáleného audio agenta. Příklad místnosti proto neznamená ověřený přenos zvuku.', 'The source description lists personal, temporary and persistent rooms, queue operations and recommendations. It explicitly distinguishes these modules from browser playback and the remote audio agent, which remain in progress. The room example therefore does not establish verified audio transmission.'),
  'softwareinc-multiplayer' => $lang->value('Projekt obsahuje také práci na perzistenci, zabezpečení a rozhraní. Rozdíl mezi testem samostatného jádra a ověřením ve hře je zásadní: teprve běh konkrétního kandidáta může ukázat, zda herní adaptér správně spolupracuje se skutečnou verzí hry.', 'The project also contains persistence, security and UI work. A core test differs from verification in the game: only running the specific candidate can show whether the adapter works with the actual game version.'),
- 'discord-bot' => $lang->value('Klient vytváří strom aplikačních příkazů a při spuštění je synchronizuje buď pro testovací server, nebo globálně podle nastavení. Dostupný registr připojuje modul údržby pro hlavní instanci. Tento popis vychází ze zdrojového kódu a není potvrzením živého provozu.', 'The client creates an application command tree and synchronizes it for a test server or globally depending on configuration. The available registry attaches the maintenance module for the main instance. This describes source code, not verified live operation.'),
+ 'discord-bot' => $lang->value('Katalog uvádí příkazy a oddělenou údržbovou větev; checkout není dostupný a přesná implementace se nedá ověřit. Dřívější hlášení syntaktické chyby je historická poznámka, nikoli aktuální kontrola. Žádný živý běh není doložen.', 'The catalog mentions commands and a separate maintenance path; the checkout is unavailable, so implementation details cannot be verified. The earlier syntax-error report is historical, not a current check. No live run is evidenced.'),
  default => '',
 };
 ?>

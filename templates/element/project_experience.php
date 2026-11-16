@@ -67,14 +67,14 @@ $stories = [
     ],
     'tiskov' => [
         'claim' => $lang->value('Pro kalkulaci tisku už existují služby. Tiskov míří na konkrétní místní postup.', 'Print quoting services already exist. Tiskov describes a specific local workflow.'),
-        'why' => $lang->value('Záznam Tiskovu odděluje webovou poptávku od výpočtu na Raspberry Pi workeru a finální nabídku ponechává člověku. Přesný původní důvod není v nalezeném zdrojovém repozitáři; portfolio zároveň výslovně nepopisuje potvrzenou cenu ani online platbu.', 'The Tiskov record separates a web request from processing on a Raspberry Pi worker and leaves the final quote to a person. The original motive is not present in the located source repository; the portfolio also does not claim a binding price or online payment.'),
+        'why' => $lang->value('Dostupný portfolio záznam navrhuje oddělit webovou poptávku od výpočtu na Raspberry Pi workeru a finální nabídku ponechat člověku. Repozitář ani historie projektu nejsou k dispozici a původní důvod není zaznamenaný. Samotný návrh nedokazuje běžící službu, přesný odhad ani online platbu.', 'The available portfolio record proposes separating a web request from processing on a Raspberry Pi worker and leaving the final quote to a person. The repository and project history are unavailable, and the original motive is not recorded. The design alone does not prove a running service, accurate estimate or online payment.'),
         'alternatives' => [
             ['Craftcloud', 'https://craftcloud3d.com/en/upload', $lang->value('Nahraješ model, zvolíš technologii a porovnáš nabídky tiskových partnerů. Pro běžnou zakázku to může být dostatečné řešení.', 'Upload a model, select a process and compare printing-provider offers. That may be enough for an ordinary order.')],
         ],
         'fit' => $lang->value('Kdyby Craftcloud pokryl typ zakázky i způsob doručení, použil bych jeho srovnání nabídek. Vlastní fronta by měla důvod jen pro konkrétní místní tiskárnu, oddělené zpracování a ruční kontrolu. Zdroje nedokládají, že Tiskov tuto výhodu už nabízí v ostrém provozu.', 'If Craftcloud covered the job type and delivery needs, I would use its quote comparison. A custom queue would be justified only for a specific local printer, separate processing and human review. The sources do not show Tiskov delivering that advantage in live operation.'),
         'source' => 'Tiskov project record and decision notes; project source checkout not located',
         'demo' => 'tiskov',
-        'interaction' => $lang->value('Příjem pokračuje, zatímco worker počítá.', 'Intake continues while a worker processes the job.'),
+        'interaction' => $lang->value('Prohlédni si smyšlený průchod návrhem fronty.', 'Explore a synthetic pass through the proposed queue.'),
     ],
     'shpotify' => [
         'claim' => $lang->value('Nejtěžší otázka: není vlastní aplikace zbytečná?', 'The hardest question: is another app unnecessary?'),

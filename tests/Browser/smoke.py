@@ -181,7 +181,7 @@ def main() -> None:
                                 'home-infrastructure': ('Ansible', 'Ansible'), 'woodbound': ('biomy', 'biomes'),
                                 'scan2cad': ('STEP', 'STEP'), 'tiskov': ('Slicer', 'Slicer'),
                                 'shpotify': ('Místnost', 'Room'), 'softwareinc-multiplayer': ('C# doménové jádro', 'C# domain core'),
-                                'discord-bot': ('Údržbový modul', 'Maintenance module'),
+                                'discord-bot': ('Údržbová větev', 'Maintenance path'),
                             }
                             expected = project_markers[slug][1 if site.startswith('en/') else 0]
                             assert expected in diagram.inner_text(), (site, 'diagram does not match project')

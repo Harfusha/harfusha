@@ -31,8 +31,8 @@ $example = match ($project->slug) {
     ],
     'tiskov' => [
         $lang->value('Poptávka na 3D tisk', 'A 3D-print request'),
-        $lang->value('Zákazník zadá podklady pro tisk a web je předá ke zpracování. Samostatný worker může náročnější úlohu řešit mimo webový požadavek, zatímco stav zůstává ve frontě.', 'A customer submits print request details and the website queues them. A separate worker can handle longer work outside the web request while the queue tracks its state.'),
-        $lang->value('Je to zamýšlený postup prototypu, nikoliv příslib přesné ceny nebo hotové služby.', 'This is the prototype’s intended workflow, not a promise of an accurate quote or a finished service.'),
+        $lang->value('Portfolio návrh počítá s tím, že se podklady oddělí od delšího zpracování a stav zůstane ve frontě. Na webu si lze projít pouze smyšlený průchod tohoto návrhu.', 'The portfolio design proposes separating submitted files from longer processing and tracking state in a queue. The page demonstrates only a synthetic pass through that design.'),
+        $lang->value('Zdrojový checkout, worker ani slicer nejsou dostupné k ověření. Ukázka nepřijímá soubory, nepočítá cenu a nepředstavuje hotovou službu.', 'The source checkout, worker and slicer are unavailable for verification. The demo accepts no files, calculates no price and does not represent a finished service.'),
     ],
     'shpotify' => [
         $lang->value('Hudba pro společnou místnost', 'Music for a shared room'),
@@ -46,8 +46,8 @@ $example = match ($project->slug) {
     ],
     'discord-bot' => [
         $lang->value('Údržba služby přes příkaz', 'Service maintenance by command'),
-        $lang->value('Zamýšlený postup je, že oprávněný správce zadá příkaz údržby a bot předá požadavek odpovídajícímu modulu.', 'The intended workflow is for an authorized administrator to issue a maintenance command which the bot passes to the relevant module.'),
-        $lang->value('Aktuálně dostupný modul obsahuje syntaktickou chybu; funkční provoz není ověřen.', 'The currently available module contains a syntax error; working operation has not been verified.'),
+        $lang->value('Katalog naznačuje hypotetický příkaz k údržbě služby. Následující kontrola rolí je modelová ukázka, nikoli popis ověřené implementace.', 'The catalog suggests a hypothetical service-maintenance command. The role check below is a model, not a description of verified implementation.'),
+        $lang->value('Zdrojový checkout není dostupný. Dřívější hlášení katalogu o syntaktické chybě není novou kontrolou současného kódu; žádný běžící bot nebyl doložen.', 'The source checkout is unavailable. The catalog’s earlier syntax-error report is not a fresh check of current code; no running bot has been evidenced.'),
     ],
     default => null,
 };

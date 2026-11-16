@@ -11,8 +11,8 @@ Tento záznam shrnuje kontrolované zdrojové revize a hranice toho, co lze tvrd
 - **Scan2CAD Studio — `90e2940`**. Dokumentovaný beta postup vyžaduje fyzicky potvrzené měřítko, kontrolu geometrie a schválení odhadu kamery u referenčních fotografií. STEP/DXF je kandidát k odborné a fyzické kontrole, ne certifikované měření.
 - **Shpotify — `46742be`**. Zdroj popisuje účty, pozvánky, osobní a sdílené místnosti, fronty a doporučování. Přehrávání v prohlížeči a vzdálený audio agent nejsou end-to-end ověřené.
 - **Software Inc co-op mod — `c615daa`**. Doménové jádro, persistence a adaptér existují; aktuální README výslovně uvádí, že kandidát nebyl spuštěn ve hře. Hratelný multiplayer se netvrdí.
-- **Discord bot — `9c0305e`**. Zdrojová kontrola dříve nalezla syntaktickou chybu v modulu údržby. Živý provoz není doložen; veřejný text projekt označuje jako rozpracovaný a v opravě.
-- **Tiskov — `dd49a23`**. Symfony přijímá podklady, MySQL drží frontu a samostatný Raspberry Pi worker provádí slicing. Odhad pro Bambu Lab A1 je orientační, bez online platby a s ruční konečnou dohodou; aktuální běh a přesnost výpočtu nejsou ověřené.
+- **Discord bot**. K dispozici je pouze portfolio katalog, nikoli zdrojový checkout. Katalog popisuje aplikační příkazy, oddělenou údržbovou větev a uvádí dřívější syntaktickou chybu; konkrétní příkazy, oprávnění, aktuální zdroj ani živý provoz nelze nezávisle ověřit. Původní motiv není doložen.
+- **Tiskov**. K dispozici je pouze portfolio záznam a rozhodovací poznámka, nikoli zdrojový checkout nebo demo. Symfony, MySQL fronta a Raspberry Pi worker jsou popsané jako návrhová architektura, ne ověřené komponenty; slicer, výpočet ceny, objednávky ani živý běh nejsou doložené. Původní motiv není zaznamenán. Interakce webu používá syntetické položky bez cenového výpočtu.
 - **Maker Lab**. Na přání nejsou zveřejněné jednotlivé výrobky; stránka zůstává neutrálním placeholderem.
 
 ## Previous candidate — superseded 16 Nov 2026

@@ -191,29 +191,28 @@
         "private": true,
         "repo": "",
         "demo": "",
-        "summary_cs": "Symfony aplikace pro poptávky 3D tisku na Bambu Lab A1: web uloží podklady do fronty, samostatný worker je zpracuje a člověk potvrdí orientační cenu.",
-        "summary_en": "A Symfony app for Bambu Lab A1 print requests: the web app queues submitted files, a separate worker processes them and a person confirms the indicative estimate.",
-        "problem_cs": "Výpočet modelu a komunikace se zákazníkem mají jiný provozní rytmus. Když web čeká na slicer, pomalá úloha blokuje příjem dalších poptávek a její stav se špatně sleduje.",
-        "problem_en": "Model analysis and customer communication have different operating rhythms. If the web request waits for the slicer, a slow job blocks new submissions and its status becomes difficult to follow.",
-        "solution_cs": "Symfony přijme soubor modelu a údaje poptávky, uloží metadata do MySQL a zapíše úlohu do fronty. Oddělený worker na Raspberry Pi provede slicing a vrátí výsledek do aplikace k dalšímu posouzení. Příklad: nový STL soubor dostane stav čekající úlohy, zatímco web může přijímat další žádosti. Odhad ceny je orientační, bez DPH a online platby; konečná nabídka se domlouvá ručně a přesnost konkrétního výpočtu není ověřena.",
-        "solution_en": "Symfony accepts a model file and request details, stores metadata in MySQL and places a job on a queue. A separate Raspberry Pi worker performs slicing and returns a result for review in the app. For example, a new STL file can remain a queued job while the web app accepts another request. The price is an estimate, with no VAT or online payment; the final quote is agreed manually, and the accuracy of a particular calculation has not been verified.",
+        "summary_cs": "Dokumentovaný návrh služby pro poptávky 3D tisku na Bambu Lab A1. Veřejný podklad navrhuje oddělit příjem od výpočtu; zdrojový kód ani živý běh nejsou dostupné k ověření.",
+        "summary_en": "A documented design for Bambu Lab A1 print requests. The portfolio record proposes separating intake from processing; source code and live operation are unavailable for verification.",
+        "problem_cs": "Návrh řeší rozdílný rytmus příjmu zakázky a časově náročné analýzy modelu: pomalá úloha by neměla blokovat další poptávky a její stav by měl být dohledatelný.",
+        "problem_en": "The design addresses the different pace of request intake and model analysis: a slow job should not block new requests, and its status should remain traceable.",
+        "solution_cs": "Portfolio popisuje zamýšlený tok: webová aplikace ve Symfony přijme podklady, metadata se uloží do MySQL fronty a samostatný worker na Raspberry Pi by předal výsledek k ručnímu posouzení. Jde o návrhový diagram, nikoli ověřenou implementaci; repozitář ani demo nejsou dostupné. Interaktivní fronta na této stránce používá pouze smyšlené úlohy, nespouští slicer a nepočítá cenu. Původní důvod projektu není v dostupných podkladech zachycen.",
+        "solution_en": "The portfolio record describes a proposed flow: a Symfony web app receives the files, metadata enters a MySQL queue, and a separate Raspberry Pi worker would return a result for human review. This is a design diagram, not a verified implementation; no source repository or app demo is available. The interactive queue on this page uses synthetic jobs only, runs no slicer and calculates no price. The original reason for starting the project is not recorded in the available material.",
         "stack": [
-            "PHP",
-            "Symfony",
-            "MySQL",
-            "Raspberry Pi"
+          "Symfony (design)",
+          "MySQL (design)",
+          "Raspberry Pi worker (design)"
         ],
         "features": [
-            "Request intake and file metadata",
-            "MySQL queue separating web from processing",
-            "Separate Raspberry Pi worker for slicing",
-            "Indicative pricing with manual confirmation"
+          "Documented intake-to-queue design",
+          "Worker and slicer are proposed components",
+          "Synthetic queue interaction only",
+          "No source checkout or live run verified"
         ],
         "features_cs": [
-            "Příjem podkladů a metadat poptávky",
-            "MySQL fronta oddělující web od zpracování",
-            "Samostatný Raspberry Pi worker pro slicing",
-            "Orientační cena s ručním potvrzením"
+          "Zdokumentovaný návrh příjmu a fronty",
+          "Worker a slicer jsou navržené součásti",
+          "Pouze interakce se smyšlenou frontou",
+          "Zdrojový checkout ani živý běh nejsou ověřené"
         ],
         "year": "2026"
     },
@@ -296,28 +295,27 @@
         "private": true,
         "repo": "",
         "demo": "",
-        "summary_cs": "Discord bot v údržbě: zdroj registruje aplikační příkazy a odděluje obsluhu údržby, ale aktuální modul údržby má syntaktickou chybu a živý běh není ověřen.",
-        "summary_en": "A Discord bot under maintenance: source registers application commands and separates maintenance handling, but the current maintenance module has a syntax error and live operation is unverified.",
-        "problem_cs": "Příkazy bota musí být přehledně registrované a privilegované úkony dostupné jen správným uživatelům. Udržitelnost zároveň vyžaduje, aby šlo chyby oddělit od běžné obsluhy příkazů.",
-        "problem_en": "Bot commands need clear registration, and privileged actions must remain limited to authorized users. Maintainability also requires separating failures in maintenance work from normal command handling.",
-        "solution_cs": "Struktura zdrojů vytváří klienta Discordu, registruje aplikační příkazy a připojuje samostatnou údržbovou funkci s kontrolou oprávnění. Zamýšlený příklad je administrátorský požadavek na údržbu služby. Aktuální dostupný checkout ale v modulu údržby neprojde syntaktickou kontrolou; proto tuto cestu popisuji jako návrh v opravě, ne jako funkční nebo nasazeného bota.",
-        "solution_en": "The source structure creates a Discord client, registers application commands and attaches a separate maintenance feature with an authorization check. An intended example is an administrator’s request to maintain the service. The currently available checkout fails syntax validation in the maintenance module, so this is a design under repair, not a claim of a working or deployed bot.",
+        "summary_cs": "Portfolio katalog popisuje Discord bota s aplikačními příkazy a údržbovou větví. Zdrojový checkout není dostupný; katalog uchovává starší hlášení syntaktické chyby a živý provoz není ověřen.",
+        "summary_en": "The portfolio catalog describes a Discord bot with application commands and a maintenance path. Its source checkout is unavailable; the catalog retains an earlier syntax-error report, and live operation is unverified.",
+        "problem_cs": "Katalog naznačuje scénář, v němž by privilegovaná údržba přes Discord potřebovala jasné hranice oprávnění. Skutečný seznam příkazů i pravidla přístupu nejsou v dostupném zdrojovém checkoutu k ověření.",
+        "problem_en": "The catalog suggests a scenario where privileged maintenance through Discord would need clear authorization boundaries. The actual command list and access rules cannot be checked because the source checkout is unavailable.",
+        "solution_cs": "Portfolio katalog popisuje aplikační příkazy a oddělený modul údržby. Samostatný checkout není dostupný, takže klient, přesné příkazy, kontrolu oprávnění ani logování nelze nezávisle potvrdit. Katalog eviduje starší hlášení syntaktické chyby v údržbě; nejde o novou kontrolu současného zdroje. Ukázka na stránce simuluje modelové pravidlo a nespouští bota ani službu. Původní důvod projektu není doložen.",
+        "solution_en": "The portfolio catalog describes application commands and a separate maintenance module. No separate source checkout is available, so the client, exact commands, authorization checks and logging cannot be independently confirmed. The catalog records an earlier report of a syntax error in maintenance; this is not a fresh check of current source. The page demo simulates a hypothetical rule and runs no bot or service. The original reason for the project is not documented.",
         "stack": [
-            "Python",
-            "Discord",
-            "systemd"
+          "Discord commands (catalog only)",
+          "Maintenance path (catalog only)"
         ],
         "features": [
-            "Application command registration",
-            "Separate maintenance handler and authorization check",
-            "Operational logging in the source structure",
-            "Checkout needs repair before runtime validation"
+          "Portfolio catalog describes application commands",
+          "A prior catalog note reports a maintenance syntax error",
+          "Exact commands and permissions are unverified",
+          "Source checkout and live operation unavailable"
         ],
         "features_cs": [
-            "Registrace aplikačních příkazů",
-            "Oddělená údržbová funkce a kontrola oprávnění",
-            "Provozní logování podle zdrojové struktury",
-            "Checkout vyžaduje opravu před ověřením běhu"
+          "Katalog popisuje aplikační příkazy",
+          "Starší poznámka katalogu hlásí chybu syntaxe údržby",
+          "Konkrétní příkazy a oprávnění nejsou ověřené",
+          "Zdrojový checkout a živý provoz nejsou dostupné"
         ],
         "year": "2026"
     }
