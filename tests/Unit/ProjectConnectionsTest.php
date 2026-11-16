@@ -5,6 +5,7 @@ namespace App\Test\Unit;
 
 use App\Domain\ProjectCatalog;
 use App\Domain\ProjectConnections;
+use App\Support\Language;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
@@ -22,6 +23,12 @@ final class ProjectConnectionsTest extends TestCase
             $keys[] = $edge['from'] . '/' . $edge['to'];
         }
         self::assertCount(count(array_unique($keys)), $keys);
+    }
+
+    public function testRelationshipLabelsAreLocalized(): void
+    {
+        self::assertSame('podpora vývoje', ProjectConnections::label('assists-development', new Language('cs')));
+        self::assertSame('development tooling', ProjectConnections::label('assists-development', new Language('en')));
     }
 
     public function testUnknownDestinationFailsClosed(): void

@@ -8,12 +8,12 @@
     "private": false,
     "repo": "https://github.com/Harfusha/local-ai-hub",
     "demo": "ai",
-    "summary_cs": "Lokální inteligence a orchestrace pro coding agenty: MCP, RAG, indexování kódu a kontrola nákladů na kontext.",
-    "summary_en": "Local-first intelligence and orchestration for coding agents: MCP, RAG, code indexing and context economics.",
+    "summary_cs": "Sedm MCP nástrojů pro coding agenty: hledání v kódu, práci s kontextem a lokální modely. Verze 6.1.0 je kandidát na vydání.",
+    "summary_en": "Seven MCP tools for coding agents: code discovery, context management and local models. Version 6.1.0 is a release candidate.",
     "problem_cs": "Cloudoví agenti opakovaně procházejí repozitáře a spotřebovávají kontext při úlohách, které lze zpracovat lokálně.",
     "problem_en": "Cloud agents repeatedly rediscover repositories and consume context for work that can be handled locally.",
-    "solution_cs": "Deterministická analýza, sémantické vyhledávání, řízení pracovních postupů a ověřitelné kontextové výstupy.",
-    "solution_en": "Deterministic code analysis, semantic retrieval, workflow orchestration and evidence-backed context outputs.",
+    "solution_cs": "Hub sjednocuje sedm MCP nástrojů pro agenty. Pro přesná fakta používá index a deterministické operace; model může pomoci s interpretací. Koordinace sleduje úlohy, kontext a důkazy, zatímco lokální inference závisí na dostupném backendu. Zdrojová verze 6.1 je kandidát na vydání, nikoliv potvrzení produkční připravenosti.",
+    "solution_en": "The Hub exposes seven MCP tools to agents. Indexed and deterministic operations supply exact facts; a model can assist interpretation. Coordination tracks tasks, context and evidence, while local inference depends on an available backend. Source version 6.1 is a release candidate, not a production-readiness claim.",
     "stack": [
       "Python",
       "MCP",
@@ -22,10 +22,16 @@
       "LLM"
     ],
     "features": [
-      "7 MCP nástrojů",
+      "7 MCP tools",
       "Serena & code intelligence",
       "Agent OS & durable work",
       "Local model routing"
+    ],
+    "features_cs": [
+      "7 MCP nástrojů",
+      "Serena a analýza kódu",
+      "Agent OS a evidence práce",
+      "Směrování na lokální modely"
     ],
     "year": "2026"
   },
@@ -38,12 +44,12 @@
     "private": false,
     "repo": "https://github.com/Harfusha/MutaUI",
     "demo": "sync",
-    "summary_cs": "Grafické rozhraní pro Mutagen: synchronizační relace, forwarding, monitoring a bezpečné hromadné akce.",
-    "summary_en": "Desktop UI for Mutagen: synchronization sessions, forwarding, monitoring and safe bulk actions.",
+    "summary_cs": "Desktopové rozhraní pro Mutagen: přehled synchronizace, forwardingu a stavu relací. Vyžaduje samostatně nainstalované Mutagen CLI.",
+    "summary_en": "A desktop interface for Mutagen sync, forwarding and session status. Requires a separately installed Mutagen CLI.",
     "problem_cs": "Výkonný synchronizační engine Mutagen se obtížněji ovládá bez vizuálního přehledu stavu.",
     "problem_en": "Mutagen is powerful, but sessions and operational state are harder to understand without a visual interface.",
-    "solution_cs": "Qt klient nad nativním CLI, bezpečně oddělené relace, adaptivní obnovování stavu a testy zabalené aplikace.",
-    "solution_en": "Qt client over the native CLI, scoped session operations, adaptive polling and packaged-app smoke tests.",
+    "solution_cs": "Desktopový klient předává práci samostatně instalovanému Mutagen CLI a čte stav lokálního démona. Nabízí přehled synchronizačních a forwarding relací, jejich nastavení a diagnostiku. Repozitář obsahuje balení pro více systémů; úspěšný build však sám o sobě nepotvrzuje nativní provoz na každé platformě.",
+    "solution_en": "The desktop client delegates to a separately installed Mutagen CLI and reads local daemon state. It provides session overviews, configuration and diagnostics for sync and forwarding. The repository includes cross-platform packaging, but a successful build alone does not prove native acceptance on every platform.",
     "stack": [
       "Python",
       "PySide6",
@@ -56,6 +62,12 @@
       "Adaptive monitoring",
       "Server grouping",
       "Packaged EXE smoke tests"
+    ],
+    "features_cs": [
+      "Správa synchronizace a forwardingu",
+      "Adaptivní sledování stavu",
+      "Seskupování serverů",
+      "Základní testy zabalené EXE aplikace"
     ],
     "year": "2026"
   },
@@ -72,8 +84,8 @@
     "summary_en": "Home infrastructure managed as code: Ansible, Semaphore, Linux, MikroTik, NAS and Proxmox.",
     "problem_cs": "Více zařízení a služeb vyžaduje konzistentní konfiguraci, auditovatelnost a opakovatelné obnovovací postupy.",
     "problem_en": "Multiple devices and services need consistent configuration, auditability and repeatable recovery.",
-    "solution_cs": "Deklarativní správa pomocí Ansible, řízené playbooky, plánované úlohy, ověřovací kontroly a dokumentace.",
-    "solution_en": "Declarative Ansible management, guarded playbooks, scheduled tasks, health checks and runbooks.",
+    "solution_cs": "Git obsahuje požadovanou konfiguraci, Ansible provádí jednotlivé změny a Semaphore nabízí jejich spouštění a plánování. Běžná správa hlavního Raspberry Pi je oddělena od zásahů do routeru. NAS slouží jako cíl záloh, zatímco testovací server se zapíná podle potřeby. Přehled veřejných rolí a služeb je v sekci Homelab.",
+    "solution_en": "Git stores desired configuration, Ansible applies individual changes and Semaphore runs and schedules them. Routine maintenance of the primary Raspberry Pi is separated from router changes. The NAS is a backup destination and the test server is used on demand. See Homelab for an overview of roles and services.",
     "stack": [
       "Ansible",
       "Python",
@@ -88,11 +100,17 @@
       "Backups & recovery",
       "Service monitoring"
     ],
+    "features_cs": [
+      "Infrastruktura jako kód",
+      "Kontrolované nasazování",
+      "Zálohování a obnova",
+      "Sledování služeb"
+    ],
     "year": "2026"
   },
   {
     "slug": "woodbound",
-    "name": "Woodbound / WoodTycoon",
+    "name": "Woodbound",
     "category": "Games & Simulation",
     "status": "prototype",
     "featured": true,
@@ -103,8 +121,8 @@
     "summary_en": "Unity prototype with procedural world generation, biomes, routes and validators.",
     "problem_cs": "Generování soudržného herního světa zahrnuje množství vzájemně závislých geografických a herních pravidel.",
     "problem_en": "Coherent world generation involves many interdependent geography and gameplay constraints.",
-    "solution_cs": "Vícefázová generovací pipeline, prostorové validátory a oddělené nástroje pro ověřování výsledků.",
-    "solution_en": "Multi-stage generation pipeline, spatial validators and independent verification tooling.",
+    "solution_cs": "Generování se dělí do navazujících fází: terén a oblasti určují prostředí, další kroky řeší umístění a průchodnost tras. Kontrolní nástroje pomáhají odhalovat problémy ještě před hraním. Jde o vývojový prototyp; výsledná hratelnost a přijetí konkrétního sestavení vyžadují samostatné ověření.",
+    "solution_en": "Generation is divided into stages: terrain and regions define the environment, while later steps address placement and traversable routes. Checks help identify problems before gameplay. This is a development prototype; playability and acceptance of a particular build require separate verification.",
     "stack": [
       "C#",
       "Unity",
@@ -116,6 +134,12 @@
       "Route pathfinding",
       "Validation gates",
       "Editor tooling"
+    ],
+    "features_cs": [
+      "Biomy a terén",
+      "Hledání tras",
+      "Kontroly validity",
+      "Nástroje editoru"
     ],
     "year": "2026"
   },
@@ -132,8 +156,8 @@
     "summary_en": "Converting 3D scans into inspectable editable CAD candidates with validation and an MCP interface.",
     "problem_cs": "Skenované sítě jsou často geometricky nepřesné a nejsou přímo upravitelné jako CAD modely.",
     "problem_en": "Scanned meshes can be noisy and are not directly editable as CAD models.",
-    "solution_cs": "Workflow pro kontrolu vstupů, měřítka, rekonstrukci, geometrické porovnání a export STEP.",
-    "solution_en": "Input checks, verified scale, reconstruction, geometric comparison and STEP export workflows.",
+    "solution_cs": "Pracovní postup začíná skenem a kontrolou měřítka, pokračuje čištěním a návrhem geometrie a končí exportem upravitelného CAD kandidáta. Aplikace nabízí také práci s referenčními fotografiemi a kontrolu nejistot. Vypočítaná odchylka nenahrazuje fyzické měření ani metrologickou certifikaci.",
+    "solution_en": "The workflow starts with a scan and scale verification, continues through cleanup and geometry reconstruction, and exports an editable CAD candidate. The application also supports reference photographs and uncertainty review. Computed deviation does not replace physical measurement or metrological certification.",
     "stack": [
       "Python",
       "MCP",
@@ -146,11 +170,17 @@
       "Validation reports",
       "Local project storage"
     ],
+    "features_cs": [
+      "Vstup PLY / OBJ / STL",
+      "Export STEP",
+      "Validační zprávy",
+      "Lokální ukládání projektů"
+    ],
     "year": "2026"
   },
   {
     "slug": "tiskov",
-    "name": "Tiskov / Vytiskov",
+    "name": "Tiskov",
     "category": "Web Applications",
     "status": "prototype",
     "featured": false,
@@ -161,8 +191,8 @@
     "summary_en": "3D print quoting and request management with a separate Raspberry Pi worker.",
     "problem_cs": "Poptávky na 3D tisk vyžadují spolehlivou evidenci, odhady a asynchronní zpracování modelů.",
     "problem_en": "3D print requests need reliable intake, estimates and asynchronous model processing.",
-    "solution_cs": "Symfony web, SQL fronta úloh, nezávislý worker a provozní kontroly.",
-    "solution_en": "Symfony web app, SQL job queue, independent worker and operational checks.",
+    "solution_cs": "Webová část v Symfony shromažďuje poptávky a podklady pro odhad 3D tisku. Výpočetně náročnější práci předává přes SQL frontu oddělenému workeru na Raspberry Pi. Oddělení webu a zpracování umožňuje sledovat stav úloh; projekt zůstává prototypem.",
+    "solution_en": "The Symfony web application collects 3D-print requests and quote inputs. It passes longer-running work through an SQL queue to a separate Raspberry Pi worker. Separating the web application from processing makes job state observable; the project remains a prototype.",
     "stack": [
       "PHP",
       "Symfony",
@@ -174,6 +204,12 @@
       "Queue & worker",
       "Admin diagnostics",
       "Print estimates"
+    ],
+    "features_cs": [
+      "Příjem poptávek",
+      "Fronta a pracovní proces",
+      "Diagnostika administrace",
+      "Odhady tisku"
     ],
     "year": "2026"
   },
@@ -190,8 +226,8 @@
     "summary_en": "Private music rooms with a shared queue, Spotify integration and explainable recommendations.",
     "problem_cs": "Malé skupiny chtějí sdílené ovládání hudby bez složité serverové infrastruktury.",
     "problem_en": "Small groups need shared music controls without a complex server runtime.",
-    "solution_cs": "PHP a MySQL na sdíleném hostingu, izolace skupin, idempotentní fronta a samostatný výpočetní worker.",
-    "solution_en": "PHP and MySQL on shared hosting, tenant isolation, idempotent queues and a separate worker.",
+    "solution_cs": "Webová aplikace spravuje oddělené hudební místnosti a společné fronty skladeb. Integrace Spotify a doporučovací worker tvoří samostatné části řešení; používá PHP a MySQL na sdíleném hostingu. Projekt se vyvíjí a jednotlivé integrace je potřeba ověřovat podle aktuálního stavu.",
+    "solution_en": "The web application manages separate music rooms and shared track queues. Spotify integration and a recommendation worker are distinct parts of the design; the application uses PHP and MySQL on shared hosting. Development continues and each integration needs verification against its current state.",
     "stack": [
       "PHP",
       "MySQL",
@@ -204,6 +240,12 @@
       "Queue & recommendations",
       "Shared-hosting architecture"
     ],
+    "features_cs": [
+      "Soukromé místnosti",
+      "Model pro více uživatelů",
+      "Fronta a doporučování",
+      "Architektura pro sdílený hosting"
+    ],
     "year": "2026"
   },
   {
@@ -215,12 +257,12 @@
     "private": true,
     "repo": "",
     "demo": "",
-    "summary_cs": "Kooperativní a kompetitivní multiplayerový mod pro Software Inc s izolovaným doménovým jádrem.",
-    "summary_en": "Cooperative and competitive multiplayer mod for Software Inc with isolated domain logic.",
+    "summary_cs": "Rozpracovaný mod pro Software Inc, který zkoumá spolupráci hráčů na společných projektech.",
+    "summary_en": "A mod in development for Software Inc, exploring cooperation through shared projects.",
     "problem_cs": "Synchronizovaný multiplayer zasahuje do herních mechanismů, persistence a bezpečnosti síťového přenosu.",
     "problem_en": "Synchronized multiplayer intersects game mechanics, persistence and network security.",
-    "solution_cs": "C#/.NET doménové modely, ověřování protokolu, integrační adaptéry a rozsáhlé automatizované testování.",
-    "solution_en": "C#/.NET domain models, protocol verification, integration adapters and extensive automated tests.",
+    "solution_cs": "Doménové jádro v C# odděluje pravidla sdílené práce od adaptéru napojeného na hru. Repozitář zahrnuje perzistenci, bezpečnost a uživatelské rozhraní. Testy samostatných částí nenahrazují ověření ve spuštěné hře; plně hratelná verze zatím není potvrzena.",
+    "solution_en": "A C# domain core separates shared-work rules from the game adapter. The repository includes persistence, security and UI work. Tests of isolated components do not replace verification in the running game; a fully playable release is not yet confirmed.",
     "stack": [
       "C#",
       ".NET",
@@ -233,139 +275,44 @@
       "Game adapters",
       "Scenario probes"
     ],
-    "year": "2026"
-  },
-  {
-    "slug": "wishflix",
-    "name": "Wishflix Android TV",
-    "category": "Media & Apps",
-    "status": "prototype",
-    "featured": false,
-    "private": true,
-    "repo": "",
-    "demo": "",
-    "summary_cs": "Soukromá integrace nad klientem Jellyfin Android TV zaměřená na offline metadata a kompatibilitu.",
-    "summary_en": "Private integration based on Jellyfin Android TV focused on offline metadata and compatibility.",
-    "problem_cs": "Offline prohlížení knihovny a metadat v TV aplikaci vyžaduje zvláštní správu lokálního úložiště.",
-    "problem_en": "Offline TV browsing requires deliberate local storage and metadata management.",
-    "solution_cs": "Upravená klientská vrstva a validační testy založené na zdrojovém klientu Jellyfin.",
-    "solution_en": "Modified client layer and validation tests based on the upstream Jellyfin client.",
-    "stack": [
-      "Kotlin",
-      "Android",
-      "Gradle"
-    ],
-    "features": [
-      "Offline artwork",
-      "Private media cache",
-      "Compatibility validation"
+    "features_cs": [
+      "Oddělení doménového jádra",
+      "Síťové kontroly",
+      "Herní adaptéry",
+      "Testovací scénáře"
     ],
     "year": "2026"
   },
   {
-    "slug": "vitkovske-npc",
-    "name": "Vítkovské NPC",
+    "slug": "discord-bot",
+    "name": "Discord bot",
     "category": "Bots & Automation",
     "status": "maintenance",
     "featured": false,
     "private": true,
     "repo": "",
     "demo": "",
-    "summary_cs": "Soukromý Discord bot v Pythonu provozovaný jako systemd služba na Raspberry Pi.",
-    "summary_en": "Private Python Discord bot deployed as a systemd service on a Raspberry Pi.",
+    "summary_cs": "Pythonový Discord bot se základem registrace příkazů a modulem údržby. Aktuální zdroj vyžaduje opravu.",
+    "summary_en": "Python Discord bot with a command registration foundation and maintenance module. The current source needs a fix.",
     "problem_cs": "Automatizace komunitních procesů vyžaduje provozně jednoduchého, dlouhodobě běžícího bota.",
     "problem_en": "Community automation benefits from an easy-to-operate long-running bot.",
-    "solution_cs": "Modulární Python bot s příkazy, oddělenou konfigurací a provozním logováním.",
-    "solution_en": "Modular Python bot with commands, isolated configuration and operational logs.",
+    "solution_cs": "Klient používá strom aplikačních příkazů a samostatný modul údržby s kontrolou oprávněných uživatelů. V dostupné verzi obsahuje tento modul syntaktickou chybu; fungující provoz není ověřen.",
+    "solution_en": "The client uses an application command tree and a separate maintenance module with an authorized-user check. The available module contains a syntax error; working operation is not verified.",
     "stack": [
       "Python",
       "Discord",
       "systemd"
     ],
     "features": [
-      "Slash commands",
-      "Structured modules",
-      "Raspberry Pi hosting"
+      "Application command registration",
+      "Separate maintenance module",
+      "Operational logging"
+    ],
+    "features_cs": [
+      "Registrace aplikačních příkazů",
+      "Oddělený modul údržby",
+      "Provozní logování"
     ],
     "year": "2026"
-  },
-  {
-    "slug": "maker-lab",
-    "name": "Maker Lab / 3D Printing",
-    "category": "3D & Engineering",
-    "status": "active",
-    "featured": false,
-    "private": true,
-    "repo": "",
-    "demo": "cad",
-    "summary_cs": "Funkční mechanické díly, rekonstrukce STL, filtrační a sušící pomůcky pro FDM tisk.",
-    "summary_en": "Functional mechanical parts, STL reconstruction and FDM printing accessories.",
-    "problem_cs": "Běžně dostupné náhradní díly často neodpovídají skutečným rozměrům nebo použití.",
-    "problem_en": "Off-the-shelf parts often fail to match real dimensions or intended loads.",
-    "solution_cs": "Iterativní CAD a FDM návrh, porovnání prototypů, testování tolerancí a materiálů.",
-    "solution_en": "Iterative CAD/FDM design, prototype comparisons, tolerance and material testing.",
-    "stack": [
-      "Bambu Lab A1",
-      "PETG",
-      "PLA",
-      "STL"
-    ],
-    "features": [
-      "Functional parts",
-      "Fit & tolerance",
-      "Dry storage",
-      "Mechanical design"
-    ],
-    "year": "2026"
-  },
-  {
-    "slug": "code-reviews",
-    "name": "Code Reviews",
-    "category": "Archive",
-    "status": "archived",
-    "featured": false,
-    "private": true,
-    "repo": "",
-    "demo": "",
-    "summary_cs": "Starší soukromý repozitář pro peer review kódu a společnou práci.",
-    "summary_en": "Older private repository for peer code reviews and collaboration.",
-    "problem_cs": "Společná revize kódu vyžaduje sdílený a kontrolovatelný proces.",
-    "problem_en": "Collaborative code reviews need a shared, inspectable workflow.",
-    "solution_cs": "GitHub větve a pull requesty pro komentování změn.",
-    "solution_en": "GitHub branches and pull requests for reviewing changes.",
-    "stack": [
-      "GitHub",
-      "Code Review"
-    ],
-    "features": [
-      "Peer collaboration",
-      "Review workflow"
-    ],
-    "year": "2022"
-  },
-  {
-    "slug": "tools-extended",
-    "name": "Tools Extended",
-    "category": "Archive",
-    "status": "archived",
-    "featured": false,
-    "private": true,
-    "repo": "",
-    "demo": "",
-    "summary_cs": "Archivovaná experimentální aplikace a práce s CakePHP.",
-    "summary_en": "Archived experimental app and CakePHP work.",
-    "problem_cs": "Procvičení týmového vývoje a údržby webové aplikace.",
-    "problem_en": "Practice collaborative development and maintenance of a web application.",
-    "solution_cs": "CakePHP aplikace s historií pull requestů a revizí.",
-    "solution_en": "CakePHP application with pull request and review history.",
-    "stack": [
-      "PHP",
-      "CakePHP"
-    ],
-    "features": [
-      "Application development",
-      "CI experiments"
-    ],
-    "year": "2024"
   }
 ]

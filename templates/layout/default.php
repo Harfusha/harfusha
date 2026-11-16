@@ -48,29 +48,29 @@ $fullUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://e
 <div class="site-backdrop" aria-hidden="true"></div>
 <header class="site-header">
   <div class="header-inner shell">
-    <a class="brand" href="<?= $lang->path() ?>" aria-label="Harfusha Lab home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>HARFUSHA<span class="brand-light">/LAB</span></span></a>
-    <nav class="desktop-nav" aria-label="Main navigation">
+    <a class="brand" href="<?= $lang->path() ?>" aria-label="<?= $lang->value('Harfusha Lab – úvod', 'Harfusha Lab home') ?>"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><span>HARFUSHA<span class="brand-light">/LAB</span></span></a>
+    <nav class="desktop-nav" aria-label="<?= $lang->value('Hlavní navigace', 'Main navigation') ?>">
       <?php foreach ($nav as [$slug,$text]): ?>
       <a href="<?= $lang->path('/'.$slug) ?>" <?= str_starts_with($route, '/'.$slug) ? 'aria-current="page"' : '' ?>><?= Html::escape($text) ?></a>
       <?php endforeach; ?>
     </nav>
     <div class="header-actions">
-      <a class="lang-toggle" href="<?= Html::path($lang->code === 'en' ? 'cs' : 'en', $route) ?>" lang="<?= $lang->code === 'en' ? 'cs' : 'en' ?>" aria-label="Switch language"><?= $lang->code === 'en' ? 'CZ' : 'EN' ?></a>
-      <a class="github-chip" href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile">GitHub <span aria-hidden="true">↗</span></a>
+      <a class="lang-toggle" href="<?= Html::path($lang->code === 'en' ? 'cs' : 'en', $route) ?>" hreflang="<?= $lang->code === 'en' ? 'cs' : 'en' ?>" aria-label="<?= $lang->value('EN – přepnout do angličtiny', 'CZ – switch to Czech') ?>"><?= $lang->code === 'en' ? 'CZ' : 'EN' ?></a>
+      <a class="github-chip" href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer" aria-label="<?= $lang->value('GitHub – profil', 'GitHub profile') ?>">GitHub <span aria-hidden="true">↗</span></a>
     </div>
-    <details class="mobile-menu"><summary aria-label="Open navigation"><span></span><span></span><span></span></summary>
-      <nav aria-label="Mobile navigation">
+    <details class="mobile-menu"><summary aria-label="<?= $lang->value('Otevřít navigaci','Open navigation') ?>"><span></span><span></span><span></span></summary>
+      <nav aria-label="<?= $lang->value('Mobilní navigace', 'Mobile navigation') ?>">
         <?php foreach ($nav as [$slug,$text]): ?><a href="<?= $lang->path('/'.$slug) ?>"><?= Html::escape($text) ?></a><?php endforeach; ?>
-        <a href="<?= Html::path($lang->code === 'en'?'cs':'en',$route) ?>">Change language</a>
+        <a href="<?= Html::path($lang->code === 'en'?'cs':'en',$route) ?>"><?= $lang->value('Přepnout do angličtiny','Switch to Czech') ?></a>
       </nav>
     </details>
   </div>
 </header>
 <main id="main"><?= $this->fetch('content') ?></main>
 <footer class="site-footer"><div class="shell footer-grid">
-  <div><a class="brand" href="<?= $lang->path() ?>">HARFUSHA<span class="brand-light">/LAB</span></a><p><?= $lang->value('Software. Infrastruktura. Experimenty. Skutečné systémy a poctivé technické příběhy.', 'Software. Infrastructure. Experiments. Real systems and honest engineering stories.') ?></p></div>
-  <div><span class="eyebrow">EXPLORE</span><a href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Technická rozhodnutí','Engineering decisions') ?></a><a href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projekty', 'All projects') ?></a><a href="<?= $lang->path('/homelab') ?>">Home Lab Explorer</a><a href="<?= $lang->path('/maker') ?>">Maker Lab</a><a href="<?= $lang->path('/open-source') ?>">Open Source</a></div>
-  <div><span class="eyebrow">CONNECT</span><a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="<?= $lang->path('/about') ?>"><?= $lang->value('O mně', 'About me') ?></a><a href="<?= $lang->path('/journal') ?>">Workshop Log</a></div>
-  <div class="footer-aside">© <?= date('Y') ?> Adam Halfar <p><?= $lang->value('Žádná uměle nafouknutá čísla. Interaktivní demonstrace jsou označené a citlivá konfigurace zůstává soukromá.', 'No inflated metrics. Interactive simulations are labelled, and sensitive configuration stays private.') ?></p></div>
+  <div><a class="brand" href="<?= $lang->path() ?>">HARFUSHA<span class="brand-light">/LAB</span></a><p><?= $lang->value('Software, domácí servery a nápady z dílny.', 'Software, home servers and ideas from the workshop.') ?></p></div>
+  <div><span class="eyebrow"><?= $lang->value('PROZKOUMAT', 'EXPLORE') ?></span><a href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Technická rozhodnutí','Engineering decisions') ?></a><a href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projekty', 'All projects') ?></a><a href="<?= $lang->path('/homelab') ?>">Home Lab Explorer</a><a href="<?= $lang->path('/maker') ?>">Maker Lab</a><a href="<?= $lang->path('/open-source') ?>">Open Source</a></div>
+  <div><span class="eyebrow"><?= $lang->value('SPOJENÍ', 'CONNECT') ?></span><a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="<?= $lang->path('/about') ?>"><?= $lang->value('O mně', 'About me') ?></a><a href="<?= $lang->path('/journal') ?>">Workshop Log</a></div>
+  <div class="footer-aside">© <?= date('Y') ?> Adam Halfar <p><?= $lang->value('Díky za návštěvu. Další projekty najdeš na GitHubu.', 'Thanks for visiting. Find more projects on GitHub.') ?></p></div>
 </div></footer>
 </body></html>

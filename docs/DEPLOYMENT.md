@@ -88,6 +88,10 @@ Use `.env.example` **from the source checkout** to create a private `.env` file 
 
 Keep separate salts/passwords for each environment. Never use a real admin password in example files or repository commits.
 
+### Public CA bundle in production
+
+The locked `composer/ca-bundle` dependency requires its public Mozilla CA bundle at `vendor/composer/ca-bundle/res/cacert.pem`. The release verifier allows only this exact PEM path and checks its pinned SHA-256 for Composer ca-bundle 1.6.1; private keys and other PEM files remain forbidden. When updating that locked dependency, verify the new bundle against its pinned upstream source and update the verifier hash. This bundle verifies outbound HTTPS and is separate from the hosting FTP certificate configuration.
+
 ## Scheduled GitHub import
 
 Prefer PHP CLI daily cron:

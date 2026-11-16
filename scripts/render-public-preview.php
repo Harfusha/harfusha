@@ -93,7 +93,7 @@ namespace {
         'open-source' => ['activity' => $catalog->contributions(),
         'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null]],
         'journal' => ['journal' => $catalog->journal()],
-        'now' => ['recentRepos' => [['repository'=>'Harfusha/MutaUI','description'=>'Reviewed snapshot','repo_url'=>'https://github.com/Harfusha/MutaUI','pushed_at'=>'2026-11-12 18:53:55']], 'journal' => $catalog->journal(), 'provenance'=>['source'=>'reviewed-snapshot','last_sync'=>null]],
+        'now' => ['recentRepos' => [['repository'=>'Harfusha/MutaUI','description'=>'','repo_url'=>'https://github.com/Harfusha/MutaUI','pushed_at'=>'2026-11-12 18:53:55']], 'journal' => $catalog->journal(), 'provenance'=>['source'=>'reviewed-snapshot','last_sync'=>null]],
         'about' => [],
     ];
     $count = 0;

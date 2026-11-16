@@ -7,11 +7,14 @@ use App\Domain\JournalFeed;
 use App\Domain\PublicSitemap;
 use App\Service\ContentRepository;
 use App\Service\GithubSyncService;
+use App\Support\Environment;
+use App\Support\GithubSyncFailure;
 use App\Support\Html;
 use App\Support\Language;
 use Cake\Core\Configure;
 use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
+use Cake\Log\Log;
 use RuntimeException;
 use Throwable;
 
@@ -82,7 +85,7 @@ final class SystemController extends AppController
      */
     public function sync(): Response
     {
-        $secret = getenv('CRON_SECRET');
+        $secret = Environment::get('CRON_SECRET');
         $provided = $this->request->getHeaderLine('X-Cron-Token');
         if (!is_string($secret) || strlen($secret) < 32 || $provided === '' || !hash_equals($secret, $provided)) {
             return $this->response->withStatus(403)->withStringBody('Forbidden');
@@ -92,7 +95,14 @@ final class SystemController extends AppController
 
             return $this->response->withType('json')->withStringBody(Html::json($summary));
         } catch (Throwable $error) {
-            error_log('GitHub synchronization failed: ' . get_class($error));
+            try {
+                Log::error(
+                    'GitHub synchronization failed: ' . get_class($error)
+                    . ' [' . GithubSyncFailure::describe($error) . ']',
+                );
+            } catch (Throwable) {
+                error_log('GitHub synchronization failed; application log unavailable');
+            }
 
             return $this->response->withStatus(502)->withStringBody('Synchronization failed');
         }

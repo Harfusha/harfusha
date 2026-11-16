@@ -82,6 +82,7 @@ final class ContentRepository
                     $project->stack,
                     $project->features,
                     $project->year,
+                    $project->featuresCs,
                 );
             }, $base);
         } catch (Throwable $error) {

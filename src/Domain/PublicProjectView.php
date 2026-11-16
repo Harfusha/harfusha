@@ -44,7 +44,7 @@ final readonly class PublicProjectView
             'problem' => $this->project->problem($language),
             'solution' => $this->project->solution($language),
             'stack' => $this->project->stack,
-            'features' => $this->project->features,
+            'features' => $this->project->localizedFeatures($language),
             'year' => $this->project->year,
             'repository' => $repository,
             'demo' => $demo,

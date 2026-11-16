@@ -21,6 +21,8 @@ npm install --no-save --ignore-scripts typescript@5.8.3
 python3 scripts/build-release.py --output ../harfusha-lab-deploy.zip
 ```
 
+On Windows, set `COMPOSER_PHAR` to the installed `composer.phar` path (for example `C:\php\composer.phar`). The builder invokes that PHAR through PHP directly instead of relying on a `.bat` launcher.
+
 The builder checks PHP and required extensions and executes:
 
 1. `composer validate --strict` and `composer audit --locked`

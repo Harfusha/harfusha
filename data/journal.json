@@ -25,5 +25,50 @@
     "category": "Infrastructure",
     "published_at": "2026-08-16 12:00:00",
     "source_url": ""
+  },
+  {
+    "title_cs": "Jak se rodil Local AI Hub: sjednocení rozhraní",
+    "title_en": "How Local AI Hub took shape: one interface",
+    "body_cs": "Záznam změn verze 3.0 popisuje sjednocení interního HTTP rozhraní a MCP vstupu. Součástí byl také jednotný způsob evidence úspor kontextu: zvlášť se počítají režijní náklady a úspory. Je to historie zdrojového projektu, nikoliv důkaz aktuální rychlosti nebo funkčnosti instalace.",
+    "body_en": "The 3.0 changelog records a unified internal HTTP interface and MCP entry point. It also describes accounting for context savings separately from overhead. This is source history, not proof of present performance or a working installation.",
+    "category": "AI",
+    "published_at": "2026-09-08 12:00:00",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
+  },
+  {
+    "title_cs": "Local AI Hub 4.0: důkazy před závěrem",
+    "title_en": "Local AI Hub 4.0: evidence before conclusions",
+    "body_cs": "Verze 4.0 v dokumentaci spojila kontext úkolu s důkazy z repozitáře, revizemi a jejich aktuálností. Přibyla pravidla, která nechávají odpovědi lokálního modelu v poradní roli a odmítají nepodložená tvrzení. Změnový záznam uvádí také migrační a návratový postup.",
+    "body_en": "The 4.0 changelog describes joining task context with repository evidence, revisions and freshness. It records gates keeping local-model output advisory and rejecting unsupported claims, alongside a migration and rollback contract.",
+    "category": "AI",
+    "published_at": "2026-09-21 12:00:00",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
+  },
+  {
+    "title_cs": "Jedna instalace, jeden vlastník",
+    "title_en": "One installation, one owner",
+    "body_cs": "Ve verzi 5.0 se podle změnového záznamu sjednotila pravidla pro HTTP, MCP, telemetrii a dashboard kolem jednoho vlastníka instalace. Přibylo čekání na události agentů, semafory a koordinace práce na projektové tabuli. Podrobnosti a dnešní podobu je vhodné ověřit přímo v repozitáři.",
+    "body_en": "The 5.0 changelog records a single-owner contract across HTTP, MCP, telemetry and dashboard state. It also lists agent event waiting, semaphores and project-board coordination. Check the repository for today’s behavior.",
+    "category": "AI",
+    "published_at": "2026-10-19 12:00:00",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
+  },
+  {
+    "title_cs": "Rychlejší hledání bez ztráty kontroly",
+    "title_en": "Faster search with bounded work",
+    "body_cs": "Záznam k verzi 5.1 popisuje práci na vyhledávání a výkonu: dávkové čtení a zápis embedding cache, omezený výběr nejlepších výsledků a předávání limitů času i požadavků na zrušení. Uvedené optimalizace jsou tvrzení projektu; bez vlastního měření z nich nevyvozuji konkrétní zrychlení.",
+    "body_en": "The 5.1 changelog describes search and performance work: batched embedding-cache access, bounded top-k selection, and propagation of deadlines and cancellation. These are project claims; no speedup is inferred without an independent measurement.",
+    "category": "AI",
+    "published_at": "2026-10-26 12:00:00",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
+  },
+  {
+    "title_cs": "MutaUI: od prvního commitu k balíčkům",
+    "title_en": "MutaUI: from first commit to packages",
+    "body_cs": "Veřejná historie ukazuje první commit 12. listopadu a následnou práci na testech, CI a multiplatformním sestavení. Dokumentace popisuje aplikaci jako rozhraní k samostatně instalovanému Mutagen CLI. Vytvoření balíčků samo o sobě nepotvrzuje provoz na každé platformě; nativní ověření má své vlastní brány.",
+    "body_en": "The public history shows the initial commit on November 12, followed by tests, CI and cross-platform packaging. The documentation describes an interface to a separately installed Mutagen CLI. Built packages alone do not prove support on every platform; native acceptance has separate gates.",
+    "category": "Desktop",
+    "published_at": "2026-11-15 12:00:00",
+    "source_url": "https://github.com/Harfusha/MutaUI/commit/101796a289"
   }
 ]

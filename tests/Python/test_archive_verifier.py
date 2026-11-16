@@ -42,6 +42,25 @@ class ArchiveVerifierTests(unittest.TestCase):
                     zipf.writestr('README.md', b'duplicate')
             zipf.writestr('SHA256SUMS', '\n'.join(manifest) + '\n')
 
+    def test_production_bundle_requires_exact_pinned_public_ca(self) -> None:
+        from unittest.mock import patch
+        bundle = b'test public bundle'
+        files = {**self.files, 'composer.lock': b'{}', 'vendor/autoload.php': b'<?php',
+                 'scripts/preflight.php': b'<?php', 'vendor/composer/ca-bundle/src/CaBundle.php': b'<?php'}
+        path = 'vendor/composer/ca-bundle/res/cacert.pem'
+        with patch('verify_archive.CA_BUNDLE_SHA256', sha256(bundle).hexdigest()):
+            self.make(files=files)
+            with self.assertRaises(ArchiveVerificationError):
+                verify_archive(self.archive, variant='production')
+            self.make(files={**files, path: bundle})
+            self.assertEqual(verify_archive(self.archive, variant='production'), len(files) + 1)
+            self.make(files={**files, path: b'private key'})
+            with self.assertRaises(ArchiveVerificationError):
+                verify_archive(self.archive, variant='production')
+            self.make(files={**files, path.upper(): bundle})
+            with self.assertRaises(ArchiveVerificationError):
+                verify_archive(self.archive, variant='production')
+
     def test_valid_source_archive(self) -> None:
         self.make()
         self.assertEqual(verify_archive(self.archive, variant='source'), 4)

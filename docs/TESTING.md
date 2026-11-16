@@ -106,7 +106,7 @@ export LAB_TEST_DB_CONFIRM=harfusha_lab_ci
 composer test
 ```
 
-The test bootstrap refuses production/development environments, mismatched or missing confirmation, non-test database names, remote DB hosts and administrative accounts. This is a secondary safety guard, **not a replacement for isolated MySQL grants and a dedicated test database**. CI configures it explicitly.
+The test bootstrap refuses production/development environments, mismatched or missing confirmation, unsafe local database names and administrative accounts. Remote schemas require a separate exact `DB_HOST/DB_NAME` confirmation in `LAB_TEST_DB_REMOTE_CONFIRM`. Use that opt-in only for a dedicated disposable test schema and a non-privileged account; migrations alter that schema. This is a secondary safety guard, **not a replacement for isolated MySQL grants**. CI configures the local guard explicitly.
 
 
 ## HTTP auth smoke and archive integrity (2026-11-14)

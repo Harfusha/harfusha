@@ -8,6 +8,7 @@ from contextlib import redirect_stderr
 import importlib.util
 import io
 import os
+import secrets
 from pathlib import Path
 from unittest import TestCase, mock
 
@@ -33,7 +34,7 @@ class HttpSmokeTests(TestCase):
                 self.assertFalse(SMOKE.test_admin_roundtrip())
 
     def test_auth_roundtrip_contract(self) -> None:
-        password = 'local-smoke-password-generated-for-test'
+        password = secrets.token_urlsafe(32)
         login = b'<h1>Admin Login</h1><input name="_csrfToken" value="login-token">'
         admin = b'<h1>Workshop control.</h1><input name="_csrfToken" value="admin-token">'
         expected = [

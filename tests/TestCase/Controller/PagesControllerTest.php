@@ -45,19 +45,37 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->assertResponseNotContains('<strong>62</strong><span>merged external PRs');
     }
 
-    public function testJournalPreviewsLinkToRealArticleAnchors(): void
+    public function testJournalPreviewIsDistinctFromCurrentStatusPage(): void
     {
         $entries = (new ProjectCatalog(ROOT . '/data'))->journal();
         self::assertNotEmpty($entries);
         $id = JournalFeed::entryId($entries[0]);
-        foreach (['/en/', '/en/now'] as $path) {
-            $this->get($path);
-            $this->assertResponseOk();
-            $this->assertResponseContains('/en/journal#' . $id);
-        }
+        $this->get('/en/');
+        $this->assertResponseOk();
+        $this->assertResponseContains('/en/journal#' . $id);
+        $this->get('/en/now');
+        $this->assertResponseOk();
+        $this->assertResponseNotContains('/en/journal#' . $id);
+        $this->assertResponseNotContains('Traceable development notes');
         $this->get('/en/journal');
         $this->assertResponseOk();
         $this->assertResponseContains('id="' . $id . '"');
+        $this->get('/cs/now');
+        $this->assertResponseOk();
+        $this->assertResponseNotContains('/cs/journal#' . $id);
+        $this->get('/cs/journal');
+        $this->assertResponseOk();
+        $this->assertResponseContains('id="' . $id . '"');
+    }
+
+    public function testOpenSourcePageDoesNotClaimTheFirstImportIsPending(): void
+    {
+        foreach (['/cs/open-source', '/en/open-source'] as $path) {
+            $this->get($path);
+            $this->assertResponseOk();
+            $this->assertResponseNotContains('před prvním importem');
+            $this->assertResponseNotContains('until the first import');
+        }
     }
 
     public function testLandingPageWorksWithoutDatabase(): void
@@ -80,12 +98,36 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->get('/cs/connections');
         $this->assertResponseOk();
         $this->assertResponseContains('connections-data');
+        $this->assertResponseNotContains('maker-lab');
         $this->assertResponseNotContains('192.168.');
+        $this->get('/en/connections');
+        $this->assertResponseOk();
+        $this->assertResponseNotContains('maker-lab');
+    }
+
+    public function testMakerPreparationPageDoesNotPublishUnverifiedProjects(): void
+    {
+        self::assertSame([], (new ProjectCatalog(ROOT . '/data'))->maker());
+        foreach (['/cs/projects', '/en/projects'] as $path) {
+            $this->get($path);
+            $this->assertResponseOk();
+            $this->assertResponseNotContains('maker-lab');
+        }
+        foreach (['/cs/projects/maker-lab', '/en/projects/maker-lab'] as $path) {
+            $this->get($path);
+            $this->assertResponseCode(404);
+        }
+        $this->get('/cs/maker');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Dílna se připravuje.');
+        $this->assertResponseNotContains('Solární sušička filamentu');
     }
 
     public function testUnknownProjectReturns404(): void
     {
         $this->get('/cs/projects/nonexistent');
+        $this->assertResponseCode(404);
+        $this->get('/cs/projects/maker-lab');
         $this->assertResponseCode(404);
     }
 

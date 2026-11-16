@@ -44,7 +44,12 @@ class SourceArchivePrivacyTests(unittest.TestCase):
             tests.mkdir(parents=True)
             target = tests / 'real.test.cjs'
             target.write_text('', encoding='utf-8')
-            (tests / 'linked.test.cjs').symlink_to(target)
+            try:
+                (tests / 'linked.test.cjs').symlink_to(target)
+            except OSError as error:
+                if getattr(error, 'winerror', None) == 1314:
+                    self.skipTest('Windows symlink privilege is required')
+                raise
             with self.assertRaisesRegex(RuntimeError, 'Unsafe browser-core test'):
                 BUILDER.verify_client_tests(root)
 

@@ -3,6 +3,11 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__);
 $issues = [];
+$readEnvironment = static function (string $key): ?string {
+    $value = $_SERVER[$key] ?? $_ENV[$key] ?? getenv($key);
+
+    return is_string($value) ? $value : null;
+};
 // Load the same private environment settings as the application itself.
 // The extension and PHP version checks still report deficiencies gracefully.
 if (is_file($root . '/vendor/autoload.php')) {
@@ -16,7 +21,7 @@ if (PHP_VERSION_ID < 80512 || PHP_VERSION_ID >= 80600) { $issues[] = 'PHP 8.5.12
 foreach (['intl','mbstring','pdo','pdo_mysql','simplexml','json','openssl'] as $extension) {
     if (!extension_loaded($extension)) { $issues[] = 'Missing extension: ' . $extension; }
 }
-$environment = getenv('APP_ENV') ?: '';
+$environment = $readEnvironment('APP_ENV') ?: '';
 if (!in_array($environment, ['development','testing','production'], true)) {
     $issues[] = 'APP_ENV must explicitly select development, testing or production';
 }
@@ -30,21 +35,21 @@ if ($environment === 'production') {
         try {
             \App\Security\DeploymentPolicy::assertEnvironment(
                 $environment,
-                filter_var(getenv('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN),
-                (string)(getenv('APP_URL') ?: ''),
-                (string)(getenv('SECURITY_SALT') ?: ''),
+                filter_var($readEnvironment('DEBUG') ?: 'false', FILTER_VALIDATE_BOOLEAN),
+                (string)($readEnvironment('APP_URL') ?: ''),
+                (string)($readEnvironment('SECURITY_SALT') ?: ''),
             );
         } catch (\InvalidArgumentException $error) {
             // DeploymentPolicy emits fixed messages, never input secrets.
             $issues[] = $error->getMessage();
         }
     }
-    $adminHash = getenv('ADMIN_PASSWORD_HASH');
+    $adminHash = $readEnvironment('ADMIN_PASSWORD_HASH');
     if (!is_string($adminHash) || $adminHash === '' || password_get_info($adminHash)['algoName'] === 'unknown') {
         $issues[] = 'ADMIN_PASSWORD_HASH must be a supported password_hash() value';
     }
-    $cron = getenv('CRON_SECRET');
-    if ($cron !== false && $cron !== '' && strlen($cron) < 32) {
+    $cron = $readEnvironment('CRON_SECRET');
+    if ($cron !== null && $cron !== '' && strlen($cron) < 32) {
         $issues[] = 'Configured CRON_SECRET must be at least 32 characters';
     }
 }

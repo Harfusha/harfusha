@@ -11,6 +11,7 @@ use App\Security\LoginLimiter;
 use App\Service\ContentRepository;
 use App\Service\EditorialAuditTrail;
 use App\Service\OperationsService;
+use App\Support\Environment;
 use Cake\Database\Connection;
 use Cake\Datasource\ConnectionManager;
 use Cake\Http\Response;
@@ -64,7 +65,8 @@ final class AdminController extends AppController
         $csrfValue = $this->request->getAttribute('csrfToken');
         $this->set('csrf', is_string($csrfValue) ? $csrfValue : '');
         if (!$this->authenticated()) {
-            $this->set('enabled', is_string(getenv('ADMIN_PASSWORD_HASH')) && getenv('ADMIN_PASSWORD_HASH') !== '');
+            $adminHash = Environment::get('ADMIN_PASSWORD_HASH');
+            $this->set('enabled', is_string($adminHash) && $adminHash !== '');
             $this->set('loginError', $this->request->getQuery('error') !== null);
 
             return $this->render('login');
@@ -97,13 +99,15 @@ final class AdminController extends AppController
         $remoteIp = $this->request->getEnv('REMOTE_ADDR');
         $client = is_string($remoteIp) && filter_var($remoteIp, FILTER_VALIDATE_IP) !== false
             ? $remoteIp : 'unknown';
-        $limiter = new LoginLimiter(TMP . 'auth');
+        // Keep local HTTP smoke from consuming the normal login throttle.
+        $limiterDirectory = TMP . (Environment::get('APP_ENV') === 'testing' ? 'auth-test' : 'auth');
+        $limiter = new LoginLimiter($limiterDirectory);
         if (!$limiter->consume($client)) {
             return $this->response->withStatus(429)->withHeader('Retry-After', '900')
                 ->withStringBody('Too many login attempts');
         }
         $password = $this->request->getData('password');
-        $stored = getenv('ADMIN_PASSWORD_HASH');
+        $stored = Environment::get('ADMIN_PASSWORD_HASH');
         if (!AdminCredentials::verify($password, $stored)) {
             return $this->redirect('/admin?error=1', 303) ?? $this->response;
         }

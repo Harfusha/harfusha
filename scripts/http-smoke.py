@@ -74,7 +74,7 @@ def test_admin_roundtrip() -> bool:
         'password': 'not-the-correct-password', '_csrfToken': token,
     })
     if code != 303 or not headers.get('Location', '').endswith('/admin?error=1'):
-        print('FAIL incorrect password response', file=sys.stderr)
+        print(f"FAIL incorrect password response ({code}, redirect={headers.get('Location', '')!r})", file=sys.stderr)
         return False
     code, _, headers = fetch('/admin/login', method='POST', data={
         'password': password, '_csrfToken': token,
@@ -166,7 +166,7 @@ def main() -> int:
         return 1
     import json
     payload=json.loads(api_body)
-    if payload.get('count', 0) < 13 or any('private' in item for item in payload['projects']):
+    if payload.get('count') != 9 or any('private' in item for item in payload['projects']):
         print('FAIL API data or redaction',file=sys.stderr)
         return 1
     etag=api_headers.get('ETag','')

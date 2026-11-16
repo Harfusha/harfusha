@@ -19,6 +19,9 @@ MINIMUM = {'composer.json', 'webroot/index.php', 'src/Application.php', 'README.
 PROHIBITED_PARTS = {'.git', '.ssh', '__pycache__', '.phpunit.cache', 'node_modules', 'tmp-secret'}
 PROHIBITED_NAMES = {'app_local.php', '.lab-content-approval.json', 'id_rsa', 'id_ed25519'}
 PROHIBITED_SUFFIXES = {'.pem', '.key', '.p12', '.pfx', '.sqlite', '.db', '.pyc'}
+# Composer ca-bundle 1.6.1 at the source reference pinned in composer.lock.
+CA_BUNDLE = 'vendor/composer/ca-bundle/res/cacert.pem'
+CA_BUNDLE_SHA256 = '796f1389bfea13c0ed78f663b765baaff54a508e5483786bd6ece73c5e3e3cbe'
 MAX_ENTRIES = 20000
 MAX_UNCOMPRESSED = 512 * 1024 * 1024
 
@@ -38,7 +41,7 @@ def _safe_name(name: str) -> bool:
         return False
     if any(part.startswith('.env') for part in folded) and name != '.env.example':
         return False
-    return PurePosixPath(name).suffix.lower() not in PROHIBITED_SUFFIXES
+    return name == CA_BUNDLE or PurePosixPath(name).suffix.lower() not in PROHIBITED_SUFFIXES
 
 
 def verify_archive(path: Path, *, variant: str) -> int:
@@ -76,6 +79,10 @@ def verify_archive(path: Path, *, variant: str) -> int:
         if variant == 'production':
             if not {'composer.lock', 'vendor/autoload.php', 'scripts/preflight.php'}.issubset(actual):
                 raise ArchiveVerificationError('Production bundle has no locked Composer runtime')
+            if 'vendor/composer/ca-bundle/src/CaBundle.php' in actual and CA_BUNDLE not in actual:
+                raise ArchiveVerificationError('Composer public CA bundle missing')
+            if CA_BUNDLE in actual and sha256(archive.read(CA_BUNDLE)).hexdigest() != CA_BUNDLE_SHA256:
+                raise ArchiveVerificationError('Composer public CA bundle hash mismatch')
             if any(name.lower().startswith(('tests/', '.github/')) or name.lower().endswith('.env.example') for name in actual):
                 raise ArchiveVerificationError('Development files in production bundle')
         elif any(name.startswith('vendor/') for name in actual):

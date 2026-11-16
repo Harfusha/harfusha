@@ -77,6 +77,15 @@ class ReleasePackageTests(unittest.TestCase):
                 digest, filename = row.split('  ', 1)
                 self.assertEqual(digest, hashlib.sha256(archive.read(filename)).hexdigest())
 
+    def test_collect_includes_only_exact_public_ca_bundle(self) -> None:
+        vendor = self.src / 'vendor/composer/ca-bundle/res'
+        vendor.mkdir(parents=True)
+        (vendor / 'cacert.pem').write_bytes(b'public bundle')
+        (vendor / 'private.pem').write_bytes(b'private key')
+        paths = {p.relative_to(self.src).as_posix() for p in collect(self.src, include_vendor=True)}
+        self.assertIn('vendor/composer/ca-bundle/res/cacert.pem', paths)
+        self.assertNotIn('vendor/composer/ca-bundle/res/private.pem', paths)
+
     def test_missing_vendor_rejects_release(self) -> None:
         stage = self._stage()
         with self.assertRaisesRegex(ReleasePackagingError, 'autoload'):

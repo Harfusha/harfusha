@@ -13,7 +13,7 @@ import shutil
 import stat
 import zipfile
 
-from verify_archive import verify_archive
+from verify_archive import CA_BUNDLE, verify_archive
 
 ROOT_FILES = ('composer.json', 'composer.lock', '.htaccess', 'LICENSE', 'README.md', 'START-CZ.md')
 SOURCE_DIRS = ('bin', 'config', 'data', 'db', 'src', 'templates', 'webroot', 'plugins', 'resources')
@@ -41,6 +41,8 @@ def _allowed(relative: Path) -> bool:
         return False
     if any(part.startswith('.env') or part in EXCLUDE_NAMES for part in parts):
         return False
+    if relative.as_posix() == CA_BUNDLE:
+        return True
     if relative.suffix.lower() in EXCLUDE_SUFFIXES:
         return False
     if relative.parts[:2] == ('vendor', 'bin'):

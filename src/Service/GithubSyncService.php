@@ -8,6 +8,7 @@ use App\Domain\GithubRepositoryPageCollector;
 use App\Domain\GithubSearchPageCollector;
 use App\Domain\GithubSnapshot;
 use App\Domain\PublicRepository;
+use App\Support\Environment;
 use Cake\Database\Connection;
 use Cake\Datasource\ConnectionManager;
 use Cake\Http\Client;
@@ -30,7 +31,7 @@ final class GithubSyncService
     public function __construct(?Client $http = null)
     {
         $this->http = $http ?? new Client();
-        $configuredAuthor = getenv('GITHUB_LOGIN');
+        $configuredAuthor = Environment::get('GITHUB_LOGIN');
         $author = is_string($configuredAuthor) && $configuredAuthor !== '' ? $configuredAuthor : 'Harfusha';
         if (preg_match('/^[A-Za-z0-9-]{1,39}$/D', $author) !== 1) {
             throw new RuntimeException('Invalid GitHub username');

@@ -18,7 +18,11 @@ final class PublicContentValidatorTest extends TestCase
             $data = json_decode($bytes, true, 512, JSON_THROW_ON_ERROR);
             $data = self::rows($data);
             PublicContentValidator::validate($name . '.json', $data);
-            self::assertGreaterThan(0, count($data));
+            if ($name === 'maker') {
+                self::assertSame([], $data);
+            } else {
+                self::assertGreaterThan(0, count($data));
+            }
         }
     }
 

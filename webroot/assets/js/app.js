@@ -26,7 +26,7 @@
         item.classList.toggle('hidden', !matched);
         if (matched) visible++;
       }
-      if (count) count.textContent = `${visible} ${local('záznamů', 'results')}`;
+      if (count) count.textContent = `${visible} ${local(visible === 1 ? 'záznam' : visible >= 2 && visible <= 4 ? 'záznamy' : 'záznamů', visible === 1 ? 'result' : 'results')}`;
       empty?.classList.toggle('hidden', visible > 0);
     };
     input?.addEventListener('input', run);
@@ -93,14 +93,13 @@
     const nodes = graph.nodes;
     const byId = new Map(nodes.map(node => [node.id, node]));
     const positions = new Map();
-    const centerX = 530, centerY = 338;
+    const columns = 4, rowHeight = 150;
+    const rows = Math.ceil(nodes.length / columns);
+    svg.setAttribute('viewBox', `0 0 1060 ${Math.max(680, rows * rowHeight + 80)}`);
     nodes.forEach((node, index) => {
-      const ring = index < 5 ? 1 : 2;
-      const offset = index < 5 ? index : index - 5;
-      const total = ring === 1 ? 5 : Math.max(1, nodes.length - 5);
-      const angle = 2 * Math.PI * offset / total - Math.PI / 2;
-      const radius = ring === 1 ? 164 : 282;
-      positions.set(node.id, {x:centerX + radius*Math.cos(angle), y:centerY+radius*Math.sin(angle)});
+      const row = Math.floor(index / columns);
+      const inRow = Math.min(columns, nodes.length - row * columns);
+      positions.set(node.id, {x:530 + (index % columns - (inRow - 1) / 2) * 245, y:100 + row * rowHeight});
     });
     const make = (tag, attributes = {}, text = null) => {
       const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -108,11 +107,7 @@
       if (text !== null) el.textContent = text;
       return el;
     };
-    let selected = null;
-    const label = type => ({'runs-on':'Runs on','assists-development':'Development tooling',
-      'hosts':'Hosts','worker-hosting':'Worker hosting','produces-models':'Related CAD workflow',
-      'print-workflow':'3D print workflow','media-infrastructure':'Media infrastructure',
-      'game-development':'Game development'}[type] || 'Related');
+    let selected = nodes[0].id;
     const render = () => {
       const query = input.value.trim().toLocaleLowerCase();
       const matching = new Set(nodes.filter(node => !query || `${node.name} ${node.category}`.toLocaleLowerCase().includes(query)).map(n => n.id));
@@ -129,9 +124,10 @@
         const pos = positions.get(node.id);
         const highlighted = selected === node.id;
         const dimmed = !matching.has(node.id) && selected !== node.id;
-        const g=make('g',{class:`connection-node${highlighted?' selected':''}${dimmed?' muted':''}`,role:'button',tabindex:'0','aria-pressed':String(highlighted),'aria-label':node.name,'data-node-id':node.id});
+        const g=make('g',{class:`connection-node${highlighted?' selected':''}${dimmed?' muted':''}`,role:'button',tabindex:'0','aria-pressed':String(highlighted),'aria-label':`${node.name} ${node.category}`,'data-node-id':node.id});
         g.append(make('rect',{x:pos.x-91,y:pos.y-31,width:182,height:62,rx:11}));
-        g.append(make('text',{x:pos.x,y:pos.y-2,class:'node-title'},node.name.length>22?node.name.slice(0,20)+'…':node.name));
+        g.append(make('text',{x:pos.x,y:pos.y-2,class:'node-title',...(node.name.length > 22 ? {textLength:170,lengthAdjust:'spacingAndGlyphs'} : {})},node.name));
+        g.append(document.createTextNode(' '));
         g.append(make('text',{x:pos.x,y:pos.y+15,class:'node-type'},node.category));
         const select = ()=>{selected=node.id;render();
           svg.querySelectorAll('[data-node-id]').forEach(candidate=>{if(candidate.getAttribute('data-node-id')===node.id)candidate.focus();});};
@@ -150,7 +146,7 @@
           if (!other) return;
           const li=document.createElement('li');
           const button=document.createElement('button');button.type='button';button.className='inline-link';
-          button.textContent=`${other.name} · ${label(edge.type)}`;
+          button.textContent=`${other.name} · ${edge.label}`;
           button.addEventListener('click',()=>{selected=other.id;render();});
           li.append(button);links.append(li);
         });
@@ -161,7 +157,7 @@
       }
     };
     input.addEventListener('input',render);
-    $('[data-connections-reset]',root).addEventListener('click',()=>{selected=null;input.value='';render();});
+    $('[data-connections-reset]',root).addEventListener('click',()=>{selected=nodes[0].id;input.value='';render();});
     render();
   }
   initConnections();
@@ -217,11 +213,12 @@
       svg.append(edges);
       nodes.forEach((node, i) => {
         const alive = up(node.id);
-        const group = svgEl('g',{class:`lab-node${node.id===selected?' selected':''}${alive?'':' failed'}`,role:'button',tabindex:'0', 'aria-label': `${node.name}${alive ? '' : ' unavailable in simulation'}`, 'aria-pressed': String(node.id===selected), 'data-lab-node-id': node.id});
+        const detail = view==='services' ? `${(node.services||[]).length} services` : view==='dependencies' ? `${(node.depends||[]).length} dependencies` : view==='flows' && currentFlow.path.includes(node.id) ? local('NA CESTĚ','IN PATH') : node.kind.toUpperCase();
+        const group = svgEl('g',{class:`lab-node${node.id===selected?' selected':''}${alive?'':' failed'}`,role:'button',tabindex:'0', 'aria-label': `${node.name} ${detail}${alive ? '' : local(' – nedostupné v simulaci', ' – unavailable in simulation')}`, 'aria-pressed': String(node.id===selected), 'data-lab-node-id': node.id});
         group.append(svgEl('rect',{x:node.x-105,y:node.y-38,width:210,height:76,rx:13}));
         group.append(svgEl('circle',{cx:node.x-82,cy:node.y-15,r:5}));
         group.append(svgEl('text',{x:node.x-68,y:node.y-9},node.name));
-        const detail = view==='services' ? `${(node.services||[]).length} services` : view==='dependencies' ? `${(node.depends||[]).length} dependencies` : view==='flows' && currentFlow.path.includes(node.id) ? local('NA CESTĚ','IN PATH') : node.kind.toUpperCase();
+        group.append(document.createTextNode(' '));
         group.append(svgEl('text',{x:node.x-80,y:node.y+18,class:'sub'},detail));
         const select = () => {
           selected = node.id;
@@ -281,13 +278,42 @@
     {cs:'Ověření',en:'Verify & report',descCs:'Statická analýza, testy a závěrečná kontrola změn vytvářejí podložený výsledek.',descEn:'Static analysis, tests and diff review form an evidence-backed result.',trace:'phpstan: required (example)\nunit tests: required (example)\nresult: no tests executed in demo'},
   ];
 
+  function initTextDiff() {
+    const root = $('[data-diff-tool]');
+    if (!root) return;
+    const before = $('[data-diff-before]', root), after = $('[data-diff-after]', root);
+    const result = $('[data-diff-result]', root);
+    $('[data-diff-run]', root).addEventListener('click', () => {
+      const lines = value => value === '' ? [] : value.replace(/\r\n?/g, '\n').split('\n');
+      const a = lines(before.value), b = lines(after.value);
+      if (a.length > 200 || b.length > 200) {
+        result.textContent = local('Limit je 200 řádků na každé straně.', 'The limit is 200 lines per side.');
+        return;
+      }
+      const dp = Array.from({length:a.length + 1}, () => new Uint16Array(b.length + 1));
+      for (let i = a.length - 1; i >= 0; i--) {
+        for (let j = b.length - 1; j >= 0; j--) {
+          dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+        }
+      }
+      const output = []; let i = 0, j = 0, changes = 0;
+      while (i < a.length || j < b.length) {
+        if (i < a.length && j < b.length && a[i] === b[j]) { output.push('  ' + a[i]); i++; j++; }
+        else if (j < b.length && (i === a.length || dp[i][j + 1] > dp[i + 1][j])) { output.push('+ ' + b[j++]); changes++; }
+        else { output.push('- ' + a[i++]); changes++; }
+      }
+      result.textContent = changes ? output.join('\n') : local('Texty jsou shodné.', 'The texts are identical.');
+    });
+  }
+  initTextDiff();
+
   function initPlayground() {
     const root = $('[data-playground]');
     if (!root) return;
     const tabs = $$('[data-demo-tab]',root), panels = $$('[data-demo-panel]',root);
     const valid = new Set(['ai','sync','world','cad','request']);
     const show = (id, updateHash) => {
-      if (!valid.has(id)) id='ai';
+      if (!valid.has(id)) id='sync';
       tabs.forEach(t=>{t.setAttribute('aria-selected',String(t.dataset.demoTab===id));t.tabIndex=t.dataset.demoTab===id?0:-1;});
       panels.forEach(p=>p.classList.toggle('hidden',p.dataset.demoPanel!==id));
       if (updateHash) history.replaceState(null,'',`#${id}`);
@@ -489,6 +515,16 @@
     canvas.addEventListener('pointermove',e=>{if(!drag)return;ay+=(e.clientX-previous[0])*.009;ax+=(e.clientY-previous[1])*.009;ax=Math.max(-1.5,Math.min(1.5,ax));previous=[e.clientX,e.clientY];queueCadRender();});
     canvas.addEventListener('pointerup',()=>{drag=false;});
     canvas.addEventListener('pointercancel',()=>{drag=false;});
+    canvas.addEventListener('keydown',e=>{
+      if(e.key==='ArrowLeft')ay-=.15;
+      else if(e.key==='ArrowRight')ay+=.15;
+      else if(e.key==='ArrowUp')ax=Math.max(-1.5,ax-.15);
+      else if(e.key==='ArrowDown')ax=Math.min(1.5,ax+.15);
+      else if(e.key==='+'||e.key==='=')zoom=Math.min(3,zoom*1.12);
+      else if(e.key==='-'||e.key==='_')zoom=Math.max(.28,zoom*.88);
+      else return;
+      e.preventDefault();queueCadRender();
+    });
     canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.28,Math.min(3,zoom*(e.deltaY>0?.88:1.12)));queueCadRender();},{passive:false});
     setInfo(`${mesh.length} triangles · sample geometry`);
     renderCad();
@@ -503,7 +539,7 @@
     const response=$('[data-request-response]',panel), steps=$('[data-request-steps]',panel);
     const render=()=>{
       const trace=core.requestTrace({path:route.value,method:method.value,hostValid:host.checked,
-        csrfValid:csrf.checked,authenticated:auth.checked,payloadValid:payload.checked});
+        csrfValid:csrf.checked,authenticated:auth.checked,payloadValid:payload.checked}, language);
       response.textContent=`HTTP ${trace.status} · ${({200:'OK',303:'See Other',400:'Bad Request',403:'Forbidden',405:'Method Not Allowed',422:'Unprocessable Content'})[trace.status] || 'Result'}`;
       response.dataset.status=String(trace.status);
       steps.replaceChildren();
@@ -511,7 +547,7 @@
         const li=document.createElement('li');li.className=`request-step request-${step.result}`;
         const name=document.createElement('strong');name.textContent=step.name;
         const detail=document.createElement('span');detail.textContent=step.detail;
-        const badge=document.createElement('b');badge.textContent=step.result.toUpperCase();
+        const badge=document.createElement('b');badge.textContent=language === 'cs' ? ({pass:'PROŠLO',block:'ZASTAVENO',skip:'PŘESKOČENO'}[step.result]) : step.result.toUpperCase();
         li.append(name,detail,badge);steps.append(li);
       }
       const admin=route.value==='/admin/project';

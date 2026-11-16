@@ -11,6 +11,7 @@ final readonly class Project
     /**
      * @param list<string> $stack
      * @param list<string> $features
+     * @param list<string> $featuresCs
      */
     public function __construct(
         public string $slug,
@@ -30,6 +31,7 @@ final readonly class Project
         public array $stack,
         public array $features,
         public string $year,
+        public array $featuresCs = [],
     ) {
         if (ProjectStatus::tryFrom($status) === null) {
             throw new InvalidArgumentException('Invalid project status');
@@ -60,6 +62,7 @@ final readonly class Project
             self::strings($value, 'stack'),
             self::strings($value, 'features'),
             self::str($value, 'year'),
+            self::strings($value, 'features_cs'),
         );
     }
 
@@ -87,6 +90,45 @@ final readonly class Project
         }
 
         return $strings;
+    }
+
+    /** @return list<string> */
+    public function localizedFeatures(Language $lang): array
+    {
+        return $lang->code === 'cs' && $this->featuresCs !== [] ? $this->featuresCs : $this->features;
+    }
+
+    /** @return string */
+    public function statusLabel(Language $lang): string
+    {
+        return match ($this->status) {
+            'active' => $lang->value('Aktivní', 'Active'),
+            'prototype' => $lang->value('Prototyp', 'Prototype'),
+            'maintenance' => $lang->value('Údržba', 'Maintenance'),
+            'archived' => $lang->value('Archiv', 'Archived'),
+            default => $this->status,
+        };
+    }
+
+    /** @return string */
+    public static function categoryLabel(string $category, Language $lang): string
+    {
+        if ($lang->code === 'en') {
+            return $category;
+        }
+
+        return match ($category) {
+            'AI & Developer Tools' => 'AI a vývojářské nástroje',
+            'Desktop & Tools' => 'Desktopové nástroje',
+            'Infrastructure' => 'Infrastruktura',
+            'Games & Simulation' => 'Hry a simulace',
+            '3D & Engineering' => '3D a konstrukce',
+            'Web Applications' => 'Webové aplikace',
+            'Media & Apps' => 'Média a aplikace',
+            'Bots & Automation' => 'Boti a automatizace',
+            'Archive' => 'Archiv',
+            default => $category,
+        };
     }
 
     /**

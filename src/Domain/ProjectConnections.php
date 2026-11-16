@@ -3,11 +3,28 @@ declare(strict_types=1);
 
 namespace App\Domain;
 
+use App\Support\Language;
 use InvalidArgumentException;
 
 /** A reviewed, finite, public dependency/relationship graph. */
 final readonly class ProjectConnections
 {
+    /** @return string */
+    public static function label(string $type, Language $lang): string
+    {
+        return match ($type) {
+            'runs-on' => $lang->value('provozní prostředí', 'runtime environment'),
+            'assists-development' => $lang->value('podpora vývoje', 'development tooling'),
+            'hosts' => $lang->value('hosting', 'hosting'),
+            'worker-hosting' => $lang->value('provoz pracovního procesu', 'worker hosting'),
+            'produces-models' => $lang->value('související CAD postup', 'related CAD workflow'),
+            'print-workflow' => $lang->value('postup 3D tisku', '3D print workflow'),
+            'media-infrastructure' => $lang->value('mediální infrastruktura', 'media infrastructure'),
+            'game-development' => $lang->value('vývoj her', 'game development'),
+            default => $lang->value('souvisí', 'related'),
+        };
+    }
+
     /**
      * @var list<array{from:string,to:string,type:string}>
      */

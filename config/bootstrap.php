@@ -35,8 +35,8 @@ Security::setSalt((string)Configure::consume('Security.salt'));
 Router::fullBaseUrl((string)Configure::read('App.fullBaseUrl'));
 
 \App\Security\DeploymentPolicy::assertEnvironment(
-    (string)(getenv('APP_ENV') ?: ''),
+    (string)(\App\Support\Environment::get('APP_ENV') ?: ''),
     (bool)Configure::read('debug'),
     (string)Configure::read('App.fullBaseUrl'),
-    (string)(getenv('SECURITY_SALT') ?: ''),
+    (string)(\App\Support\Environment::get('SECURITY_SALT') ?: ''),
 );

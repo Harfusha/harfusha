@@ -150,125 +150,129 @@ $unconfiguredOps = OperationsStatus::evaluate(false, false, true, null, $nowOps)
 verify(!$unconfiguredOps['ready'] && $unconfiguredOps['database'] === 'not-configured', 'Missing DB is not ready');
 
 $limiterDir = sys_get_temp_dir() . '/harfusha-limit-' . bin2hex(random_bytes(5));
-$nowRate = 1700000000;
-$clockRate = static function () use (&$nowRate): int {
+if (PHP_OS_FAMILY === 'Windows') {
+    fwrite(STDOUT, "SKIP: LoginLimiter filesystem tests require POSIX private-mode bits\n");
+} else {
+    $nowRate = 1700000000;
+    $clockRate = static function () use (&$nowRate): int {
 
-    return $nowRate;
-};
-$limiter = new LoginLimiter($limiterDir, $clockRate);
-for ($attempt = 0; $attempt < 5; $attempt++) {
-    verify($limiter->consume('203.0.113.15'), 'Rate limiter reserves an attempt atomically');
-}
-verify(
-    !$limiter->consume('203.0.113.15') && $limiter->consume('203.0.113.16'),
-    'Rate limiter isolation and lockout',
-);
-$nowRate += 900;
-verify($limiter->consume('203.0.113.15'), 'Rate limiter expires the sliding window');
-verify(
-    $limiter->clear('203.0.113.15') && $limiter->consume('203.0.113.15'),
-    'Successful authentication clears the identity counter',
-);
-$nowRate--;
-verify(!$limiter->consume('203.0.113.15'), 'Clock rollback must not drop previously recorded failures');
-$nowRate++;
-verify(
-    !$limiter->consume('') && !$limiter->consume(str_repeat('A', 129)),
-    'Rate limiter rejects invalid and oversized client identifiers',
-);
-$limiterFiles = glob($limiterDir . '/login-*.json') ?: [];
-verify(count($limiterFiles) <= 32, 'Rate limiter writes at most 32 shard filenames');
-$corruptFile = $limiterFiles[0] ?? null;
-if (is_string($corruptFile)) {
-    file_put_contents($corruptFile, '{bad json');
-    $corruptAddress = null;
-    foreach (['203.0.113.15', '203.0.113.16'] as $address) {
-        $digest = hash('sha256', $address);
-        $shard = hexdec(substr($digest, 0, 2)) % 32;
-        if (str_ends_with($corruptFile, '/login-' . $shard . '.json')) {
-            $corruptAddress = $address;
-            break;
-        }
+        return $nowRate;
+    };
+    $limiter = new LoginLimiter($limiterDir, $clockRate);
+    for ($attempt = 0; $attempt < 5; $attempt++) {
+        verify($limiter->consume('203.0.113.15'), 'Rate limiter reserves an attempt atomically');
     }
     verify(
-        $corruptAddress !== null && !$limiter->consume($corruptAddress),
-        'Corrupt limiter state fails closed',
+        !$limiter->consume('203.0.113.15') && $limiter->consume('203.0.113.16'),
+        'Rate limiter isolation and lockout',
     );
-}
-foreach (glob($limiterDir . '/*') ?: [] as $entry) {
-    unlink($entry);
-}
-if (is_dir($limiterDir)) {
-    rmdir($limiterDir);
-}
-
-// All fresh identities in one shard compete for a fixed bounded slot count.
-$capacityDir = sys_get_temp_dir() . '/harfusha-capacity-' . bin2hex(random_bytes(5));
-$capacityGroups = [];
-$capacityIdentities = [];
-for ($index = 0; $index < 400 && count($capacityIdentities) < 3; $index++) {
-    $address = 'identity-' . $index;
-    $shard = hexdec(substr(hash('sha256', $address), 0, 2)) % 32;
-    $capacityGroups[$shard] ??= [];
-    $capacityGroups[$shard][] = $address;
-    if (count($capacityGroups[$shard]) === 3) {
-        $capacityIdentities = $capacityGroups[$shard];
-    }
-}
-verify(count($capacityIdentities) === 3, 'Deterministic same-shard capacity test cases');
-$capacityNow = 1700000000;
-$capacityClock = static function () use (&$capacityNow): int {
-
-    return $capacityNow;
-};
-$capacityLimiter = new LoginLimiter($capacityDir, $capacityClock, 2);
-verify($capacityLimiter->consume($capacityIdentities[0]) && $capacityLimiter->consume($capacityIdentities[1]) &&
-    !$capacityLimiter->consume($capacityIdentities[2]), 'Full shard rejects newcomers without evicting lockouts');
-$capacityNow += 900;
-verify($capacityLimiter->consume($capacityIdentities[2]), 'Expired shard identity frees capacity');
-foreach (glob($capacityDir . '/*') ?: [] as $entry) {
-    unlink($entry);
-}
-if (is_dir($capacityDir)) {
-    rmdir($capacityDir);
-}
-
-// A real process-level regression for the old check-then-record race.
-// This runs when pcntl is installed; it does not require CakePHP or MySQL.
-if (function_exists('pcntl_fork') && function_exists('pcntl_waitpid')) {
-    $parallelDir = sys_get_temp_dir() . '/harfusha-parallel-' . bin2hex(random_bytes(5));
-    $children = [];
-    for ($i = 0; $i < 16; $i++) {
-        $pid = pcntl_fork();
-        if ($pid === -1) {
-            throw new RuntimeException('Could not create rate-limit test child');
-        }
-        if ($pid === 0) {
-            $wasAllowed = (new LoginLimiter($parallelDir))->consume('192.0.2.100');
-            exit($wasAllowed ? 0 : 1);
-        }
-        $children[] = $pid;
-    }
-    $allowed = 0;
-    $denied = 0;
-    foreach ($children as $pid) {
-        $status = 0;
-        pcntl_waitpid($pid, $status);
-        if (pcntl_wifexited($status) && pcntl_wexitstatus($status) === 0) {
-            ++$allowed;
-        } elseif (pcntl_wifexited($status) && pcntl_wexitstatus($status) === 1) {
-            ++$denied;
-        }
-    }
+    $nowRate += 900;
+    verify($limiter->consume('203.0.113.15'), 'Rate limiter expires the sliding window');
     verify(
-        $allowed === 5 && $denied === 11,
-        'Parallel authentication attempts are counted atomically across processes',
+        $limiter->clear('203.0.113.15') && $limiter->consume('203.0.113.15'),
+        'Successful authentication clears the identity counter',
     );
-    foreach (glob($parallelDir . '/*') ?: [] as $entry) {
+    $nowRate--;
+    verify(!$limiter->consume('203.0.113.15'), 'Clock rollback must not drop previously recorded failures');
+    $nowRate++;
+    verify(
+        !$limiter->consume('') && !$limiter->consume(str_repeat('A', 129)),
+        'Rate limiter rejects invalid and oversized client identifiers',
+    );
+    $limiterFiles = glob($limiterDir . '/login-*.json') ?: [];
+    verify(count($limiterFiles) <= 32, 'Rate limiter writes at most 32 shard filenames');
+    $corruptFile = $limiterFiles[0] ?? null;
+    if (is_string($corruptFile)) {
+        file_put_contents($corruptFile, '{bad json');
+        $corruptAddress = null;
+        foreach (['203.0.113.15', '203.0.113.16'] as $address) {
+            $digest = hash('sha256', $address);
+            $shard = hexdec(substr($digest, 0, 2)) % 32;
+            if (str_ends_with($corruptFile, '/login-' . $shard . '.json')) {
+                $corruptAddress = $address;
+                break;
+            }
+        }
+        verify(
+            $corruptAddress !== null && !$limiter->consume($corruptAddress),
+            'Corrupt limiter state fails closed',
+        );
+    }
+    foreach (glob($limiterDir . '/*') ?: [] as $entry) {
         unlink($entry);
     }
-    if (is_dir($parallelDir)) {
-        rmdir($parallelDir);
+    if (is_dir($limiterDir)) {
+        rmdir($limiterDir);
+    }
+
+    // All fresh identities in one shard compete for a fixed bounded slot count.
+    $capacityDir = sys_get_temp_dir() . '/harfusha-capacity-' . bin2hex(random_bytes(5));
+    $capacityGroups = [];
+    $capacityIdentities = [];
+    for ($index = 0; $index < 400 && count($capacityIdentities) < 3; $index++) {
+        $address = 'identity-' . $index;
+        $shard = hexdec(substr(hash('sha256', $address), 0, 2)) % 32;
+        $capacityGroups[$shard] ??= [];
+        $capacityGroups[$shard][] = $address;
+        if (count($capacityGroups[$shard]) === 3) {
+            $capacityIdentities = $capacityGroups[$shard];
+        }
+    }
+    verify(count($capacityIdentities) === 3, 'Deterministic same-shard capacity test cases');
+    $capacityNow = 1700000000;
+    $capacityClock = static function () use (&$capacityNow): int {
+
+        return $capacityNow;
+    };
+    $capacityLimiter = new LoginLimiter($capacityDir, $capacityClock, 2);
+    verify($capacityLimiter->consume($capacityIdentities[0]) && $capacityLimiter->consume($capacityIdentities[1]) &&
+        !$capacityLimiter->consume($capacityIdentities[2]), 'Full shard rejects newcomers without evicting lockouts');
+    $capacityNow += 900;
+    verify($capacityLimiter->consume($capacityIdentities[2]), 'Expired shard identity frees capacity');
+    foreach (glob($capacityDir . '/*') ?: [] as $entry) {
+        unlink($entry);
+    }
+    if (is_dir($capacityDir)) {
+        rmdir($capacityDir);
+    }
+
+    // A real process-level regression for the old check-then-record race.
+    // This runs when pcntl is installed; it does not require CakePHP or MySQL.
+    if (function_exists('pcntl_fork') && function_exists('pcntl_waitpid')) {
+        $parallelDir = sys_get_temp_dir() . '/harfusha-parallel-' . bin2hex(random_bytes(5));
+        $children = [];
+        for ($i = 0; $i < 16; $i++) {
+            $pid = pcntl_fork();
+            if ($pid === -1) {
+                throw new RuntimeException('Could not create rate-limit test child');
+            }
+            if ($pid === 0) {
+                $wasAllowed = (new LoginLimiter($parallelDir))->consume('192.0.2.100');
+                exit($wasAllowed ? 0 : 1);
+            }
+            $children[] = $pid;
+        }
+        $allowed = 0;
+        $denied = 0;
+        foreach ($children as $pid) {
+            $status = 0;
+            pcntl_waitpid($pid, $status);
+            if (pcntl_wifexited($status) && pcntl_wexitstatus($status) === 0) {
+                ++$allowed;
+            } elseif (pcntl_wifexited($status) && pcntl_wexitstatus($status) === 1) {
+                ++$denied;
+            }
+        }
+        verify(
+            $allowed === 5 && $denied === 11,
+            'Parallel authentication attempts are counted atomically across processes',
+        );
+        foreach (glob($parallelDir . '/*') ?: [] as $entry) {
+            unlink($entry);
+        }
+        if (is_dir($parallelDir)) {
+            rmdir($parallelDir);
+        }
     }
 }
 
@@ -303,7 +307,7 @@ try {
 $catalog = new ProjectCatalog($root . '/data');
 $projects = $catalog->projects();
 $nodes = $catalog->topology();
-verify(count($projects) >= 13, 'Project catalogue populated');
+verify(count($projects) === 9 && $catalog->find('maker-lab') === null, 'Project catalogue excludes unverified Maker Lab');
 verify(count($nodes) >= 7, 'Safe topology populated');
 $flows = $catalog->flows();
 verify(count($flows) >= 4, 'Curated data paths are present');
@@ -352,7 +356,8 @@ verify(
 );
 
 $links = $catalog->connections();
-verify(count($links) >= 10, 'Curated inter-project relationships');
+verify(count($links) === 9, 'Curated inter-project relationships');
+verify($catalog->maker() === [], 'Maker Lab has no unverified public entries');
 verify(count(array_unique(array_map(static fn(array $edge): string => $edge['from'] . '/' . $edge['to'], $links))) === count($links), 'No duplicate connection edges');
 foreach ($links as $link) {
     verify($catalog->find($link['from']) !== null && $catalog->find($link['to']) !== null, 'Relationship resolves to real projects');
@@ -517,7 +522,7 @@ $fixtures = [
     'open-source' => ['activity' => $catalog->contributions(),
         'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null]],
     'journal' => ['journal' => $catalog->journal()],
-    'now' => ['recentRepos' => [['repository' => 'Harfusha/MutaUI','description' => 'Snapshot','repo_url' => 'https://github.com/Harfusha/MutaUI','pushed_at' => '2026-11-12 18:53:55']], 'journal' => $catalog->journal(), 'provenance' => ['source' => 'reviewed-snapshot','last_sync' => null]],
+    'now' => ['recentRepos' => [['repository' => 'Harfusha/MutaUI','description' => 'Snapshot','repo_url' => 'https://github.com/Harfusha/MutaUI','pushed_at' => '2026-11-12 18:53:55']], 'provenance' => ['source' => 'reviewed-snapshot','last_sync' => null]],
     'about' => [],
 ];
 foreach (['cs','en'] as $code) {

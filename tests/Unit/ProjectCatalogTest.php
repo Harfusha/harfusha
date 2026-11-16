@@ -5,6 +5,8 @@ namespace App\Test\Unit;
 
 use App\Domain\Project;
 use App\Domain\ProjectCatalog;
+use App\Domain\PublicProjectView;
+use App\Support\Language;
 use PHPUnit\Framework\TestCase;
 
 final class ProjectCatalogTest extends TestCase
@@ -13,7 +15,8 @@ final class ProjectCatalogTest extends TestCase
     {
         $catalog = new ProjectCatalog(ROOT . '/data');
         $projects = $catalog->projects();
-        self::assertCount(13, $projects);
+        self::assertCount(9, $projects);
+        self::assertNull($catalog->find('maker-lab'));
         self::assertSame(count($projects), count(array_unique(array_map(static fn(Project $p): string => $p->slug, $projects))));
         foreach ($projects as $project) {
             self::assertNotSame('', $project->name);
@@ -24,6 +27,21 @@ final class ProjectCatalogTest extends TestCase
                 self::assertSame('', $project->repo);
             }
         }
+    }
+
+    public function testFeaturesAreLocalizedInCatalogAndPublicView(): void
+    {
+        $projects = (new ProjectCatalog(ROOT . '/data'))->projects();
+        $cs = new Language('cs');
+        $en = new Language('en');
+        foreach ($projects as $project) {
+            self::assertCount(count($project->features), $project->featuresCs);
+            self::assertSame($project->featuresCs, (new PublicProjectView($project))->toArray($cs)['features']);
+            self::assertSame($project->features, (new PublicProjectView($project))->toArray($en)['features']);
+        }
+        $mutaui = (new ProjectCatalog(ROOT . '/data'))->find('mutaui');
+        self::assertNotNull($mutaui);
+        self::assertContains('Správa synchronizace a forwardingu', $mutaui->localizedFeatures($cs));
     }
 
     public function testValidatedDatasetsAreReadOncePerCatalogInstance(): void

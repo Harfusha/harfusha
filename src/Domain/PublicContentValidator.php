@@ -78,6 +78,16 @@ final class PublicContentValidator
         }
         self::stringList($row, 'stack', $label, 1, 30, 70);
         self::stringList($row, 'features', $label, 1, 30, 200);
+        if (array_key_exists('features_cs', $row)) {
+            self::stringList($row, 'features_cs', $label, 1, 30, 200);
+            if (
+                !is_array($row['features_cs'])
+                || !is_array($row['features'] ?? null)
+                || count($row['features_cs']) !== count($row['features'])
+            ) {
+                throw new InvalidArgumentException('Feature translations do not match: ' . $label);
+            }
+        }
 
         return $slug;
     }

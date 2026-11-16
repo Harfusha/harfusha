@@ -264,12 +264,11 @@ final class PagesController extends AppController
             'now',
             'Právě vzniká | Harfusha Lab',
             'Now building | Harfusha Lab',
-            'Doložené aktuální změny, vývojový deník a veřejná aktivita.',
-            'Traceable current work, engineering notes and public repository activity.',
+            'Přehled posledních zaznamenaných změn veřejných repozitářů.',
+            'A view of the latest recorded changes in public repositories.',
             '/now',
             [
                 'recentRepos' => $this->content()->publicRepoUpdates(),
-                'journal' => array_slice($this->content()->journal(), 0, 6),
                 'provenance' => $this->content()->githubProvenance(),
             ],
         );

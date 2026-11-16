@@ -81,6 +81,9 @@ test('CakePHP educational request pipeline: safe read and fail-closed middleware
   const ok=core.requestTrace(valid);
   assert.equal(ok.status,200);
   assert.equal(ok.steps[2].result,'skip');
+  assert.equal(ok.steps[0].detail,'Origin accepted');
+  assert.equal(core.requestTrace(valid,'cs').steps[0].detail,'Doména přijata');
+  assert.equal(core.requestTrace({...valid,hostValid:false},'cs').steps[0].detail,'Doména neodpovídá nastavené adrese webu');
   assert.equal(core.requestTrace({...valid,hostValid:false}).status,400);
   assert.equal(core.requestTrace({...valid,method:'POST'}).status,405);
   assert.throws(()=>core.requestTrace({...valid,path:'/private/secrets'}));
@@ -95,6 +98,10 @@ test('CakePHP educational request pipeline: CSRF, session and typed payload boun
   assert.equal(core.requestTrace({...valid,payloadValid:false}).status,422);
   assert.equal(core.requestTrace({...valid,method:'GET'}).status,405);
   assert.equal(core.requestTrace({...valid,payloadValid:false}).steps.at(-1).name,'EditorialInput');
+  assert.equal(core.requestTrace({...valid,csrfValid:false},'cs').steps.at(-1).detail,'Chybějící nebo neplatný CSRF token');
+  assert.equal(core.requestTrace({...valid,authenticated:false},'cs').steps.at(-1).detail,'Uživatel není přihlášen');
+  assert.equal(core.requestTrace({...valid,payloadValid:false},'cs').steps.at(-1).detail,'Neplatná data formuláře');
+  assert.match(core.requestTrace(valid,'cs').steps.at(-1).detail,/neprovedeno/);
 });
 
 

@@ -42,7 +42,12 @@ class ReleaseClientGateTests(unittest.TestCase):
             tests.mkdir(parents=True)
             real = tests / 'safe.test.cjs'
             real.write_text('', encoding='utf-8')
-            (tests / 'external.test.cjs').symlink_to(real)
+            try:
+                (tests / 'external.test.cjs').symlink_to(real)
+            except OSError as error:
+                if getattr(error, 'winerror', None) == 1314:
+                    self.skipTest('Windows symlink privilege is required')
+                raise
             with self.assertRaisesRegex(RuntimeError, 'Unsafe browser-core test'):
                 BUILDER.client_test_files(root)
 

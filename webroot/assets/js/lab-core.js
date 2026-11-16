@@ -181,9 +181,10 @@
    * @typedef {{path:'/cs/projects'|'/admin/project',method:'GET'|'POST',hostValid:boolean,csrfValid:boolean,authenticated:boolean,payloadValid:boolean}} RequestScenario
    * @typedef {{name:string,result:'pass'|'block'|'skip',detail:string}} TraceStep
    * @param {RequestScenario} scenario
+   * @param {'cs'|'en'} [language]
    * @returns {{status:number,steps:TraceStep[]}}
    */
-  function requestTrace(scenario) {
+  function requestTrace(scenario, language = 'en') {
     if (!scenario || !['/cs/projects', '/admin/project'].includes(scenario.path) ||
         !['GET','POST'].includes(scenario.method) ||
         !['hostValid','csrfValid','authenticated','payloadValid'].every(key => typeof scenario[/** @type {keyof RequestScenario} */ (key)] === 'boolean')) {
@@ -191,41 +192,43 @@
     }
     /** @type {TraceStep[]} */
     const steps = [];
+    /** @param {string} cs @param {string} en */
+    const text = (cs, en) => language === 'cs' ? cs : en;
     /** @param {string} name @param {'pass'|'block'|'skip'} result @param {string} detail */
     const push = (name,result,detail) => steps.push({name,result,detail});
     if (!scenario.hostValid) {
-      push('HostGuard', 'block', 'Host does not match the configured canonical origin');
+      push('HostGuard', 'block', text('Doména neodpovídá nastavené adrese webu', 'Host does not match the configured canonical origin'));
       return {status:400,steps};
     }
-    push('HostGuard','pass','Origin accepted');
+    push('HostGuard','pass',text('Doména přijata', 'Origin accepted'));
     const requiredMethod = scenario.path === '/admin/project' ? 'POST' : 'GET';
     if (scenario.method !== requiredMethod) {
-      push('RoutingMiddleware','block',`Route exists, but it requires ${requiredMethod}`);
+      push('RoutingMiddleware','block',text(`Cesta vyžaduje metodu ${requiredMethod}`, `Route exists, but it requires ${requiredMethod}`));
       return {status:405,steps};
     }
     push('RoutingMiddleware','pass',`${requiredMethod} ${scenario.path}`);
     if (scenario.method === 'POST') {
       if (!scenario.csrfValid) {
-        push('CsrfProtectionMiddleware','block','Missing or invalid CSRF token');
+        push('CsrfProtectionMiddleware','block',text('Chybějící nebo neplatný CSRF token', 'Missing or invalid CSRF token'));
         return {status:403,steps};
       }
-      push('CsrfProtectionMiddleware','pass','CSRF token verified');
+      push('CsrfProtectionMiddleware','pass',text('CSRF token ověřen', 'CSRF token verified'));
       if (!scenario.authenticated) {
-        push('AdminController','block','Not authenticated');
+        push('AdminController','block',text('Uživatel není přihlášen', 'Not authenticated'));
         return {status:403,steps};
       }
-      push('AdminController','pass','Authenticated session');
+      push('AdminController','pass',text('Přihlášená relace', 'Authenticated session'));
       if (!scenario.payloadValid) {
-        push('EditorialInput','block','Invalid typed editorial payload');
+        push('EditorialInput','block',text('Neplatná data formuláře', 'Invalid typed editorial payload'));
         return {status:422,steps};
       }
-      push('EditorialInput','pass','Typed payload accepted');
-      push('CakePHP ORM','pass','Illustrative transactional save and audit receipt (not executed)');
+      push('EditorialInput','pass',text('Data formuláře přijata', 'Typed payload accepted'));
+      push('CakePHP ORM','pass',text('Ukázka transakčního uložení a auditního záznamu (neprovedeno)', 'Illustrative transactional save and audit receipt (not executed)'));
       return {status:303,steps};
     }
-    push('CsrfProtectionMiddleware','skip','Safe read-only GET');
-    push('PagesController','pass','Collect reviewed project case studies');
-    push('ProjectCatalog','pass','Build typed read-only project view');
+    push('CsrfProtectionMiddleware','skip',text('Bezpečné čtení metodou GET', 'Safe read-only GET'));
+    push('PagesController','pass',text('Načtení schválených projektových studií', 'Collect reviewed project case studies'));
+    push('ProjectCatalog','pass',text('Sestavení projektu pro zobrazení', 'Build typed read-only project view'));
     return {status:200,steps};
   }
 

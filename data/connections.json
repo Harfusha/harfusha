@@ -26,7 +26,7 @@
   },
   {
     "from": "home-infrastructure",
-    "to": "vitkovske-npc",
+    "to": "discord-bot",
     "type": "hosts"
   },
   {
@@ -38,21 +38,6 @@
     "from": "home-infrastructure",
     "to": "tiskov",
     "type": "worker-hosting"
-  },
-  {
-    "from": "maker-lab",
-    "to": "scan2cad",
-    "type": "produces-models"
-  },
-  {
-    "from": "maker-lab",
-    "to": "tiskov",
-    "type": "print-workflow"
-  },
-  {
-    "from": "home-infrastructure",
-    "to": "wishflix",
-    "type": "media-infrastructure"
   },
   {
     "from": "woodbound",

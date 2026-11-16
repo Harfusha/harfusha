@@ -40,8 +40,16 @@ final class LoginLimiterTest extends TestCase
         return $dir;
     }
 
+    private function requirePosixModeBits(): void
+    {
+        if (PHP_OS_FAMILY === 'Windows') {
+            self::markTestSkipped('PHP on Windows cannot enforce POSIX private modes; Linux CI covers these checks.');
+        }
+    }
+
     public function testThrottleStorageIsPrivateEvenWithPermissiveUmask(): void
     {
+        $this->requirePosixModeBits();
         $dir = $this->directory();
         self::assertTrue(mkdir($dir, 0755));
         self::assertTrue(chmod($dir, 0755));
@@ -62,6 +70,7 @@ final class LoginLimiterTest extends TestCase
 
     public function testLegacyReadableShardIsTightenedBeforeUse(): void
     {
+        $this->requirePosixModeBits();
         $dir = $this->directory();
         $limiter = new LoginLimiter($dir);
         self::assertTrue($limiter->consume('203.0.113.211'));
@@ -76,6 +85,7 @@ final class LoginLimiterTest extends TestCase
 
     public function testFiveAttemptsAreAtomicAndDifferentAddressesAreIsolated(): void
     {
+        $this->requirePosixModeBits();
         $dir = $this->directory();
         $limiter = new LoginLimiter($dir);
         for ($i = 0; $i < 5; $i++) {
@@ -89,6 +99,7 @@ final class LoginLimiterTest extends TestCase
 
     public function testWindowExpiresExactlyAfterFifteenMinutes(): void
     {
+        $this->requirePosixModeBits();
         $dir = $this->directory();
         $clockState = new MutableClock(1700000000);
         $clock = static fn(): int => $clockState->now();
@@ -104,6 +115,7 @@ final class LoginLimiterTest extends TestCase
 
     public function testShardCapacityFailsClosedWithoutEvictingAnotherAddress(): void
     {
+        $this->requirePosixModeBits();
         $dir = $this->directory();
         /** @var array<int, list<string>> $buckets */
         $buckets = [];
@@ -133,6 +145,7 @@ final class LoginLimiterTest extends TestCase
 
     public function testCorruptFileAndNonDirectoryAlwaysDeny(): void
     {
+        $this->requirePosixModeBits();
         $dir = $this->directory();
         $address = '192.0.2.5';
         $limiter = new LoginLimiter($dir);
@@ -155,6 +168,7 @@ final class LoginLimiterTest extends TestCase
 
     public function testOversizedFileAndSymlinkAreRejectedWithoutFollowingTarget(): void
     {
+        $this->requirePosixModeBits();
         $dir = $this->directory();
         $address = '192.0.2.99';
         $limiter = new LoginLimiter($dir);
@@ -176,6 +190,7 @@ final class LoginLimiterTest extends TestCase
 
     public function testClockRollbackDoesNotSilentlyResetCounters(): void
     {
+        $this->requirePosixModeBits();
         $clockState = new MutableClock(1700000000);
         $clock = static fn(): int => $clockState->now();
         $limiter = new LoginLimiter($this->directory(), $clock);
@@ -187,6 +202,7 @@ final class LoginLimiterTest extends TestCase
 
     public function testNumberOfFilesIsBoundedByShardCount(): void
     {
+        $this->requirePosixModeBits();
         $dir = $this->directory();
         $limiter = new LoginLimiter($dir);
         for ($i = 0; $i < 400; $i++) {

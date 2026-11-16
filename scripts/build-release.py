@@ -25,6 +25,16 @@ def require(command: list[str]) -> None:
     subprocess.run(command, cwd=ROOT, check=True)
 
 
+def composer_command() -> list[str]:
+    phar = os.environ.get('COMPOSER_PHAR', '')
+    if os.name == 'nt' and phar:
+        if not Path(phar).is_file():
+            raise SystemExit('COMPOSER_PHAR must point to an installed composer.phar')
+        return ['php', phar]
+
+    return ['composer']
+
+
 def verify_client_tests(root: Path) -> None:
     require(['node', '--test', *client_test_files(root)])
 
@@ -41,12 +51,13 @@ def main() -> None:
         raise SystemExit('Build requires patched PHP 8.5.12+ within the 8.5 branch')
     php_requirements="foreach(['intl','mbstring','pdo_mysql','simplexml','openssl'] as $e){if(!extension_loaded($e)){fwrite(STDERR,'Missing '.$e.PHP_EOL);exit(1);}}"
     require(['php','-r',php_requirements])
-    if not shutil.which('composer') or not shutil.which('node'):
+    composer = composer_command()
+    if not shutil.which(composer[0]) or not shutil.which('node'):
         raise SystemExit('Composer and Node.js needed to run release gates on the build machine')
     # All checks must run BEFORE uninstalling dev packages, on the exact source
     # revision that will be archived. DB tests require a disposable MySQL DB.
-    require(['composer','validate','--strict'])
-    require(['composer','audit','--locked'])
+    require(composer + ['validate','--strict'])
+    require(composer + ['audit','--locked'])
     if os.environ.get('APP_ENV') != 'testing' or os.environ.get('APP_URL') != 'http://localhost:8765':
         raise SystemExit('Release gates require APP_ENV=testing and APP_URL=http://localhost:8765 (disposable DB)')
     # Never let a release-builder run migrations against a database whose name
@@ -60,7 +71,7 @@ def main() -> None:
     if os.environ.get('DB_USER', '').lower() in ('', 'root', 'admin', 'administrator'):
         raise SystemExit('Release gate requires a dedicated unprivileged DB_USER')
     require(['php','bin/cake.php','migrations','migrate'])
-    require(['composer','quality'])
+    require(composer + ['quality'])
     print('Gate: start actual CakePHP HTTP smoke with ephemeral admin credentials', flush=True)
     smoke_env = os.environ.copy()
     smoke_env['LAB_SMOKE_ADMIN_PASSWORD'] = secrets.token_urlsafe(36)
@@ -109,10 +120,10 @@ def main() -> None:
         count = stage_application(ROOT, stage)
         print(f'Gate: staging {count} reviewed source files in isolated directory', flush=True)
         print('Gate: Composer production-only install in staging', flush=True)
-        subprocess.run(['composer','install','--no-dev','--prefer-dist',
+        subprocess.run(composer + ['install','--no-dev','--prefer-dist',
                         '--optimize-autoloader','--no-interaction','--no-progress'],
                        cwd=stage, check=True)
-        subprocess.run(['composer','check-platform-reqs','--no-dev'], cwd=stage, check=True)
+        subprocess.run(composer + ['check-platform-reqs','--no-dev'], cwd=stage, check=True)
         files, digest = write_archive(stage, out)
     print(f'Production ZIP: {out}, files={files}, SHA256={digest}')
 
