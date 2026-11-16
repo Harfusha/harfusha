@@ -60,7 +60,28 @@ def main() -> None:
                         page.add_style_tag(content=CSS)
                         page.add_script_tag(content=CORE)
                         page.add_script_tag(content=APP)
-                        assert not page.evaluate('document.documentElement.scrollWidth > document.documentElement.clientWidth'), (width, site, 'horizontal overflow')
+                        if page.evaluate('document.documentElement.scrollWidth > document.documentElement.clientWidth'):
+                            overflow = page.evaluate('''() => {
+                                const width = document.documentElement.clientWidth;
+                                return [...document.querySelectorAll('body *')]
+                                    .map((element) => {
+                                        const rect = element.getBoundingClientRect();
+                                        return {
+                                            tag: element.tagName.toLowerCase(),
+                                            id: element.id,
+                                            className: typeof element.className === 'string' ? element.className : '',
+                                            left: Math.round(rect.left),
+                                            right: Math.round(rect.right),
+                                            width: Math.round(rect.width),
+                                            scrollWidth: element.scrollWidth,
+                                            text: (element.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 48),
+                                        };
+                                    })
+                                    .filter((element) => element.left < -1 || element.right > width + 1)
+                                    .sort((a, b) => b.right - a.right)
+                                    .slice(0, 12);
+                            }''')
+                            raise AssertionError((width, site, 'horizontal overflow', overflow))
                         assert page.locator('h1').count() == 1, (width, site, 'missing/extra H1')
                         if '/connections' in site:
                             assert page.locator('.connection-node.selected').count() == 1, (site, 'missing default selection')
