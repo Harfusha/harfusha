@@ -5,9 +5,9 @@ use App\Support\Html;
 
 $detail = match ($project->slug) {
     'local-ai-hub' => [
-        [$lang->value('Lokální vrstva pro agenty', 'A local layer for agents'),
-         $lang->value('Hub sjednocuje nástroje pro hledání v repozitáři, práci s artefakty a koordinaci úloh. Přesná fakta z indexu a zdrojových souborů mají přednost před odpovědí modelu; ta je pomocným návrhem, který potřebuje kontrolu.', 'The Hub brings repository search, artifact access and task coordination together. Indexed facts and source files take precedence over model output, which remains an advisory draft requiring review.'),
-         $lang->value('Například při opravě importu může agent nejprve najít související službu, prohlédnout volající a změnu ověřit testem. Dostupnost modelů i nástrojů závisí na nastavení a aktuálním stavu běhu.', 'For example, when fixing an import, an agent can locate the relevant service, inspect callers and verify a change with a test. Model and tool availability depends on configuration and runtime state.')],
+        [$lang->value('Nejdřív mapa repozitáře, potom otázka', 'Map the repository before the question'),
+         $lang->value('První použití stabilního kořene spustí idempotentní registraci a asynchronní preprocessing. Ten mapuje vhodné soubory a změny, staví vestavěný code index a deterministické karty; Serena, lexikální vrstva a RAG doplňují výsledky podle dostupnosti a potřeby. Není to trénování modelu ani jediné velké embedding volání.', 'First use of a stable root triggers idempotent registration and asynchronous preprocessing. It inventories eligible files and changes, builds a built-in code index and deterministic cards; Serena, lexical search and RAG enrich results when available and useful. This is not model training or one giant embedding call.'),
+         $lang->value('Přesný dotaz „kdo volá tuto metodu?“ začíná v code indexu a úzkém zdrojovém výřezu. Širší úkol může složit adaptive context z více důkazů; RAG a lokální syntéza přicházejí až po levnějších indexovaných cestách. In-progress preprocessing se nepolluje ani neopakuje; testy spouští hostitelské prostředí a model zůstává poradní. Lokální inference je volitelná.', 'The exact question “who calls this method?” starts in the code index and a narrow source slice. A broader task can compose adaptive context from multiple sources; RAG and local synthesis follow cheaper indexed routes. An in-progress preprocessing run is reused, not polled or repeated; tests run in the host environment. Model output remains advisory and local inference is optional.')],
     ],
     'mutaui' => [
         [$lang->value('Rozhraní nad existujícím enginem', 'An interface over an existing engine'),
@@ -16,8 +16,8 @@ $detail = match ($project->slug) {
     ],
     'home-infrastructure' => [
         [$lang->value('Konfigurace a služby', 'Configuration and services'),
-         $lang->value('Git uchovává požadovaný stav a jeho historii. Semaphore slouží ke spouštění úloh, zatímco Ansible provádí změny na cílových zařízeních; správa routeru je oddělená od běžné údržby hlavního serveru.', 'Git stores desired state and its history. Semaphore runs jobs while Ansible applies changes to target devices; router management is separate from routine maintenance of the primary server.'),
-         $lang->value('Hlavní Raspberry Pi hostí mimo jiné DNS, mediální knihovnu a dokumentaci. NAS slouží jako zálohovací cíl a testovací server se používá podle potřeby. Diagram ukazuje role, nikoliv aktuální dostupnost.', 'The primary Raspberry Pi hosts DNS, a media library and documentation among other services. A NAS is a backup destination and a test server is used as needed. The diagram shows roles, not live availability.')],
+         $lang->value('Git uchovává požadovaný stav, Semaphore spouští úlohy a Ansible provádí změny. Hlavní uzel provozuje Pi-hole, Unbound, Jellyfin, Semaphore a BookStack; CUPS tisk, NAS a Proxmox mají vlastní roli.', 'Git stores desired state, Semaphore runs jobs and Ansible applies changes. The primary node hosts Pi-hole, Unbound, Jellyfin, Semaphore and BookStack; CUPS printing, NAS and Proxmox each have a distinct role.'),
+         $lang->value('Modelový požadavek na video projde od klienta přes router do Jellyfinu a na NAS pro soubor; tisková úloha míří do samostatného CUPS uzlu. Pi-hole a Unbound zajišťují lokální DNS služby, Semaphore spouští správu přes Ansible a Proxmox se používá jako testovací host na vyžádání. Jde o dokumentované role, nikoli živou telemetrii.', 'A modeled video request flows from a client through the router to Jellyfin and the NAS file; a print job goes to a separate CUPS node. Pi-hole and Unbound provide local DNS services, Semaphore runs Ansible management and Proxmox acts as an on-demand test host. These are documented roles, not live telemetry.')],
     ],
     'woodbound' => [
         [$lang->value('Svět jako navazující vrstvy', 'A world built in layers'),
@@ -53,60 +53,114 @@ $detail = match ($project->slug) {
 };
 $architecture = match ($project->slug) {
     'local-ai-hub' => [[
-        ['Agent','Agent','Zadání úlohy','Task request'], ['MCP','MCP','Veřejné nástroje','Public tools'],
-        ['Index','Repository index','Kód a vztahy','Code and links'], ['Model','Optional model','Pomocný návrh','Advisory draft'],
-        ['Artefakty','Artifacts','Zdroje a výstup','Sources and output'], ['Kontrola','Review','Testy a rozhodnutí','Tests and decision'],
-    ], [[0,1],[1,2],[1,3],[2,4],[3,4],[4,5]]],
+        ['Kořen projektu','Project root','Stabilní absolutní cesta','Stable absolute path'], ['Registrace','Registration','Jeden idempotentní start','One idempotent start'], ['Inventář','Inventory','Vhodné zdrojové soubory','Eligible source files'],
+        ['Změnové hashe','Change hashes','Co se změnilo','What changed'], ['Code index','Code index','Symboly a vztahy','Symbols and links'], ['Deterministické karty','Deterministic cards','Fakta ze zdrojů','Source-derived facts'],
+        ['Serena','Serena','Jazykové symboly, pokud dostupné','Language symbols when available'], ['Lexikální index','Lexical index','Textové hledání','Text search'], ['RAG','RAG','Doplňkově, když je potřeba','Optional when needed'],
+        ['Souborové mapy','File maps','Shrnutí souborů','File summaries'], ['Modul a projekt','Module & project','Vyšší úroveň kontextu','Higher-level context'], ['Diagnostika','Diagnostics','Stav průchodu','Run state'],
+    ], [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11]]],
     'mutaui' => [[
-        ['Uživatel','User','Volí relaci','Chooses session'], ['MutaUI','MutaUI','Přehled a diagnostika','Overview and diagnostics'],
-        ['CLI','CLI','Odděleně instalovaný','Installed separately'], ['Démon','Daemon','Zdroj stavu','State source'],
-        ['Synchronizace','Sync endpoints','Soubory mezi cestami','Files across paths'], ['Forwarding','Forwarding','Předání spojení','Connection forwarding'],
-    ], [[0,1],[1,2],[2,3],[3,4],[3,5]]],
+        ['Uživatel','User','Kontroluje před akcí','Reviews before action'], ['MutaUI','MutaUI','Přehled a nastavení','Overview and setup'], ['Mutagen CLI','Mutagen CLI','Instaluje se zvlášť','Installed separately'],
+        ['Lokální démon','Local daemon','Zdroj stavu relací','Session state source'], ['Sync relace','Sync session','Konfigurace a režim','Configuration and mode'], ['Koncové složky','Endpoints','Obsah synchronizace','Synced content'],
+        ['Forward relace','Forward session','Předání portu','Port forwarding'],
+    ], [[0,1],[1,2],[2,3],[3,4],[4,5],[3,6]]],
     'home-infrastructure' => [[
-        ['Git','Git','Požadovaný stav','Desired state'], ['Semaphore','Semaphore','Spuštění úloh','Job execution'],
-        ['Ansible','Ansible','Playbooky','Playbooks'], ['Router','Router','Oddělená správa','Separate management'],
-        ['Raspberry Pi','Raspberry Pi','DNS, média, dokumentace','DNS, media, docs'], ['NAS','NAS','Cíl záloh','Backup target'],
-        ['Testovací host','Test host','Použití podle potřeby','Used when needed'],
-    ], [[0,1],[1,2],[2,3],[2,4],[2,5],[2,6]]],
+        ['Git','Git','Požadovaná konfigurace','Desired configuration'], ['Semaphore','Semaphore','Spouští řízené úlohy','Runs controlled jobs'], ['Ansible','Ansible','Provádí playbooky','Applies playbooks'],
+        ['Router','Router','Routing · firewall · VPN','Routing · firewall · VPN'], ['Hlavní Pi','Primary Pi','Jellyfin · DNS · Semaphore · BookStack','Jellyfin · DNS · Semaphore · BookStack'], ['Tiskové Pi','Print Pi','CUPS fronta','CUPS queue'],
+        ['NAS','NAS','Soubory a zálohy','Files and backups'], ['Proxmox','Proxmox','Testovací host na vyžádání','On-demand test host'],
+    ], [[0,1],[1,2],[2,3],[2,4],[2,5],[2,6],[2,7]]],
     'woodbound' => [[
-        ['Návrh světa','World design','Oblasti a záměry','Regions and intents'], ['Body zájmu','Locations','Průmyslová místa','Industrial sites'],
-        ['Terén','Terrain','Tvar a souš','Shape and land'], ['Biomy','Biomes','Typy prostředí','Environment types'],
-        ['Umístění','Placement','Prostorové podmínky','Spatial constraints'], ['Trasy','Routes','Koridory a spojení','Corridors and links'],
-        ['Validace','Validation','Kandidát musí projít','Candidate must pass'],
-    ], [[0,1],[0,2],[0,3],[1,4],[2,4],[3,4],[4,5],[5,6]]],
+        ['Definice světa','World definition','Oblasti a záměry','Regions and intents'], ['Pevnina a reliéf','Land & relief','Tvar země','Land shape'], ['Hydrologie','Hydrology','Tok vody a povodí','Water flow and watershed'],
+        ['Regiony a biomy','Regions & biomes','Čtyři typy oblastí','Four region types'], ['Průmyslová místa','Industry sites','Uzly a stavební plochy','Locations and build pads'], ['Koridory','Corridors','Cesty, koleje a stezky','Road, rail and trail intents'],
+        ['Pathfinder','Pathfinder','Zkouší trasu v kandidátovi','Searches the candidate map'], ['Validátory','Validators','Souš a prostorové invarianty','Land and spatial invariants'], ['Asset / scéna','Asset / scene','Bake výstup k další kontrole','Baked output for review'],
+    ], [[0,1],[0,4],[1,2],[1,3],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8]]],
     'scan2cad' => [[
-        ['Vstupní sken','Input scan','Síť nebo mračno bodů','Mesh or point cloud'], ['Měřítko','Scale','Potvrzený rozměr','Confirmed dimension'],
-        ['Očištění','Cleanup','Kontrola geometrie','Geometry review'], ['Fotografie','Photos','Odpovídající body','Matching points'],
-        ['Kamera','Camera','Odhad ke schválení','Estimate to confirm'], ['CAD kandidát','CAD candidate','Model pro kontrolu','Reviewable model'],
-        ['Výstup','Export','STEP nebo DXF','STEP or DXF'],
-    ], [[0,1],[1,2],[2,5],[3,4],[4,5],[5,6]]],
+        ['Síť / mračno','Mesh / point cloud','Vstupní geometrie','Input geometry'], ['Měřítko','Scale','Potvrzený rozměr','Confirmed dimension'], ['Očištění','Cleanup','Kontrola skenu','Scan review'],
+        ['Referenční foto','Reference photo','Odpovídající body','Matching points'], ['Kamera','Camera','Odhad potvrzuje člověk','Estimate reviewed by a person'], ['Geometrie','Geometry','Upravitelný kandidát','Editable candidate'],
+        ['Nejistoty','Uncertainty','Kontrola odchylek','Deviation review'], ['STEP / DXF','STEP / DXF','Export ke kontrole','Export for review'],
+    ], [[0,1],[1,2],[2,5],[3,4],[4,5],[5,6],[6,7]]],
     'tiskov' => [[
-        ['Poptávka','Request','Model a údaje','Model and details'], ['Symfony web','Symfony app','Příjem a metadata','Intake and metadata'],
-        ['Soubory','Files','Uložené podklady','Stored input'], ['MySQL fronta','MySQL queue','Úloha ke zpracování','Queued job'],
-        ['Worker + slicer','Worker + slicer','PrusaSlicer na Pi','PrusaSlicer on Pi'], ['Ruční dohoda','Manual agreement','Orientační odhad','Indicative estimate'],
-    ], [[0,1],[1,2],[1,3],[3,4],[4,5]]],
+        ['Poptávka','Request','Model a požadavky','Model and requirements'], ['Symfony','Symfony','Příjem a validace','Intake and validation'], ['Soubor + metadata','File + metadata','Uložené podklady','Stored input'],
+        ['MySQL fronta','MySQL queue','Oddělená úloha','Queued job'], ['Worker na Pi','Pi worker','Asynchronní zpracování','Asynchronous processing'], ['Slicer','Slicer','Analýza tiskové úlohy','Print-job analysis'],
+        ['Odhad','Estimate','Orientační výsledek','Indicative result'], ['Ruční potvrzení','Manual review','Finální dohoda','Final agreement'],
+    ], [[0,1],[1,2],[1,3],[3,4],[4,5],[5,6],[6,7]]],
     'shpotify' => [[
-        ['Účet','Account','Osobní nastavení','Personal settings'], ['Místnost','Room','Osobní či sdílená','Personal or shared'],
-        ['Fronta','Queue','Pořadí a ochrana duplicit','Order and deduplication'], ['Doporučení','Recommendations','Osobní a místnostní kontext','Personal and room context'],
-        ['Přehrávač','Player','Integrace rozpracovaná','Integration in progress'], ['Audio agent','Audio agent','Vzdálená integrace otevřená','Remote integration pending'],
-    ], [[0,1],[1,2],[2,3],[2,4],[4,5]]],
+        ['Účet','Account','Přihlášený člen','Signed-in member'], ['Pozvánka','Invitation','Vstup do místnosti','Room access'], ['Místnost','Room','Osobní či sdílená','Personal or shared'],
+        ['Fronta','Queue','Pořadí skladeb','Track order'], ['Ochrana duplicit','Idempotency','Opakovaný požadavek','Repeated request'], ['Doporučení','Recommendations','Osobní a místnostní signály','Personal and room signals'],
+        ['Spotify most','Spotify bridge','Integrace ve vývoji','Integration in progress'], ['Přehrávání','Playback','End-to-end nepotvrzeno','End-to-end not verified'],
+    ], [[0,1],[1,2],[2,3],[3,4],[3,5],[5,6],[6,7]]],
     'softwareinc-multiplayer' => [[
-        ['Herní událost','Game event','Vstup adaptéru','Adapter input'], ['Game adapter','Game adapter','Napojení na hru','Game integration'],
-        ['C# jádro','C# core','Pravidla spolupráce','Collaboration rules'], ['Persistence','Persistence','Uložení a zabezpečení','Storage and security'],
-        ['Rozhraní','UI','Zobrazení hráči','Player view'], ['Testy jádra','Core tests','Bez spuštěné hry','Without running the game'],
-        ['Běh ve hře','In-game run','Nutné ověřit zvlášť','Requires separate verification'],
-    ], [[0,1],[1,2],[2,3],[2,4],[2,5],[1,6],[2,6]]],
+        ['Hráč','Player','Záměr spolupráce','Collaboration intent'], ['Herní adaptér','Game adapter','Vstup a nativní UI','Input and native UI'], ['C# doménové jádro','C# domain core','Pravidla projektu','Project rules'],
+        ['Dohoda','Agreement','Účastníci a oprávnění','Participants and authority'], ['Persistence','Persistence','Stav a zabezpečení','State and security'], ['Testy jádra','Core tests','Bez běhu hry','Without game runtime'],
+        ['Game build','Game build','Cílová verze hry','Target game version'], ['Herní přijetí','In-game acceptance','Dosud neověřeno','Not yet verified'],
+    ], [[0,1],[1,2],[2,3],[2,4],[2,5],[1,6],[6,7]]],
     'discord-bot' => [[
-        ['Interakce','Interaction','Požadavek na bota','Bot request'], ['Discord klient','Discord client','Strom příkazů','Command tree'],
-        ['Synchronizace','Command sync','Testovací nebo globální','Test or global'], ['Kontrola oprávnění','Permission check','Správce před akcí','Operator before action'],
-        ['Údržba','Maintenance','Zdroj má syntaktickou chybu','Source has syntax error'], ['Nápověda','Help','Soubor je zatím prázdný','File is currently empty'],
-    ], [[0,1],[1,2],[1,3],[3,4],[1,5]]],
+        ['Discord event','Discord event','Příchozí interakce','Incoming interaction'], ['Klient','Client','Aplikační příkazy','Application commands'], ['Registr příkazů','Command registry','Testovací / globální sync','Test / global sync'],
+        ['Oprávnění','Authorization','Kontrola před akcí','Check before action'], ['Údržbový modul','Maintenance module','Aktuální syntax error','Current syntax error'], ['Systemd služba','Systemd service','Zamýšlená správa','Intended management'],
+        ['Běh v Discordu','Live Discord run','Zatím neověřen','Not yet verified'],
+    ], [[0,1],[1,2],[1,3],[3,4],[4,5],[5,6]]],
     default => null,
 };
+$walkthrough = match ($project->slug) {
+    'local-ai-hub' => [
+        ['01','Zaregistruj stabilní kořen','Register a stable root','První použití odešle jednorázový preprocess požadavek s absolutní cestou.','First use sends a one-time preprocess request with an absolute path.'],
+        ['02','Postav znovupoužitelnou mapu','Build a reusable map','Pozadí projde inventář a hashe, index a deterministické karty; Serena a RAG se připojí podle dostupnosti a potřeby.','The background pass builds inventory and hashes, an index and deterministic cards; Serena and RAG join when available and useful.'],
+        ['03','Zeptej se přesně','Ask precisely','Přesný dotaz na symbol použije code index a potřebné zdrojové výřezy; širší úkol skládá context z více důkazů až po levnějších indexovaných cestách.','An exact symbol question uses the code index and needed source slices; broader tasks compose context from multiple sources after cheaper indexed routes.'],
+        ['04','Ověř změnu v hostu','Verify on the host','Test spouští hostitelské prostředí. Výsledek modelu zůstává návrhem, ne důkazem správnosti.','Tests run in the host environment. Model output remains a suggestion, not proof of correctness.'],
+    ],
+    'mutaui' => [
+        ['01','Nainstaluj Mutagen zvlášť','Install Mutagen separately','Začni dvěma dočasnými složkami; MutaUI Mutagen CLI ani démon neinstaluje.','Start with two disposable folders; MutaUI does not install Mutagen CLI or its daemon.'],
+        ['02','Prohlédni relace','Inspect sessions','Stav synchronizace a forwardingu čte rozhraní z lokálního démona.','The interface reads sync and forwarding state from the local daemon.'],
+        ['03','Zkontroluj režim a náhled','Review mode and preview','Před spuštěním nové relace projdi zvolený režim a náhled operace.','Review the chosen mode and operation preview before starting a new session.'],
+        ['04','Ověř konkrétní platformu','Verify the target platform','Přiložené snímky jsou offline demo; build sám nepotvrzuje nativní podporu systému.','Included images are an offline demo; a build alone does not prove native OS support.'],
+    ],
+    'home-infrastructure' => [
+        ['01','Uprav požadovaný stav','Change desired state','Změna konfigurace začíná v Gitu, aby byla dohledatelná a vratná.','A configuration change starts in Git so it remains traceable and reversible.'],
+        ['02','Spusť Ansible přes Semaphore','Run Ansible through Semaphore','Runner zaznamená řízený běh; Ansible aplikuje roli na zvolený cíl.','The runner records a controlled job; Ansible applies a role to the selected target.'],
+        ['03','Sleduj konkrétní službu','Trace a concrete service','Video vede přes router do Jellyfinu a NAS; tisková úloha končí na CUPS uzlu.','Video flows through the router to Jellyfin and the NAS; a print job ends at the CUPS node.'],
+        ['04','Rozliš konfiguraci od provozu','Separate configuration from runtime','Pi-hole, Unbound, BookStack a další služby jsou dokumentované role. Diagram nečte dostupnost ani adresy.','Pi-hole, Unbound, BookStack and other services are documented roles. The diagram reads no availability or addresses.'],
+    ],
+    'woodbound' => [
+        ['01','Zadej záměr světa','Define world intent','Definice spojuje čtyři oblasti, průmyslová místa a záměry tras.','The definition connects four regions, industrial sites and route intents.'],
+        ['02','Vypočti fyzické vrstvy','Generate physical layers','Uspořádané moduly skládají terén, hydrologii a biomy před umístěním uzlů a koridorů.','Ordered modules build terrain, hydrology and biomes before placing sites and corridors.'],
+        ['03','Najdi a zkontroluj trasu','Find and validate a route','Pathfinder pracuje s kandidátní mapou; validátor odhaluje například bod na vodě nebo přerušený koridor.','The pathfinder uses a candidate map; validators can expose a site on water or a broken corridor.'],
+        ['04','Považ výsledek za kandidáta','Treat output as a candidate','Asset a scéna jsou výstupy generování, nikoli přijetí hotové hratelné hry.','The asset and scene are generated outputs, not acceptance of a finished playable game.'],
+    ],
+    'scan2cad' => [
+        ['01','Načti sken a rozměr','Load a scan and dimension','Bez fyzické reference nemá síť spolehlivé absolutní měřítko.','Without a physical reference, a mesh has no reliable absolute scale.'],
+        ['02','Očisti geometrii','Review the geometry','Označ problematické části a odděl pozorované tvary od nejistých.','Mark problem areas and separate observed shapes from uncertain ones.'],
+        ['03','Potvrď fotografickou projekci','Confirm photo projection','Spoj referenční body, zkontroluj odhad kamery a před projekcí ho potvrď.','Match reference points, review the camera estimate and confirm it before projection.'],
+        ['04','Exportuj CAD kandidáta','Export a CAD candidate','STEP/DXF a vypočtená odchylka pomáhají kontrole; nenahrazují fyzické měření.','STEP/DXF and computed deviation aid review; they do not replace physical measurement.'],
+    ],
+    'tiskov' => [
+        ['01','Přijmi model','Receive a model','Webová žádost uloží soubor a metadata, ale slicer neběží v HTTP požadavku.','The web request stores the file and metadata; the slicer does not run inside the HTTP request.'],
+        ['02','Odděl práci frontou','Separate work with a queue','MySQL drží stav mezi Symfony aplikací a workerem, zatímco web přijímá další poptávky.','MySQL holds state between Symfony and the worker while the web app accepts more requests.'],
+        ['03','Zpracuj mimo web','Process outside the web app','Worker na Raspberry Pi provede slicing a předá výsledek k dalšímu posouzení.','The Raspberry Pi worker performs slicing and returns a result for review.'],
+        ['04','Potvrď dohodu ručně','Agree manually','Cena je orientační, bez online platby; konečná dohoda probíhá s člověkem.','The price is indicative, with no online payment; a person confirms the final agreement.'],
+    ],
+    'shpotify' => [
+        ['01','Vstup do místnosti','Enter a room','Účet a pozvánka určují, zda jde o osobní nebo sdílený prostor.','The account and invitation determine whether the space is personal or shared.'],
+        ['02','Spravuj frontu společně','Manage the queue together','Členové řadí skladby; verze a idempotence pomáhají zvládat opakované požadavky.','Members reorder tracks; versions and idempotency help handle repeated requests.'],
+        ['03','Prohlédni doporučení','Inspect a recommendation','Doporučovací část používá osobní a místnostní kontext, ale příklad neznamená stream.','The recommendation layer uses personal and room context, but the example is not a stream.'],
+        ['04','Přehrávání zůstává otevřené','Playback remains open','Prohlížečový přehrávač a vzdálený audio agent ještě potřebují vlastní end-to-end ověření.','Browser playback and the remote audio agent still need their own end-to-end verification.'],
+    ],
+    'softwareinc-multiplayer' => [
+        ['01','Hráč navrhne spolupráci','A player proposes collaboration','Sdílený projekt nebo dohoda začíná vstupem z herní vrstvy.','A shared project or agreement starts with an input from the game layer.'],
+        ['02','Jádro ověří pravidla','The core checks rules','C# doména kontroluje účastníky a stav nezávisle na části herního adaptéru.','The C# domain checks participants and state separately from the game adapter.'],
+        ['03','Adaptér předá změnu','The adapter passes the change','Nativní vazba a persistence se musí ověřit při spuštění i restartu cílové hry.','Native integration and persistence need verification during a target-game run and restart.'],
+        ['04','Hratelné vydání není potvrzené','A playable release is not confirmed','Testy jádra proběhly pro konkrétní DLL, ale kandidát nebyl spuštěn ve hře.','Core tests ran for a specific DLL, but the candidate was not launched in-game.'],
+    ],
+    'discord-bot' => [
+        ['01','Discord předá interakci','Discord sends an interaction','Klient vytváří strom aplikačních příkazů a synchronizuje ho podle nastavení.','The client builds an application-command tree and syncs it according to configuration.'],
+        ['02','Zkontroluj oprávnění','Check authorization','Zamýšlená údržbová akce nejprve kontroluje správce.','The intended maintenance action checks for an authorized operator first.'],
+        ['03','Zastav se u syntaxe','Stop at the syntax gate','Dostupný modul údržby nyní neprojde syntaxí, proto nelze tvrdit, že cesta funguje.','The available maintenance module currently fails syntax validation, so the path cannot be called working.'],
+        ['04','Běh není doložen','Runtime is unverified','Zdroj je potřeba opravit a bota ověřit na testovacím serveru před funkční ukázkou.','Repair the source and verify the bot on a test server before claiming a working demo.'],
+    ],
+    default => [],
+};
 ?>
- <?php if ($detail !== null): [$copy] = $detail; [$architectureNodes, $architectureEdges] = $architecture;
+ <?php if ($detail !== null): [$copy] = $detail; [$architectureNodes, $architectureEdges] = $architecture; $architectureHeight = max(440, (int)ceil(count($architectureNodes) / 3) * 142 + 20);
 $more = match ($project->slug) {
- 'local-ai-hub' => $lang->value('Sedm veřejných MCP nástrojů pokrývá stav, práci s repozitářem, lokální úlohy, vyhledávání, koordinaci, pracovní předání a artefakty. Výsledky mohou nést identitu zdroje a důkazy; samotná konfigurace ale nedokazuje kvalitu odpovědi, dostupnost modelu ani úsporu tokenů.', 'Seven public MCP tools cover status, repository work, local tasks, retrieval, coordination, work handoffs and artifacts. Results can carry source identity and evidence; configuration alone does not prove answer quality, model availability or token savings.'),
+ 'local-ai-hub' => $lang->value('Zdrojová verze 6.1.0 vystavuje sedm MCP nástrojů. README popisuje preprocessing jako inventory → hash → code index → deterministické karty → Serena → lexical → případné RAG → file/module/project mapy → diagnostiku. Některé back-endy jsou volitelné a degradují samostatně; status complete proto dokládá průchod pipeline, ne správnost každého výsledku ani přítomnost modelu. Verze je release candidate, nikoli přijaté produkční vydání.', 'Source version 6.1.0 exposes seven MCP tools. Its README describes preprocessing as inventory → hashes → code index → deterministic cards → Serena → lexical search → optional RAG → file/module/project maps → diagnostics. Some backends are optional and degrade independently; a complete pipeline status does not prove each result correct or a model present. This version is a release candidate, not an accepted production release.'),
  'mutaui' => $lang->value('Synchronizační relace řeší obsah mezi koncovými body; forwarding slouží k předání síťového spojení. Rozhraní nabízí přehled, seskupení a diagnostiku, ale stav zůstává odvozený od Mutagenu. Vytvořený instalační balíček sám o sobě nedokazuje, že prošel nativní zkouškou na všech podporovaných systémech.', 'Synchronization sessions handle content between endpoints; forwarding carries network connections. The interface offers overview, grouping and diagnostics, while Mutagen remains the source of state. A built installer alone does not prove native acceptance on every supported system.'),
  'home-infrastructure' => $lang->value('Názorný příklad je DNS: domácí klient pošle dotaz přes router, který za běžných podmínek používá lokální filtr a resolver. Dokumentace popisuje záložní resolver při jejich nedostupnosti. Zálohovací úložiště a testovací server mají odlišný režim dostupnosti; mapa není živé měření.', 'DNS offers a concrete example: a home client sends a query through the router, which normally uses a local filter and resolver. Documentation describes a fallback resolver if they are unavailable. Backup storage and the test server have different availability patterns; the map is not live telemetry.'),
  'woodbound' => $lang->value('Návrhová dokumentace popisuje několik oblastí, průmyslové body a různé typy dopravních spojení. Záměr trasy ovšem ještě není důkazem její fyzické průchodnosti: kontrola musí vyhodnotit skutečně vytvořený terén a konkrétní kandidátní svět.', 'Design documents describe several regions, industrial locations and different transport connections. A route intent is not proof of physical traversability: a check must evaluate the terrain and the specific generated candidate.'),
@@ -121,10 +175,14 @@ $more = match ($project->slug) {
 <section class="section shell project-deepdive" data-project-deepdive aria-labelledby="project-deepdive-title">
  <div class="section-heading"><div><span class="eyebrow"><?= $lang->value('PODROBNĚJI', 'IN DEPTH') ?></span><h2 id="project-deepdive-title"><?= Html::escape($copy[0]) ?></h2></div></div>
  <div class="project-deepdive-copy"><p><?= Html::escape($copy[1]) ?></p><p><?= Html::escape($copy[2]) ?></p><p><?= Html::escape($more) ?></p></div>
+ <section class="case-walkthrough" aria-labelledby="walkthrough-title">
+  <div class="case-walkthrough-heading"><div><span class="eyebrow"><?= $lang->value('JEDEN KONKRÉTNÍ PRŮCHOD', 'ONE CONCRETE TRACE') ?></span><h3 id="walkthrough-title"><?= $lang->value('Co se stane krok za krokem', 'What happens, step by step') ?></h3></div><span class="demo-stamp"><?= $lang->value('ILUSTRATIVNÍ PRŮCHOD', 'ILLUSTRATIVE TRACE') ?></span></div>
+  <ol class="case-walkthrough-steps"><?php foreach ($walkthrough as [$number,$titleCs,$titleEn,$bodyCs,$bodyEn]): ?><li><span><?= Html::escape($number) ?></span><div><h4><?= Html::escape($lang->value($titleCs,$titleEn)) ?></h4><p><?= Html::escape($lang->value($bodyCs,$bodyEn)) ?></p></div></li><?php endforeach; ?></ol>
+ </section>
  <figure class="architecture-figure" data-project-architecture>
   <figcaption><strong><?= $lang->value('Mapa architektury', 'Architecture map') ?></strong><span><?= $lang->value('Šipky ukazují návaznosti popsané v podkladech; diagram není snímek ani živý stav.', 'Arrows show relationships described in the source material; this is not a screenshot or live status.') ?></span></figcaption>
   <div class="architecture-canvas" data-architecture-canvas role="region" tabindex="0" aria-label="<?= $lang->value('Diagram lze na úzké obrazovce posouvat vodorovně', 'Scroll the diagram horizontally on a narrow screen') ?>">
-   <svg viewBox="0 0 960 440" role="img" aria-label="<?= $lang->value('Komponenty projektu a doložené návaznosti; popisy jsou v seznamu pod schématem', 'Project components and documented relationships; descriptions follow below') ?>" xmlns="http://www.w3.org/2000/svg">
+   <svg viewBox="0 0 960 <?= $architectureHeight ?>" role="img" aria-label="<?= $lang->value('Komponenty projektu a doložené návaznosti; popisy jsou v seznamu pod schématem', 'Project components and documented relationships; descriptions follow below') ?>" xmlns="http://www.w3.org/2000/svg">
     <defs><marker id="architecture-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#49665f" /></marker></defs>
     <?php foreach ($architectureEdges as [$from, $to]): $sourceX = 20 + ($from % 3) * 310; $sourceY = 24 + intdiv($from, 3) * 142; $targetX = 20 + ($to % 3) * 310; $targetY = 24 + intdiv($to, 3) * 142; ?>
     <?php if (intdiv($to, 3) === intdiv($from, 3) && $to - $from > 1): ?>

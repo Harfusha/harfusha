@@ -1,33 +1,24 @@
-# Podklady pro případové studie – 16. 11. 2026
+# Podklady k veřejným případovým studiím — 16. 11. 2026
 
-Podklady jsou snímek přečtených souborů; HEAD není důkazem stavu necommitovaných změn. Veřejné příklady jsou označeny jako ilustrativní.
+Tento záznam shrnuje kontrolované zdrojové revize a hranice toho, co lze tvrdit na veřejném webu. Neobsahuje interní adresy, přihlašovací údaje ani absolutní cesty z pracovní stanice. Příklady na webu jsou označené jako ilustrativní, pokud nejde o přímo ověřený běh.
 
-- Local AI Hub: `C:/Users/Adam/.local-ai-hub/README.md`, HEAD 070079a5; zdrojový release candidate, 7 MCP nástrojů, provoz závisí na konfiguraci.
-- MutaUI: `C:/Ostatní/MutagenApp/README.md`, HEAD f94e63c; `docs/assets/images/actual-ui/forward-cs-dark.png` a `sync-en-light.png` jsou screenshoty offline dema se syntetickými daty a vypnutými akcemi.
-- Home Infrastructure: `C:/Ostatní/Home/README.md`, HEAD 4c49dece; role služeb a způsob konfigurace, ne živý stav; interní adresy a údaje se nezveřejňují.
-- Woodbound: `C:/Ostatní/WoodTycoon/PROJECT.md`, HEAD 72c22cdc5; návrh oblastí, terénu, tras a validace, nikoliv přijetí hratelného světa.
-- Scan2CAD: `C:/Ostatní/Scan2Cad/README.md`, HEAD 90e2940; kalibrace, kontrola referenčních fotografií, CAD kandidát a limity měření.
-- Shpotify: `C:/Ostatní/Shpotify/README.md`, HEAD 46742be; místnosti, fronta a doporučování; přehrávání není plně doloženo.
-- Software Inc: `C:/Ostatní/SoftwareIncCoopRevamped/README.md`, HEAD c615daa; jádro a adaptér, hratelný multiplayer není potvrzen.
-- Discord bot: `C:/Ostatní/vitkovskeNpc/core/client.py`, `core/featureRegistry.py`, `features/maintenance.py`, HEAD 9c0305e; lokální syntax check nalezl chybu v modulu údržby na řádku 18. Živý provoz nebyl ověřen.
-- Tiskov: `C:/Ostatní/filamentApp/README.md`, HEAD dd49a23; Symfony přijímá data, MySQL drží frontu a samostatný worker provádí slicing. Cena je odhad a dohoda je ruční; aktuální provoz ani přesnost konkrétního výpočtu nejsou ověřeny.
-- Maker Lab: na výslovné přání žádné jednotlivé výrobky; schéma popisuje plán budoucí dokumentace.
+## Kontrolované zdroje
 
-## Ověření a nasazení
+- **Local AI Hub — `ae765656`**. Aktuální README potvrzuje, že zdroj 6.1.0 je stále release candidate; pracovní změny v ostatních souborech checkoutu jsem do tvrzení nepřebíral. README popisuje sedm MCP nástrojů, jednorázovou registraci stabilního kořene a asynchronní pipeline: inventory → hash → code index → deterministic → Serena → lexical → RAG → file/module/project maps → hot queries → diagnostics → complete. Přesné dotazy míří nejdřív na deterministická fakta a indexy; složitější úkoly skládají adaptive context z více zdrojů. RAG a lokální syntéza nastupují až po levnějších indexovaných cestách. Serena a RAG jsou volitelné; lokální model není nutný pro přesné indexované dotazy. Testy spouští hostitelské prostředí.
+- **MutaUI — `f94e63c`**. Ovládací plocha pro samostatně instalovaný Mutagen CLI a lokální démon; vlastní synchronizační algoritmus ani vzdáleného agenta neobsahuje. Přiložené snímky jsou offline demo se syntetickými daty a vypnutými akcemi. Podpora buildů není důkaz nativního přijetí na každém systému.
+- **Home Infrastructure — `4c49dece`**. Git je zdroj požadované konfigurace, Semaphore spouští úlohy a Ansible je provádí. Veřejný model uvádí Pi-hole, Unbound, Jellyfin, Semaphore, BookStack, CUPS, NAS zálohy, WireGuard a testovací Proxmox. Jde o dokumentované role, ne živý monitoring; žádné interní adresy se nepublikují.
+- **Woodbound — `72c22cdc5`**. Zdrojové návrhy popisují čtyři oblasti, hydrologii, průmyslová místa, trasové záměry, dvacet kroků fyzické pipeline a validátory. Vývojové kontroly ani bake nepotvrzují přijatý hratelný svět.
+- **Scan2CAD Studio — `90e2940`**. Dokumentovaný beta postup vyžaduje fyzicky potvrzené měřítko, kontrolu geometrie a schválení odhadu kamery u referenčních fotografií. STEP/DXF je kandidát k odborné a fyzické kontrole, ne certifikované měření.
+- **Shpotify — `46742be`**. Zdroj popisuje účty, pozvánky, osobní a sdílené místnosti, fronty a doporučování. Přehrávání v prohlížeči a vzdálený audio agent nejsou end-to-end ověřené.
+- **Software Inc co-op mod — `c615daa`**. Doménové jádro, persistence a adaptér existují; aktuální README výslovně uvádí, že kandidát nebyl spuštěn ve hře. Hratelný multiplayer se netvrdí.
+- **Discord bot — `9c0305e`**. Zdrojová kontrola dříve nalezla syntaktickou chybu v modulu údržby. Živý provoz není doložen; veřejný text projekt označuje jako rozpracovaný a v opravě.
+- **Tiskov — `dd49a23`**. Symfony přijímá podklady, MySQL drží frontu a samostatný Raspberry Pi worker provádí slicing. Odhad pro Bambu Lab A1 je orientační, bez online platby a s ruční konečnou dohodou; aktuální běh a přesnost výpočtu nejsou ověřené.
+- **Maker Lab**. Na přání nejsou zveřejněné jednotlivé výrobky; stránka zůstává neutrálním placeholderem.
 
-Balíček update36 SHA-256 `8f3240ad2c8716f3034d6483a9c4d4544c131baea142a6c54f7b706e44993c86`: ověřen manifest, FTP baseline i nahrané soubory. Živých 20 detailů obsahuje text a pětikrokové schéma; oba nové snímky MutaUI vracejí PNG. Lokálně 130 prohlížečových kontrol, 175 standalone kontrol, 47 Python testů a 4 cílené PHPUnit testy. Tři Python testy a POSIX kontrola oprávnění jsou na tomto prostředí přeskočené. Hub verify_completion nevydal potvrzení, protože úloha nemá brokerové doklady; výsledek neoznačujeme jako Hub potvrzení.
+## Veřejná prezentace
 
-## Následná revize případových studií
+Každá z devíti projektových stránek nyní obsahuje přeložený problém, řešení, konkrétní čtyřkrokový průchod a projektově specifický diagram. Diagram je vysvětlující model, ne screenshot ani telemetrie. MutaUI, Tiskov a Woodbound mají u obrázků výslovně uveden původ a omezení. Lokální AI Hub zobrazuje rozdíl mezi preprocessingem, přesným vyhledáním a následným ověřením; tři větve Playgroundu jsou deterministické simulace.
 
-Původní pětikrokové pásy nahradila mapa komponent a vazeb specifická pro každý projekt (5–7 uzlů). Diagramy vycházejí z výše uvedených zdrojů. MutaUI ukazuje offline demo se syntetickými daty; Tiskov má zdrojovou grafiku, nikoli snímek aplikace; Woodbound má pracovní záběr z vývojové evidence, který nepotvrzuje hotovou hru. Dva nové obrázky mají samostatné testy původu, alt textu, lokálního souboru a PNG hlavičky. Prohlížeč dále ověřuje názvy projektů, absenci vyřazených názvů a kontrast legendy. Výsledek: 130 Chromium kontrol, public-content audit, audit 50 vykreslených stránek a PHP syntax check prošly.
+## Nasazovací hranice
 
-Kandidát `C:/Ostatní/harfusha-web-update38.zip` obsahuje 1 447 ověřených produkčních souborů; SHA-256 `034336297efaef4b0d59b297b21a373d82a6147cfc13e01922dcddfb23112801`. **Nenasazeno:** `scripts/review-public-content.py --verify` nadále hlásí `Public content changed since editorial approval; review again`; změnily se veřejné šablony i obrázky. Živá stránka `/cs/projects/scan2cad` vrací HTTP 200 a stále zobrazuje předchozí postupové schéma; read-only staging smoke prošel. Před zveřejněním update38 je potřeba čerstvá ruční kontrola a schválení aktuálního snapshotu. Žádný plánovač nebyl vytvořen.
-
-## Následná UX revize — 16. 11. 2026
-
-- `/now` ukazuje pouze poslední zaznamenané veřejné změny repozitářů; redakční zápisky zůstávají ve `/journal`.
-- Neověřené Maker Lab návrhy jsou odstraněné z katalogu, grafu i interních dat; `/maker` zůstává jen stručnou stránkou přípravy.
-- Mapa projektů automaticky vybere první doložený uzel a případová studie Maker Lab vrací 404.
-- Playground začíná konkrétní interakcí s konfliktem ve dvou kopiích souboru; text výslovně říká, že jde o simulaci v prohlížeči.
-- Ověřeno: Composer quality (PHP 8.5.12), 160 PHPUnit testů / 612 kontrol (9 přeskočeno kvůli POSIX oprávněním), 172 standalone kontrol, 88 PHPStan souborů, 130 Chromium kontrol, audit veřejného obsahu a 50 vykreslených stránek.
-- **Stále nenasazeno:** čerstvý obsahový otisk neodpovídá lidskému schválení. Aktuální náhled je v `tmp/public-preview`; release builder jej bez nového schválení odmítne.
+Dříve nasazený baseline `a4c39ca` prošel třemi CI joby, kontrolou archivu a živými HTTP/asset kontrolami. Izolovaný HTTPS staging se nepodařilo zřídit. Novější veřejný obsah vyžaduje nové kontroly a schválení přesného snapshotu; žádné starší schválení se na něj nepřenáší.

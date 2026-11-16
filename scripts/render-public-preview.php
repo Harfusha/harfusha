@@ -26,7 +26,10 @@ namespace {
         function mb_strlen(string $value, ?string $encoding = null): int { return strlen($value); }
     }
     $root = dirname(__DIR__);
-    $out = $root . '/tmp/public-preview';
+    $previewDir = getenv('HAFRUSHA_PREVIEW_DIR');
+    $out = $previewDir === false || $previewDir === ''
+        ? $root . '/tmp/public-preview'
+        : (str_starts_with($previewDir, DIRECTORY_SEPARATOR) ? $previewDir : $root . '/' . $previewDir);
     spl_autoload_register(static function (string $class) use ($root): void {
         if (!str_starts_with($class, 'App\\')) {
             return;

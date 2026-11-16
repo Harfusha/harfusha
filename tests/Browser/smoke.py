@@ -10,12 +10,13 @@ Cake ORM and authentication still require the separate integration/staging gates
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-HTML = ROOT / 'tmp' / 'public-preview'
+HTML = Path(os.environ.get('HAFRUSHA_PREVIEW_DIR', str(ROOT / 'tmp' / 'public-preview')))
 APP = (ROOT / 'webroot/assets/js/app.js').read_text(encoding='utf-8')
 CORE = (ROOT / 'webroot/assets/js/lab-core.js').read_text(encoding='utf-8')
 CSS = (ROOT / 'webroot/assets/css/app.css').read_text(encoding='utf-8')
@@ -47,7 +48,7 @@ def main() -> None:
                 page.on('pageerror', lambda error: errors.append(str(error)))
                 try:
                     core_sites = ('cs/', 'en/', 'cs/connections', 'cs/homelab', 'cs/projects',
-                                  'cs/now', 'cs/playground', 'cs/maker', 'cs/open-source', 'cs/decisions')
+                                  'cs/now', 'cs/playground', 'cs/projects/local-ai-hub', 'cs/maker', 'cs/open-source', 'cs/decisions')
                     if width in (320, 1365):
                         all_sites = [p.parent.relative_to(HTML).as_posix() for p in HTML.rglob('index.html')]
                         sites = sorted(site + '/' if site in ('cs', 'en') else site for site in all_sites)
@@ -61,7 +62,7 @@ def main() -> None:
                         page.add_script_tag(content=CORE)
                         page.add_script_tag(content=APP)
                         if page.evaluate('document.documentElement.scrollWidth > window.innerWidth'):
-                            overflow = page.evaluate('''() => {
+                            overflow = page.evaluate(r'''() => {
                                 const root = document.documentElement;
                                 const width = window.innerWidth;
                                 const graph = document.querySelector('[data-connections-svg]');
@@ -127,11 +128,12 @@ def main() -> None:
                             assert page.locator('[data-connections-name]').inner_text() not in ('—', 'Mapa projektů', 'Project map'), (site, 'empty project inspector')
                             assert 'hidden' not in (page.locator('[data-connections-open]').get_attribute('class') or ''), (site, 'missing selected project link')
                         if site == 'cs/playground':
-                            assert page.locator('[data-demo-tab="sync"]').get_attribute('aria-selected') == 'true'
-                            assert page.locator('[data-demo-panel="sync"]').is_visible()
+                            assert page.locator('[data-demo-tab="ai"]').get_attribute('aria-selected') == 'true'
+                            assert page.locator('[data-demo-panel="ai"]').is_visible()
                         if '/projects/' in site and site.split('/')[-1] in ('local-ai-hub', 'mutaui', 'home-infrastructure', 'woodbound', 'scan2cad', 'tiskov', 'shpotify', 'softwareinc-multiplayer', 'discord-bot'):
                             assert page.locator('[data-project-example]').count() == 1, (site, 'missing example')
-                            assert page.locator('[data-project-deepdive] p').count() >= 2, (site, 'missing project detail')
+                            assert page.locator('[data-project-deepdive] p').count() >= 3, (site, 'missing project detail')
+                            assert page.locator('[data-project-deepdive] .case-walkthrough-steps li').count() == 4, (site, 'missing concrete walkthrough')
                             assert page.locator('[data-project-architecture] li').count() >= 5, (site, 'missing detailed architecture')
                             assert page.locator('[data-project-architecture] svg').count() == 1, (site, 'missing visual')
                             diagram = page.locator('[data-project-architecture]')
@@ -140,15 +142,18 @@ def main() -> None:
                             assert diagram.locator('[data-architecture-canvas] svg').get_attribute('aria-label'), (site, 'missing diagram description')
                             slug = site.split('/')[-1]
                             project_markers = {
-                                'local-ai-hub': ('MCP', 'MCP'), 'mutaui': ('MutaUI', 'MutaUI'),
-                                'home-infrastructure': ('Ansible', 'Ansible'), 'woodbound': ('Biomy', 'Biomes'),
-                                'scan2cad': ('STEP', 'STEP'), 'tiskov': ('PrusaSlicer', 'PrusaSlicer'),
-                                'shpotify': ('Místnost', 'Room'), 'softwareinc-multiplayer': ('C# jádro', 'C# core'),
-                                'discord-bot': ('Údržba', 'Maintenance'),
+                                'local-ai-hub': ('Code index', 'Code index'), 'mutaui': ('MutaUI', 'MutaUI'),
+                                'home-infrastructure': ('Ansible', 'Ansible'), 'woodbound': ('biomy', 'biomes'),
+                                'scan2cad': ('STEP', 'STEP'), 'tiskov': ('Slicer', 'Slicer'),
+                                'shpotify': ('Místnost', 'Room'), 'softwareinc-multiplayer': ('C# doménové jádro', 'C# domain core'),
+                                'discord-bot': ('Údržbový modul', 'Maintenance module'),
                             }
                             expected = project_markers[slug][1 if site.startswith('en/') else 0]
                             assert expected in diagram.inner_text(), (site, 'diagram does not match project')
                             body_text = page.locator('body').inner_text().casefold()
+                            if slug == 'local-ai-hub':
+                                retrieval_order = 'cheaper indexed routes' if site.startswith('en/') else 'levnějších indexovaných cestách'
+                                assert 'adaptive context' in body_text and retrieval_order in body_text, (site, 'Local AI Hub retrieval order is inaccurate')
                             for retired_name in ('wishflix', 'code reviews', 'tools extended', 'woodtycoon', 'vitkovske npc', 'filamentapp'):
                                 assert retired_name not in body_text, (site, f'retired name leaked: {retired_name}')
                             source_image_slugs = ('tiskov', 'woodbound')
@@ -296,10 +301,26 @@ def main() -> None:
                                 assert tab.get_attribute('aria-controls') == demo
                                 assert panel.get_attribute('aria-labelledby') == f'tab-{demo}'
                                 assert panel.get_attribute('tabindex') == '0'
-                            page.locator('[data-demo-tab="ai"]').click()
+                            assert page.locator('[data-demo-tab="ai"]').get_attribute('aria-selected') == 'true', 'AI context is the default station'
+                            assert page.locator('[data-ai-steps] button').count() == 10, 'preprocessing stages are explicit'
+                            assert page.locator('[data-ai-steps]').evaluate("node => node.style.getPropertyValue('--ai-progress')") == '0%', 'trace progress starts at the first stage'
+                            assert page.locator('[data-ai-steps] .ai-step.pending').count() == 9, 'future stages are visibly pending'
+                            assert 'jednorázový' in page.locator('[data-ai-description]').inner_text()
+                            assert 'idempotentní' in page.locator('[data-ai-scenario-note]').inner_text()
+                            page.locator('[data-ai-scenario]').select_option('warm-query')
+                            assert page.locator('[data-ai-steps] button').count() == 5
+                            page.locator('[data-ai-steps] button').nth(1).click()
+                            assert 'indexu' in page.locator('[data-ai-description]').inner_text()
+                            page.locator('[data-ai-scenario]').select_option('model-offline')
+                            assert 'model' in page.locator('[data-ai-scenario-note]').inner_text().lower()
+                            page.locator('[data-ai-scenario]').select_option('first-use')
                             before = page.locator('[data-ai-index]').inner_text()
                             page.locator('[data-ai-next]').click()
                             assert page.locator('[data-ai-index]').inner_text() != before
+                            assert page.locator('[data-ai-steps] .ai-step.complete').count() == 1, 'previous stage is marked complete'
+                            assert page.locator('[data-ai-steps] .ai-step.active').count() == 1, 'current stage is unique'
+                            assert page.locator('[data-ai-steps] .ai-step.pending').count() == 8, 'remaining stages stay pending'
+                            assert float(page.locator('[data-ai-steps]').evaluate("node => parseFloat(node.style.getPropertyValue('--ai-progress'))")) > 0, 'trace rail advances'
                             page.locator('[data-demo-tab="ai"]').focus()
                             page.keyboard.press('ArrowRight')
                             assert page.locator('[data-demo-tab="sync"]').get_attribute('aria-selected') == 'true', 'ArrowRight tab navigation'
@@ -340,9 +361,19 @@ def main() -> None:
                             page.locator('[data-cad-wire]').check()
                             page.locator('[data-cad-reset]').click()
                             assert 'sample geometry' in page.locator('[data-cad-info]').inner_text()
-                        if args.screenshots and site in ('cs/', 'cs/homelab', 'cs/connections'):
-                            image = screenshots / f"{width}_{site.strip('/').replace('/', '_') or 'home'}.png"
-                            page.screenshot(path=str(image), full_page=False)
+                        if args.screenshots and width == 1365 and site == 'cs/':
+                            page.screenshot(path=str(screenshots / 'readme-home.png'), full_page=False)
+                        if args.screenshots and site == 'cs/projects/local-ai-hub' and width in (390, 1365):
+                            page.add_style_tag(content='.site-header{display:none!important}')
+                            name = 'readme-local-ai-hub-mobile.png' if width == 390 else 'readme-local-ai-hub.png'
+                            target = '[data-project-deepdive] .case-walkthrough' if width == 390 else '[data-project-architecture]'
+                            page.locator(target).screenshot(path=str(screenshots / name))
+                        if args.screenshots and site == 'cs/playground' and width == 1365:
+                            page.locator('[data-demo-tab="ai"]').click()
+                            page.locator('[data-ai-scenario]').select_option('first-use')
+                            page.locator('[data-ai-steps] button').nth(4).click()
+                            page.add_style_tag(content='.site-header{display:none!important}')
+                            page.locator('[data-demo-panel="ai"]').screenshot(path=str(screenshots / 'readme-playground.png'))
                         assert not errors, (width, site, errors)
                         checked += 1
                 finally:

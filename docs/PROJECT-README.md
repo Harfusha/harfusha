@@ -4,19 +4,37 @@
 
 This site is an interactive engineering workshop, not just a self-promotion page. It shows real projects and upstream contributions, a privacy-reviewed model of a home network, and **clearly labelled simulations** visitors can explore themselves. Its own source demonstrates CakePHP MVC/ORM, typed domain objects, migrations, security controls, careful browser code and reproducible validation scripts.
 
-> **Verification status, 15 Nov 2026:** All three GitHub Actions jobs passed for commit `57d7608` in [verified run #43658555206](https://github.com/Harfusha/harfusha/actions/runs/43658555206) on PHP 8.5: locked Composer dependencies, actual CakePHP HTTP security checks, isolated MySQL 8.4 migrations, PHPUnit (including persistent editorial and empty-import regressions), PHPStan max with CakeDC/strict/ShipMonk, PHPCS, strict client JS checks and Chromium browser tests (including STL upload). CI also completed a clean, isolated **production-only Composer install and platform check**. This verifies the CI environment **only**. It is not evidence that `scripts/build-release.py` has built an approved distributable archive, or that the app has been deployed to shared hosting. **Still required:** target-host HTTPS staging, database restore/rollback, configuration and human content/image review.
+> **Last deployed baseline, 16 Nov 2026:** Commit `a4c39ca` passed all three GitHub Actions jobs in [run #43884556832](https://github.com/Harfusha/harfusha/actions/runs/43884556832). Its verified archive and post-deploy checks are evidence for that exact snapshot only. Isolated HTTPS staging was not available; it is not claimed as passed. The case-study and workbench changes documented below are a newer candidate and need their own validation and public-content approval before release.
+
+## Current project-story direction (16 Nov 2026)
+
+The catalogue contains **nine** projects. Each detail now follows a concrete input through the components that act on it, then states what remains a prototype, simulation or unverified runtime claim. The source-aligned architecture map is explanatory; it is not telemetry.
+
+Local AI Hub is described as a repository lifecycle: one idempotent registration, asynchronous preprocessing (inventory, hashes, code index, deterministic cards, optional Serena/RAG and project maps), then exact indexed retrieval and narrow source slices. Exact questions use indexed facts and narrow source slices; broader tasks can compose adaptive context from multiple sources, with RAG and model synthesis after cheaper indexed routes. Models are optional advisers; tests run in the host environment.
+
+The Playground uses one method across five browser-only cases: input → system trace → evidence. The Hub case branches between first-use preprocessing, a warm index and an unavailable local model. Simulations do not invoke the actual Hub, Mutagen, Unity generator, CAD repair or CakePHP server.
+
+Fresh browser captures for the current source snapshot:
+
+![Current Harfusha Lab home](screenshots/readme-home.png)
+
+![Local AI Hub preprocessing map](screenshots/readme-local-ai-hub.png)
+
+![Workbench preprocessing walkthrough](screenshots/readme-playground.png)
+
+![Mobile Local AI Hub walkthrough](screenshots/readme-local-ai-hub-mobile.png)
 
 ## Explore the site
 
 | Public URL (both `/cs` and `/en`) | Behavior |
 |---|---|
 | `/` | Project-first homepage with interactive areas and recent *public* repository snapshot |
-| `/projects` and `/projects/{slug}` | Filterable catalogue and 13 curated case studies, including private project *descriptions* only |
+| `/projects` and `/projects/{slug}` | Filterable catalogue and 9 curated case studies, with private project *descriptions* only |
 | `/connections` | Interactive relationship graph of projects, tools and home infrastructure |
 | `/decisions` | Seven explainable architectural choices with context, trade-offs and documented limitations |
 | `/homelab` | Network topology, node inspection, failure simulation and four bilingual conceptual data paths |
 | `/maker` | Physical prototypes, design notes, FDM experiments and links to related software |
-| `/playground#ai` | Illustrated, step-by-step local AI agent workflow; never runs agents or code |
+| `/playground#ai` | Branching preprocessing, indexed retrieval and model-offline scenarios; deterministic illustration only |
 | `/playground#sync` | Deterministic synchronization / conflict simulation; **not real Mutagen** |
 | `/playground#world` | Seeded 2D terrain generator; **not the Unity game engine** |
 | `/playground#cad` | Client-only STL inspection with file/coordinate limits; **not CAD repair** |
@@ -56,7 +74,7 @@ The repo includes `docker/Dockerfile` and `compose.dev.yml` with a PHP 8.5 CLI c
 
 ## Content & editorial workflow
 
-- `data/projects.json` — 13 curated software/infrastructure project stories.
+- `data/projects.json` — 9 curated software/infrastructure project stories, each with a translated problem, solution and capabilities.
 - `data/maker.json` — physical designs with explicit prototype/planned/validated status.
 - `data/connections.json` — reviewed project relationships.
 - `data/decisions.json` — 7 architecture decision records, including counterarguments and verification limits.
@@ -90,7 +108,7 @@ node --test tests/Client/*.test.cjs
 npx --no-install tsc --noEmit --allowJs --checkJs --strict --target ES2022 --lib ES2022,DOM webroot/assets/js/lab-core.js
 ```
 
-The GitHub Actions workflow provisions PHP 8.5 and MySQL 8.4, **requires an already committed Composer lockfile**, runs all three migrations and checks both real CakePHP HTTP routes and standalone/static/JS tests. All three required CI jobs (application, static, browser-offline) passed on 14 Nov 2026; see [run #43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069). Hosting-specific staging, restore/rollback and manual public-content approval remain release gates.
+The GitHub Actions workflow provisions PHP 8.5 and MySQL 8.4, **requires an already committed Composer lockfile**, runs all three migrations and checks both real CakePHP HTTP routes and standalone/static/JS tests. The last deployed baseline CI run is [#43884556832](https://github.com/Harfusha/harfusha/actions/runs/43884556832) for commit `a4c39ca`; all three required jobs passed. Its evidence does not apply to unvalidated changes made afterward. Content approval binds a release to an exact snapshot.
 
 ## Deploying on shared hosting
 
@@ -105,7 +123,7 @@ APP_ENV=testing APP_URL=http://localhost:8765 DB_HOST=127.0.0.1 DB_NAME=harfusha
 
 Unlike the source ZIP, the production builder **runs** Composer quality, static privacy/SSR tests, browser-core tests and strict client type checking; it aborts on failure before packaging a `vendor/`-inclusive artifact. Production Composer dependencies are installed into a temporary **clean staging directory**, never over the audited development `vendor/`. It requires the reviewed `composer.lock`, installed dev dependencies, PHP 8.5.12+, an explicitly confirmed disposable MySQL database (`LAB_TEST_DB_CONFIRM=DB_NAME`) configured for integration tests and a working local HTTP smoke server. Set `CHROMIUM_PATH=/usr/bin/chromium` if using system Chromium.
 
-## Latest improvements (15 Nov 2026)
+## Earlier implementation notes (15 Nov 2026)
 
 - GitHub profile `README.md` is English-only; bilingual web pages remain available at `/cs/` and `/en/`.
 - API `demo` fields now contain localized first-party routes, not rejected external URLs. Conditional `If-None-Match` honors weak validators, multiple tags and `*`.

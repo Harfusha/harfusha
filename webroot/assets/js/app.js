@@ -269,14 +269,46 @@
   }
   initHomelab();
 
-  const STEPS = [
-    {cs:'Zadání úkolu',en:'Task intake',descCs:'Agent přijme konkrétní úkol a vymezí, co má změnit.',descEn:'The agent receives a scoped task and identifies what to change.',trace:'task: "Find and fix a typed ORM association bug"\nmode: read-only discovery first'},
-    {cs:'Index repozitáře',en:'Repository index',descCs:'Lokální index nabídne soubory, symboly a závislosti bez načítání celého repozitáře.',descEn:'Local indexes reveal files, symbols and dependencies without loading every source file.',trace:'local_ai_repo(action="context")\n→ symbols, routes, relationships'},
-    {cs:'Vyhledání důkazů',en:'Evidence retrieval',descCs:'Symbolické hledání a RAG najdou relevantní kontext. Výstup odkazuje na konkrétní zdroj.',descEn:'Symbol search and RAG retrieve related context with provenance.',trace:'local_ai_rag(query="association types")\n→ ranked evidence references'},
-    {cs:'Návrh řešení',en:'Plan change',descCs:'Agent sestaví omezený plán a před úpravami označí dotčené kontrakty.',descEn:'The agent prepares a bounded plan and identifies affected contracts before editing.',trace:'plan → locate type owner → modify → test\nverification: required'},
-    {cs:'Implementace',en:'Implement change',descCs:'Změna se provede v přesně vymezených souborech. Demonstrace žádný kód nemění.',descEn:'The edit is scoped to specific files. This demo never edits a repository.',trace:'scope: src/Model/...\nmock change: add correct generic type'},
-    {cs:'Ověření',en:'Verify & report',descCs:'Statická analýza, testy a závěrečná kontrola změn vytvářejí podložený výsledek.',descEn:'Static analysis, tests and diff review form an evidence-backed result.',trace:'phpstan: required (example)\nunit tests: required (example)\nresult: no tests executed in demo'},
-  ];
+  const AI_SCENARIOS = {
+    'first-use': {
+      noteCs:'První registrace je idempotentní. Preprocessing běží na pozadí; volitelné backendy mohou zůstat nedostupné nebo se přeskočit.',
+      noteEn:'First registration is idempotent. Preprocessing runs in the background; optional backends may be unavailable or skipped.',
+      steps:[
+        {cs:'Zaregistruj stabilní kořen',en:'Register a stable root',descCs:'Agent odešle jednorázový preprocess požadavek s absolutní cestou repozitáře.',descEn:'The agent sends a one-time preprocess request with the repository’s absolute path.',trace:'local_ai_repo(action="preprocess", root=ABSOLUTE_REPOSITORY_ROOT)'},
+        {cs:'Ověř projektovou hranici',en:'Confirm the project boundary',descCs:'Hub naváže projekt na povolený kořen a zachová vlastní filtraci souborů a cest.',descEn:'The Hub binds the project to an authorized root and applies its file and path boundaries.',trace:'root policy → exclusions → eligible files'},
+        {cs:'Proveď inventář',en:'Inventory eligible files',descCs:'Preprocessing najde vhodné zdrojové soubory podle konfigurace projektu.',descEn:'Preprocessing identifies source files eligible under project configuration.',trace:'inventory → bounded file selection'},
+        {cs:'Spočítej změnové hashe',en:'Hash source changes',descCs:'Hashování rozliší změněné vstupy, které potřebují aktualizovat navazující evidenci.',descEn:'Hashing identifies changed inputs that need downstream evidence refreshed.',trace:'source bytes → content hashes'},
+        {cs:'Postav code index',en:'Build the code index',descCs:'Vestavěný index poskytne přesné symboly, importy a vztahy bez načtení celého repozitáře do promptu.',descEn:'The built-in index exposes exact symbols, imports and relationships without loading the whole repository into a prompt.',trace:'code_index → definitions / callers / imports'},
+        {cs:'Vytvoř deterministické karty',en:'Build deterministic cards',descCs:'Karty popisují to, co lze bezpečně vyčíst z parsovaných zdrojů; nejde o modelový odhad.',descEn:'Cards describe facts that can be derived from parsed sources; they are not model guesses.',trace:'AST + source facts → bounded cards'},
+        {cs:'Doplň dostupné symboly',en:'Enrich available symbols',descCs:'Serena přidává jazykové symboly, pokud je dostupná. Při chybě může Hub pokračovat jinou cestou.',descEn:'Serena adds language-aware symbols when available. The Hub can continue through another path if it fails.',trace:'Serena → optional language-aware symbols'},
+        {cs:'Připrav textové hledání',en:'Prepare text retrieval',descCs:'Lexikální index zpřístupní textové shody; RAG je doplňková cesta, nikoli podmínka každé otázky.',descEn:'The lexical index enables text matches; RAG is an additional path, not a requirement for every question.',trace:'lexical → optional RAG enrichment'},
+        {cs:'Slož mapy kontextu',en:'Compose context maps',descCs:'Pipeline doplní souborové, modulové a projektové mapy a záznamy často používaných dotazů.',descEn:'The pipeline adds file, module and project maps plus records of frequently used queries.',trace:'files → modules → project → hot queries'},
+        {cs:'Prohlédni dokončení',en:'Inspect completion',descCs:'Diagnostika zaznamená stav průchodu. Complete neznamená, že model běžel nebo že každá odpověď je správná.',descEn:'Diagnostics record the pipeline state. Complete does not mean a model ran or every answer is correct.',trace:'diagnostics → complete\nnext: query index → fetch exact source → verify change'},
+      ]
+    },
+    'warm-query': {
+      noteCs:'Začni nejlevnější přesnou cestou. Rozšiř kontext jen když nalezené zdroje nestačí.',
+      noteEn:'Start with the cheapest exact path. Widen context only when the returned sources are insufficient.',
+      steps:[
+        {cs:'Vymez konkrétní otázku',en:'Scope the question',descCs:'Příklad: najdi všechny volající metody po přesunu třídy.',descEn:'Example: find all callers after moving a class.',trace:'question → symbol: SomeNamespace.SomeType::method'},
+        {cs:'Dotazuj code index',en:'Query the code index',descCs:'Přesná symbolická otázka patří nejdřív do indexu, ne do obecného jazykového odhadu.',descEn:'An exact symbol question belongs in the index first, not a general language-model guess.',trace:'local_ai_repo(action="code_index")'},
+        {cs:'Načti úzký výřez',en:'Fetch a narrow source slice',descCs:'Otevři deklaraci nebo konkrétní volající a zachovej cestu a řádky jako původ.',descEn:'Open the declaration or specific callers and retain their path and lines as provenance.',trace:'local_ai_artifact(action="slice", evidence_id=...)'},
+        {cs:'Rozšiř jen při mezeře',en:'Widen only if evidence is missing',descCs:'Pokud přesné zdroje nestačí, použij jednou adaptive context; nevracej se k širokému hledání bez důvodu.',descEn:'If exact sources are insufficient, use adaptive context once; do not restart broad search without a reason.',trace:'local_ai_repo(action="context", mode="adaptive")'},
+        {cs:'Ověř v hostu',en:'Verify on the host',descCs:'Test nebo build spouští prostředí agenta. Model může vysvětlovat, ale test rozhoduje o chování kódu.',descEn:'The agent host runs tests or builds. A model can explain, but tests decide code behavior.',trace:'native command → result → diff review'},
+      ]
+    },
+    'model-offline': {
+      noteCs:'Indexované a deterministické cesty mohou fungovat dál. Nedostupný model se nikdy nesmí změnit na vymyšlený důkaz.',
+      noteEn:'Indexed and deterministic paths can continue. An unavailable model must never be replaced with invented evidence.',
+      steps:[
+        {cs:'Zkontroluj readiness',en:'Check readiness',descCs:'Stav odlišuje Hub, model a dostupné kapacity. Konfigurace sama o sobě není provozní důkaz.',descEn:'Status distinguishes the Hub, model and available capacity. Configuration alone is not runtime evidence.',trace:'local_ai_status(detail="brief")'},
+        {cs:'Použij přesný index',en:'Use the exact index',descCs:'Hledání definic a volajících nepotřebuje generativní model, pokud je code index připravený.',descEn:'Definition and caller lookup does not need a generative model when the code index is ready.',trace:'code_index / deterministic / source slice'},
+        {cs:'Přiznej meze kontextu',en:'Expose context limits',descCs:'Pokud volitelná Serena nebo RAG chybí, výsledek může být užší. Stav se označí; chybějící část se nedoplňuje domněnkou.',descEn:'If optional Serena or RAG is missing, results may be narrower. State the limit; do not fill the gap with a guess.',trace:'available evidence only → limitation visible'},
+        {cs:'Ověř změnu deterministicky',en:'Verify the change deterministically',descCs:'Testy, diff a příkazy zůstávají v hostitelském prostředí a nejsou závislé na lokálním modelu.',descEn:'Tests, diffs and commands remain in the host environment and do not depend on the local model.',trace:'host command → actual exit status'},
+        {cs:'Vrať výsledek bez přikrášlení',en:'Report without embellishment',descCs:'Nahlas stav, přesné zdroje a co zůstalo neověřené.',descEn:'Report the state, exact sources and what remains unverified.',trace:'evidence + limitation → honest handoff'},
+      ]
+    }
+  };
 
   function initTextDiff() {
     const root = $('[data-diff-tool]');
@@ -304,6 +336,7 @@
       }
       result.textContent = changes ? output.join('\n') : local('Texty jsou shodné.', 'The texts are identical.');
     });
+    $('[data-diff-run]').click();
   }
   initTextDiff();
 
@@ -313,7 +346,7 @@
     const tabs = $$('[data-demo-tab]',root), panels = $$('[data-demo-panel]',root);
     const valid = new Set(['ai','sync','world','cad','request']);
     const show = (id, updateHash) => {
-      if (!valid.has(id)) id='sync';
+      if (!valid.has(id)) id='ai';
       tabs.forEach(t=>{t.setAttribute('aria-selected',String(t.dataset.demoTab===id));t.tabIndex=t.dataset.demoTab===id?0:-1;});
       panels.forEach(p=>p.classList.toggle('hidden',p.dataset.demoPanel!==id));
       if (updateHash) history.replaceState(null,'',`#${id}`);
@@ -335,7 +368,7 @@
       });
     });
     window.addEventListener('hashchange',()=>show(location.hash.slice(1),false));
-    show(location.hash.slice(1),false);
+    show(location.hash.slice(1) || 'ai',false);
     initAi(root);
     initSync(root);
     initWorld(root);
@@ -346,31 +379,43 @@
   function initAi(root) {
     const area = $('[data-ai-steps]',root);
     if (!area) return;
+    const selector = $('[data-ai-scenario]',root), note = $('[data-ai-scenario-note]',root);
     const detail = $('[data-ai-title]',root), desc = $('[data-ai-description]',root), code = $('[data-ai-code]',root), index = $('[data-ai-index]',root);
-    let current = 0;
-    const buttons = STEPS.map((step,i)=>{
-      const btn=document.createElement('button');btn.className='ai-step';btn.type='button';
-      const num=document.createElement('span');num.textContent=String(i+1).padStart(2,'0');
-      const title=document.createElement('strong');title.textContent=language==='en'?step.en:step.cs;
-      btn.append(num,title);
-      btn.addEventListener('click',()=>{current=i;draw();});
-      area.append(btn);
-      return btn;
-    });
+    let current = 0, active = AI_SCENARIOS[selector?.value] || AI_SCENARIOS['first-use'], buttons = [];
     const draw = () => {
-      const step=STEPS[current];
+      const step=active.steps[current];
       detail.textContent=language==='en'?step.en:step.cs;
       desc.textContent=language==='en'?step.descEn:step.descCs;
       code.textContent=step.trace;
-      index.textContent=`${String(current+1).padStart(2,'0')}/${String(STEPS.length).padStart(2,'0')}`;
-      buttons.forEach((b,i)=>{b.classList.toggle('active',i===current);b.setAttribute('aria-current',i===current?'step':'false');});
+      index.textContent=`${String(current+1).padStart(2,'0')}/${String(active.steps.length).padStart(2,'0')}`;
+      note.textContent=language==='en'?active.noteEn:active.noteCs;
+      const progress=current/Math.max(active.steps.length-1,1);
+      area.style.setProperty('--ai-progress',`${Math.round(progress*100)}%`);
+      area.style.setProperty('--ai-progress-ratio',String(progress));
+      buttons.forEach((b,i)=>{b.classList.toggle('complete',i<current);b.classList.toggle('active',i===current);b.classList.toggle('pending',i>current);b.setAttribute('aria-current',i===current?'step':'false');});
       $('[data-ai-prev]',root).disabled=current===0;
-      $('[data-ai-next]',root).disabled=current===STEPS.length-1;
+      $('[data-ai-next]',root).disabled=current===active.steps.length-1;
     };
+    const load = () => {
+      active=AI_SCENARIOS[selector.value] || AI_SCENARIOS['first-use'];
+      current=0;
+      area.replaceChildren();
+      buttons=active.steps.map((step,i)=>{
+        const btn=document.createElement('button');btn.className='ai-step';btn.type='button';
+        const num=document.createElement('span');num.textContent=String(i+1).padStart(2,'0');
+        const title=document.createElement('strong');title.textContent=language==='en'?step.en:step.cs;
+        btn.append(num,title);
+        btn.addEventListener('click',()=>{current=i;draw();});
+        area.append(btn);
+        return btn;
+      });
+      draw();
+    };
+    selector.addEventListener('change',load);
     $('[data-ai-prev]',root).addEventListener('click',()=>{current=Math.max(0,current-1);draw();});
-    $('[data-ai-next]',root).addEventListener('click',()=>{current=Math.min(STEPS.length-1,current+1);draw();});
+    $('[data-ai-next]',root).addEventListener('click',()=>{current=Math.min(active.steps.length-1,current+1);draw();});
     $('[data-ai-reset]',root).addEventListener('click',()=>{current=0;draw();});
-    draw();
+    load();
   }
 
   function initSync(root) {

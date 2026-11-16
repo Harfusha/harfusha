@@ -9,9 +9,10 @@ from urllib.parse import urlparse, unquote
 from xml.etree import ElementTree
 import subprocess
 import sys
+import os
 
 ROOT=Path(__file__).resolve().parents[1]
-PAGES=ROOT/'tmp/public-preview'
+PAGES=Path(os.environ.get('HAFRUSHA_PREVIEW_DIR', str(ROOT/'tmp/public-preview')))
 
 class Parse(HTMLParser):
     def __init__(self):
