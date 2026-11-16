@@ -60,10 +60,13 @@ def main() -> None:
                         page.add_style_tag(content=CSS)
                         page.add_script_tag(content=CORE)
                         page.add_script_tag(content=APP)
-                        if page.evaluate('document.documentElement.scrollWidth > document.documentElement.clientWidth'):
+                        if page.evaluate('document.documentElement.scrollWidth > window.innerWidth'):
                             overflow = page.evaluate('''() => {
-                                const width = document.documentElement.clientWidth;
-                                return [...document.querySelectorAll('body *')]
+                                const root = document.documentElement;
+                                const width = window.innerWidth;
+                                return {
+                                    document: {scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, innerWidth: width},
+                                    offenders: [...document.querySelectorAll('body *')]
                                     .map((element) => {
                                         const rect = element.getBoundingClientRect();
                                         return {
@@ -79,7 +82,8 @@ def main() -> None:
                                     })
                                     .filter((element) => element.left < -1 || element.right > width + 1)
                                     .sort((a, b) => b.right - a.right)
-                                    .slice(0, 12);
+                                    .slice(0, 12),
+                                };
                             }''')
                             raise AssertionError((width, site, 'horizontal overflow', overflow))
                         assert page.locator('h1').count() == 1, (width, site, 'missing/extra H1')
