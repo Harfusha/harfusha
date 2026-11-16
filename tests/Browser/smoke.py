@@ -64,11 +64,35 @@ def main() -> None:
                             overflow = page.evaluate('''() => {
                                 const root = document.documentElement;
                                 const width = window.innerWidth;
+                                const graph = document.querySelector('[data-connections-svg]');
+                                const connectionChain = [];
+                                for (let element = graph; element && element !== root; element = element.parentElement) {
+                                    const style = getComputedStyle(element);
+                                    const rect = element.getBoundingClientRect();
+                                    connectionChain.push({
+                                        tag: element.tagName.toLowerCase(),
+                                        className: typeof element.className === 'string' ? element.className : '',
+                                        left: Math.round(rect.left),
+                                        width: Math.round(rect.width),
+                                        scrollWidth: element.scrollWidth,
+                                        clientWidth: element.clientWidth,
+                                        overflowX: style.overflowX,
+                                        minWidth: style.minWidth,
+                                    });
+                                }
                                 return {
                                     document: {scrollWidth: root.scrollWidth, clientWidth: root.clientWidth, innerWidth: width},
+                                    connectionChain,
                                     offenders: [...document.querySelectorAll('body *')]
                                     .map((element) => {
                                         const rect = element.getBoundingClientRect();
+                                        let clipped = false;
+                                        for (let parent = element.parentElement; parent && parent !== root; parent = parent.parentElement) {
+                                            if (['auto', 'scroll', 'hidden', 'clip'].includes(getComputedStyle(parent).overflowX)) {
+                                                clipped = true;
+                                                break;
+                                            }
+                                        }
                                         return {
                                             tag: element.tagName.toLowerCase(),
                                             id: element.id,
@@ -77,10 +101,11 @@ def main() -> None:
                                             right: Math.round(rect.right),
                                             width: Math.round(rect.width),
                                             scrollWidth: element.scrollWidth,
+                                            clipped,
                                             text: (element.innerText || '').trim().replace(/\\s+/g, ' ').slice(0, 48),
                                         };
                                     })
-                                    .filter((element) => element.left < -1 || element.right > width + 1)
+                                    .filter((element) => !element.clipped && (element.left < -1 || element.right > width + 1))
                                     .sort((a, b) => b.right - a.right)
                                     .slice(0, 12),
                                 };
