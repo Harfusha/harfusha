@@ -24,7 +24,7 @@ The portfolio explains each system with a concrete walkthrough and an architectu
 
 ## Harfusha Lab
 
-A bilingual CakePHP 5 application for project case studies, engineering decisions, open-source activity and a small browser-only workbench. The workbench traces inputs through systems—repository preprocessing, sync conflicts, request boundaries, terrain generation and mesh inspection. It is explicit about which parts are simulations and which claims need separate verification.
+A bilingual CakePHP 5 portfolio built around a harder question: when is a custom project worth building if an existing tool already does the job? Each case study compares real alternatives, separates the documented need from an unknown personal starting point, and includes an interaction grounded in the project record. The browser-only Playground teaches the Local AI Hub retrieval path; its simulation never contacts a repository or a model.
 
 ### Current captures
 
@@ -32,9 +32,9 @@ These images are freshly captured from the source-rendered pages in this reposit
 
 ![Harfusha Lab home page](docs/screenshots/readme-home.png)
 
-![Local AI Hub case study showing its preprocessing pipeline](docs/screenshots/readme-local-ai-hub.png)
+![Local AI Hub case study: inspect the retrieval path and source boundaries](docs/screenshots/readme-local-ai-hub.png)
 
-![Playground repository preprocessing walkthrough](docs/screenshots/readme-playground.png)
+![Playground: change repository and question constraints to inspect the evidence route](docs/screenshots/readme-playground.png)
 
 ![Local AI Hub walkthrough at a mobile viewport](docs/screenshots/readme-local-ai-hub-mobile.png)
 
@@ -43,6 +43,8 @@ These images are freshly captured from the source-rendered pages in this reposit
 - **Traceable behavior:** types and explicit validation at system boundaries.
 - **Evidence before claims:** distinguish a source feature, a passing test, a running service and an accepted release.
 - **Usable engineering:** readable interfaces, keyboard access, useful failure messages and current docs.
+
+Research notes: [source reconciliation](docs/PROJECT-EVIDENCE-RECONCILIATION-2026-11-16.md) · [dated alternatives review](docs/PROJECT-ALTERNATIVES-RESEARCH-2026-11-16.md).
 
 **Tools:** PHP, CakePHP, MySQL, Python, C#, Unity, Linux, Ansible, Docker and locally hosted AI models.
 

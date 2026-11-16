@@ -14,10 +14,10 @@ use App\Support\Language;
 <section class="hero shell">
  <div class="hero-copy reveal">
    <p class="hero-kicker"><?= $lang->value('OSOBNÍ WEB / ADAM HALFAR','PERSONAL WEBSITE / ADAM HALFAR') ?></p>
-   <h1><?= $lang->value('Nápady, které','Ideas made') ?><br><span class="gradient-text"><?= $lang->value('dostaly tvar.','tangible.') ?></span></h1>
-   <p class="hero-description"><?= $lang->value('Jsem Adam. Vyvíjím backend a nástroje, zkoumám lokální AI a doma si hraju se servery i 3D tiskem. Tady najdeš projekty, na kterých se učím, co všechno do sebe musí zapadnout.', 'I’m Adam. I build backend software and tools, explore local AI, and tinker with home servers and 3D printing. These are the projects through which I learn how the pieces fit together.') ?></p>
+    <h1><?= $lang->value('Nejdřív','First,') ?><br><span class="gradient-text"><?= $lang->value('důvod. Pak kód.','the reason. Then code.') ?></span></h1>
+    <p class="hero-description"><?= $lang->value('Jsem Adam. Stavím backend, nástroje a občas celý experiment od nápadu po selhání. U každého projektu ukazuju, jaký problém skutečně řeší, co už za něj řeší hotové nástroje a co zatím není ověřené.', 'I’m Adam. I build backend systems, tools and sometimes a whole experiment from idea to failure. Each case shows the problem it actually addresses, which existing tools already solve it, and what remains unverified.') ?></p>
    <div class="hero-buttons"><a class="btn btn-primary" href="<?= $lang->path('/projects') ?>"><?= $lang->value('Prohlédnout projekty','Explore projects') ?><span aria-hidden="true">↗</span></a><a class="btn btn-ghost" href="<?= $lang->path('/about') ?>"><?= $lang->value('Něco o mně','About me') ?> <span aria-hidden="true">→</span></a></div>
-   <div class="hero-micro"><?= $lang->value('Software / servery / věci z dílny', 'Software / servers / workshop projects') ?></div>
+    <div class="hero-micro"><?= $lang->value('Nové poznatky a změny rozhodnutí', 'New findings and changing decisions') ?> · <a href="<?= $lang->path('/journal') ?>"><?= $lang->value('Vývojový deník','Development journal') ?> →</a></div>
  </div>
  <aside class="workbench-card reveal" aria-label="<?= $lang->value('Výběr z projektů','Selected projects') ?>">
   <div class="workbench-top"><span>AH / <?= $lang->value('PRACOVNÍ SEŠIT','WORKBOOK') ?></span><span>001 — 003</span></div>

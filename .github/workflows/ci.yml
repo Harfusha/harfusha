@@ -2,6 +2,12 @@ name: Verify PHP 8.5 + browser core
 on:
   push:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      public_content_approval:
+        description: 'After reviewing the current public snapshot, type APPROVE PUBLIC CONTENT'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -120,6 +126,20 @@ jobs:
             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --no-progress
             composer check-platform-reqs --no-dev
           )
+      - name: Record reviewed public-content approval and build deployable archive
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          python3 scripts/review-public-content.py --approve --reviewer 'Adam Halfar'
+          python3 scripts/build-release.py --output "$RUNNER_TEMP/harfusha-lab-deploy.zip"
+          python3 scripts/verify_archive.py "$RUNNER_TEMP/harfusha-lab-deploy.zip" --variant production
+      - name: Upload deployable archive
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: harfusha-lab-deploy-${{ github.sha }}
+          path: ${{ runner.temp }}/harfusha-lab-deploy.zip
+          if-no-files-found: error
+          retention-days: 1
   static:
     runs-on: ubuntu-24.04
     timeout-minutes: 8

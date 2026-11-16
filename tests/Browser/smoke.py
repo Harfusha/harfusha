@@ -128,8 +128,8 @@ def main() -> None:
                             assert page.locator('[data-connections-name]').inner_text() not in ('—', 'Mapa projektů', 'Project map'), (site, 'empty project inspector')
                             assert 'hidden' not in (page.locator('[data-connections-open]').get_attribute('class') or ''), (site, 'missing selected project link')
                         if site == 'cs/playground':
-                            assert page.locator('[data-demo-tab="ai"]').get_attribute('aria-selected') == 'true'
-                            assert page.locator('[data-demo-panel="ai"]').is_visible()
+                            assert page.locator('[data-context-workbench]').is_visible()
+                            assert page.locator('[data-context-title]').inner_text()
                         if '/projects/' in site and site.split('/')[-1] in ('local-ai-hub', 'mutaui', 'home-infrastructure', 'woodbound', 'scan2cad', 'tiskov', 'shpotify', 'softwareinc-multiplayer', 'discord-bot'):
                             assert page.locator('[data-project-example]').count() == 1, (site, 'missing example')
                             assert page.locator('[data-project-deepdive] p').count() >= 3, (site, 'missing project detail')
@@ -141,6 +141,41 @@ def main() -> None:
                             assert diagram.locator('[data-architecture-edge]').count() >= 4, (site, 'missing project relationships')
                             assert diagram.locator('[data-architecture-canvas] svg').get_attribute('aria-label'), (site, 'missing diagram description')
                             slug = site.split('/')[-1]
+                            exhibit = page.locator('[data-project-exhibit]')
+                            assert exhibit.count() == 1 and page.locator('[data-project-story]').count() == 1, (site, 'missing project-specific experience')
+                            alternatives = page.locator('[data-project-story] .project-alternatives a')
+                            assert alternatives.count() >= 1 and page.locator('.alternative-date').count() == 1, (site, 'missing dated alternative research')
+                            assert alternatives.first.get_attribute('href').startswith('https://'), (site, 'alternative needs an external source')
+                            assert page.locator('[data-project-story] .project-fit').inner_text().startswith(('MŮJ TEST PRO VLASTNÍ ŘEŠENÍ', 'MY TEST FOR BUILDING CUSTOM')), (site, 'missing explicit custom-build decision')
+                            exhibit_controls = {
+                                'local-ai-hub': '[data-hub-run]', 'mutaui': '[data-mutaui-mode="forward"]',
+                                'home-infrastructure': '[data-host-role="router"]', 'woodbound': '[data-world-layer="routes"]',
+                                'scan2cad': '[data-scan-scale="confirmed"]', 'tiskov': '[data-print-next]',
+                                'shpotify': '[data-music-add]', 'softwareinc-multiplayer': '[data-agreement-next]',
+                                'discord-bot': '[data-discord-check]',
+                            }
+                            control = exhibit.locator(exhibit_controls[slug])
+                            assert control.count() == 1 and control.is_enabled(), (site, 'missing or disabled project interaction')
+                            control.click()
+                            assert exhibit.locator('[aria-live="polite"]').count() >= 1, (site, 'interaction has no announced result')
+                            if slug == 'local-ai-hub':
+                                assert any(term in exhibit.locator('[data-hub-result]').inner_text().casefold() for term in ('source slice', 'zdrojový výřez'))
+                            elif slug == 'mutaui':
+                                assert exhibit.locator('.mutaui-endpoints i').inner_text() == '→'
+                            elif slug == 'home-infrastructure':
+                                assert exhibit.locator('[data-host-detail] h4').inner_text() in ('Router', 'Router')
+                            elif slug == 'woodbound':
+                                assert exhibit.locator('.world-map').get_attribute('data-layer') == 'routes'
+                            elif slug == 'scan2cad':
+                                assert exhibit.locator('[data-scan-scale="confirmed"]').get_attribute('aria-pressed') == 'true'
+                            elif slug == 'tiskov':
+                                assert exhibit.locator('[data-print-inbox] li').count() == 1
+                            elif slug == 'shpotify':
+                                assert exhibit.locator('[data-music-queue] li').count() == 3
+                            elif slug == 'softwareinc-multiplayer':
+                                assert 'active' in (exhibit.locator('[data-agreement-state] li:nth-child(2)').get_attribute('class') or '')
+                            elif slug == 'discord-bot':
+                                assert exhibit.locator('[data-discord-result]').get_attribute('data-state') == 'denied'
                             project_markers = {
                                 'local-ai-hub': ('Code index', 'Code index'), 'mutaui': ('MutaUI', 'MutaUI'),
                                 'home-infrastructure': ('Ansible', 'Ansible'), 'woodbound': ('biomy', 'biomes'),
@@ -261,6 +296,12 @@ def main() -> None:
                                 assert visible in project_text
                             assert page.locator('[data-project] .status').first.inner_text().casefold() == 'aktivní'
                             assert 'Infrastruktura' in page.locator('[data-filter]').inner_text()
+                            assert page.locator('[data-category-shortcut]').count() >= 7
+                            page.locator('[data-category-shortcut="3d & engineering"]').click()
+                            assert page.locator('[data-filter]').input_value() == '3d & engineering'
+                            assert page.locator('[data-project]:not(.hidden)').count() == 1
+                            assert page.locator('[data-category-shortcut="3d & engineering"]').get_attribute('aria-pressed') == 'true'
+                            page.locator('[data-filter]').select_option('all')
                             page.locator('[data-search]').fill('hry a simulace')
                             assert page.locator('[data-project]:not(.hidden)').count() == 2, 'localized category search'
                             assert page.locator('[data-count]').inner_text() == '2 záznamy'
@@ -281,99 +322,28 @@ def main() -> None:
                             page.locator('[data-search]').fill('no-such-architecture-decision')
                             assert page.locator('[data-empty]').is_visible()
                         if site == 'cs/playground':
-                            page.locator('[data-diff-before]').fill('one\ntwo\nthree')
-                            page.locator('[data-diff-after]').fill('zero\none\nthree')
-                            page.locator('[data-diff-run]').click()
-                            diff = page.locator('[data-diff-result]').inner_text()
-                            assert '+ zero' in diff and '- two' in diff
-                            assert '+ one' not in diff and '- one' not in diff
-                            page.locator('[data-diff-before]').fill('')
-                            page.locator('[data-diff-after]').fill('<script>alert(1)</script>')
-                            page.locator('[data-diff-run]').click()
-                            assert '<script>' in page.locator('[data-diff-result]').inner_text()
-                            assert page.locator('[data-diff-result] script').count() == 0
-                            page.locator('[data-diff-after]').fill('\n'.join(['x'] * 201))
-                            page.locator('[data-diff-run]').click()
-                            assert '200 řádků' in page.locator('[data-diff-result]').inner_text()
-                            for demo in ('ai', 'sync', 'world', 'cad', 'request'):
-                                tab = page.locator(f'[data-demo-tab="{demo}"]')
-                                panel = page.locator(f'[data-demo-panel="{demo}"]')
-                                assert tab.get_attribute('aria-controls') == demo
-                                assert panel.get_attribute('aria-labelledby') == f'tab-{demo}'
-                                assert panel.get_attribute('tabindex') == '0'
-                            assert page.locator('[data-demo-tab="ai"]').get_attribute('aria-selected') == 'true', 'AI context is the default station'
-                            assert page.locator('[data-ai-steps] button').count() == 10, 'preprocessing stages are explicit'
-                            assert page.locator('[data-ai-steps]').evaluate("node => node.style.getPropertyValue('--ai-progress')") == '0%', 'trace progress starts at the first stage'
-                            assert page.locator('[data-ai-steps] .ai-step.pending').count() == 9, 'future stages are visibly pending'
-                            assert 'jednorázový' in page.locator('[data-ai-description]').inner_text()
-                            assert 'idempotentní' in page.locator('[data-ai-scenario-note]').inner_text()
-                            page.locator('[data-ai-scenario]').select_option('warm-query')
-                            assert page.locator('[data-ai-steps] button').count() == 5
-                            page.locator('[data-ai-steps] button').nth(1).click()
-                            assert 'indexu' in page.locator('[data-ai-description]').inner_text()
-                            page.locator('[data-ai-scenario]').select_option('model-offline')
-                            assert 'model' in page.locator('[data-ai-scenario-note]').inner_text().lower()
-                            page.locator('[data-ai-scenario]').select_option('first-use')
-                            before = page.locator('[data-ai-index]').inner_text()
-                            page.locator('[data-ai-next]').click()
-                            assert page.locator('[data-ai-index]').inner_text() != before
-                            assert page.locator('[data-ai-steps] .ai-step.complete').count() == 1, 'previous stage is marked complete'
-                            assert page.locator('[data-ai-steps] .ai-step.active').count() == 1, 'current stage is unique'
-                            assert page.locator('[data-ai-steps] .ai-step.pending').count() == 8, 'remaining stages stay pending'
-                            assert float(page.locator('[data-ai-steps]').evaluate("node => parseFloat(node.style.getPropertyValue('--ai-progress'))")) > 0, 'trace rail advances'
-                            page.locator('[data-demo-tab="ai"]').focus()
-                            page.keyboard.press('ArrowRight')
-                            assert page.locator('[data-demo-tab="sync"]').get_attribute('aria-selected') == 'true', 'ArrowRight tab navigation'
-                            page.keyboard.press('End')
-                            assert page.locator('[data-demo-tab="request"]').get_attribute('aria-selected') == 'true', 'End tab navigation'
-                            assert page.locator('[data-demo-tab="ai"]').get_attribute('tabindex') == '-1'
-                            assert page.locator('[data-demo-tab="request"]').get_attribute('tabindex') == '0'
-                            page.locator('[data-demo-tab="request"]').click()
-                            assert page.locator('[data-request-response]').inner_text().startswith('HTTP 200')
-                            assert 'Doména přijata' in page.locator('[data-request-steps]').inner_text()
-                            page.locator('[data-request-route]').select_option('/admin/project')
-                            page.locator('[data-request-method]').select_option('POST')
-                            page.locator('[data-request-csrf]').uncheck()
-                            assert page.locator('[data-request-response]').inner_text().startswith('HTTP 403')
-                            page.locator('[data-request-csrf]').check()
-                            assert page.locator('[data-request-response]').inner_text().startswith('HTTP 303')
-                            # Exercise real browser File/ArrayBuffer STL parsing and reset.
-                            page.locator('[data-demo-tab="cad"]').click()
-                            canvas = page.locator('[data-cad-canvas]')
-                            assert canvas.get_attribute('tabindex') == '0'
-                            original = canvas.evaluate('(element) => element.toDataURL()')
-                            canvas.focus()
-                            page.keyboard.press('ArrowRight')
-                            page.wait_for_function('(original) => document.querySelector("[data-cad-canvas]").toDataURL() !== original', arg=original)
-                            assert canvas.evaluate('(element) => getComputedStyle(element).outlineOffset') == '-4px', 'canvas focus ring must remain inside clipped container'
-                            ascii_stl = (
-                                b'solid sample\nfacet normal 0 0 1\nouter loop\n'
-                                b'vertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\n'
-                                b'endloop\nendfacet\nendsolid sample\n'
-                            )
-                            page.locator('[data-cad-file]').set_input_files({
-                                'name': 'triangle.stl', 'mimeType': 'model/stl', 'buffer': ascii_stl,
-                            })
-                            page.wait_for_function(
-                                "() => document.querySelector('[data-cad-info]').textContent.includes('local STL sample')"
-                            )
-                            assert '1 displayed triangles' in page.locator('[data-cad-info]').inner_text()
-                            page.locator('[data-cad-wire]').check()
-                            page.locator('[data-cad-reset]').click()
-                            assert 'sample geometry' in page.locator('[data-cad-info]').inner_text()
+                            page.locator('input[name="context-root"][value="new"]').check()
+                            page.locator('input[name="context-question"][value="broad"]').check()
+                            page.locator('input[name="context-model"]').check()
+                            page.locator('[data-context-form] button[type="submit"]').click()
+                            assert page.locator('[data-context-steps] li').count() == 7
+                            assert 'Příprava' in page.locator('[data-context-title]').inner_text()
+                            assert 'RAG' in page.locator('[data-context-steps]').inner_text()
+                            assert 'hostitelským' in page.locator('[data-context-steps]').inner_text()
+                            assert any(term in page.locator('[data-context-boundary]').inner_text().casefold() for term in ('ne běžící hub', 'not a running hub'))
                         if args.screenshots and width == 1365 and site == 'cs/':
                             page.screenshot(path=str(screenshots / 'readme-home.png'), full_page=False)
                         if args.screenshots and site == 'cs/projects/local-ai-hub' and width in (390, 1365):
                             page.add_style_tag(content='.site-header{display:none!important}')
                             name = 'readme-local-ai-hub-mobile.png' if width == 390 else 'readme-local-ai-hub.png'
-                            target = '[data-project-deepdive] .case-walkthrough' if width == 390 else '[data-project-architecture]'
+                            target = '[data-project-story]'
                             page.locator(target).screenshot(path=str(screenshots / name))
                         if args.screenshots and site == 'cs/playground' and width == 1365:
-                            page.locator('[data-demo-tab="ai"]').click()
-                            page.locator('[data-ai-scenario]').select_option('first-use')
-                            page.locator('[data-ai-steps] button').nth(4).click()
+                            page.locator('input[name="context-question"][value="broad"]').check()
+                            page.locator('input[name="context-root"][value="new"]').check()
+                            page.locator('[data-context-form] button[type="submit"]').click()
                             page.add_style_tag(content='.site-header{display:none!important}')
-                            page.locator('[data-demo-panel="ai"]').screenshot(path=str(screenshots / 'readme-playground.png'))
+                            page.locator('[data-context-workbench]').screenshot(path=str(screenshots / 'readme-playground.png'))
                         assert not errors, (width, site, errors)
                         checked += 1
                 finally:

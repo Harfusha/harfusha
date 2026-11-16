@@ -36,6 +36,14 @@
 
   initFilter($('[data-maker-browser]'), '[data-maker]', [['[data-maker-status]', 'status']]);
   initFilter($('[data-project-browser]'), '[data-project]', [['[data-filter]', 'category']]);
+  const categoryFilter = $('[data-project-browser] [data-filter]');
+  $$('[data-category-shortcut]').forEach(button => button.addEventListener('click', () => {
+    if (!categoryFilter) return;
+    categoryFilter.value = button.dataset.categoryShortcut || 'all';
+    categoryFilter.dispatchEvent(new Event('change', {bubbles: true}));
+    $$('[data-category-shortcut]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    $('[data-project-browser]').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'});
+  }));
   initFilter($('[data-activity-browser]'), '[data-activity]', [['[data-state]', 'state'], ['[data-kind]', 'kind']]);
   initFilter($('[data-decision-browser]'), '[data-decision]', [['[data-decision-status]', 'status']]);
   const contributionDialog = $('[data-activity-dialog]');
@@ -310,301 +318,167 @@
     }
   };
 
-  function initTextDiff() {
-    const root = $('[data-diff-tool]');
+  function initContextWorkbench() {
+    const root = $('[data-context-workbench]');
     if (!root) return;
-    const before = $('[data-diff-before]', root), after = $('[data-diff-after]', root);
-    const result = $('[data-diff-result]', root);
-    $('[data-diff-run]', root).addEventListener('click', () => {
-      const lines = value => value === '' ? [] : value.replace(/\r\n?/g, '\n').split('\n');
-      const a = lines(before.value), b = lines(after.value);
-      if (a.length > 200 || b.length > 200) {
-        result.textContent = local('Limit je 200 řádků na každé straně.', 'The limit is 200 lines per side.');
-        return;
+    const form = $('[data-context-form]', root);
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const values = new FormData(form);
+      const indexed = values.get('context-root') === 'indexed';
+      const exact = values.get('context-question') === 'exact';
+      const model = values.has('context-model');
+      const steps = [];
+      if (!indexed) steps.push(local('Jednou zaregistrovat stabilní absolutní kořen.', 'Register the stable absolute root once.'));
+      if (!indexed) steps.push(local('Asynchronně připravit inventář, code index a deterministické karty.', 'Asynchronously prepare inventory, code index and deterministic cards.'));
+      if (exact) {
+        steps.push(local('Code indexem najít přesný symbol a jeho vztahy.', 'Find the exact symbol and its relationships in the code index.'));
+        steps.push(local('Načíst pouze zdrojový výřez potřebný pro odpověď.', 'Load only the source slice needed for the answer.'));
+      } else {
+        steps.push(local('Začít levnějšími indexovanými zdroji a mapou repozitáře.', 'Start with cheaper indexed sources and the repository map.'));
+        steps.push(local('Složit širší kontext z více dohledatelných důkazů.', 'Compose broader context from multiple traceable sources.'));
+        steps.push(local('RAG přidat až tehdy, když index nestačí.', 'Add RAG only when indexed evidence is insufficient.'));
       }
-      const dp = Array.from({length:a.length + 1}, () => new Uint16Array(b.length + 1));
-      for (let i = a.length - 1; i >= 0; i--) {
-        for (let j = b.length - 1; j >= 0; j--) {
-          dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
-        }
+      if (model) steps.push(local('Volitelně přidat lokální syntézu; návrh zůstává poradní.', 'Optionally add local synthesis; its output remains advisory.'));
+      steps.push(local('Změnu ověřit příkazem spuštěným hostitelským prostředím.', 'Verify the change with a command run by the host environment.'));
+      $('[data-context-title]', root).textContent = exact
+        ? local(indexed ? 'Přesný dotaz, připravený index' : 'Nejdřív připravit stabilní kořen', indexed ? 'Exact query, prepared index' : 'Prepare a stable root first')
+        : local(indexed ? 'Širší změna, dohledatelné zdroje' : 'Příprava před širším dotazem', indexed ? 'Broader change, traceable sources' : 'Prepare before a broad query');
+      const list = $('[data-context-steps]', root);
+      list.replaceChildren();
+      for (const step of steps) {
+        const item = document.createElement('li');
+        item.textContent = step;
+        list.append(item);
       }
-      const output = []; let i = 0, j = 0, changes = 0;
-      while (i < a.length || j < b.length) {
-        if (i < a.length && j < b.length && a[i] === b[j]) { output.push('  ' + a[i]); i++; j++; }
-        else if (j < b.length && (i === a.length || dp[i][j + 1] > dp[i + 1][j])) { output.push('+ ' + b[j++]); changes++; }
-        else { output.push('- ' + a[i++]); changes++; }
-      }
-      result.textContent = changes ? output.join('\n') : local('Texty jsou shodné.', 'The texts are identical.');
+      $('[data-context-boundary]', root).textContent = local(
+        'Tento model ukazuje pořadí práce, ne běžící Hub. Hostitelský test a kontrola zdroje zůstávají rozhodující.',
+        'This model shows the order of work, not a running Hub. Host tests and source review remain decisive.'
+      );
     });
-    $('[data-diff-run]').click();
   }
-  initTextDiff();
 
-  function initPlayground() {
-    const root = $('[data-playground]');
+  function initProjectExhibits() {
+    const root = $('[data-project-exhibit]');
     if (!root) return;
-    const tabs = $$('[data-demo-tab]',root), panels = $$('[data-demo-panel]',root);
-    const valid = new Set(['ai','sync','world','cad','request']);
-    const show = (id, updateHash) => {
-      if (!valid.has(id)) id='ai';
-      tabs.forEach(t=>{t.setAttribute('aria-selected',String(t.dataset.demoTab===id));t.tabIndex=t.dataset.demoTab===id?0:-1;});
-      panels.forEach(p=>p.classList.toggle('hidden',p.dataset.demoPanel!==id));
-      if (updateHash) history.replaceState(null,'',`#${id}`);
-      if (id==='world') renderWorld();
-      if (id==='cad') renderCad();
-    };
-    tabs.forEach((t,i)=>{
-      t.addEventListener('click',()=>show(t.dataset.demoTab,true));
-      t.addEventListener('keydown',event=>{
-        let next=i;
-        if(event.key==='ArrowRight')next=(i+1)%tabs.length;
-        else if(event.key==='ArrowLeft')next=(i-1+tabs.length)%tabs.length;
-        else if(event.key==='Home')next=0;
-        else if(event.key==='End')next=tabs.length-1;
-        else return;
-        event.preventDefault();
-        show(tabs[next].dataset.demoTab,true);
-        tabs[next].focus();
+    const kind = root.dataset.projectExhibit;
+    if (kind === 'hub') {
+      let mode = 'exact';
+      const output = $('[data-hub-result]', root);
+      $$('[data-hub-mode]', root).forEach(button => button.addEventListener('click', () => {
+        mode = button.dataset.hubMode;
+        $$('[data-hub-mode]', root).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      }));
+      $('[data-hub-run]', root).addEventListener('click', () => {
+        const question = $('[data-hub-question]', root).value.trim();
+        output.replaceChildren();
+        const title = document.createElement('strong');
+        const detail = document.createElement('span');
+        title.textContent = question || local('Zadej otázku k repozitáři.', 'Enter a repository question.');
+        detail.textContent = mode === 'exact'
+          ? local('Přesný tok: code index → zdrojový výřez → hostitelský test. Bez modelového odhadu.', 'Exact route: code index → source slice → host validation. No model guess.')
+          : local('Širší tok: poskládat více ověřitelných zdrojů; RAG až po levnějších indexovaných cestách. Výstup stále ověřuje host.', 'Broader route: combine traceable sources; use RAG after cheaper indexed routes. The host still verifies the result.');
+        output.append(title, detail);
       });
-    });
-    window.addEventListener('hashchange',()=>show(location.hash.slice(1),false));
-    show(location.hash.slice(1) || 'ai',false);
-    initAi(root);
-    initSync(root);
-    initWorld(root);
-    initCad(root);
-    initRequest(root);
-  }
-
-  function initAi(root) {
-    const area = $('[data-ai-steps]',root);
-    if (!area) return;
-    const selector = $('[data-ai-scenario]',root), note = $('[data-ai-scenario-note]',root);
-    const detail = $('[data-ai-title]',root), desc = $('[data-ai-description]',root), code = $('[data-ai-code]',root), index = $('[data-ai-index]',root);
-    let current = 0, active = AI_SCENARIOS[selector?.value] || AI_SCENARIOS['first-use'], buttons = [];
-    const draw = () => {
-      const step=active.steps[current];
-      detail.textContent=language==='en'?step.en:step.cs;
-      desc.textContent=language==='en'?step.descEn:step.descCs;
-      code.textContent=step.trace;
-      index.textContent=`${String(current+1).padStart(2,'0')}/${String(active.steps.length).padStart(2,'0')}`;
-      note.textContent=language==='en'?active.noteEn:active.noteCs;
-      const progress=current/Math.max(active.steps.length-1,1);
-      area.style.setProperty('--ai-progress',`${Math.round(progress*100)}%`);
-      area.style.setProperty('--ai-progress-ratio',String(progress));
-      buttons.forEach((b,i)=>{b.classList.toggle('complete',i<current);b.classList.toggle('active',i===current);b.classList.toggle('pending',i>current);b.setAttribute('aria-current',i===current?'step':'false');});
-      $('[data-ai-prev]',root).disabled=current===0;
-      $('[data-ai-next]',root).disabled=current===active.steps.length-1;
-    };
-    const load = () => {
-      active=AI_SCENARIOS[selector.value] || AI_SCENARIOS['first-use'];
-      current=0;
-      area.replaceChildren();
-      buttons=active.steps.map((step,i)=>{
-        const btn=document.createElement('button');btn.className='ai-step';btn.type='button';
-        const num=document.createElement('span');num.textContent=String(i+1).padStart(2,'0');
-        const title=document.createElement('strong');title.textContent=language==='en'?step.en:step.cs;
-        btn.append(num,title);
-        btn.addEventListener('click',()=>{current=i;draw();});
-        area.append(btn);
-        return btn;
+    } else if (kind === 'mutaui') {
+      const output = $('[data-mutaui-result]', root), arrow = $('.mutaui-endpoints i', root);
+      $$('[data-mutaui-mode]', root).forEach(button => button.addEventListener('click', () => {
+        const forward = button.dataset.mutauiMode === 'forward';
+        $$('[data-mutaui-mode]', root).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        arrow.textContent = forward ? '→' : '⇄';
+        output.textContent = forward
+          ? local('Forward: Mutagen předává provoz mezi dvěma endpointy. Nejde o kopírování souborů.', 'Forward: Mutagen forwards traffic between two endpoints. It is not file synchronization.')
+          : local('Sync: Mutagen porovnává oba endpointy podle zvoleného režimu.', 'Sync: Mutagen compares both endpoints under the selected mode.');
+      }));
+    } else if (kind === 'homelab') {
+      const roles = {
+        router: ['Router', 'Router', 'Routing, firewall a WireGuard VPN. Zásahy do routeru jsou v playboocích zvlášť hlídané.', 'Routing, firewall and WireGuard VPN. Playbooks guard router changes separately.'],
+        'main-pi': ['Hlavní Pi', 'Main Pi', 'Pi-hole, Unbound, Jellyfin, BookStack a Semaphore.', 'Pi-hole, Unbound, Jellyfin, BookStack and Semaphore.'],
+        'print-pi': ['Tiskové Pi', 'Print Pi', 'CUPS a síťová tisková fronta. Samostatná role od hlavního hostu.', 'CUPS and the network print queue. A role separate from the primary host.'],
+        nas: ['NAS', 'NAS', 'Úložiště a cíl záloh; provozní dostupnost se z mapy nečte.', 'Storage and backup target; runtime availability is not read by this map.'],
+        proxmox: ['Proxmox', 'Proxmox', 'Testovací host zapínaný podle potřeby, ne stálá veřejná služba.', 'On-demand test host, not an always-on public service.'],
+      };
+      const detail = $('[data-host-detail]', root);
+      $$('[data-host-role]', root).forEach(button => button.addEventListener('click', () => {
+        const [cs, en, descCs, descEn] = roles[button.dataset.hostRole];
+        $$('[data-host-role]', root).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        detail.querySelector('.eyebrow').textContent = `HOST ROLE / ${button.dataset.hostRole.toUpperCase()}`;
+        detail.querySelector('h4').textContent = language === 'en' ? en : cs;
+        detail.querySelector('p').textContent = language === 'en' ? descEn : descCs;
+      }));
+    } else if (kind === 'woodbound') {
+      const map = $('.world-map', root), output = $('[data-world-result]', root);
+      const copy = {
+        terrain: local('Reliéf určuje, kde další fáze může umístit oblasti a průchody.', 'Terrain constrains where later stages can place regions and traversable paths.'),
+        water: local('Voda musí navazovat na terén a povodí; je to pravidlo k validaci, ne dekorace.', 'Water must agree with terrain and watershed rules; it needs validation, not just decoration.'),
+        regions: local('Regionální hranice mají dávat smysl vůči reliéfu a herním záměrům.', 'Region boundaries should fit terrain and game design intent.'),
+        routes: local('Trasa má spojit určené body. Pathfinder ověří kandidáta, ne pocit z hezké mapy.', 'A route must connect its intended endpoints. The pathfinder checks a candidate, not whether the map looks pretty.'),
+      };
+      $$('[data-world-layer]', root).forEach(button => button.addEventListener('click', () => {
+        const layer = button.dataset.worldLayer;
+        map.dataset.layer = layer;
+        output.textContent = copy[layer];
+        $$('[data-world-layer]', root).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      }));
+    } else if (kind === 'scan2cad') {
+      $$('[data-scan-scale]', root).forEach(button => button.addEventListener('click', () => {
+        const confirmed = button.dataset.scanScale === 'confirmed';
+        $$('[data-scan-scale]', root).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+        $('[data-scan-result]', root).textContent = confirmed
+          ? local('Měřítko potvrzeno v modelu. Další krok: člověk kontroluje zarovnání a lokální odchylky; rozměry pořád nejsou certifikované.', 'Scale marked confirmed in this model. Next: a person reviews alignment and local deviation; dimensions are still not certified.')
+          : local('STOP: jednotky nejsou potvrzené. Rekonstrukce nesmí hádat rozměr.', 'STOP: units are not confirmed. Reconstruction must not guess dimensions.');
+      }));
+    } else if (kind === 'tiskov') {
+      const inbox = $('[data-print-inbox]', root), worker = $('[data-print-worker]', root), review = $('[data-print-review]', root);
+      let next = 0;
+      $('[data-print-next]', root).addEventListener('click', event => {
+        if (next >= 2) return;
+        const job = inbox.firstElementChild;
+        job?.remove();
+        next++;
+        worker.textContent = local(`Case ${next === 1 ? 'A' : 'B'} · worker zpracoval dávku`, `Case ${next === 1 ? 'A' : 'B'} · worker processed the batch`);
+        review.textContent = local('Výsledek čeká na lidskou kontrolu. Cena se nespočítala.', 'Result awaits human review. No price was calculated.');
+        if (next === 2) event.currentTarget.disabled = true;
       });
-      draw();
-    };
-    selector.addEventListener('change',load);
-    $('[data-ai-prev]',root).addEventListener('click',()=>{current=Math.max(0,current-1);draw();});
-    $('[data-ai-next]',root).addEventListener('click',()=>{current=Math.min(active.steps.length-1,current+1);draw();});
-    $('[data-ai-reset]',root).addEventListener('click',()=>{current=0;draw();});
-    load();
+    } else if (kind === 'shpotify') {
+      let count = 0;
+      $('[data-music-add]', root).addEventListener('click', () => {
+        if (count >= 2) return;
+        count++;
+        const item = document.createElement('li');
+        item.append(document.createTextNode(`0${count + 2} · ${count === 1 ? 'Paper Satellites' : 'Blue Hour'} `));
+        const who = document.createElement('small');
+        who.textContent = count === 1 ? 'Adam' : 'Eva';
+        item.append(who);
+        $('[data-music-queue]', root).append(item);
+        $('[data-music-note]', root).textContent = local('Ukázková skladba přidána do lokální fronty; žádné audio se nepřehrává.', 'Sample track added to the local queue; no audio is played.');
+      });
+    } else if (kind === 'softwareinc') {
+      const state = $('[data-agreement-state]', root), copy = $('[data-agreement-copy]', root);
+      let step = 0;
+      const render = () => {
+        $$('li', state).forEach((item, index) => item.classList.toggle('active', index === step));
+        copy.textContent = [
+          local('Návrh změny existuje. Zatím nic neukládá do hry.', 'A change proposal exists. Nothing is written to the game yet.'),
+          local('Druhý hráč návrh kontroluje. Doménové pravidlo se může zamítnout.', 'The other player reviews the proposal. A domain rule may reject it.'),
+          local('Model dohody přijal návrh. To ještě nedokazuje aplikaci ve hře.', 'The agreement model accepted the proposal. This does not prove the game applied it.'),
+          local('Adaptér hry je samostatná hranice. Herní přijetí zde není spuštěno ani ověřeno.', 'The game adapter is a separate boundary. In-game acceptance is not run or verified here.'),
+        ][step];
+      };
+      $('[data-agreement-next]', root).addEventListener('click', () => { step = Math.min(3, step + 1); render(); });
+      $('[data-agreement-reset]', root).addEventListener('click', () => { step = 0; render(); });
+    } else if (kind === 'discord') {
+      $('[data-discord-check]', root).addEventListener('click', () => {
+        const role = $('[data-discord-role]', root).value, action = $('[data-discord-action]', root).value, allowed = role === 'operator';
+        const output = $('[data-discord-result]', root);
+        output.dataset.state = allowed ? 'allowed' : 'denied';
+        output.textContent = allowed
+          ? local(`Model: ${action} může pokračovat ke skutečnému backendu. Tady se nic nespustí.`, `Model: ${action} may proceed to a real backend. Nothing runs here.`)
+          : local(`Odmítnuto: běžný člen nemá oprávnění k akci ${action}.`, `Denied: a regular member is not authorized for ${action}.`);
+      });
+    }
   }
 
-  function initSync(root) {
-    const alpha = $('[data-sync-alpha]',root), beta = $('[data-sync-beta]',root), log=$('[data-sync-log]',root);
-    if (!alpha || !beta) return;
-    const initial='{"theme":"dark","version":1}';
-    let revA=1,revB=1,dirtyA=false,dirtyB=false;
-    const push = message => {
-      const li=document.createElement('li');li.textContent=message;
-      log.prepend(li);
-      while(log.children.length>8)log.lastChild.remove();
-    };
-    const paint = () => {
-      $('[data-alpha-version]',root).textContent=`rev ${revA}${dirtyA?' · modified':''}`;
-      $('[data-beta-version]',root).textContent=`rev ${revB}${dirtyB?' · modified':''}`;
-    };
-    alpha.addEventListener('input',()=>{dirtyA=true;paint();});
-    beta.addEventListener('input',()=>{dirtyB=true;paint();});
-    const transition = operation => {
-      const outcome = core.syncStep({alpha:alpha.value,beta:beta.value,dirtyA,dirtyB,revA,revB},operation);
-      const next = outcome.state;
-      alpha.value=next.alpha;beta.value=next.beta;dirtyA=next.dirtyA;dirtyB=next.dirtyB;revA=next.revA;revB=next.revB;
-      const messages = {unchanged:local('Žádné změny ke zpracování.','No changes to sync.'),
-        conflict:local('Konflikt: obě strany byly změněny. Vyber vítěznou kopii.','Conflict: both sides changed. Choose the winning copy.'),
-        synchronized:local('Změny byly synchronizovány.','Changes synchronized.')};
-      push(messages[outcome.outcome]||`${outcome.outcome}: manual resolution`);
-      paint();
-    };
-    $('[data-sync-run]',root).addEventListener('click',()=>transition('sync'));
-    $$('[data-sync-resolve]',root).forEach(btn=>btn.addEventListener('click',()=>transition(btn.dataset.syncResolve)));
-    $('[data-sync-reset]',root).addEventListener('click',()=>{alpha.value=beta.value=initial;revA=revB=1;dirtyA=dirtyB=false;log.replaceChildren();push('Sandbox reset.');paint();});
-    push('Demo initialized: synchronized.');paint();
-  }
-
-  let renderWorld = () => {};
-  function initWorld(root) {
-    const canvas = $('[data-world-canvas]',root);
-    if (!canvas) return;
-    const seedInput=$('[data-world-seed]',root),density=$('[data-world-density]',root),relief=$('[data-world-relief]',root);
-    const ctx=canvas.getContext('2d',{alpha:false});
-    if(!ctx)return;
-    const hash = core.hash;
-    const terrain = core.terrain;
-    renderWorld=()=>{
-      if($('#world')?.classList.contains('hidden'))return;
-      const seed=Math.max(0,Math.min(99999999,Number(seedInput.value)||0))|0;
-      const trees=Number(density.value)/100,elevation=Number(relief.value)/100;
-      $('[data-density-value]',root).textContent=`${density.value}%`;
-      $('[data-relief-value]',root).textContent=`${relief.value}%`;
-      const w=canvas.width,h=canvas.height;ctx.fillStyle='#10242a';ctx.fillRect(0,0,w,h);
-      const cell=5,cols=Math.ceil(w/cell),rows=Math.ceil(h/cell);
-      for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
-        const z=terrain(x,y,seed),n=hash(x,y,seed+92);
-        let fill;
-        if(z<.36){fill=n>.6?'#164554':'#1a5160';}
-        else if(z<.42){fill='#b7a87c';}
-        else if(z>.64+(.44-elevation)*.19){fill=n>.65?'#a4b6ac':'#7f948e';}
-        else if(n<trees*(z>.48?.57:.30)){fill=n<trees*.15?'#215d40':'#286a47';}
-        else fill=z>.52?'#779473':'#8faa74';
-        ctx.fillStyle=fill;ctx.fillRect(x*cell,y*cell,cell+1,cell+1);
-      }
-      ctx.strokeStyle='#d7ba8b';ctx.lineWidth=3;ctx.setLineDash([8,5]);ctx.beginPath();
-      for(let x=80;x<w-60;x+=6){const y=235+Math.sin((x+seed%600)/95)*80+Math.sin(x/47)*14;if(x===80)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();ctx.setLineDash([]);
-      ctx.fillStyle='rgba(10,28,32,.72)';ctx.fillRect(16,16,205,38);
-      ctx.fillStyle='#ddedeb';ctx.font='13px monospace';ctx.fillText(`SEED ${seed} · TOY TERRAIN`,28,40);
-    };
-    $('[data-world-generate]',root).addEventListener('click',renderWorld);
-    [density,relief,seedInput].forEach(e=>e.addEventListener('input',renderWorld));
-    renderWorld();
-  }
-
-  let renderCad=()=>{};
-  function initCad(root) {
-    const canvas=$('[data-cad-canvas]',root),file=$('[data-cad-file]',root),wire=$('[data-cad-wire]',root);
-    if(!canvas)return;
-    const ctx=canvas.getContext('2d',{alpha:false});if(!ctx)return;
-    const sample=()=>{
-      const V=[[-1,-.8,-1],[1,-.8,-1],[1,.8,-1],[-1,.8,-1],[-1,-.8,1],[1,-.8,1],[1,.8,1],[-1,.8,1]];
-      const F=[[0,2,1],[0,3,2],[4,5,6],[4,6,7],[0,1,5],[0,5,4],[3,7,6],[3,6,2],[1,2,6],[1,6,5],[0,4,7],[0,7,3]];
-      const base=F.map(([a,b,c])=>[V[a],V[b],V[c]]);
-      const n=24;
-      for(let i=0;i<n;i++){
-        const a=i*Math.PI*2/n,b=(i+1)*Math.PI*2/n;
-        const p=[.35*Math.cos(a),.81,.35*Math.sin(a)],q=[.35*Math.cos(b),.81,.35*Math.sin(b)],v=[0,1.45,0];
-        base.push([p,q,v]);
-      }
-      return base;
-    };
-    let mesh=sample(),ax=-.3,ay=.65,zoom=1,drag=false,previous=[0,0],loadGeneration=0,renderQueued=false;
-    const normMesh = core.normalizeMesh;
-    mesh=normMesh(mesh);
-    renderCad=()=>{
-      if($('#cad')?.classList.contains('hidden'))return;
-      const w=canvas.width,h=canvas.height;ctx.fillStyle='#0c1d25';ctx.fillRect(0,0,w,h);
-      ctx.strokeStyle='rgba(83,139,141,.11)';ctx.lineWidth=1;
-      for(let i=0;i<w;i+=37){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,h);ctx.stroke();}
-      for(let i=0;i<h;i+=37){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(w,i);ctx.stroke();}
-      const sinY=Math.sin(ay),cosY=Math.cos(ay),sinX=Math.sin(ax),cosX=Math.cos(ax);
-      const project=p=>{const x=p[0]*cosY+p[2]*sinY,z=-p[0]*sinY+p[2]*cosY,y=p[1]*cosX-z*sinX,depth=p[1]*sinX+z*cosX;return [w/2+x*125*zoom,h/2-y*125*zoom,depth];};
-      const tris=mesh.map(t=>t.map(project)).map(points=>({points,depth:points.reduce((a,p)=>a+p[2],0)/3})).sort((a,b)=>a.depth-b.depth);
-      for(const {points} of tris){
-        const [a,b,c]=points;
-        const cross=(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
-        if(!wire.checked && cross>0)continue;
-        const shade=Math.min(1,Math.abs(cross)/50000);
-        ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.lineTo(c[0],c[1]);ctx.closePath();
-        if(!wire.checked){ctx.fillStyle=`rgba(44, ${Math.round(126+shade*80)}, ${Math.round(140+shade*56)}, 0.87)`;ctx.fill();}
-        ctx.strokeStyle=wire.checked?'rgba(103,238,194,.55)':'rgba(163,247,225,.3)';ctx.lineWidth=wire.checked?1.1:.5;ctx.stroke();
-      }
-    };
-    // Render at most once per animation frame even if pointer events arrive faster.
-    const queueCadRender=()=>{
-      if(renderQueued)return;
-      renderQueued=true;
-      requestAnimationFrame(()=>{renderQueued=false;renderCad();});
-    };
-    const info=$('[data-cad-info]',root);
-    const setInfo=msg=>info.textContent=msg;
-    const loadStl = async input => {
-      if(input.size > 8 * 1024 * 1024) throw new Error('File exceeds 8 MB');
-      // A bounded display sample keeps rotation responsive even for large STL files.
-      return normMesh(core.parseStl(await input.arrayBuffer(),6000));
-    };
-    file.addEventListener('change',async()=>{
-      const input=file.files?.[0];
-      if(!input)return;
-      const generation=++loadGeneration;
-      setInfo(local('Načítám STL…','Loading STL…'));
-      try{
-        const nextMesh=await loadStl(input);
-        if(generation!==loadGeneration)return;
-        mesh=nextMesh;ax=-.3;ay=.65;zoom=1;
-        setInfo(`${mesh.length.toLocaleString()} displayed triangles · local STL sample`);
-        queueCadRender();
-      }catch(e){
-        if(generation===loadGeneration)setInfo(`Cannot open STL: ${e instanceof Error?e.message:'Invalid file'}`);
-      }
-    });
-    wire.addEventListener('change',queueCadRender);
-    $('[data-cad-reset]',root).addEventListener('click',()=>{loadGeneration++;mesh=normMesh(sample());ax=-.3;ay=.65;zoom=1;file.value='';setInfo(`${mesh.length} triangles · sample geometry`);queueCadRender();});
-    canvas.addEventListener('pointerdown',e=>{drag=true;previous=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);});
-    canvas.addEventListener('pointermove',e=>{if(!drag)return;ay+=(e.clientX-previous[0])*.009;ax+=(e.clientY-previous[1])*.009;ax=Math.max(-1.5,Math.min(1.5,ax));previous=[e.clientX,e.clientY];queueCadRender();});
-    canvas.addEventListener('pointerup',()=>{drag=false;});
-    canvas.addEventListener('pointercancel',()=>{drag=false;});
-    canvas.addEventListener('keydown',e=>{
-      if(e.key==='ArrowLeft')ay-=.15;
-      else if(e.key==='ArrowRight')ay+=.15;
-      else if(e.key==='ArrowUp')ax=Math.max(-1.5,ax-.15);
-      else if(e.key==='ArrowDown')ax=Math.min(1.5,ax+.15);
-      else if(e.key==='+'||e.key==='=')zoom=Math.min(3,zoom*1.12);
-      else if(e.key==='-'||e.key==='_')zoom=Math.max(.28,zoom*.88);
-      else return;
-      e.preventDefault();queueCadRender();
-    });
-    canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.28,Math.min(3,zoom*(e.deltaY>0?.88:1.12)));queueCadRender();},{passive:false});
-    setInfo(`${mesh.length} triangles · sample geometry`);
-    renderCad();
-  }
-
-  function initRequest(root) {
-    const panel=$('[data-request-lab]',root);
-    if(!panel || !core?.requestTrace) return;
-    const route=$('[data-request-route]',panel), method=$('[data-request-method]',panel);
-    const host=$('[data-request-host]',panel), csrf=$('[data-request-csrf]',panel);
-    const auth=$('[data-request-auth]',panel), payload=$('[data-request-payload]',panel);
-    const response=$('[data-request-response]',panel), steps=$('[data-request-steps]',panel);
-    const render=()=>{
-      const trace=core.requestTrace({path:route.value,method:method.value,hostValid:host.checked,
-        csrfValid:csrf.checked,authenticated:auth.checked,payloadValid:payload.checked}, language);
-      response.textContent=`HTTP ${trace.status} · ${({200:'OK',303:'See Other',400:'Bad Request',403:'Forbidden',405:'Method Not Allowed',422:'Unprocessable Content'})[trace.status] || 'Result'}`;
-      response.dataset.status=String(trace.status);
-      steps.replaceChildren();
-      for(const step of trace.steps){
-        const li=document.createElement('li');li.className=`request-step request-${step.result}`;
-        const name=document.createElement('strong');name.textContent=step.name;
-        const detail=document.createElement('span');detail.textContent=step.detail;
-        const badge=document.createElement('b');badge.textContent=language === 'cs' ? ({pass:'PROŠLO',block:'ZASTAVENO',skip:'PŘESKOČENO'}[step.result]) : step.result.toUpperCase();
-        li.append(name,detail,badge);steps.append(li);
-      }
-      const admin=route.value==='/admin/project';
-      $$('[data-request-admin-only]',panel).forEach(element=>{element.classList.toggle('request-muted',!admin);});
-    };
-    $$('input,select',panel).forEach(input=>input.addEventListener('change',render));
-    $('[data-request-reset]',panel).addEventListener('click',()=>{
-      route.value='/cs/projects';method.value='GET';
-      host.checked=csrf.checked=auth.checked=payload.checked=true;render();
-    });
-    render();
-  }
-
-  initPlayground();
+  initContextWorkbench();
+  initProjectExhibits();
 })();

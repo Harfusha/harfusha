@@ -29,7 +29,8 @@ final readonly class PublicProjectView
             : null;
         // Curated demos are local route IDs, never external URLs.
         $demo = match ($this->project->demo) {
-            'ai', 'sync', 'world', 'cad' => $language->path('/playground') . '#' . $this->project->demo,
+            'ai', 'sync', 'world', 'cad' => $language->path('/projects/' . $this->project->slug)
+                . '#project-experience',
             'homelab' => $language->path('/homelab'),
             default => null,
         };

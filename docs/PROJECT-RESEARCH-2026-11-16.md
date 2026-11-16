@@ -15,9 +15,9 @@ Tento záznam shrnuje kontrolované zdrojové revize a hranice toho, co lze tvrd
 - **Tiskov — `dd49a23`**. Symfony přijímá podklady, MySQL drží frontu a samostatný Raspberry Pi worker provádí slicing. Odhad pro Bambu Lab A1 je orientační, bez online platby a s ruční konečnou dohodou; aktuální běh a přesnost výpočtu nejsou ověřené.
 - **Maker Lab**. Na přání nejsou zveřejněné jednotlivé výrobky; stránka zůstává neutrálním placeholderem.
 
-## Veřejná prezentace
+## Previous candidate — superseded 16 Nov 2026
 
-Každá z devíti projektových stránek nyní obsahuje přeložený problém, řešení, konkrétní čtyřkrokový průchod a projektově specifický diagram. Diagram je vysvětlující model, ne screenshot ani telemetrie. MutaUI, Tiskov a Woodbound mají u obrázků výslovně uveden původ a omezení. Lokální AI Hub zobrazuje rozdíl mezi preprocessingem, přesným vyhledáním a následným ověřením; tři větve Playgroundu jsou deterministické simulace.
+This section recorded the earlier candidate and is kept only as history. Its generic diagrams and multi-panel Playground have been superseded. Current source reconciliation and alternatives are recorded in [PROJECT-EVIDENCE-RECONCILIATION-2026-11-16.md](PROJECT-EVIDENCE-RECONCILIATION-2026-11-16.md) and [PROJECT-ALTERNATIVES-RESEARCH-2026-11-16.md](PROJECT-ALTERNATIVES-RESEARCH-2026-11-16.md).
 
 ## Nasazovací hranice
 

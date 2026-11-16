@@ -38,8 +38,8 @@ final class PublicProjectViewTest extends TestCase
         self::assertNotNull($homelab);
         self::assertNotNull($withoutDemo);
 
-        self::assertSame('/en/playground#ai', (new PublicProjectView($ai))->toArray(new Language('en'))['demo']);
-        self::assertSame('/cs/playground#world', (new PublicProjectView($private))->toArray(new Language('cs'))['demo']);
+        self::assertSame('/en/projects/local-ai-hub#project-experience', (new PublicProjectView($ai))->toArray(new Language('en'))['demo']);
+        self::assertSame('/cs/projects/woodbound#project-experience', (new PublicProjectView($private))->toArray(new Language('cs'))['demo']);
         self::assertSame('/en/homelab', (new PublicProjectView($homelab))->toArray(new Language('en'))['demo']);
         self::assertNull((new PublicProjectView($withoutDemo))->toArray(new Language('en'))['demo']);
     }

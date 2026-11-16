@@ -11,12 +11,28 @@ import argparse
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = ('connections', 'contributions', 'decisions', 'flows', 'journal', 'maker', 'projects', 'topology')
 RECEIPT = '.lab-content-approval.json'
+APPROVAL_PHRASE = 'APPROVE PUBLIC CONTENT'
+
+
+def workflow_dispatch_approved() -> bool:
+    if os.environ.get('GITHUB_ACTIONS') != 'true' or os.environ.get('GITHUB_EVENT_NAME') != 'workflow_dispatch':
+        return False
+    event_path = Path(os.environ.get('GITHUB_EVENT_PATH', ''))
+    if not event_path.is_absolute() or event_path.is_symlink() or not event_path.is_file():
+        return False
+    try:
+        event = json.loads(event_path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return False
+    inputs = event.get('inputs') if isinstance(event, dict) else None
+    return isinstance(inputs, dict) and inputs.get('public_content_approval') == APPROVAL_PHRASE
 
 
 def manifest(root: Path) -> dict[str, str]:
@@ -127,12 +143,14 @@ def main() -> int:
         else:
             if not args.reviewer:
                 raise ValueError('--reviewer is required for --approve')
-            if not sys.stdin.isatty():
-                raise ValueError('Approval requires an interactive TTY, not an automated CI job')
-            phrase = 'APPROVE PUBLIC CONTENT'
             print('You confirm review of all public data, templates and assets, including private-derived case studies.')
-            if input(f'Type exactly "{phrase}" to approve this snapshot: ').strip() != phrase:
-                raise ValueError('Editorial approval not confirmed')
+            if sys.stdin.isatty():
+                if input(f'Type exactly "{APPROVAL_PHRASE}" to approve this snapshot: ').strip() != APPROVAL_PHRASE:
+                    raise ValueError('Editorial approval not confirmed')
+            elif not workflow_dispatch_approved():
+                raise ValueError('Approval requires a TTY or the exact workflow_dispatch content-approval input')
+            else:
+                print('Exact workflow_dispatch approval received for this snapshot.')
             create(ROOT, args.reviewer, confirmed=True)
             print('Private editorial receipt saved. It is ignored by Git and excluded from archives.')
     except (ValueError, OSError) as exc:
