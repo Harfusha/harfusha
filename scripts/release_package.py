@@ -24,7 +24,8 @@ OPERATIONS_FILES = ('scripts/preflight.php', 'docs/PROJECT-README.md')
 EXCLUDE_PARTS = {'tests', 'test', '__tests__', '__pycache__', '.git', '.github',
                  'node_modules', '.idea', '.vscode', 'examples', '.phpunit.cache'}
 EXCLUDE_NAMES = {'.DS_Store', 'app_local.php', '.env', '.env.local', '.env.production',
-                 'id_rsa', 'id_ed25519', '.lab-content-approval.json'}
+                 'id_rsa', 'id_ed25519', '.lab-content-approval.json',
+                 'schema-dump-default.lock'}
 EXCLUDE_SUFFIXES = {'.key', '.pem', '.p12', '.pfx', '.sqlite', '.db', '.log', '.bak', '.swp'}
 FIXED_DATE = (2026, 11, 14, 12, 0, 0)
 

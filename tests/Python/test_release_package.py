@@ -29,6 +29,7 @@ class ReleasePackageTests(unittest.TestCase):
             'webroot/.env.production': 'exposed?', 'logs/secret.log': 'private',
             'webroot/.ENV.production': 'mixed-case-secret',
             'config/APP_LOCAL.PHP': 'mixed-case-config',
+            'config/Migrations/schema-dump-default.lock': 'generated migration lock',
             'data/.LAB-CONTENT-APPROVAL.JSON': 'private approval',
         }.items():
             file = self.src / name
@@ -48,6 +49,7 @@ class ReleasePackageTests(unittest.TestCase):
         self.assertFalse((stage / 'config/app_local.php').exists())
         self.assertFalse((stage / 'config/APP_LOCAL.PHP').exists())
         self.assertFalse((stage / 'data/.LAB-CONTENT-APPROVAL.JSON').exists())
+        self.assertFalse((stage / 'config/Migrations/schema-dump-default.lock').exists())
         self.assertFalse((stage / 'webroot/.env.production').exists())
         self.assertFalse((stage / 'webroot/.ENV.production').exists())
         self.assertFalse((stage / 'logs/secret.log').exists())
