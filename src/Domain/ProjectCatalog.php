@@ -133,7 +133,13 @@ final class ProjectCatalog
     /** @return list<array<string,mixed>> */
     public function journal(): array
     {
-        return $this->read('journal.json');
+        $rows = $this->read('journal.json');
+        usort($rows, static fn(array $a, array $b): int => strcmp(
+            is_string($b['published_at'] ?? null) ? $b['published_at'] : '',
+            is_string($a['published_at'] ?? null) ? $a['published_at'] : '',
+        ));
+
+        return $rows;
     }
 
     /** @return list<array<string,mixed>> */

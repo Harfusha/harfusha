@@ -160,18 +160,18 @@ final class PagesController extends AppController
     }
 
     /**
-     * Render the interactive project relationship graph.
+     * Render the independent project index.
      */
     public function connections(): Response
     {
         return $this->show(
             'connections',
-            'Mapa projektů | Harfusha Lab',
-            'Project network | Harfusha Lab',
-            'Interaktivní mapa vazeb mezi projekty, nástroji a infrastrukturou.',
-            'An interactive map of how my projects, tools and infrastructure fit together.',
+            'Přehled projektů | Harfusha Lab',
+            'Project index | Harfusha Lab',
+            'Samostatné projekty, jejich fáze a případové studie.',
+            'Independent projects, their stages and case studies.',
             '/connections',
-            ['projects' => $this->content()->projects(), 'edges' => $this->content()->connections()],
+            ['projects' => $this->content()->projects()],
         );
     }
 
@@ -203,6 +203,7 @@ final class PagesController extends AppController
             'Funkční ukázky vývojových projektů.',
             'Functional interactive project demos.',
             '/playground',
+            ['projects' => $this->content()->projects()],
         );
     }
 
@@ -269,6 +270,8 @@ final class PagesController extends AppController
             '/now',
             [
                 'recentRepos' => $this->content()->publicRepoUpdates(),
+                'journalEntries' => $this->content()->journal(),
+                'activity' => $this->content()->activity(),
                 'provenance' => $this->content()->githubProvenance(),
             ],
         );

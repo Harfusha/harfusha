@@ -14,6 +14,7 @@
     const count = $('[data-count]', root);
     const empty = $('[data-empty]', root);
     const items = $$(itemSelector, root);
+    const groups = $$('[data-filter-group]', root);
     // Search text comes from immutable server-rendered cards: normalize once,
     // rather than repeating Unicode decomposition on every keystroke.
     const indexed = items.map(item => ({item, text: normalizeSearch(item.dataset.searchText || '')}));
@@ -28,6 +29,7 @@
       }
       if (count) count.textContent = `${visible} ${local(visible === 1 ? 'záznam' : visible >= 2 && visible <= 4 ? 'záznamy' : 'záznamů', visible === 1 ? 'result' : 'results')}`;
       empty?.classList.toggle('hidden', visible > 0);
+      groups.forEach(group => { group.hidden = !$$(`${itemSelector}:not(.hidden)`, group).length; });
     };
     input?.addEventListener('input', run);
     filters.forEach(({element}) => element?.addEventListener('change', run));
@@ -36,15 +38,7 @@
 
   initFilter($('[data-maker-browser]'), '[data-maker]', [['[data-maker-status]', 'status']]);
   initFilter($('[data-project-browser]'), '[data-project]', [['[data-filter]', 'category']]);
-  const categoryFilter = $('[data-project-browser] [data-filter]');
-  $$('[data-category-shortcut]').forEach(button => button.addEventListener('click', () => {
-    if (!categoryFilter) return;
-    categoryFilter.value = button.dataset.categoryShortcut || 'all';
-    categoryFilter.dispatchEvent(new Event('change', {bubbles: true}));
-    $$('[data-category-shortcut]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-    $('[data-project-browser]').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'});
-  }));
-  initFilter($('[data-activity-browser]'), '[data-activity]', [['[data-state]', 'state'], ['[data-kind]', 'kind']]);
+  initFilter($('[data-activity-browser]'), '[data-activity]', [['[data-year]', 'year'], ['[data-state]', 'state'], ['[data-kind]', 'kind']]);
   initFilter($('[data-decision-browser]'), '[data-decision]', [['[data-decision-status]', 'status']]);
   const contributionDialog = $('[data-activity-dialog]');
   if (contributionDialog) {
@@ -84,92 +78,89 @@
   }
   initAdmin();
 
-  /** Project relationship explorer: fully local, deterministic, keyboard-accessible. */
-  function initConnections() {
-    const root = $('[data-connections]');
-    const source = $('#connections-data');
-    if (!root || !source) return;
-    let graph;
-    try { graph = JSON.parse(source.textContent); } catch { return; }
-    if (!Array.isArray(graph.nodes) || !Array.isArray(graph.edges) || graph.nodes.length === 0) return;
-    const svg = $('[data-connections-svg]', root);
-    const input = $('[data-connection-search]', root);
-    const name = $('[data-connections-name]', root);
-    const description = $('[data-connections-description]', root);
-    const links = $('[data-connections-links]', root);
-    const open = $('[data-connections-open]', root);
-    const nodes = graph.nodes;
-    const byId = new Map(nodes.map(node => [node.id, node]));
-    const positions = new Map();
-    const columns = 4, rowHeight = 150;
-    const rows = Math.ceil(nodes.length / columns);
-    svg.setAttribute('viewBox', `0 0 1060 ${Math.max(680, rows * rowHeight + 80)}`);
-    nodes.forEach((node, index) => {
-      const row = Math.floor(index / columns);
-      const inRow = Math.min(columns, nodes.length - row * columns);
-      positions.set(node.id, {x:530 + (index % columns - (inRow - 1) / 2) * 245, y:100 + row * rowHeight});
-    });
-    const make = (tag, attributes = {}, text = null) => {
-      const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
-      for (const [key, value] of Object.entries(attributes)) el.setAttribute(key, String(value));
-      if (text !== null) el.textContent = text;
-      return el;
-    };
-    let selected = nodes[0].id;
-    const render = () => {
-      const query = input.value.trim().toLocaleLowerCase();
-      const matching = new Set(nodes.filter(node => !query || `${node.name} ${node.category}`.toLocaleLowerCase().includes(query)).map(n => n.id));
-      svg.replaceChildren();
-      const edges = make('g', {'aria-hidden':'true',class:'connections-edges'});
-      graph.edges.forEach(edge => {
-        const a = positions.get(edge.from), b = positions.get(edge.to);
-        if (!a || !b) return;
-        const strong = selected === null || selected === edge.from || selected === edge.to;
-        edges.append(make('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:strong?'':'muted'}));
+  function initProjectMap() {
+    const root = $('[data-project-map-filter]');
+    if (!root) return;
+    const cards = $$('[data-map-project]', root);
+    const domains = $$('[data-map-domain]', root);
+    const search = $('[data-map-search]', root);
+    const category = $('[data-map-category]', root);
+    const state = $('[data-map-state]', root);
+    const status = $('[data-map-status]', root);
+    const empty = $('[data-map-empty]', root);
+    const filter = () => {
+      const query = (search?.value || '').trim().toLocaleLowerCase();
+      let visible = 0;
+      cards.forEach(card => {
+        const matches = (!query || card.dataset.search?.toLocaleLowerCase().includes(query))
+          && (!category || category.value === 'all' || card.dataset.category === category.value)
+          && (!state || state.value === 'all' || card.dataset.state === state.value);
+        card.hidden = !matches;
+        if (matches) visible++;
       });
-      svg.append(edges);
-      nodes.forEach(node => {
-        const pos = positions.get(node.id);
-        const highlighted = selected === node.id;
-        const dimmed = !matching.has(node.id) && selected !== node.id;
-        const g=make('g',{class:`connection-node${highlighted?' selected':''}${dimmed?' muted':''}`,role:'button',tabindex:'0','aria-pressed':String(highlighted),'aria-label':`${node.name} ${node.category}`,'data-node-id':node.id});
-        g.append(make('rect',{x:pos.x-91,y:pos.y-31,width:182,height:62,rx:11}));
-        g.append(make('text',{x:pos.x,y:pos.y-2,class:'node-title',...(node.name.length > 22 ? {textLength:170,lengthAdjust:'spacingAndGlyphs'} : {})},node.name));
-        g.append(document.createTextNode(' '));
-        g.append(make('text',{x:pos.x,y:pos.y+15,class:'node-type'},node.category));
-        const select = ()=>{selected=node.id;render();
-          svg.querySelectorAll('[data-node-id]').forEach(candidate=>{if(candidate.getAttribute('data-node-id')===node.id)candidate.focus();});};
-        g.addEventListener('click', select);
-        g.addEventListener('keydown', event=>{if(event.key==='Enter' || event.key===' '){event.preventDefault();select();}});
-        svg.append(g);
-      });
-      const node=selected ? byId.get(selected) : null;
-      name.textContent = node?.name || (language==='en'?'Project map':'Mapa projektů');
-      description.textContent = node ? (language==='en'?node.description_en:node.description_cs) :
-        local('Klikni na uzel grafu a prozkoumej související projekty.','Select a graph node to inspect related projects.');
-      links.replaceChildren();
-      if (node) {
-        graph.edges.filter(edge=>edge.from===node.id || edge.to===node.id).forEach(edge=>{
-          const other=byId.get(edge.from===node.id?edge.to:edge.from);
-          if (!other) return;
-          const li=document.createElement('li');
-          const button=document.createElement('button');button.type='button';button.className='inline-link';
-          button.textContent=`${other.name} · ${edge.label}`;
-          button.addEventListener('click',()=>{selected=other.id;render();});
-          li.append(button);links.append(li);
-        });
-        open.href=`${graph.base}/${encodeURIComponent(node.id)}`;
-        open.classList.remove('hidden');
-      } else {
-        open.classList.add('hidden');
-      }
+      domains.forEach(domain => { domain.hidden = !$$('[data-map-project]', domain).some(card => !card.hidden); });
+      if (status) status.textContent = `${visible} ${status.dataset.label || ''}`.trim();
+      if (empty) empty.hidden = visible !== 0;
     };
-    input.addEventListener('input',render);
-    $('[data-connections-reset]',root).addEventListener('click',()=>{selected=nodes[0].id;input.value='';render();});
-    render();
+    search?.addEventListener('input', filter);
+    category?.addEventListener('change', filter);
+    state?.addEventListener('change', filter);
   }
-  initConnections();
+  initProjectMap();
 
+  function initJournalFilter() {
+    const root = $('[data-journal-filter]');
+    if (!root) return;
+    const entries = $$('[data-journal-entry]', root);
+    const buttons = $$('[data-journal-year]', root);
+    const count = $('[data-journal-count]', root);
+    const render = year => {
+      let visible = 0;
+      entries.forEach(entry => {
+        const matches = year === 'all' || entry.dataset.year === year;
+        entry.hidden = !matches;
+        if (matches) visible++;
+      });
+      buttons.forEach(button => {
+        const active = button.dataset.journalYear === year;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+      if (count) count.textContent = `${visible} ${count.dataset.label || ''}`.trim();
+    };
+    buttons.forEach(button => button.addEventListener('click', () => render(button.dataset.journalYear || 'all')));
+  }
+  initJournalFilter();
+
+  /** Filter the evidence map without implying project dependencies. */
+  function initProjectEvidence() {
+    const root = $('[data-evidence-map]');
+    if (!root) return;
+    const cards = $$('[data-evidence-stage]', root);
+    const columns = $$('[data-evidence-column]', root);
+    const filters = $$('[data-evidence-filter]', root);
+    const count = $('[data-evidence-count]', root);
+    const empty = $('[data-evidence-empty]', root);
+    const render = stage => {
+      let visible = 0;
+      cards.forEach(card => {
+        const matches = stage === 'all' || card.dataset.evidenceStage === stage;
+        card.hidden = !matches;
+        if (matches) visible++;
+      });
+      columns.forEach(column => {
+        column.hidden = !$$('[data-evidence-stage]', column).some(card => !card.hidden);
+      });
+      if (count) count.textContent = `${visible} ${local('projektů', 'projects')}`;
+      empty?.classList.toggle('hidden', visible > 0);
+    };
+    filters.forEach(button => button.addEventListener('click', () => {
+      filters.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+      render(button.dataset.evidenceFilter || 'all');
+    }));
+    render('all');
+  }
+  initProjectEvidence();
   function initHomelab() {
     const root = $('[data-homelab]'), json = $('#topology-data'), flowsJson = $('#topology-flows');
     if (!root || !json || !flowsJson) return;
@@ -182,9 +173,12 @@
     const flowInspector = $('[data-flow-inspector]', root), flowTitle = $('[data-flow-title]', root);
     const flowDescription = $('[data-flow-description]', root), flowSteps = $('[data-flow-steps]', root), flowResult = $('[data-flow-result]', root);
     let currentFlow = flows[0];
-    let selected = 'pi', view = 'hardware';
+    let selected = 'pi', view = 'services';
     const knockedOut = new Set();
     const nodeMap = new Map(nodes.map(n => [n.id, n]));
+    const countLabel = (count, cs, en) => language === 'en'
+      ? `${count} ${en}`
+      : `${count} ${count === 1 ? cs[0] : count < 5 && count > 1 ? cs[1] : cs[2]}`;
     const svgEl = (name, attrs = {}, contents = null) => {
       const el = document.createElementNS('http://www.w3.org/2000/svg', name);
       Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, String(value)));
@@ -221,7 +215,7 @@
       svg.append(edges);
       nodes.forEach((node, i) => {
         const alive = up(node.id);
-        const detail = view==='services' ? `${(node.services||[]).length} services` : view==='dependencies' ? `${(node.depends||[]).length} dependencies` : view==='flows' && currentFlow.path.includes(node.id) ? local('NA CESTĚ','IN PATH') : node.kind.toUpperCase();
+        const detail = view==='services' ? countLabel((node.services||[]).length, ['služba','služby','služeb'], 'services') : view==='dependencies' ? countLabel((node.depends||[]).length, ['závislost','závislosti','závislostí'], 'dependencies') : view==='flows' && currentFlow.path.includes(node.id) ? local('NA CESTĚ','IN PATH') : node.kind.toUpperCase();
         const group = svgEl('g',{class:`lab-node${node.id===selected?' selected':''}${alive?'':' failed'}`,role:'button',tabindex:'0', 'aria-label': `${node.name} ${detail}${alive ? '' : local(' – nedostupné v simulaci', ' – unavailable in simulation')}`, 'aria-pressed': String(node.id===selected), 'data-lab-node-id': node.id});
         group.append(svgEl('rect',{x:node.x-105,y:node.y-38,width:210,height:76,rx:13}));
         group.append(svgEl('circle',{cx:node.x-82,cy:node.y-15,r:5}));
@@ -318,167 +312,286 @@
     }
   };
 
-  function initContextWorkbench() {
-    const root = $('[data-context-workbench]');
+  function initPlayground() {
+    const root = $('[data-playground]');
     if (!root) return;
-    const form = $('[data-context-form]', root);
-    form.addEventListener('submit', event => {
-      event.preventDefault();
-      const values = new FormData(form);
-      const indexed = values.get('context-root') === 'indexed';
-      const exact = values.get('context-question') === 'exact';
-      const model = values.has('context-model');
-      const steps = [];
-      if (!indexed) steps.push(local('Jednou zaregistrovat stabilní absolutní kořen.', 'Register the stable absolute root once.'));
-      if (!indexed) steps.push(local('Asynchronně připravit inventář, code index a deterministické karty.', 'Asynchronously prepare inventory, code index and deterministic cards.'));
-      if (exact) {
-        steps.push(local('Code indexem najít přesný symbol a jeho vztahy.', 'Find the exact symbol and its relationships in the code index.'));
-        steps.push(local('Načíst pouze zdrojový výřez potřebný pro odpověď.', 'Load only the source slice needed for the answer.'));
-      } else {
-        steps.push(local('Začít levnějšími indexovanými zdroji a mapou repozitáře.', 'Start with cheaper indexed sources and the repository map.'));
-        steps.push(local('Složit širší kontext z více dohledatelných důkazů.', 'Compose broader context from multiple traceable sources.'));
-        steps.push(local('RAG přidat až tehdy, když index nestačí.', 'Add RAG only when indexed evidence is insufficient.'));
+    const preprocessForm = $('[data-preprocess-form]', root);
+    const preprocessPath = $('[data-preprocess-path]', root);
+    const preprocessContent = $('[data-preprocess-content]', root);
+    const baselinePath = preprocessPath.value;
+    const baselineContent = preprocessContent.value;
+    const digest = async value => {
+      const bytes = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)));
+      return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+    };
+    const renderPreprocess = async () => {
+      const path = preprocessPath.value.trim().replaceAll('\\', '/').replace(/^\.\//, '');
+      const kind = $('[data-preprocess-kind]', root).value;
+      const title = $('[data-preprocess-title]', root);
+      const hash = $('[data-preprocess-hash]', root);
+      const list = $('[data-preprocess-steps]', root);
+      const note = $('[data-preprocess-note]', root);
+      hash.textContent = '';
+      if (!path) {
+        title.textContent = local('Doplň cestu k souboru.', 'Enter a file path.');
+        list.replaceChildren();
+        note.textContent = '';
+        return;
       }
-      if (model) steps.push(local('Volitelně přidat lokální syntézu; návrh zůstává poradní.', 'Optionally add local synthesis; its output remains advisory.'));
-      steps.push(local('Změnu ověřit příkazem spuštěným hostitelským prostředím.', 'Verify the change with a command run by the host environment.'));
-      $('[data-context-title]', root).textContent = exact
-        ? local(indexed ? 'Přesný dotaz, připravený index' : 'Nejdřív připravit stabilní kořen', indexed ? 'Exact query, prepared index' : 'Prepare a stable root first')
-        : local(indexed ? 'Širší změna, dohledatelné zdroje' : 'Příprava před širším dotazem', indexed ? 'Broader change, traceable sources' : 'Prepare before a broad query');
-      const list = $('[data-context-steps]', root);
-      list.replaceChildren();
-      for (const step of steps) {
-        const item = document.createElement('li');
-        item.textContent = step;
-        list.append(item);
+      const excluded = path.split('/').some(part => part === '.git' || part === 'node_modules');
+      if (excluded) {
+        title.textContent = local('Cesta je vyloučená před čtením obsahu.', 'The path is excluded before its content is read.');
+        list.replaceChildren(...[local(`Vyřazovací pravidlo odpovídá části cesty „${path}“.`, `The exclusion rule matches “${path}”.`), local('Soubor se nehashuje a žádný navazující index se kvůli němu neobnovuje.', 'The file is not hashed and no downstream index is rebuilt for it.')].map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
+        note.textContent = local('Jde o demonstrační pravidlo této stránky.', 'This is the page’s demonstration rule.');
+        return;
       }
-      $('[data-context-boundary]', root).textContent = local(
-        'Tento model ukazuje pořadí práce, ne běžící Hub. Hostitelský test a kontrola zdroje zůstávají rozhodující.',
-        'This model shows the order of work, not a running Hub. Host tests and source review remain decisive.'
-      );
+      let currentHash = null;
+      let baselineHash = null;
+      try {
+        if (crypto.subtle) [currentHash, baselineHash] = await Promise.all([digest(preprocessContent.value), digest(baselineContent)]);
+      } catch { /* Offline previews may not provide Web Crypto; exact text comparison still models change detection. */ }
+      const unchanged = currentHash === null ? preprocessContent.value === baselineContent : currentHash === baselineHash;
+      hash.textContent = currentHash ?? local('SHA-256 vyžaduje HTTPS', 'SHA-256 requires HTTPS');
+      if (unchanged) {
+        title.textContent = local('Obsah beze změny — použijí se připravené podklady.', 'Content unchanged — reuse prepared evidence.');
+        list.replaceChildren(...[local('Fingerprint odpovídá uloženému základu.', 'The fingerprint matches the stored baseline.'), local('Code index, textové hledání i další odvozené podklady zůstávají použitelné.', 'The code index, text search and other derived evidence remain reusable.')].map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
+        note.textContent = local('Uprav obsah a přepočítej fingerprint; data neopustí tento prohlížeč.', 'Edit the content and recalculate; no data leaves this browser.');
+        return;
+      }
+      const downstream = kind === 'code'
+        ? [local('Obnovit code index, strukturu a lexikální hledání.', 'Refresh the code index, structure and lexical search.'), local('Volitelné RAG a další analýzy znovu použít jen podle potřeby.', 'Reuse optional RAG and other analysis only where needed.')]
+        : kind === 'doc'
+          ? [local('Obnovit textový index dokumentace.', 'Refresh the documentation text index.')]
+          : [local('Zachovat inventární metadata; obsah předat jen povolenému specializovanému zpracování.', 'Keep inventory metadata; send content only to an enabled specialized processor.')];
+      title.textContent = local('Obsah se změnil — navazující podklady je třeba obnovit.', 'Content changed — dependent evidence needs refreshing.');
+      list.replaceChildren(...[local('SHA-256 se liší od uloženého základu.', 'SHA-256 differs from the stored baseline.'), ...downstream].map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
+      note.textContent = local('V reálném Hubu se změna zapisuje do obnovitelné dávky. Tady se pouze počítá otisk ukázkového textu.', 'The real Hub checkpoints changes in resumable batches. Here we only fingerprint sample text.');
+    };
+    $('[data-preprocess-run]', root).addEventListener('click', renderPreprocess);
+    $('[data-preprocess-reset]', root).addEventListener('click', () => {
+      preprocessPath.value = baselinePath;
+      preprocessContent.value = baselineContent;
+      renderPreprocess();
     });
-  }
+    renderPreprocess();
+    const syncForm = $('[data-sync-form]', root);
+    const parseManifest = selector => {
+      const manifest = new Map();
+      for (const line of $(selector, root).value.split(/\r?\n/).map(value => value.trim()).filter(Boolean)) {
+        const divider = line.indexOf('|');
+        const path = line.slice(0, divider).trim();
+        const revision = line.slice(divider + 1).trim();
+        if (divider < 1 || !revision || manifest.has(path)) throw new Error('manifest');
+        manifest.set(path, revision);
+      }
+      return manifest;
+    };
+    const renderSync = () => {
+      const title = $('[data-sync-title]', root);
+      const summary = $('[data-sync-summary]', root);
+      const operations = [];
+      const conflicts = [];
+      try {
+        const base = parseManifest('[data-sync-base]');
+        const localCopy = parseManifest('[data-sync-local]');
+        const remoteCopy = parseManifest('[data-sync-remote]');
+        const mode = $('[data-sync-mode]', root).value;
+        for (const path of new Set([...base.keys(), ...localCopy.keys(), ...remoteCopy.keys()])) {
+          const before = base.get(path);
+          const localRevision = localCopy.get(path);
+          const remoteRevision = remoteCopy.get(path);
+          if (mode === 'one-way') {
+            if (localRevision !== remoteRevision) operations.push(localRevision === undefined
+              ? local(`Odstranit ${path} z druhé kopie.`, `Remove ${path} from the other copy.`)
+              : local(`Kopírovat ${path}: druhá kopie → moje (${remoteRevision ?? 'nový soubor'} → ${localRevision}).`, `Copy ${path}: other copy → mine (${remoteRevision ?? 'new file'} → ${localRevision}).`));
+            continue;
+          }
+          const localChanged = localRevision !== before;
+          const remoteChanged = remoteRevision !== before;
+          if (localChanged && remoteChanged && localRevision !== remoteRevision) conflicts.push(path);
+          else if (localChanged && localRevision !== remoteRevision) operations.push(localRevision === undefined
+            ? local(`Odstranit ${path} z druhé kopie.`, `Remove ${path} from the other copy.`)
+            : local(`Poslat ${path}: moje kopie → druhá kopie (${localRevision}).`, `Send ${path}: my copy → other copy (${localRevision}).`));
+          else if (remoteChanged && localRevision !== remoteRevision) operations.push(remoteRevision === undefined
+            ? local(`Odstranit ${path} z mojí kopie.`, `Remove ${path} from my copy.`)
+            : local(`Přijmout ${path}: druhá kopie → moje (${remoteRevision}).`, `Receive ${path}: other copy → mine (${remoteRevision}).`));
+        }
+        title.textContent = conflicts.length
+          ? local(`${conflicts.length} konflikt${conflicts.length === 1 ? '' : 'y'} — rozhodni před synchronizací.`, `${conflicts.length} conflict${conflicts.length === 1 ? '' : 's'} — decide before syncing.`)
+          : local(`${operations.length} změn v plánu.`, `${operations.length} change${operations.length === 1 ? '' : 's'} in the plan.`);
+        summary.textContent = local(`${operations.length} přenosů · ${conflicts.length} konfliktů · beze zápisu na disk`, `${operations.length} transfers · ${conflicts.length} conflicts · no disk writes`);
+      } catch {
+        title.textContent = local('Manifest musí mít na každém řádku cestu|revizi.', 'Each manifest line must contain path|revision.');
+        summary.textContent = local('Prázdné řádky jsou povolené; duplicitní cesty nebo prázdné revize ne.', 'Blank lines are allowed; duplicate paths and empty revisions are not.');
+      }
+      $('[data-sync-operations]', root).replaceChildren(...operations.map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
+      $('[data-sync-conflicts]', root).replaceChildren(...conflicts.map(path => { const li = document.createElement('li'); li.textContent = local(`${path}: obě kopie se změnily od společného základu.`, `${path}: both copies changed since the common base.`); return li; }));
+    };
+    $('[data-sync-preview]', syncForm).addEventListener('click', renderSync);
+    renderSync();
 
-  function initProjectExhibits() {
-    const root = $('[data-project-exhibit]');
-    if (!root) return;
-    const kind = root.dataset.projectExhibit;
-    if (kind === 'hub') {
-      let mode = 'exact';
-      const output = $('[data-hub-result]', root);
-      $$('[data-hub-mode]', root).forEach(button => button.addEventListener('click', () => {
-        mode = button.dataset.hubMode;
-        $$('[data-hub-mode]', root).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-      }));
-      $('[data-hub-run]', root).addEventListener('click', () => {
-        const question = $('[data-hub-question]', root).value.trim();
-        output.replaceChildren();
-        const title = document.createElement('strong');
-        const detail = document.createElement('span');
-        title.textContent = question || local('Zadej otázku k repozitáři.', 'Enter a repository question.');
-        detail.textContent = mode === 'exact'
-          ? local('Přesný tok: code index → zdrojový výřez → hostitelský test. Bez modelového odhadu.', 'Exact route: code index → source slice → host validation. No model guess.')
-          : local('Širší tok: poskládat více ověřitelných zdrojů; RAG až po levnějších indexovaných cestách. Výstup stále ověřuje host.', 'Broader route: combine traceable sources; use RAG after cheaper indexed routes. The host still verifies the result.');
-        output.append(title, detail);
-      });
-    } else if (kind === 'mutaui') {
-      const output = $('[data-mutaui-result]', root), arrow = $('.mutaui-endpoints i', root);
-      $$('[data-mutaui-mode]', root).forEach(button => button.addEventListener('click', () => {
-        const forward = button.dataset.mutauiMode === 'forward';
-        $$('[data-mutaui-mode]', root).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-        arrow.textContent = forward ? '→' : '⇄';
-        output.textContent = forward
-          ? local('Forward: Mutagen předává provoz mezi dvěma endpointy. Nejde o kopírování souborů.', 'Forward: Mutagen forwards traffic between two endpoints. It is not file synchronization.')
-          : local('Sync: Mutagen porovnává oba endpointy podle zvoleného režimu.', 'Sync: Mutagen compares both endpoints under the selected mode.');
-      }));
-    } else if (kind === 'homelab') {
-      const roles = {
-        router: ['Router', 'Router', 'Routing, firewall a WireGuard VPN. Zásahy do routeru jsou v playboocích zvlášť hlídané.', 'Routing, firewall and WireGuard VPN. Playbooks guard router changes separately.'],
-        'main-pi': ['Hlavní Pi', 'Main Pi', 'Pi-hole, Unbound, Jellyfin, BookStack a Semaphore.', 'Pi-hole, Unbound, Jellyfin, BookStack and Semaphore.'],
-        'print-pi': ['Tiskové Pi', 'Print Pi', 'CUPS a síťová tisková fronta. Samostatná role od hlavního hostu.', 'CUPS and the network print queue. A role separate from the primary host.'],
-        nas: ['NAS', 'NAS', 'Úložiště a cíl záloh; provozní dostupnost se z mapy nečte.', 'Storage and backup target; runtime availability is not read by this map.'],
-        proxmox: ['Proxmox', 'Proxmox', 'Testovací host zapínaný podle potřeby, ne stálá veřejná služba.', 'On-demand test host, not an always-on public service.'],
+    const scaleForm = $('[data-scale-form]', root);
+    const renderScale = () => {
+      const mm = Number($('[data-scale-mm]', root).value);
+      const pixels = Number($('[data-scale-pixels]', root).value);
+      const probe = Number($('[data-scale-probe]', root).value);
+      const valid = Number.isFinite(mm) && mm > 0 && Number.isFinite(pixels) && pixels > 0 && Number.isFinite(probe) && probe >= 0;
+      $('[data-scale-result]', root).textContent = valid ? local(`${(pixels / mm).toFixed(2)} px/mm`, `${(pixels / mm).toFixed(2)} px/mm`) : local('Zadej platné kladné měření.', 'Enter a valid positive measurement.');
+      $('[data-scale-probe-result]', root).textContent = valid ? local(`${probe} px odpovídá ${(probe * mm / pixels).toFixed(2)} mm`, `${probe} px corresponds to ${(probe * mm / pixels).toFixed(2)} mm`) : '';
+    };
+    scaleForm.addEventListener('input', renderScale);
+    renderScale();
+
+    const grid = $('[data-route-grid]', root);
+    const gridSize = 8;
+    const start = 0;
+    const goal = gridSize * gridSize - 1;
+    let walls = new Set([10, 17, 18, 26, 34, 42, 50, 51, 52]);
+    const findRoute = blocked => {
+      const previous = Array(gridSize * gridSize).fill(-1);
+      const queue = [start];
+      previous[start] = start;
+      for (let head = 0; head < queue.length && previous[goal] === -1; head++) {
+        const current = queue[head];
+        for (const next of [current - gridSize, current + gridSize, current % gridSize ? current - 1 : -1, current % gridSize < gridSize - 1 ? current + 1 : -1]) {
+          if (next < 0 || next >= previous.length || blocked.has(next) || previous[next] !== -1) continue;
+          previous[next] = current;
+          queue.push(next);
+        }
+      }
+      if (previous[goal] === -1) return null;
+      const path = [];
+      for (let cell = goal; cell !== start; cell = previous[cell]) path.push(cell);
+      path.push(start);
+      return path.reverse();
+    };
+    if (findRoute(new Set()).length !== gridSize * 2 - 1) throw new Error('Route finder self-check failed');
+    const renderRoute = () => {
+      const path = findRoute(walls);
+      grid.replaceChildren();
+      for (let cell = 0; cell < gridSize * gridSize; cell++) {
+        const button = document.createElement('button');
+        const isStart = cell === start;
+        const isGoal = cell === goal;
+        button.type = 'button';
+        button.setAttribute('role', 'gridcell');
+        button.dataset.routeCell = String(cell);
+        button.className = [isStart ? 'is-start' : '', isGoal ? 'is-goal' : '', walls.has(cell) ? 'is-wall' : '', path?.includes(cell) ? 'is-route' : ''].filter(Boolean).join(' ');
+        button.setAttribute('aria-pressed', String(walls.has(cell)));
+        button.setAttribute('aria-label', isStart ? local('Start', 'Start') : isGoal ? local('Cíl', 'Goal') : walls.has(cell) ? local('Překážka; kliknutím odstranit', 'Obstacle; activate to remove') : local('Volná buňka; kliknutím přidat překážku', 'Open cell; activate to add obstacle'));
+        button.textContent = isStart ? 'S' : isGoal ? 'C' : walls.has(cell) ? '×' : path?.includes(cell) ? '·' : '';
+        if (!isStart && !isGoal) button.addEventListener('click', () => { walls.has(cell) ? walls.delete(cell) : walls.add(cell); renderRoute(); });
+        grid.append(button);
+      }
+      $('[data-route-status]', root).textContent = path ? local('Trasa existuje', 'Route found') : local('Bez průchodu', 'No route');
+      $('[data-route-length]', root).textContent = path ? local(`${path.length - 1} kroků · 4směrný pohyb`, `${path.length - 1} steps · four-direction movement`) : local('Zablokováno překážkami; uprav mřížku.', 'Blocked by obstacles; change the grid.');
+    };
+    $('[data-route-reset]', root).addEventListener('click', () => { walls = new Set([10, 17, 18, 26, 34, 42, 50, 51, 52]); renderRoute(); });
+    renderRoute();
+
+    const queueList = $('[data-queue-list]', root);
+    const queueVersion = $('[data-queue-version]', root);
+    const queueResult = $('[data-queue-result]', root);
+    let version = 12;
+    let queueItems = ['Night Drive', 'Quiet Signal'];
+    const renderQueue = () => {
+      queueVersion.textContent = String(version);
+      queueList.replaceChildren(...queueItems.map(title => { const li = document.createElement('li'); li.textContent = title; return li; }));
+    };
+    $$('[data-queue-add]', root).forEach(button => button.addEventListener('click', () => {
+      const client = button.dataset.queueAdd;
+      if (version !== 12) {
+        queueResult.textContent = local(`Klient ${client.toUpperCase()} poslal verzi 12, aktuální je ${version}; změna odmítnuta.`, `Client ${client.toUpperCase()} sent version 12, current is ${version}; edit rejected.`);
+        return;
+      }
+      queueItems = [...queueItems, client === 'a' ? 'Client A · Blue Hour' : 'Client B · Slow Motion'];
+      version++;
+      queueResult.textContent = local(`Klient ${client.toUpperCase()} uložil změnu jako verzi ${version}. Druhý klient má zastaralou verzi.`, `Client ${client.toUpperCase()} saved as version ${version}. The other client is stale.`);
+      renderQueue();
+    }));
+    $('[data-queue-reset]', root).addEventListener('click', () => {
+      version = 12;
+      queueItems = ['Night Drive', 'Quiet Signal'];
+      queueResult.textContent = '';
+      renderQueue();
+    });
+    renderQueue();
+
+    const tiskovForm = $('[data-tiskov-form]', root);
+    if (tiskovForm) {
+      const jobsInput = $('[data-tiskov-jobs]', tiskovForm);
+      const workersInput = $('[data-tiskov-workers]', tiskovForm);
+      const minutesInput = $('[data-tiskov-minutes]', tiskovForm);
+      const queue = $('[data-tiskov-queue]', root);
+      const summary = $('[data-tiskov-summary]', root);
+      const renderTiskov = () => {
+        const jobs = jobsInput.valueAsNumber;
+        const workers = workersInput.valueAsNumber;
+        const minutes = minutesInput.valueAsNumber;
+        const batches = Math.ceil(jobs / workers);
+        const queued = Math.max(0, jobs - workers);
+        const lastStart = (batches - 1) * minutes;
+        const finish = batches * minutes;
+        $('[data-tiskov-jobs-value]', tiskovForm).textContent = String(jobs);
+        $('[data-tiskov-workers-value]', tiskovForm).textContent = String(workers);
+        $('[data-tiskov-minutes-value]', tiskovForm).textContent = `${minutes} min`;
+        summary.textContent = local(
+          `${jobs} poptávek se uloží hned; ${queued} čeká na volného workera. Poslední začne asi za ${lastStart} min a celý model doběhne za ${finish} min.`,
+          `${jobs} requests are stored immediately; ${queued} wait for a free worker. The final request starts in about ${lastStart} min and the batch finishes in ${finish} min.`
+        );
+        queue.replaceChildren(...Array.from({length: jobs}, (_, index) => {
+          const item = document.createElement('li');
+          item.className = 'tiskov-job';
+          item.dataset.jobState = index < workers ? 'running' : 'waiting';
+          const number = document.createElement('span');
+          number.className = 'tiskov-job-number';
+          number.textContent = String(index + 1).padStart(2, '0');
+          const detail = document.createElement('span');
+          detail.textContent = index < workers ? local('Zahájeno ihned', 'Starts now') : local('Čeká ve frontě', 'Waiting in queue');
+          item.append(number, detail);
+          return item;
+        }));
       };
-      const detail = $('[data-host-detail]', root);
-      $$('[data-host-role]', root).forEach(button => button.addEventListener('click', () => {
-        const [cs, en, descCs, descEn] = roles[button.dataset.hostRole];
-        $$('[data-host-role]', root).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-        detail.querySelector('.eyebrow').textContent = `HOST ROLE / ${button.dataset.hostRole.toUpperCase()}`;
-        detail.querySelector('h4').textContent = language === 'en' ? en : cs;
-        detail.querySelector('p').textContent = language === 'en' ? descEn : descCs;
-      }));
-    } else if (kind === 'woodbound') {
-      const map = $('.world-map', root), output = $('[data-world-result]', root);
-      const copy = {
-        terrain: local('Reliéf určuje, kde další fáze může umístit oblasti a průchody.', 'Terrain constrains where later stages can place regions and traversable paths.'),
-        water: local('Voda musí navazovat na terén a povodí; je to pravidlo k validaci, ne dekorace.', 'Water must agree with terrain and watershed rules; it needs validation, not just decoration.'),
-        regions: local('Regionální hranice mají dávat smysl vůči reliéfu a herním záměrům.', 'Region boundaries should fit terrain and game design intent.'),
-        routes: local('Trasa má spojit určené body. Pathfinder ověří kandidáta, ne pocit z hezké mapy.', 'A route must connect its intended endpoints. The pathfinder checks a candidate, not whether the map looks pretty.'),
-      };
-      $$('[data-world-layer]', root).forEach(button => button.addEventListener('click', () => {
-        const layer = button.dataset.worldLayer;
-        map.dataset.layer = layer;
-        output.textContent = copy[layer];
-        $$('[data-world-layer]', root).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-      }));
-    } else if (kind === 'scan2cad') {
-      $$('[data-scan-scale]', root).forEach(button => button.addEventListener('click', () => {
-        const confirmed = button.dataset.scanScale === 'confirmed';
-        $$('[data-scan-scale]', root).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
-        $('[data-scan-result]', root).textContent = confirmed
-          ? local('Měřítko potvrzeno v modelu. Další krok: člověk kontroluje zarovnání a lokální odchylky; rozměry pořád nejsou certifikované.', 'Scale marked confirmed in this model. Next: a person reviews alignment and local deviation; dimensions are still not certified.')
-          : local('STOP: jednotky nejsou potvrzené. Rekonstrukce nesmí hádat rozměr.', 'STOP: units are not confirmed. Reconstruction must not guess dimensions.');
-      }));
-    } else if (kind === 'tiskov') {
-      const inbox = $('[data-print-inbox]', root), worker = $('[data-print-worker]', root), review = $('[data-print-review]', root);
-      let next = 0;
-      $('[data-print-next]', root).addEventListener('click', event => {
-        if (next >= 2) return;
-        const job = inbox.firstElementChild;
-        job?.remove();
-        next++;
-        worker.textContent = local(`Case ${next === 1 ? 'A' : 'B'} · worker zpracoval dávku`, `Case ${next === 1 ? 'A' : 'B'} · worker processed the batch`);
-        review.textContent = local('Výsledek čeká na lidskou kontrolu. Cena se nespočítala.', 'Result awaits human review. No price was calculated.');
-        if (next === 2) event.currentTarget.disabled = true;
-      });
-    } else if (kind === 'shpotify') {
-      let count = 0;
-      $('[data-music-add]', root).addEventListener('click', () => {
-        if (count >= 2) return;
-        count++;
-        const item = document.createElement('li');
-        item.append(document.createTextNode(`0${count + 2} · ${count === 1 ? 'Paper Satellites' : 'Blue Hour'} `));
-        const who = document.createElement('small');
-        who.textContent = count === 1 ? 'Adam' : 'Eva';
-        item.append(who);
-        $('[data-music-queue]', root).append(item);
-        $('[data-music-note]', root).textContent = local('Ukázková skladba přidána do lokální fronty; žádné audio se nepřehrává.', 'Sample track added to the local queue; no audio is played.');
-      });
-    } else if (kind === 'softwareinc') {
-      const state = $('[data-agreement-state]', root), copy = $('[data-agreement-copy]', root);
-      let step = 0;
-      const render = () => {
-        $$('li', state).forEach((item, index) => item.classList.toggle('active', index === step));
-        copy.textContent = [
-          local('Návrh změny existuje. Zatím nic neukládá do hry.', 'A change proposal exists. Nothing is written to the game yet.'),
-          local('Druhý hráč návrh kontroluje. Doménové pravidlo se může zamítnout.', 'The other player reviews the proposal. A domain rule may reject it.'),
-          local('Model dohody přijal návrh. To ještě nedokazuje aplikaci ve hře.', 'The agreement model accepted the proposal. This does not prove the game applied it.'),
-          local('Adaptér hry je samostatná hranice. Herní přijetí zde není spuštěno ani ověřeno.', 'The game adapter is a separate boundary. In-game acceptance is not run or verified here.'),
-        ][step];
-      };
-      $('[data-agreement-next]', root).addEventListener('click', () => { step = Math.min(3, step + 1); render(); });
-      $('[data-agreement-reset]', root).addEventListener('click', () => { step = 0; render(); });
-    } else if (kind === 'discord') {
-      $('[data-discord-check]', root).addEventListener('click', () => {
-        const role = $('[data-discord-role]', root).value, action = $('[data-discord-action]', root).value, allowed = role === 'operator';
-        const output = $('[data-discord-result]', root);
-        output.dataset.state = allowed ? 'allowed' : 'denied';
-        output.textContent = allowed
-          ? local(`Model: ${action} může pokračovat ke skutečnému backendu. Tady se nic nespustí.`, `Model: ${action} may proceed to a real backend. Nothing runs here.`)
-          : local(`Odmítnuto: běžný člen nemá oprávnění k akci ${action}.`, `Denied: a regular member is not authorized for ${action}.`);
-      });
+      [jobsInput, workersInput, minutesInput].forEach(input => input.addEventListener('input', renderTiskov));
+      renderTiskov();
     }
+
+    const outageForm = $('[data-outage-form]', root);
+    const renderOutage = () => {
+      const host = $('[data-outage-host]', root).value;
+      const cases = {
+        'main-pi': [local('Hlavní Raspberry Pi je společný bod několika služeb.', 'The main Raspberry Pi is shared by several services.'), [local('Pi-hole a Unbound: lokální DNS filtr a resolver.', 'Pi-hole and Unbound: local DNS filtering and resolution.'), 'Nginx + PHP dashboard, Semaphore, Jellyfin, Transmission, BookStack + MariaDB.', local('systemd spravuje také nasazení Discord bota; jeho aplikace a chování zde ověřené nejsou.', 'systemd also manages the Discord bot deployment; its application and behavior are not verified here.'), local('Přístup k připojeným úložištím může ovlivnit média a soubory.', 'Access to mounted storage can affect media and files.')], local('Router má v konfiguraci veřejné DNS fallbacky; dopad na jmenné dotazy proto nemusí znamenat úplný výpadek internetu.', 'The router has public DNS fallbacks configured, so name resolution may degrade without implying a total internet outage.')],
+        router: [local('Bez brány selže přístup mezi domácí sítí, internetem a VPN.', 'Without the gateway, access between the home network, internet and VPN is affected.'), [local('RouterOS zajišťuje směrování, DHCP, firewall a WireGuard.', 'RouterOS provides routing, DHCP, firewall and WireGuard.'), local('Interní aplikace mohou dál běžet na hostech, ale cesta k nim se přeruší.', 'Internal applications may still run on their hosts, but the route to them is interrupted.')], local('Model odděluje běžící službu od dostupnosti cesty k ní.', 'The model separates a running service from whether there is a route to it.')],
+        nas: [local('Výpadek QNAPu se týká úložiště a cíle záloh.', 'A QNAP outage affects storage and the backup target.'), ['SMB3 sdílení a připojené datové cesty.', local('Restic nemůže zapsat novou zálohu do nedostupného cíle.', 'Restic cannot write a new backup to an unavailable target.'), local('Jellyfin může ztratit média uložená na tomto úložišti.', 'Jellyfin may lose access to media stored on that volume.')], local('Konfigurace budí NAS v plánovaném okně; živý stav a poslední záloha se zde nekontrolují.', 'Configuration wakes the NAS on a schedule; live state and the latest backup are not checked here.')],
+        'print-pi': [local('Samostatná tisková větev se oddělí od hlavního serveru.', 'The separate print branch is isolated from the main server.'), ['CUPS fronta na Raspberry Pi Zero.', local('Tiskárna není dostupná přes tuto síťovou frontu.', 'The printer is unavailable through this network queue.')], local('Ostatní služby hlavního Pi ani NAS tímto modelem přímo zasažené nejsou.', 'Other main Pi and NAS services are not directly affected in this model.')],
+        proxmox: [local('Testovací prostředí je vypnuté.', 'The test environment is offline.'), [local('Proxmox a jeho testovací virtuální stroje nejsou dostupné.', 'Proxmox and its test virtual machines are unavailable.'), local('Běžné domácí služby jsou oddělené od tohoto hostu.', 'Everyday home services are separate from this host.')], local('Proxmox je podle podkladů zapínán podle potřeby, ne provozován jako stálá služba.', 'Sources describe Proxmox as on-demand, not an always-on service.')]
+      };
+      const [title, effects, note] = cases[host];
+      $('[data-outage-title]', root).textContent = title;
+      $('[data-outage-effects]', root).replaceChildren(...effects.map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
+      $('[data-outage-note]', root).textContent = note;
+    };
+    outageForm.addEventListener('change', renderOutage);
+    renderOutage();
+
+    const authorityForm = $('[data-authority-form]', root);
+    const renderAuthority = () => {
+      const role = $('[data-authority-role]', root).value;
+      const stale = $('[data-authority-version]', root).value === 'stale';
+      const roster = $('[data-authority-roster]', root).checked;
+      const result = !roster
+        ? [local('Zamítnout: hráč není v aktuální sestavě.', 'Reject: player is not in the current roster.'), local('Kontrola rosteru selže dřív, než se dohoda změní.', 'Roster validation fails before the agreement can change.')]
+        : stale
+          ? [local('Zamítnout: základní verze už není aktuální.', 'Reject: the base version is stale.'), local('Klient musí načíst aktuální stav místo přepsání novější dohody.', 'The client must reload current state instead of overwriting a newer agreement.')]
+          : role === 'guest'
+            ? [local('Předat hostiteli k ověření.', 'Send to the host for validation.'), local('Zpráva hráče sama o sobě neukládá změnu do stavu relace.', 'A player message does not save a change into session state by itself.')]
+            : [local('Host může po validaci změnu potvrdit.', 'The host may commit the change after validation.'), local('Hostitel vlastní relaci a save; přijetí zprávy samo neprokazuje platnost všech herních pravidel.', 'The host owns the session and save; receiving a message does not prove every game rule is valid.')];
+      $('[data-authority-title]', root).textContent = result[0];
+      $('[data-authority-detail]', root).textContent = result[1];
+    };
+    authorityForm.addEventListener('change', renderAuthority);
+    renderAuthority();
   }
 
-  initContextWorkbench();
-  initProjectExhibits();
+  initPlayground();
 })();

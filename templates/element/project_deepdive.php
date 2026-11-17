@@ -158,7 +158,40 @@ $walkthrough = match ($project->slug) {
     default => [],
 };
 ?>
- <?php if ($detail !== null): [$copy] = $detail; [$architectureNodes, $architectureEdges] = $architecture; $architectureHeight = max(440, (int)ceil(count($architectureNodes) / 3) * 142 + 20);
+ <?php if ($detail !== null):
+[$copy] = $detail;
+[$architectureNodes, $architectureEdges] = $architecture;
+$architectureColumns = match ($project->slug) {
+ 'local-ai-hub', 'woodbound', 'tiskov' => 4,
+ 'mutaui', 'scan2cad', 'softwareinc-multiplayer', 'discord-bot' => 2,
+ default => 3,
+};
+$architectureWidth = 40 + $architectureColumns * 280 + max(0, $architectureColumns - 1) * 30;
+$architectureHeight = max(300, (int)ceil(count($architectureNodes) / $architectureColumns) * 142 + 20);
+$walkthroughTitle = match ($project->slug) {
+ 'local-ai-hub' => $lang->value('Od změny souboru k ověřitelnému výsledku', 'From a changed file to a verifiable result'),
+ 'mutaui' => $lang->value('Co se musí stát před synchronizací', 'What must happen before sync'),
+ 'home-infrastructure' => $lang->value('DNS od domácího klienta k fallbacku', 'DNS from a home client to fallback'),
+ 'woodbound' => $lang->value('Od generace světa k průchodné trase', 'From world generation to a traversable route'),
+ 'scan2cad' => $lang->value('Od fotografie k měřítku, které jde ověřit', 'From a photo to a scale that can be checked'),
+ 'tiskov' => $lang->value('Co by následovalo po přijetí poptávky', 'What would happen after a request is accepted'),
+ 'shpotify' => $lang->value('Co se stane, když dva lidé změní frontu', 'What happens when two people edit the queue'),
+ 'softwareinc-multiplayer' => $lang->value('Od příkazu k povolené změně hry', 'From a command to an authorized game change'),
+ 'discord-bot' => $lang->value('Co lze doložit bez zdrojového kódu', 'What can be evidenced without source code'),
+ default => $lang->value('Jeden konkrétní průchod', 'One concrete trace'),
+};
+$architectureTitle = match ($project->slug) {
+ 'local-ai-hub' => $lang->value('Preprocessing a cesta k důkazu', 'Preprocessing and the path to evidence'),
+ 'mutaui' => $lang->value('Rozhraní, daemon a koncové body', 'UI, daemon and endpoints'),
+ 'home-infrastructure' => $lang->value('Hosty, služby a datové cesty', 'Hosts, services and data paths'),
+ 'woodbound' => $lang->value('Vazby mezi fázemi generování', 'Links between generation stages'),
+ 'scan2cad' => $lang->value('Měřítko, registrace a lidská kontrola', 'Scale, registration and human review'),
+ 'tiskov' => $lang->value('Navržená fronta, ne běžící služba', 'A proposed queue, not a running service'),
+ 'shpotify' => $lang->value('Místnosti, fronta a hranice přehrávání', 'Rooms, queue and playback boundary'),
+ 'softwareinc-multiplayer' => $lang->value('Jádro, persistence a herní adaptér', 'Core, persistence and game adapter'),
+ 'discord-bot' => $lang->value('Katalogová cesta s neověřenými kroky', 'Catalog path with unverified steps'),
+ default => $lang->value('Mapa architektury', 'Architecture map'),
+};
 $more = match ($project->slug) {
  'local-ai-hub' => $lang->value('Zdrojová verze 6.1.0 vystavuje sedm MCP nástrojů. README popisuje preprocessing jako inventory → hash → code index → deterministické karty → Serena → lexical → případné RAG → file/module/project mapy → diagnostiku. Některé back-endy jsou volitelné a degradují samostatně; status complete proto dokládá průchod pipeline, ne správnost každého výsledku ani přítomnost modelu. Verze je release candidate, nikoli přijaté produkční vydání.', 'Source version 6.1.0 exposes seven MCP tools. Its README describes preprocessing as inventory → hashes → code index → deterministic cards → Serena → lexical search → optional RAG → file/module/project maps → diagnostics. Some backends are optional and degrade independently; a complete pipeline status does not prove each result correct or a model present. This version is a release candidate, not an accepted production release.'),
  'mutaui' => $lang->value('Synchronizační relace řeší obsah mezi koncovými body; forwarding slouží k předání síťového spojení. Rozhraní nabízí přehled, seskupení a diagnostiku, ale stav zůstává odvozený od Mutagenu. Vytvořený instalační balíček sám o sobě nedokazuje, že prošel nativní zkouškou na všech podporovaných systémech.', 'Synchronization sessions handle content between endpoints; forwarding carries network connections. The interface offers overview, grouping and diagnostics, while Mutagen remains the source of state. A built installer alone does not prove native acceptance on every supported system.'),
@@ -176,24 +209,19 @@ $more = match ($project->slug) {
  <div class="section-heading"><div><span class="eyebrow"><?= $lang->value('PODROBNĚJI', 'IN DEPTH') ?></span><h2 id="project-deepdive-title"><?= Html::escape($copy[0]) ?></h2></div></div>
  <div class="project-deepdive-copy"><p><?= Html::escape($copy[1]) ?></p><p><?= Html::escape($copy[2]) ?></p><p><?= Html::escape($more) ?></p></div>
  <section class="case-walkthrough" aria-labelledby="walkthrough-title">
-  <div class="case-walkthrough-heading"><div><span class="eyebrow"><?= $lang->value('JEDEN KONKRÉTNÍ PRŮCHOD', 'ONE CONCRETE TRACE') ?></span><h3 id="walkthrough-title"><?= $lang->value('Co se stane krok za krokem', 'What happens, step by step') ?></h3></div><span class="demo-stamp"><?= $lang->value('ILUSTRATIVNÍ PRŮCHOD', 'ILLUSTRATIVE TRACE') ?></span></div>
+  <div class="case-walkthrough-heading"><div><span class="eyebrow"><?= $lang->value('JEDEN KONKRÉTNÍ PRŮCHOD', 'ONE CONCRETE TRACE') ?></span><h3 id="walkthrough-title"><?= Html::escape($walkthroughTitle) ?></h3></div><span class="demo-stamp"><?= $lang->value('ILUSTRATIVNÍ PRŮCHOD', 'ILLUSTRATIVE TRACE') ?></span></div>
   <ol class="case-walkthrough-steps"><?php foreach ($walkthrough as [$number,$titleCs,$titleEn,$bodyCs,$bodyEn]): ?><li><span><?= Html::escape($number) ?></span><div><h4><?= Html::escape($lang->value($titleCs,$titleEn)) ?></h4><p><?= Html::escape($lang->value($bodyCs,$bodyEn)) ?></p></div></li><?php endforeach; ?></ol>
  </section>
  <figure class="architecture-figure" data-project-architecture>
-  <figcaption><strong><?= $lang->value('Mapa architektury', 'Architecture map') ?></strong><span><?= $lang->value('Šipky ukazují návaznosti popsané v podkladech; diagram není snímek ani živý stav.', 'Arrows show relationships described in the source material; this is not a screenshot or live status.') ?></span></figcaption>
+  <figcaption><strong><?= Html::escape($architectureTitle) ?></strong><span><?= $lang->value('Šipky ukazují návaznosti popsané v podkladech; diagram není snímek ani živý stav.', 'Arrows show relationships described in the source material; this is not a screenshot or live status.') ?></span></figcaption>
   <div class="architecture-canvas" data-architecture-canvas role="region" tabindex="0" aria-label="<?= $lang->value('Diagram lze na úzké obrazovce posouvat vodorovně', 'Scroll the diagram horizontally on a narrow screen') ?>">
-   <svg viewBox="0 0 960 <?= $architectureHeight ?>" role="img" aria-label="<?= $lang->value('Komponenty projektu a doložené návaznosti; popisy jsou v seznamu pod schématem', 'Project components and documented relationships; descriptions follow below') ?>" xmlns="http://www.w3.org/2000/svg">
+   <svg viewBox="0 0 <?= $architectureWidth ?> <?= $architectureHeight ?>" role="img" aria-label="<?= $lang->value('Komponenty projektu a doložené návaznosti; popisy jsou v seznamu pod schématem', 'Project components and documented relationships; descriptions follow below') ?>" xmlns="http://www.w3.org/2000/svg">
     <defs><marker id="architecture-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#49665f" /></marker></defs>
-    <?php foreach ($architectureEdges as [$from, $to]): $sourceX = 20 + ($from % 3) * 310; $sourceY = 24 + intdiv($from, 3) * 142; $targetX = 20 + ($to % 3) * 310; $targetY = 24 + intdiv($to, 3) * 142; ?>
-    <?php if (intdiv($to, 3) === intdiv($from, 3) && $to - $from > 1): ?>
-    <path data-architecture-edge d="M <?= $sourceX + 140 ?> <?= $sourceY + 96 ?> V <?= $sourceY + 128 ?> H <?= $targetX + 140 ?> V <?= $targetY + 96 ?>" fill="none" stroke="#49665f" stroke-width="3" marker-end="url(#architecture-arrow)" />
-    <?php elseif (intdiv($to, 3) > intdiv($from, 3) && ($to % 3) < ($from % 3)): ?>
-    <path data-architecture-edge d="M <?= $sourceX + 280 ?> <?= $sourceY + 48 ?> H 940 V <?= $targetY - 16 ?> H <?= $targetX + 140 ?> V <?= $targetY ?>" fill="none" stroke="#49665f" stroke-width="3" marker-end="url(#architecture-arrow)" />
-    <?php else: $dx = ($targetX + 140) - ($sourceX + 140); $dy = ($targetY + 48) - ($sourceY + 48); $ratio = min(140 / max(1, abs($dx)), 48 / max(1, abs($dy))); $x1 = $sourceX + 140 + $dx * $ratio; $y1 = $sourceY + 48 + $dy * $ratio; $x2 = $targetX + 140 - $dx * $ratio; $y2 = $targetY + 48 - $dy * $ratio; ?>
+    <?php foreach ($architectureEdges as [$from, $to]): $sourceX = 20 + ($from % $architectureColumns) * 310; $sourceY = 24 + intdiv($from, $architectureColumns) * 142; $targetX = 20 + ($to % $architectureColumns) * 310; $targetY = 24 + intdiv($to, $architectureColumns) * 142; ?>
+    <?php $dx = ($targetX + 140) - ($sourceX + 140); $dy = ($targetY + 48) - ($sourceY + 48); $ratio = min(140 / max(1, abs($dx)), 48 / max(1, abs($dy))); $x1 = $sourceX + 140 + $dx * $ratio; $y1 = $sourceY + 48 + $dy * $ratio; $x2 = $targetX + 140 - $dx * $ratio; $y2 = $targetY + 48 - $dy * $ratio; ?>
     <path data-architecture-edge d="M <?= $x1 ?> <?= $y1 ?> L <?= $x2 ?> <?= $y2 ?>" fill="none" stroke="#49665f" stroke-width="3" marker-end="url(#architecture-arrow)" />
-    <?php endif; ?>
     <?php endforeach; ?>
-    <?php foreach ($architectureNodes as $i => $node): $x = 20 + ($i % 3) * 310; $y = 24 + intdiv($i, 3) * 142; ?>
+    <?php foreach ($architectureNodes as $i => $node): $x = 20 + ($i % $architectureColumns) * 310; $y = 24 + intdiv($i, $architectureColumns) * 142; ?>
     <g data-architecture-node><rect x="<?= $x ?>" y="<?= $y ?>" width="280" height="96" rx="12" fill="#142f38" stroke="#3cdeb3" stroke-width="2" /><text x="<?= $x + 140 ?>" y="<?= $y + 40 ?>" text-anchor="middle" fill="#eff8f8" font-size="17" font-family="sans-serif"><?= Html::escape($lang->value($node[0], $node[1])) ?></text><text x="<?= $x + 140 ?>" y="<?= $y + 67 ?>" text-anchor="middle" fill="#b8d7d0" font-size="12" font-family="sans-serif"><?= Html::escape($lang->value($node[2], $node[3])) ?></text></g>
     <?php endforeach; ?>
    </svg>

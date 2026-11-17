@@ -34,11 +34,13 @@ class Parse(HTMLParser):
 subprocess.run(['php',str(ROOT/'scripts/render-public-preview.php')],cwd=ROOT,check=True)
 htmls=sorted(PAGES.glob('cs/**/*.html'))+sorted(PAGES.glob('en/**/*.html'))
 errors=[]
+rendered_pages=[]
 if len(htmls)<40: errors.append('Too few generated pages')
 for html in htmls:
     parser=Parse()
     content=html.read_text(encoding='utf-8')
     parser.feed(content)
+    rendered_pages.append((html,parser))
     rel=html.relative_to(PAGES)
     if parser.h1!=1: errors.append(f'{rel}: expected one H1, got {parser.h1}')
     if len(set(parser.ids))!=len(parser.ids): errors.append(f'{rel}: duplicated HTML IDs')
@@ -55,6 +57,21 @@ for html in htmls:
         f=PAGES/target.lstrip('/')
         if not (f.is_file() or (f/'index.html').is_file()):
             errors.append(f'{rel}: broken link or missing asset {href}')
+# Check fragments only after every locale page and its IDs are known.
+routes={}
+for html, parser in rendered_pages:
+    route='/'+html.relative_to(PAGES).as_posix()
+    routes[route.removesuffix('/index.html').rstrip('/')]=parser
+for html, parser in rendered_pages:
+    current='/'+html.relative_to(PAGES).as_posix()
+    current=current.removesuffix('/index.html').rstrip('/')
+    for href in parser.links:
+        parsed=urlparse(href)
+        if not parsed.fragment or parsed.scheme or parsed.netloc: continue
+        route=unquote(parsed.path).rstrip('/') if parsed.path else current
+        target=routes.get(route)
+        if target and unquote(parsed.fragment) not in target.ids:
+            errors.append(f'{html.relative_to(PAGES)}: broken fragment {href}')
 # Validate that RSS item permalinks actually resolve to visible journal IDs.
 # Static previews are generated for both locales, so no external HTTP is needed.
 for locale in ('cs', 'en'):

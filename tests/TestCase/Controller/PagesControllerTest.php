@@ -78,6 +78,105 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         }
     }
 
+    public function testClosedIssuesArePresentedAsCompletedWork(): void
+    {
+        $this->get('/cs/open-source');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Dokončeno');
+        $this->assertResponseContains('class="status completed"');
+        $this->assertResponseNotContains('Uzavřeno');
+
+        $this->get('/en/open-source');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Completed');
+        $this->assertResponseNotContains('Closed');
+    }
+
+    public function testNowPageIncludesAHistoryOfPublicWork(): void
+    {
+        $this->get('/cs/now');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Historie veřejné práce');
+        $this->assertResponseContains('data-now-activity');
+        $this->assertResponseContains('data-now-notes');
+        $this->assertResponseContains('6.1.0: release metadata se musí potkat se zdrojem');
+    }
+
+    public function testJournalHasAnExpandedSourceLinkedTimeline(): void
+    {
+        $entries = (new ProjectCatalog(ROOT . '/data'))->journal();
+        self::assertGreaterThanOrEqual(14, count($entries));
+        $this->get('/en/journal');
+        $this->assertResponseOk();
+        $this->assertResponseContains('6.1.0: release metadata has to match its source');
+        $this->assertResponseContains('Scan2CAD: scale before projection');
+        $this->assertResponseContains('CHANGELOG.md');
+    }
+
+    public function testDecisionCardsCompareAlternativesWithoutDeclaringThemInadequate(): void
+    {
+        $this->get('/cs/decisions');
+        $this->assertResponseOk();
+        $this->assertResponseContains('CO UŽ UMÍ JINÉ ŘEŠENÍ');
+        $this->assertResponseContains('Craftcloud');
+        $this->assertResponseContains('Spotify Jam');
+        $this->assertResponseContains('Neprokazuje, že Jam tuto potřebu nepokrývá');
+    }
+
+    public function testProjectMapIsAnIndexInsteadOfGuessingRelationships(): void
+    {
+        $this->get('/cs/connections');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Co stavím, proč a jak to funguje.');
+        $this->assertResponseContains('Skupiny vycházejí z toho, co projekt dělá');
+        $this->assertResponseContains('data-map-category');
+        $this->assertResponseContains('data-map-state');
+        $this->assertResponseContains('data-map-project');
+        $this->assertResponseContains('Tiskov');
+        $this->assertResponseContains('Discord bot');
+        $this->assertResponseNotContains('spolupracují');
+    }
+
+    public function testPlaygroundContainsDistinctWorkingStations(): void
+    {
+        $this->get('/cs/playground');
+        $this->assertResponseOk();
+        foreach (['preprocessing', 'sync-preview', 'scale-check', 'route-finder', 'queue-conflict'] as $station) {
+            $this->assertResponseContains('data-playground-station="' . $station . '"');
+        }
+        $this->assertResponseContains('data-preprocess-form');
+        $this->assertResponseContains('data-preprocess-content');
+        $this->assertResponseContains('data-preprocess-kind');
+        $this->assertResponseContains('data-scale-mm');
+        $this->assertResponseContains('data-route-grid');
+        $this->assertResponseContains('data-queue-add');
+        $this->assertResponseContains('playground-project-index');
+        $this->assertResponseContains('Discord bot');
+    }
+
+    public function testProjectsDoNotFakeUnavailableOrUnimplementedInteractions(): void
+    {
+        $this->get('/cs/projects/local-ai-hub');
+        $this->assertResponseOk();
+        $this->assertResponseContains('/cs/playground#station-preprocessing');
+        $this->assertResponseNotContains('data-hub-run');
+
+        $this->get('/cs/projects/scan2cad');
+        $this->assertResponseOk();
+        $this->assertResponseContains('/cs/playground#station-scale-check');
+        $this->assertResponseNotContains('data-scan-scale');
+
+        $this->get('/cs/projects/tiskov');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Raspberry Pi worker');
+        $this->assertResponseNotContains('data-print-next');
+
+        $this->get('/cs/projects/discord-bot');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Zdrojový repozitář teď nemám');
+        $this->assertResponseNotContains('data-discord-role');
+    }
+
     public function testLandingPageWorksWithoutDatabase(): void
     {
         $this->get('/cs/');
@@ -90,18 +189,25 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->get('/en/homelab');
         $this->assertResponseOk();
         $this->assertResponseContains('topology-data');
+        $this->assertResponseContains('Unbound');
+        $this->assertResponseContains('Restic');
+        $this->assertResponseContains('CUPS');
+        $this->assertResponseContains('DoT/DoH');
         $this->assertResponseNotContains('192.168.');
     }
 
-    public function testConnectionsRenderCuratedGraph(): void
+    public function testConnectionsRenderIndependentProjectIndex(): void
     {
         $this->get('/cs/connections');
         $this->assertResponseOk();
-        $this->assertResponseContains('connections-data');
+        $this->assertResponseContains('data-map-project');
+        $this->assertResponseNotContains('project-map-route');
         $this->assertResponseNotContains('maker-lab');
         $this->assertResponseNotContains('192.168.');
         $this->get('/en/connections');
         $this->assertResponseOk();
+        $this->assertResponseContains('Groups follow what each project does, not imagined links between repositories');
+        $this->assertResponseContains('data-map-project');
         $this->assertResponseNotContains('maker-lab');
     }
 

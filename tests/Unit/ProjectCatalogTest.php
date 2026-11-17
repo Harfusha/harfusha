@@ -44,6 +44,17 @@ final class ProjectCatalogTest extends TestCase
         self::assertContains('Přehled synchronizačních a forwarding relací', $mutaui->localizedFeatures($cs));
     }
 
+    public function testJournalIsOrderedNewestFirst(): void
+    {
+        $entries = (new ProjectCatalog(ROOT . '/data'))->journal();
+        for ($i = 1, $count = count($entries); $i < $count; $i++) {
+            self::assertGreaterThanOrEqual(
+                $entries[$i]['published_at'] ?? '',
+                $entries[$i - 1]['published_at'] ?? '',
+            );
+        }
+    }
+
     public function testValidatedDatasetsAreReadOncePerCatalogInstance(): void
     {
         $directory = sys_get_temp_dir() . '/harfusha-catalog-' . bin2hex(random_bytes(8));

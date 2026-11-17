@@ -52,7 +52,10 @@
       "Pi-hole",
       "Unbound",
       "Semaphore",
-      "BookStack"
+      "BookStack + MariaDB",
+      "Nginx + PHP dashboard",
+      "Transmission",
+      "Discord bot"
     ],
     "depends": [
       "router"

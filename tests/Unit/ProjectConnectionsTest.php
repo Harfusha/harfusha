@@ -15,7 +15,6 @@ final class ProjectConnectionsTest extends TestCase
     {
         $catalog = new ProjectCatalog(ROOT . '/data');
         $edges = $catalog->connections();
-        self::assertNotEmpty($edges);
         $keys = [];
         foreach ($edges as $edge) {
             self::assertNotNull($catalog->find($edge['from']));
@@ -23,6 +22,11 @@ final class ProjectConnectionsTest extends TestCase
             $keys[] = $edge['from'] . '/' . $edge['to'];
         }
         self::assertCount(count(array_unique($keys)), $keys);
+    }
+
+    public function testNoUnverifiedProjectDependenciesArePublished(): void
+    {
+        self::assertSame([], (new ProjectCatalog(ROOT . '/data'))->connections());
     }
 
     public function testRelationshipLabelsAreLocalized(): void

@@ -2,7 +2,7 @@
 
 **Backend engineer · PHP / CakePHP · developer tooling · local-first AI**
 
-I build software for work that needs to remain understandable after the first demo: clear boundaries, traceable decisions, careful failure handling, useful tests and documentation that describes what actually runs.
+I spend most of my time in PHP and CakePHP. I care about being able to come back months later and understand why a system is built this way, so I pay attention to types, boundaries, tests and documentation. Outside that work, I build developer tools, try local AI workflows, look after home services and experiment with 3D reconstruction.
 
 Based in Czechia. My current work ranges from repository tooling and desktop utilities to 3D reconstruction and home infrastructure.
 
@@ -15,26 +15,34 @@ Based in Czechia. My current work ranges from repository tooling and desktop uti
 | Home Infrastructure | Git-backed Ansible automation for Pi-hole/Unbound DNS, Jellyfin, BookStack, CUPS printing, NAS backups, routing and on-demand Proxmox tests. | Private infrastructure, described through a redacted role model rather than live telemetry. |
 | Woodbound | Unity prototype for layered world generation, routes and spatial validation. | A generated candidate is not yet an accepted playable release. |
 | Scan2CAD Studio | Turns reviewed 3D scans and reference photos into editable CAD candidates. | Beta; computed dimensions still need physical and engineering review. |
-| Tiskov | Portfolio-documented design for a local 3D-print request, queue and worker flow. | No source checkout, application demo, slicer run or live service is available to verify; the portfolio interaction uses synthetic jobs and calculates no price. The original motive is undocumented. |
+| Tiskov | A documented proposal for a local 3D-print request, queue and worker flow. | No source checkout, slicer run or live service is available to verify. The page presents the proposed hand-offs without pretending to submit an order or calculate a price; the original motive is undocumented. |
 | Shpotify | Private music rooms, shared queues and explainable recommendations. | Prototype; end-to-end playback is still being integrated. |
 | Software Inc co-op mod | Separates collaboration rules from the game adapter. | In development; no playable multiplayer release has been accepted. |
 | Discord bot | Portfolio-catalog description of application commands and a maintenance path. | The source checkout is unavailable. The catalog preserves an earlier syntax-error report; exact commands, permissions and live operation are unverified. The original motive is undocumented. |
 
-The portfolio explains each system with a concrete walkthrough and an architecture map. Private repositories are described at a curated level; private addresses, credentials and live infrastructure state are not published.
+On the site I explain what each project is trying to solve, which existing tools could already do the job, and what I have or have not verified. For private projects, I describe the roles and design without publishing addresses, credentials or live infrastructure state.
 
 ## Harfusha Lab
 
-A bilingual CakePHP 5 portfolio built around a harder question: when is a custom project worth building if an existing tool already does the job? Each case study compares real alternatives, separates the documented need from an unknown personal starting point, and includes an interaction grounded in the project record. The browser-only Playground teaches the Local AI Hub retrieval path; its simulation never contacts a repository or a model.
+Harfusha Lab is where I try to explain why I kept building each project when an existing tool might already be enough. I show the part I can point to in the code, docs or public history; when I do not know the original reason, I say so. Some projects work, some are still prototypes, and a few are only proposals. Playground examples recalculate a model in the browser; they do not call a real repository, printer or AI service.
 
 ### Current captures
 
-These images are freshly captured from the source-rendered pages in this repository. Project diagrams are explanatory maps, not live system views.
+These images are fresh captures of this checkout running locally. Diagrams describe the documented design; they are not live system views.
 
 ![Harfusha Lab home page](docs/screenshots/readme-home.png)
 
 ![Local AI Hub case study: inspect the retrieval path and source boundaries](docs/screenshots/readme-local-ai-hub.png)
 
-![Playground: change repository and question constraints to inspect the evidence route](docs/screenshots/readme-playground.png)
+![Playground: eight distinct browser-side models for preprocessing, sync, scan scale, routes, shared queues, service outages, multiplayer authority and a clearly labeled Tiskov proposal](docs/screenshots/readme-playground.png)
+
+![Project overview: seven real fields group nine projects; searchable cards show each problem and hardest part](docs/screenshots/readme-project-map.png)
+
+![Home infrastructure: service-first network topology with the Raspberry Pi host and its documented services selected](docs/screenshots/readme-homelab.png)
+
+![Home infrastructure service catalog: documented roles, dependencies and limits for the configured services](docs/screenshots/readme-homelab-services.png)
+
+![Technical decisions grouped into source-documented choices and prototypes that still need proof, with alternatives and trade-offs in each record](docs/screenshots/readme-decisions.png)
 
 ![Local AI Hub walkthrough at a mobile viewport](docs/screenshots/readme-local-ai-hub-mobile.png)
 

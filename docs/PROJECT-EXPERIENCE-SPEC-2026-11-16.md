@@ -81,3 +81,18 @@ Each case study must answer the harder question: **why build this when alternati
 3. Implement the shared primitives and distinct project exhibits, then the category and site-section experiences.
 4. Update bilingual content, diagrams, evidence captions, screenshots, and README.
 5. Run focused and full CI checks; build and verify the production archive; deploy only the reviewed candidate and repeat live checks.
+
+## Steering: author voice and visitor value
+
+The current site still feels machine-written and underdeveloped. Keep the author's first-person voice grounded in what he has actually said: prefer an adequate existing tool; build a custom project only for a concrete remaining gap. Never invent the original motive when the source does not preserve it. Explain the actual problem and the current decision separately.
+
+- Replace the current project map if its edges cannot be explained by real evidence. A visitor should understand the route through projects at a glance; no decorative relationship graph.
+- Remove any demo control whose only effect is replacing a static paragraph. Every retained interaction must change a visible model, data structure, diagram, decision state, or authentic artifact, and explain what just changed.
+- Expand Playground into a coherent multi-project workbench that shows the range of the author's work. Each station must use project-specific evidence and a real client-side state transition; no fake upload, live service, CAD conversion, game runtime, or audio playback.
+- Turn HomeLab into a useful map of hosts, services, dependencies, and data flows. Keep configuration evidence separate from live health.
+- Now must combine current public repository activity with a dated, sourced history. Do not label old events as current.
+- Show closed contributions as completed when closure means the work was finished; distinguish merged PRs, completed issues, open work, failures, and unknown closure reasons.
+- Enrich the development journal with a source-backed timeline. Give every entry its date, project, what changed, why the choice mattered, outcome or limitation, and a primary source.
+- Rebuild technical decisions as a readable chain: problem → real alternatives → evidence → choice → trade-off → later result. Separate current decision rule from undocumented original motivation.
+- Project studies must have genuinely different narrative structure and diagrams. Specifically: Local AI Hub preprocessing; MutaUI's existing CLI/daemon and operation preview; HomeLab service dependencies; Woodbound's route integrity and unaccepted runtime; Scan2CAD's scale/camera gates; Tiskov as an unverified proposal; Shpotify's implemented queue versus unverified playback; Software Inc's exact game-evidence boundary; Discord bot's catalog-only evidence boundary.
+- Preserve bilingual parity, keyboard use, reduced motion, privacy redaction, source links, current README screenshots, and the exact-content release gate. No cron or scheduler.

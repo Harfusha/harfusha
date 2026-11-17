@@ -10,9 +10,8 @@ use App\Support\Language;
 $route = $route ?? '/';
 $nav = [
     ['projects', $lang->value('Projekty', 'Projects')],
-    ['connections', $lang->value('Mapa', 'Map')],
+    ['connections', $lang->value('Přehled', 'Index')],
     ['homelab', 'Homelab'],
-    ['maker', 'Maker Lab'],
     ['playground', 'Playground'],
     ['open-source', 'Open Source'],
     ['now', $lang->value('Právě teď', 'Now')],
@@ -69,7 +68,7 @@ $fullUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://e
 <main id="main"><?= $this->fetch('content') ?></main>
 <footer class="site-footer"><div class="shell footer-grid">
   <div><a class="brand" href="<?= $lang->path() ?>">HARFUSHA<span class="brand-light">/LAB</span></a><p><?= $lang->value('Software, domácí servery a nápady z dílny.', 'Software, home servers and ideas from the workshop.') ?></p></div>
-  <div><span class="eyebrow"><?= $lang->value('PROZKOUMAT', 'EXPLORE') ?></span><a href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Technická rozhodnutí','Engineering decisions') ?></a><a href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projekty', 'All projects') ?></a><a href="<?= $lang->path('/homelab') ?>">Home Lab Explorer</a><a href="<?= $lang->path('/maker') ?>">Maker Lab</a><a href="<?= $lang->path('/open-source') ?>">Open Source</a></div>
+  <div><span class="eyebrow"><?= $lang->value('PROZKOUMAT', 'EXPLORE') ?></span><a href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Technická rozhodnutí','Engineering decisions') ?></a><a href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projekty', 'All projects') ?></a><a href="<?= $lang->path('/homelab') ?>">Home Lab Explorer</a><a href="<?= $lang->path('/open-source') ?>">Open Source</a></div>
   <div><span class="eyebrow"><?= $lang->value('SPOJENÍ', 'CONNECT') ?></span><a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="<?= $lang->path('/about') ?>"><?= $lang->value('O mně', 'About me') ?></a><a href="<?= $lang->path('/journal') ?>">Workshop Log</a></div>
   <div class="footer-aside">© <?= date('Y') ?> Adam Halfar <p><?= $lang->value('Díky za návštěvu. Další projekty najdeš na GitHubu.', 'Thanks for visiting. Find more projects on GitHub.') ?></p></div>
 </div></footer>

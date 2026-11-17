@@ -1,5 +1,167 @@
 [
   {
+    "title_cs": "MutaUI: test patří ke konkrétnímu commitu",
+    "title_en": "MutaUI: a test result belongs to an exact commit",
+    "body_cs": "Při uzavírání F3 bylo snadné smíchat výsledky z různých revizí. Záznam teď odděluje code baseline od pozdějších auditních poznámek a uvádí přesný commit, na kterém doběhla hosted kontrola #85. Zelený CI výsledek bez revize by neříkal, co vlastně ověřil.",
+    "body_en": "While closing F3, it was easy to mix results from different revisions. The record now separates the code baseline from later audit notes and names the exact commit behind hosted check #85. A green CI result without its revision would not say what was actually verified.",
+    "category": "Desktop",
+    "published_at": "2026-11-17 04:23:18",
+    "source_url": "https://github.com/Harfusha/MutaUI/commit/72cf4782d09020ed669ed76a2ac7bfa807a25a2a"
+  },
+  {
+    "title_cs": "Local AI Hub: timeout zápisu nemá zabít preprocessing",
+    "title_en": "Local AI Hub: a write timeout should not kill preprocessing",
+    "body_cs": "Když se SQLite writer nestihne ozvat v limitu, GPU worker má bezpečně počkat na další příležitost, ne skončit jako po fatální chybě. Změna upravila právě toto rozlišení a přidala regresní test. Je to úprava chování při konkrétním timeoutu, ne tvrzení o výkonu ani o tom, že běží každý preprocessing backend.",
+    "body_en": "When the SQLite writer misses its deadline, the GPU worker should wait for another bounded opportunity instead of exiting as if the failure were fatal. This change makes that distinction and adds a regression test. It addresses one timeout path; it says nothing about performance or whether every preprocessing backend is running.",
+    "category": "AI",
+    "published_at": "2026-11-16 17:14:53",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/commit/069240979778ddce69cfb6d8caee291222c14e4b"
+  },
+  {
+    "title_cs": "MutaUI F3: co všechno musí desktopové workflow uhlídat",
+    "title_en": "MutaUI F3: what a desktop workflow has to keep straight",
+    "body_cs": "Větší změna F3 přidala správu spojení, profily, sledování zdraví session, řešení konfliktu i bezpečnější náhled importu nastavení. Důležitá není délka seznamu: před změnou je potřeba vědět, proti kterému daemonu a konfiguraci pracuju a co se opravdu zapíše. Commit také rozšířil testy; neznamená to automaticky přijatou podporu všech platforem.",
+    "body_en": "The larger F3 change added connection and profile management, session health tracking, conflict handling and a safer settings-import preview. The point is not the feature count: before changing a session, I need to know which daemon and configuration it targets and what will actually be written. The commit also expanded tests; it does not automatically establish accepted support on every platform.",
+    "category": "Desktop",
+    "published_at": "2026-11-16 16:40:28",
+    "source_url": "https://github.com/Harfusha/MutaUI/commit/ac4c304c69bccfd2dfb94d30755473e7d3fc26da"
+  },
+  {
+    "title_cs": "GPU lease má skončit spolu s procesem, který ho drží",
+    "title_en": "A GPU lease should end with the process that owns it",
+    "body_cs": "Plánovač teď odstraňuje kapacitní lease Laya jen tehdy, když ověří, že jeho proces už nežije. Starý záznam tak nemá blokovat další práci, ale aktivní rezervace zůstává chráněná. Je to úklid po pádu procesu, ne automatické předání GPU libovolnému úkolu.",
+    "body_en": "The scheduler now removes a Laya capacity lease only after confirming its owner process is dead. A stale record should not block later work, while active reservations stay protected. This is crash cleanup, not automatic GPU handoff to an arbitrary task.",
+    "category": "AI",
+    "published_at": "2026-11-16 16:12:25",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/commit/670e08f51232503d3e032b4c969d52a4769e70d4"
+  },
+  {
+    "title_cs": "Dlouhá indexace musí pustit přednostní práci ke slovu",
+    "title_en": "Long indexing work must yield to higher-priority tasks",
+    "body_cs": "Embeddingy pro RAG vznikají po dávkách. Mezi nimi může plánovač říct „teď přeruš a uvolni GPU“; rozpracovaný výsledek přitom zachová, které soubory už prošly a kde zůstává nejistota. Preempce tak neznamená falešné „hotovo“ ani zahození celé dosavadní práce.",
+    "body_en": "RAG embeddings are produced in batches. Between them, the scheduler can ask the worker to yield the GPU while preserving which files were processed and where uncertainty remains. Preemption therefore does not mean a false “complete” result or throwing away all prior work.",
+    "category": "AI",
+    "published_at": "2026-11-16 10:19:58",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/commit/e18f493ccc4f3f323ff81d250c61f40354ae1386"
+  },
+  {
+    "title_cs": "Fotografie musí pokrýt skutečně viditelnou část dílu",
+    "title_en": "Photos need to cover the part that is actually visible",
+    "body_cs": "Scan2CAD zpřesnil hranice viditelnosti z fotografie a doplnil čistý CI receipt. To potvrzuje konkrétní kontrolní krok, ne hotový převod skenu do schváleného CAD.",
+    "body_en": "Scan2CAD tightened photo visibility bounds and added a clean CI receipt. That confirms a specific check, not a finished conversion from scan to approved CAD.",
+    "category": "Scan2CAD",
+    "published_at": "2026-11-16",
+    "source_url": ""
+  },
+  {
+    "title_cs": "Windows cesta musí přežít i bez CUDA backendu",
+    "title_en": "The Windows path must work without the CUDA backend",
+    "body_cs": "Na Windows se guard pro Laya nemá spustit dřív, než je ověřená dostupnost CUDA. Jinak selže i cesta, která by mohla pokračovat bez ní. Commit 8f89c8410f.",
+    "body_en": "On Windows, the Laya CUDA guard must not run before CUDA availability is checked. Otherwise it can break a path that could continue without it. Commit 8f89c8410f.",
+    "category": "Local AI Hub",
+    "published_at": "2026-11-16",
+    "source_url": ""
+  },
+  {
+    "title_cs": "CUDA ověřit dřív, než se načte backend",
+    "title_en": "Check CUDA before importing the backend",
+    "body_cs": "Kompatibilitu runtime je potřeba rozhodnout ještě před importem knihovny, která může zařízení inicializovat. Oprava odděluje kontrolu prostředí od startu inference. Commit ae7656560a.",
+    "body_en": "Runtime compatibility needs to be checked before importing a library that may initialize the device. The fix separates environment checks from inference startup. Commit ae7656560a.",
+    "category": "Local AI Hub",
+    "published_at": "2026-11-16",
+    "source_url": ""
+  },
+  {
+    "title_cs": "Opuštěný GPU lease má skončit s procesem",
+    "title_en": "A GPU lease should end with its process",
+    "body_cs": "Kapacita zůstává zarezervovaná jen po dobu, kdy ji drží skutečný proces. Úklid musí rozpoznat mrtvého vlastníka a nesmí uvolnit cizí generaci reservation. Commit 670e08f512.",
+    "body_en": "Capacity stays reserved only while a real process owns it. Cleanup must identify a dead owner without releasing another reservation generation. Commit 670e08f512.",
+    "category": "Local AI Hub",
+    "published_at": "2026-11-16",
+    "source_url": ""
+  },
+  {
+    "title_cs": "MutaUI: od prvního commitu k balíčkům",
+    "title_en": "MutaUI: from first commit to packages",
+    "body_cs": "Veřejná historie ukazuje první commit 12. listopadu a následnou práci na testech, CI a multiplatformním sestavení. Dokumentace popisuje aplikaci jako rozhraní k samostatně instalovanému Mutagen CLI. Vytvoření balíčků samo o sobě nepotvrzuje provoz na každé platformě; nativní ověření má své vlastní brány.",
+    "body_en": "The public history shows the initial commit on November 12, followed by tests, CI and cross-platform packaging. The documentation describes an interface to a separately installed Mutagen CLI. Built packages alone do not prove support on every platform; native acceptance has separate gates.",
+    "category": "Desktop",
+    "published_at": "2026-11-15 12:00:00",
+    "source_url": "https://github.com/Harfusha/MutaUI/commit/101796a289"
+  },
+  {
+    "title_cs": "6.1.0: release metadata se musí potkat se zdrojem",
+    "title_en": "6.1.0: release metadata has to match its source",
+    "body_cs": "Záznam z 15. listopadu nepopisuje novou funkci: vrací kanonický obsah připnutého archivu Superpowers a srovnává metadata releasu s tagem v6.1. Přesně ten typ opravy, který je snadné přehlédnout v changelogu, ale rozbije důvěru v balíček.",
+    "body_en": "The Nov 15 entry is not a new feature: it restores the canonical pinned Superpowers archive and aligns release metadata with the v6.1 source tag. Easy to overlook in a changelog, but a mismatch undermines trust in the package.",
+    "category": "AI",
+    "published_at": "2026-11-15 12:00:00",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
+  },
+  {
+    "published_at": "2026-11-15 12:00:00",
+    "category": "Games",
+    "title_cs": "Woodbound: uhlí dostalo vlastní místo v postupu",
+    "title_en": "Woodbound: charcoal gets its own place in progression",
+    "body_cs": "Commit ccc3daefc6 přidává systém CharcoalProgression. Je to konkrétní krok k tomu, aby zpracování dřeva mělo návaznost i po těžbě. Název commitu dokládá změnu ve zdrojích; sám nepotvrzuje hotovou ani přijatou hratelnou smyčku.",
+    "body_en": "Commit ccc3daefc6 adds the CharcoalProgression system. It is a concrete step toward giving wood processing a role beyond harvesting. The commit records a source change; it does not prove a finished or accepted gameplay loop.",
+    "source_url": ""
+  },
+  {
+    "title_cs": "Nulová plocha nemá zvyšovat jistotu",
+    "title_en": "Zero-area faces must not increase confidence",
+    "body_cs": "Degenerované trojúhelníky nesmějí přidávat falešnou jistotu ani neomezeně nafukovat práci. Oprava kombinuje kontrolu plochy s rozpočtem vrcholů.",
+    "body_en": "Degenerate triangles must not add false confidence or unbounded work. The fix combines area checks with a vertex budget.",
+    "category": "Scan2CAD",
+    "published_at": "2026-11-15",
+    "source_url": ""
+  },
+  {
+    "title_cs": "Přerostlý sken odmítnout před konverzí",
+    "title_en": "Reject an oversized scan before conversion",
+    "body_cs": "Příliš velký mesh se musí zastavit před nákladnou konverzí. Je to hranice vstupu, ne tvrzení o tom, jak přesný výsledný CAD bude.",
+    "body_en": "An oversized mesh must be rejected before expensive conversion. This is an input boundary, not a claim about the accuracy of the resulting CAD.",
+    "category": "Scan2CAD",
+    "published_at": "2026-11-15",
+    "source_url": ""
+  },
+  {
+    "title_cs": "Migrace konfigurace začíná auditem starého stavu",
+    "title_en": "Configuration migration starts by auditing the old state",
+    "body_cs": "Dva migrační audity znovu připomněly, že opakovatelný playbook nestačí. Nejdřív je potřeba vědět, co už na hostech existuje a co smí změna převzít.",
+    "body_en": "Two migration audits reinforced that a repeatable playbook is not enough. First, we need to know what already exists on the hosts and what the change is allowed to take over.",
+    "category": "Home Infrastructure",
+    "published_at": "2026-11-15",
+    "source_url": ""
+  },
+  {
+    "title_cs": "Uhlí začíná u skutečného toku dřeva",
+    "title_en": "Charcoal starts with a real flow of wood",
+    "body_cs": "CharcoalProgression dává výrobě uhlí konkrétní vstupní a výstupní množství. Tím se drží původní směr Woodboundu: dřevo má projít světem jako materiál, ne zmizet v čísle inventáře.",
+    "body_en": "CharcoalProgression gives charcoal production explicit inputs and outputs. It keeps Woodbound’s direction: wood should move through the world as material, not disappear into an inventory number.",
+    "category": "Woodbound",
+    "published_at": "2026-11-15",
+    "source_url": ""
+  },
+  {
+    "title_cs": "Testovat infrastrukturu, aniž by test sáhl na hosta",
+    "title_en": "Test infrastructure without touching a host",
+    "body_cs": "Bezpečnostní pojistka a pokrytí API mají zastavit nechtěný kontakt s reálnými zařízeními ještě před spuštěním testu. Samotný zelený test ale pořád není důkazem stavu domácí služby.",
+    "body_en": "A safety guard and API coverage must prevent accidental contact with real devices before a test begins. A green test still says nothing about the live health of a home service.",
+    "category": "Home Infrastructure",
+    "published_at": "2026-11-15",
+    "source_url": ""
+  },
+  {
+    "published_at": "2026-11-14 12:00:00",
+    "category": "Music",
+    "title_cs": "Shpotify: kandidát na skladbu potřebuje popsané vlastnosti",
+    "title_en": "Shpotify: a track candidate needs an explicit feature frame",
+    "body_cs": "Commit 3bf788c323 řeší retenční hranice a rámec vlastností kandidáta. Jde o přípravu pro práci s doporučováním: co je kandidát a jak dlouho uchovávat podklady. Není to důkaz aktivního modelu ani lepších doporučení.",
+    "body_en": "Commit 3bf788c323 works on retention boundaries and a candidate feature frame. It prepares recommendation work by defining what a candidate is and how long its evidence is kept. It does not prove an active model or better recommendations.",
+    "source_url": ""
+  },
+  {
     "title_cs": "Založení MutaUI",
     "title_en": "MutaUI launched",
     "body_cs": "Zveřejnění veřejného repozitáře nástroje pro Mutagen. Navazuje práce na desktopové ergonomii a podpoře platforem.",
@@ -18,39 +180,48 @@
     "source_url": "https://github.com/Harfusha/local-ai-hub"
   },
   {
-    "title_cs": "Domácí infrastruktura jako kód",
-    "title_en": "Home infrastructure as code",
-    "body_cs": "Ansible zdroj pravdy pro router, Raspberry Pi, NAS a testovací server. Provozní konfigurace zůstává neveřejná.",
-    "body_en": "Ansible source of truth for the router, Raspberry Pi, NAS and test server. Operational configuration remains private.",
-    "category": "Infrastructure",
-    "published_at": "2026-08-16 12:00:00",
+    "title_cs": "Při zkrácení odpovědi neztratit identitu plánu",
+    "title_en": "Keep plan identity when compacting a response",
+    "body_cs": "Opravy 5.1.4 hlídají, aby kompaktní odpověď pořád nesla ID plánu, revizi souboru i ID úkolu. Když rozpočet nestačí, odmítnutí má zůstat dohledatelné stejně jako úspěšná odpověď.",
+    "body_en": "Version 5.1.4 keeps plan IDs, file revisions and task IDs in compact responses. When a budget is insufficient, the rejection should remain traceable just like a successful response.",
+    "category": "AI",
+    "published_at": "2026-11-07 16:00:00",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
+  },
+  {
+    "title_cs": "Scan2CAD: nejdřív měřítko, potom projekce",
+    "title_en": "Scan2CAD: scale before projection",
+    "body_cs": "Specifikace z 4. listopadu vymezuje konkrétní pořadí: načíst lokální PLY, OBJ nebo STL, potvrdit jednotky, zarovnat referenční fotku a ukázat nejistotu odhadu kamery před projekcí. Návrh se má vrátit člověku jako editovatelný kandidát. Není to metrologické měření; fyzické rozměry se musí ověřit zvlášť.",
+    "body_en": "The November 4 specification sets a concrete order: load a local PLY, OBJ or STL, confirm units, align a reference photo, and show camera-estimate uncertainty before projection. The result returns to a person as an editable candidate. It is not metrology; physical dimensions need separate verification.",
+    "category": "3D",
+    "published_at": "2026-11-04 12:00:00",
     "source_url": ""
   },
   {
-    "title_cs": "Jak se rodil Local AI Hub: sjednocení rozhraní",
-    "title_en": "How Local AI Hub took shape: one interface",
-    "body_cs": "Záznam změn verze 3.0 popisuje sjednocení interního HTTP rozhraní a MCP vstupu. Součástí byl také jednotný způsob evidence úspor kontextu: zvlášť se počítají režijní náklady a úspory. Je to historie zdrojového projektu, nikoliv důkaz aktuální rychlosti nebo funkčnosti instalace.",
-    "body_en": "The 3.0 changelog records a unified internal HTTP interface and MCP entry point. It also describes accounting for context savings separately from overhead. This is source history, not proof of present performance or a working installation.",
+    "title_cs": "Windows instalace: nejdřív vědět, který proces drží port",
+    "title_en": "Windows installs: identify the process before restarting",
+    "body_cs": "5.1.3 upravuje rozpoznání PID naslouchajícího procesu a pořadí restartu služby. Vedle toho mění kontrakt checkpointů a zdravotních sond: ne-core timeout nemá sám shodit celý stav Hubu.",
+    "body_en": "Version 5.1.3 improves listener PID detection and service restart sequencing. It also tightens checkpoint contracts and health probes: a non-core timeout should not degrade the whole Hub by itself.",
     "category": "AI",
-    "published_at": "2026-09-08 12:00:00",
+    "published_at": "2026-10-30 18:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
   },
   {
-    "title_cs": "Local AI Hub 4.0: důkazy před závěrem",
-    "title_en": "Local AI Hub 4.0: evidence before conclusions",
-    "body_cs": "Verze 4.0 v dokumentaci spojila kontext úkolu s důkazy z repozitáře, revizemi a jejich aktuálností. Přibyla pravidla, která nechávají odpovědi lokálního modelu v poradní roli a odmítají nepodložená tvrzení. Změnový záznam uvádí také migrační a návratový postup.",
-    "body_en": "The 4.0 changelog describes joining task context with repository evidence, revisions and freshness. It records gates keeping local-model output advisory and rejecting unsupported claims, alongside a migration and rollback contract.",
+    "title_cs": "SQLite na Windows a závod o první zámek",
+    "title_en": "SQLite on Windows and the race for the first lock",
+    "body_cs": "Opravy 5.1.2 řeší URI pro read-only SQLite na cestách s písmenem disku a souběžnou inicializaci prázdných indexů. Test nemá záviset na tom, který proces se trefí do první milisekundy.",
+    "body_en": "Version 5.1.2 fixes read-only SQLite URIs on drive-letter paths and concurrent initialization of empty indexes. A test should not depend on which process wins the first millisecond.",
     "category": "AI",
-    "published_at": "2026-09-21 12:00:00",
+    "published_at": "2026-10-30 14:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
   },
   {
-    "title_cs": "Jedna instalace, jeden vlastník",
-    "title_en": "One installation, one owner",
-    "body_cs": "Ve verzi 5.0 se podle změnového záznamu sjednotila pravidla pro HTTP, MCP, telemetrii a dashboard kolem jednoho vlastníka instalace. Přibylo čekání na události agentů, semafory a koordinace práce na projektové tabuli. Podrobnosti a dnešní podobu je vhodné ověřit přímo v repozitáři.",
-    "body_en": "The 5.0 changelog records a single-owner contract across HTTP, MCP, telemetry and dashboard state. It also lists agent event waiting, semaphores and project-board coordination. Check the repository for today’s behavior.",
+    "title_cs": "Zrušená inference nesmí vrátit pozdní výsledek",
+    "title_en": "A cancelled inference must not return a late result",
+    "body_cs": "5.1.1 zahazuje výstup vision backendu, pokud zrušení dorazí až během nepřerušitelné inference. Zrušení musí zůstat pravdivé i tehdy, když samotný výpočet nešel okamžitě zastavit.",
+    "body_en": "Version 5.1.1 discards vision backend output when cancellation arrives during a non-interruptible inference. Cancellation must remain truthful even when the computation itself could not stop immediately.",
     "category": "AI",
-    "published_at": "2026-10-19 12:00:00",
+    "published_at": "2026-10-30 10:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
   },
   {
@@ -63,12 +234,165 @@
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
   },
   {
-    "title_cs": "MutaUI: od prvního commitu k balíčkům",
-    "title_en": "MutaUI: from first commit to packages",
-    "body_cs": "Veřejná historie ukazuje první commit 12. listopadu a následnou práci na testech, CI a multiplatformním sestavení. Dokumentace popisuje aplikaci jako rozhraní k samostatně instalovanému Mutagen CLI. Vytvoření balíčků samo o sobě nepotvrzuje provoz na každé platformě; nativní ověření má své vlastní brány.",
-    "body_en": "The public history shows the initial commit on November 12, followed by tests, CI and cross-platform packaging. The documentation describes an interface to a separately installed Mutagen CLI. Built packages alone do not prove support on every platform; native acceptance has separate gates.",
-    "category": "Desktop",
-    "published_at": "2026-11-15 12:00:00",
-    "source_url": "https://github.com/Harfusha/MutaUI/commit/101796a289"
+    "published_at": "2026-10-26 12:00:00",
+    "category": "Music",
+    "title_cs": "Shpotify: seřadit kandidáty z uložených audio vlastností",
+    "title_en": "Shpotify: rank candidates from cached audio features",
+    "body_cs": "Commit 596a4f0273 řadí kandidáty podle cachovaných Spotify audio features. Je to konkrétní vstup pro srovnání skladeb bez opakovaného čtení těch samých vlastností. Samotné pořadí ale neříká, jestli doporučení lidem vyhovují.",
+    "body_en": "Commit 596a4f0273 ranks candidates using cached Spotify audio features. That gives the comparison a concrete input without repeatedly fetching the same features. The ranking alone does not show whether people like the recommendations.",
+    "source_url": ""
+  },
+  {
+    "published_at": "2026-10-22 12:00:00",
+    "category": "Music",
+    "title_cs": "Shpotify: výběr tréninkových kandidátů musí jít zopakovat",
+    "title_en": "Shpotify: training candidates must be reproducible",
+    "body_cs": "Commit 5c5c14e27d připravuje opakovatelný výběr kandidátů pro offline trénink. Bez stejného výběru by nešlo poznat, zda se změnil model, nebo jen data, která dostal. Tohle dokládá přípravu datového kroku, ne kvalitu natrénovaného modelu.",
+    "body_en": "Commit 5c5c14e27d adds reproducible selection of offline training candidates. Without a stable selection, it would be hard to tell whether the model changed or only its input data. This documents a data-preparation step, not trained-model quality.",
+    "source_url": ""
+  },
+  {
+    "title_cs": "Jedna instalace, jeden vlastník",
+    "title_en": "One installation, one owner",
+    "body_cs": "Ve verzi 5.0 se podle změnového záznamu sjednotila pravidla pro HTTP, MCP, telemetrii a dashboard kolem jednoho vlastníka instalace. Přibylo čekání na události agentů, semafory a koordinace práce na projektové tabuli. Podrobnosti a dnešní podobu je vhodné ověřit přímo v repozitáři.",
+    "body_en": "The 5.0 changelog records a single-owner contract across HTTP, MCP, telemetry and dashboard state. It also lists agent event waiting, semaphores and project-board coordination. Check the repository for today’s behavior.",
+    "category": "AI",
+    "published_at": "2026-10-19 12:00:00",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
+  },
+  {
+    "title_cs": "Shpotify: první místnost a společná fronta",
+    "title_en": "Shpotify: first room and shared queue",
+    "body_cs": "První commit 03490878 z 13. října zakládá soukromé místnosti a společnou frontu. Tím začal skutečný produktový tvar projektu, ale ne přehrávání: propojení se Spotify a celý tok zatím nemají přijaté end-to-end ověření. Záznam také neuchoval rozhovor, ze kterého měla myšlenka vyrůst.",
+    "body_en": "The October 13 first commit, 03490878, establishes private rooms and a shared queue. That gives the project its initial product shape, but not playback: Spotify integration and the full flow have no accepted end-to-end verification yet. The record also does not preserve the conversation behind the idea.",
+    "category": "Music",
+    "published_at": "2026-10-13 12:00:00",
+    "source_url": ""
+  },
+  {
+    "title_cs": "Local AI Hub 4.0: důkazy před závěrem",
+    "title_en": "Local AI Hub 4.0: evidence before conclusions",
+    "body_cs": "Verze 4.0 v dokumentaci spojila kontext úkolu s důkazy z repozitáře, revizemi a jejich aktuálností. Přibyla pravidla, která nechávají odpovědi lokálního modelu v poradní roli a odmítají nepodložená tvrzení. Změnový záznam uvádí také migrační a návratový postup.",
+    "body_en": "The 4.0 changelog describes joining task context with repository evidence, revisions and freshness. It records gates keeping local-model output advisory and rejecting unsupported claims, alongside a migration and rollback contract.",
+    "category": "AI",
+    "published_at": "2026-09-21 12:00:00",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
+  },
+  {
+    "title_cs": "Jak se rodil Local AI Hub: sjednocení rozhraní",
+    "title_en": "How Local AI Hub took shape: one interface",
+    "body_cs": "Záznam změn verze 3.0 popisuje sjednocení interního HTTP rozhraní a MCP vstupu. Součástí byl také jednotný způsob evidence úspor kontextu: zvlášť se počítají režijní náklady a úspory. Je to historie zdrojového projektu, nikoliv důkaz aktuální rychlosti nebo funkčnosti instalace.",
+    "body_en": "The 3.0 changelog records a unified internal HTTP interface and MCP entry point. It also describes accounting for context savings separately from overhead. This is source history, not proof of present performance or a working installation.",
+    "category": "AI",
+    "published_at": "2026-09-08 12:00:00",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
+  },
+  {
+    "title_cs": "Domácí infrastruktura jako kód",
+    "title_en": "Home infrastructure as code",
+    "body_cs": "Ansible zdroj pravdy pro router, Raspberry Pi, NAS a testovací server. Provozní konfigurace zůstává neveřejná.",
+    "body_en": "Ansible source of truth for the router, Raspberry Pi, NAS and test server. Operational configuration remains private.",
+    "category": "Infrastructure",
+    "published_at": "2026-08-16 12:00:00",
+    "source_url": ""
+  },
+  {
+    "title_cs": "Asociace v CakePHP musí být čitelné i pro PHPStan",
+    "title_en": "CakePHP associations should be readable to PHPStan too",
+    "body_cs": "U asociací nestačí, že aplikace za běhu najde správnou tabulku. IDE a PHPStan musí z typu poznat, co vztah vrací. V tomhle příspěvku jsem doplnil mixin a šablonu pro asociace, aby statická analýza dostala informaci, kterou runtime už zná. PR byl sloučen do CakePHP 4.x.",
+    "body_en": "It is not enough for an association to find the right table at runtime. IDEs and PHPStan also need to know from the type what the relationship returns. This contribution added an association mixin and template so static analysis could see information the runtime already knows. The PR was merged into CakePHP 4.x.",
+    "category": "Open source",
+    "published_at": "2024-08-22 12:00:00",
+    "source_url": "https://github.com/cakephp/cakephp/pull/17827"
+  },
+  {
+    "title_cs": "DebugKit: menší panel a údržba SQLite",
+    "title_en": "DebugKit: smaller panels and SQLite maintenance",
+    "body_cs": "V DebugKitu jsem řešil dvě různé náklady: uložený obsah panelů a úklid SQLite databáze. PR přidal kompresi a rozbalení obsahu, změnil pravděpodobnost běhu garbage collectoru z 1 % na 10 % a přidal méně častý VACUUM pro SQLite. Tím se liší rychlé čištění řádků od dražší údržby souboru. Změna byla sloučena do větve 5.next.",
+    "body_en": "In DebugKit I addressed two separate costs: stored panel content and SQLite database maintenance. The PR added compression and decompression, changed the garbage collector chance from 1% to 10%, and added a less frequent VACUUM for SQLite. That separates quick row cleanup from more expensive file maintenance. The change was merged into the 5.next branch.",
+    "category": "Open source",
+    "published_at": "2024-08-29 12:00:00",
+    "source_url": "https://github.com/cakephp/debug_kit/pull/1022"
+  },
+  {
+    "title_cs": "TableLocator vrací typ, který do něj pošleš",
+    "title_en": "TableLocator returns the type you pass in",
+    "body_cs": "V CakePHP jsem doplnil práci s plně kvalifikovaným názvem třídy v TableLocatoru. Když se předá vlastní Table třída, volající už nemusí její typ znovu překládat na alias; PHPStan ho může dál sledovat i při řetězení volání. PR #18957 navázal na issue #18954.",
+    "body_en": "I added support for fully qualified class names in CakePHP’s TableLocator. When a custom Table class is passed in, callers no longer have to translate its type back to an alias, and PHPStan can keep tracking it through chained calls. PR #18957 followed issue #18954.",
+    "category": "Open source",
+    "published_at": "2025-10-10 12:00:00",
+    "source_url": "https://github.com/cakephp/cakephp/pull/18957"
+  },
+  {
+    "title_cs": "Kontext chyby patří do loggeru, ne do každého varování",
+    "title_en": "Error context belongs in the logger, not every warning",
+    "body_cs": "Při práci na CakePHP #17976 jsem přesunul doplnění kontextu chyby do ErrorLoggeru. Samotné triggerWarning už kvůli každému varování nesestavuje backtrace; logger připojí detaily tam, kde se chyba opravdu zaznamenává, a trace zůstává řízený volbou volajícího.",
+    "body_en": "For CakePHP #17976, I moved error context into ErrorLogger. triggerWarning no longer builds a backtrace for every warning; the logger adds details where the error is actually recorded, while trace inclusion remains an explicit choice.",
+    "category": "Open source",
+    "published_at": "2025-04-15 12:00:00",
+    "source_url": "https://github.com/cakephp/cakephp/pull/17976"
+  },
+  {
+    "title_cs": "Číselné řetězce s nulami na začátku mají zůstat čitelné",
+    "title_en": "Numeric strings with leading zeroes should stay usable",
+    "body_cs": "Převody toInt a toFloat v CakePHP do té doby odmítaly některé hodnoty s mezerami nebo doplněnými nulami. Doplnil jsem oříznutí okrajových mezer a nul před validací a testy pro případy, které by jinak skončily jako neplatné číslo.",
+    "body_en": "CakePHP’s toInt and toFloat conversions rejected some values with surrounding whitespace or padding zeroes. I added trimming before validation and tests for cases that would otherwise be treated as invalid numbers.",
+    "category": "Open source",
+    "published_at": "2024-11-01 12:00:00",
+    "source_url": "https://github.com/cakephp/cakephp/pull/17979"
+  },
+  {
+    "title_cs": "CakePHP 4 dostal zpět typovou podporu asociací pro PHPStan",
+    "title_en": "CakePHP 4 got association type support back for PHPStan",
+    "body_cs": "V CakeDC/cakephp-phpstan jsem přenesl rozpoznávání typů asociací i pro CakePHP 4. Mixin v dokumentaci může PHPStanu říct, jakou tabulku vztah vrací; bez tohoto resolveru zůstával typ v části kódu příliš obecný.",
+    "body_en": "In CakeDC/cakephp-phpstan, I backported association type resolution for CakePHP 4. The association mixins can tell PHPStan which table a relationship returns; without the resolver, types stayed too broad in parts of the codebase.",
+    "category": "Open source",
+    "published_at": "2024-10-23 12:00:00",
+    "source_url": "https://github.com/CakeDC/cakephp-phpstan/pull/37"
+  },
+  {
+    "title_cs": "Varování o nedokončené transakci dostalo kontext požadavku",
+    "title_en": "The active-transaction warning gained request context",
+    "body_cs": "Když se databázové spojení zavírá s otevřenou transakcí, samotné varování neřekne, při jakém požadavku k tomu došlo. Do CakePHP jsem doplnil URL požadavku a klientskou IP, pokud je server poskytuje, aby se dal problém dohledat v kontextu.",
+    "body_en": "When a database connection closes with an active transaction, the warning alone does not say which request was involved. I added the request URL and client IP to CakePHP’s warning when the server provides them, so the incident has useful context.",
+    "category": "Open source",
+    "published_at": "2024-10-17 12:00:00",
+    "source_url": "https://github.com/cakephp/cakephp/pull/17974"
+  },
+  {
+    "title_cs": "V code-quality setu Rectoru jsem zúžil jedno pravidlo",
+    "title_en": "I narrowed one rule in Rector’s code-quality set",
+    "body_cs": "Z konfigurace CodeQualityLevel jsem odebral SimplifyUselessVariableRector. Veřejný PR popisuje změnu složení setu, ne její širší motivaci; nechávám proto důvod bez domýšlení.",
+    "body_en": "I removed SimplifyUselessVariableRector from Rector’s CodeQualityLevel. The public PR describes the change to the set, not a broader motivation, so I am leaving the reason unstated.",
+    "category": "Open source",
+    "published_at": "2024-07-30 13:00:00",
+    "source_url": "https://github.com/rectorphp/rector-src/pull/6201"
+  },
+  {
+    "title_cs": "Chronos už nevrací mixed tam, kde vrací tutéž časovou třídu",
+    "title_en": "Chronos no longer says mixed where it returns the same date class",
+    "body_cs": "U metod, které hledají další nebo předchozí datum, byly anotace návratového typu zbytečně obecné. Opravil jsem je z mixed na static, aby IDE i statická analýza zachovaly konkrétní typ řetězené instance.",
+    "body_en": "The date-finding methods used overly broad return annotations. I changed them from mixed to static so IDEs and static analysis preserve the concrete type of a chained instance.",
+    "category": "Open source",
+    "published_at": "2024-07-30 12:00:00",
+    "source_url": "https://github.com/cakephp/chronos/pull/460"
+  },
+  {
+    "title_cs": "IDE Helper se naučil projít vnořené víceřádkové anotace",
+    "title_en": "IDE Helper learned to parse nested multiline annotations",
+    "body_cs": "Při generování anotací se parser ztrácel na víceřádkových tvarech polí, zvlášť když se vnořovaly. Doplnil jsem průchod přes tyto struktury a testovací šablony; tím se opravilo formátování i výsledná anotace, kterou dostane IDE.",
+    "body_en": "The annotation parser lost its way on multiline array shapes, especially when they were nested. I added handling and fixtures for those structures, fixing both the formatting and the annotation delivered to the IDE.",
+    "category": "Open source",
+    "published_at": "2024-03-05 12:00:00",
+    "source_url": "https://github.com/dereuromark/cakephp-ide-helper/pull/345"
+  },
+  {
+    "title_cs": "Formátování čísel v CakePHP dostalo volbu zaokrouhlení",
+    "title_en": "CakePHP number formatting gained a rounding option",
+    "body_cs": "U formátování čísel nestačí nastavit počet desetinných míst; záleží i na tom, jak se zaokrouhlí hraniční hodnota. Doplnil jsem volbu roundingMode a testy, přičemž bez ní zůstává výchozí chování dané locale.",
+    "body_en": "Choosing decimal places is not enough when formatting numbers; the rounding rule also matters at the boundary. I added a roundingMode option and tests, while keeping the locale’s default when no option is supplied.",
+    "category": "Open source",
+    "published_at": "2024-01-20 12:00:00",
+    "source_url": "https://github.com/cakephp/cakephp/pull/17552"
   }
 ]

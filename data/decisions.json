@@ -3,16 +3,16 @@
     "id": "local-ai-routing",
     "project": "local-ai-hub",
     "status": "documented",
-    "title_cs": "Kdy použít lokální model a kdy eskalovat?",
-    "title_en": "When to use a local model and when to escalate?",
-    "context_cs": "Agent potřebuje kontrolu kontextu a nákladů; ne každý úkol vyžaduje vzdálený model.",
-    "context_en": "Coding agents need to control context and cost; not every task needs a remote model.",
-    "decision_cs": "Oddělit routing, lokální RAG a plánování do služeb s explicitními hranicemi; lokální cesta má být dostupná bez cloudu.",
-    "decision_en": "Separate routing, local RAG and planning into explicit services; the local path should remain usable without a cloud.",
-    "tradeoff_cs": "Více orchestrujícího kódu a složitější diagnostika oproti jedinému API volání.",
-    "tradeoff_en": "More orchestration code and harder diagnostics than a single API call.",
-    "evidence_cs": "Architektonický princip projektu; veřejná ukázka neprovádí reálnou inferenci ani neuvádí neověřené úspory.",
-    "evidence_en": "A project architecture principle; the public demo does not run real inference or claim unmeasured savings."
+    "title_cs": "Těžkou práci připravit před dotazem",
+    "title_en": "Prepare the expensive work before the question",
+    "context_cs": "Stejný repozitář se při práci agentů znovu objevuje v kontextu. Autor chtěl náročnou přípravu přesunout z každého AI dotazu do preprocessingu, který běží předem na pozadí.",
+    "context_en": "Agents keep revisiting the same repository during their work. The author wanted to move the expensive preparation out of each AI prompt into preprocessing that runs ahead in the background.",
+    "decision_cs": "Po registraci kořene asynchronně připravit inventář, hashe, code index a deterministické karty. Přesné dotazy pak obsloužit z indexu a zdrojového výřezu; RAG a model přidat až při potřebě širší interpretace.",
+    "decision_en": "After registering a repository root, prepare its inventory, hashes, code index and deterministic cards asynchronously. Answer precise questions from the index and a source slice; add RAG or a model only when broader interpretation is needed.",
+    "tradeoff_cs": "Více práce při preprocessingu, úložiště pro indexy a jejich obnova po změnách; výměnou se při každém dotazu nemusí opakovat celý průchod repozitářem.",
+    "tradeoff_en": "More preprocessing work, index storage and refreshes after changes; in return, every question does not have to repeat a full repository pass.",
+    "evidence_cs": "Osobní impuls potvrdil autor; pořadí preprocessingových fází a použití indexu dokládá README a architektura Local AI Hubu. Výsledné úspory zde nejsou měřené.",
+    "evidence_en": "The author confirmed this personal motivation; the preprocessing stages and index-first path are documented in the Local AI Hub README and architecture. Savings are not measured here."
   },
   {
     "id": "mutaui-native",
@@ -103,5 +103,20 @@
     "tradeoff_en": "More complexity in sessions, tokens and state synchronization.",
     "evidence_cs": "Projekt je rozpracovaný; tato karta netvrdí dokončené bezpečnostní ověření.",
     "evidence_en": "The project remains in development; this record does not claim a completed security audit."
+  },
+  {
+    "id": "softwareinc-agreement-boundary",
+    "project": "softwareinc-multiplayer",
+    "status": "prototype",
+    "title_cs": "Přidat pravidla do existujícího multiplayeru, ne stavět nový",
+    "title_en": "Add rules around the existing multiplayer, do not replace it",
+    "context_cs": "Software Inc. už poskytuje online i LAN co-op a PvP. Mod řeší další vrstvu: dohody, role a změny, které musí přežít opakované doručení.",
+    "context_en": "Software Inc. already provides online and LAN co-op and PvP. The mod addresses another layer: agreements, roles and changes that must survive repeated delivery.",
+    "decision_cs": "Ponechat herní transport nativní hře a přidat verzované zprávy s validací účastníků a bezpečným zpracováním dohody.",
+    "decision_en": "Keep game transport in the native game and add versioned messages with participant validation and replay-safe agreement processing.",
+    "tradeoff_cs": "Přibývá protokol, autorita hostitele i trvalý stav. Bez ověření ve skutečné relaci nelze tvrdit, že je celek hratelný.",
+    "tradeoff_en": "The protocol, host authority and durable state add complexity. Without a real session test, the whole mod cannot be called playable.",
+    "evidence_cs": "Repozitář obsahuje codec zpráv, atomické změny i durable replay ledger. Kandidát obnovil syntetické cíle po reloadu; multiplayer s lidmi není ověřen.",
+    "evidence_en": "The repository contains a message codec, atomic changes and a durable replay ledger. A candidate restored synthetic targets after reload; multiplayer with people is unverified."
   }
 ]

@@ -6,9 +6,18 @@ use App\Support\Language;
 /** @var App\Domain\Project $project */
 /** @var list<array{slug:string,name:string,type:string}> $related */
 /** @var list<App\Domain\EngineeringDecision> $decisions */
+$playgroundLinks = [
+    'local-ai-hub' => '/playground#station-preprocessing',
+    'mutaui' => '/playground#station-sync-preview',
+    'home-infrastructure' => '/homelab',
+    'woodbound' => '/playground#station-route-finder',
+    'scan2cad' => '/playground#station-scale-check',
+    'tiskov' => '/playground#station-tiskov-queue',
+    'shpotify' => '/playground#station-queue-conflict',
+    'softwareinc-multiplayer' => '/playground#station-mod-authority',
+];
 ?>
-<section class="page-hero shell project-detail-hero"><a class="back-link" href="<?= $lang->path('/projects') ?>">← <?= $lang->value('Všechny projekty','All projects') ?></a><div class="detail-kicker"><span class="category"><?= Html::escape($project::categoryLabel($project->category, $lang)) ?></span><span class="status <?= Html::escape($project->status) ?>"><?= Html::escape($project->statusLabel($lang)) ?></span><span><?= Html::escape($project->year) ?></span></div><h1><?= Html::escape($project->name) ?></h1><p><?= Html::escape($project->summary($lang)) ?></p><div class="detail-links"><?php if (!$project->private && $project->repo !== ''): ?><a class="btn btn-primary" href="<?= Html::escape(Html::safeUrl($project->repo)) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Zdrojový kód','View source') ?> ↗</a><?php endif; ?><?php if ($project->demo !== ''): ?><a class="btn btn-ghost" href="<?= $lang->path($project->demo === 'homelab' ? '/homelab' : '/projects/'.$project->slug.'#project-experience') ?>"><?= $lang->value('Vyzkoušet demonstraci','Try interactive demo') ?> →</a><?php endif; ?><?php if ($project->slug === 'mutaui'): ?><a class="btn btn-ghost" href="https://github.com/Harfusha/MutaUI/blob/master/docs/screenshots.md" target="_blank" rel="noopener noreferrer"><?= $lang->value('Snímky aplikace','Application screenshots') ?> ↗</a><?php endif; ?></div></section>
-<?php require dirname(__DIR__) . '/element/project_experience.php'; ?>
+<section class="page-hero shell project-detail-hero"><a class="back-link" href="<?= $lang->path('/projects') ?>">← <?= $lang->value('Všechny projekty','All projects') ?></a><div class="detail-kicker"><span class="category"><?= Html::escape($project::categoryLabel($project->category, $lang)) ?></span><span class="status <?= Html::escape($project->status) ?>"><?= Html::escape($project->statusLabel($lang)) ?></span><span><?= Html::escape($project->year) ?></span></div><h1><?= Html::escape($project->name) ?></h1><p><?= Html::escape($project->summary($lang)) ?></p><div class="detail-links"><?php if (!$project->private && $project->repo !== ''): ?><a class="btn btn-primary" href="<?= Html::escape(Html::safeUrl($project->repo)) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Zdrojový kód','View source') ?> ↗</a><?php endif; ?><?php if (isset($playgroundLinks[$project->slug])): ?><a class="btn btn-ghost" href="<?= $lang->path($playgroundLinks[$project->slug]) ?>"><?= $project->slug === 'tiskov' ? $lang->value('Otevřít model návrhu','Open proposal model') : $lang->value('Otevřít funkční model','Open working model') ?> →</a><?php endif; ?><?php if ($project->slug === 'mutaui'): ?><a class="btn btn-ghost" href="https://github.com/Harfusha/MutaUI/blob/master/docs/screenshots.md" target="_blank" rel="noopener noreferrer"><?= $lang->value('Snímky aplikace','Application screenshots') ?> ↗</a><?php endif; ?></div></section>
 <?php if ($project->slug === 'mutaui'): ?>
 <section class="shell project-preview" aria-labelledby="mutaui-preview-title">
  <div class="project-preview-copy">
@@ -50,8 +59,9 @@ if ($sourceVisual !== null):
  <figure><img src="<?= Html::escape($visualSrc) ?>" width="<?= $visualWidth ?>" height="<?= $visualHeight ?>" loading="lazy" alt="<?= Html::escape($visualAlt) ?>"><figcaption><?= Html::escape($visualCaption) ?></figcaption></figure>
 </section>
 <?php endif; ?>
-<?php require dirname(__DIR__) . '/element/project_example.php'; ?>
 <?php require dirname(__DIR__) . '/element/project_deepdive.php'; ?>
+<?php require dirname(__DIR__) . '/element/project_example.php'; ?>
+<?php require dirname(__DIR__) . '/element/project_experience.php'; ?>
 
 <section class="section shell project-case"><div class="case-main"><div class="case-block"><span class="eyebrow">01 / <?= $lang->value('PROBLÉM','THE PROBLEM') ?></span><h2><?= $lang->value('Proč to vzniklo','Why it exists') ?></h2><p><?= Html::escape($project->problem($lang)) ?></p></div><div class="case-block"><span class="eyebrow">02 / <?= $lang->value('ŘEŠENÍ','THE APPROACH') ?></span><h2><?= $lang->value('Jak je to postavené','How it works') ?></h2><p><?= Html::escape($project->solution($lang)) ?></p></div><div class="case-block"><span class="eyebrow">03 / <?= $lang->value('FUNKCE','CAPABILITIES') ?></span><h2><?= $lang->value('Základní části','Key pieces') ?></h2><ul class="feature-list"><?php foreach ($project->localizedFeatures($lang) as $feature): ?><li><?= Html::escape($feature) ?></li><?php endforeach; ?></ul></div><?php
 $projectLimitations = [

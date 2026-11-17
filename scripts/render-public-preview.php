@@ -72,6 +72,15 @@ namespace {
     });
     $catalog = new ProjectCatalog($root . '/data');
     $projects = $catalog->projects();
+    $validProjectSlugs = array_fill_keys(array_map(static fn (Project $project): string => $project->slug, $projects), true);
+    foreach (['cs', 'en'] as $code) {
+        $projectDir = $out . '/' . $code . '/projects';
+        foreach (glob($projectDir . '/*/index.html') ?: [] as $page) {
+            if (!isset($validProjectSlugs[basename(dirname($page))])) {
+                unlink($page);
+            }
+        }
+    }
     $featured = array_values(array_filter($projects, static fn (Project $p): bool => $p->featured));
     $mergedPrCount = count(array_filter(
         $catalog->contributions(),
@@ -92,11 +101,11 @@ namespace {
         'decisions' => ['decisions' => $catalog->decisions()],
         'homelab' => ['nodes' => $catalog->topology(), 'flows' => $catalog->flows()],
         'maker' => ['items' => $catalog->maker()],
-        'playground' => [],
+        'playground' => ['projects' => $projects],
         'open-source' => ['activity' => $catalog->contributions(),
         'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null]],
         'journal' => ['journal' => $catalog->journal()],
-        'now' => ['recentRepos' => [['repository'=>'Harfusha/MutaUI','description'=>'','repo_url'=>'https://github.com/Harfusha/MutaUI','pushed_at'=>'2026-11-12 18:53:55']], 'journal' => $catalog->journal(), 'provenance'=>['source'=>'reviewed-snapshot','last_sync'=>null]],
+        'now' => ['recentRepos' => [['repository'=>'Harfusha/MutaUI','description'=>'','repo_url'=>'https://github.com/Harfusha/MutaUI','pushed_at'=>'2026-11-12 18:53:55']], 'journalEntries' => $catalog->journal(), 'activity' => $catalog->contributions(), 'provenance'=>['source'=>'reviewed-snapshot','last_sync'=>null]],
         'about' => [],
     ];
     $count = 0;

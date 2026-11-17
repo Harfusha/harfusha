@@ -278,7 +278,7 @@ final class ContentRepository
             if ($source === 'github-public-api') {
                 try {
                     $entities = TableRegistry::getTableLocator()->get(GithubPublicReposTable::class)
-                        ->find()->orderByDesc('pushed_at')->limit(6)->all();
+                        ->find()->orderByDesc('pushed_at')->limit(9)->all();
                     $rows = [];
                     foreach ($entities as $record) {
                         $date = $record->get('pushed_at');

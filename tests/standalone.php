@@ -356,7 +356,7 @@ verify(
 );
 
 $links = $catalog->connections();
-verify(count($links) === 9, 'Curated inter-project relationships');
+verify($links === [], 'No unsupported inter-project dependencies are published');
 verify($catalog->maker() === [], 'Maker Lab has no unverified public entries');
 verify(count(array_unique(array_map(static fn(array $edge): string => $edge['from'] . '/' . $edge['to'], $links))) === count($links), 'No duplicate connection edges');
 foreach ($links as $link) {
@@ -518,11 +518,11 @@ $fixtures = [
     'project' => ['project' => $projects[0], 'related' => [], 'decisions' => array_values(array_filter($catalog->decisions(), static fn($item): bool => $item->project === $projects[0]->slug))],
     'homelab' => ['nodes' => $nodes, 'flows' => $catalog->flows()],
     'maker' => ['items' => $catalog->maker()],
-    'playground' => [],
+    'playground' => ['projects' => $projects],
     'open-source' => ['activity' => $catalog->contributions(),
         'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null]],
     'journal' => ['journal' => $catalog->journal()],
-    'now' => ['recentRepos' => [['repository' => 'Harfusha/MutaUI','description' => 'Snapshot','repo_url' => 'https://github.com/Harfusha/MutaUI','pushed_at' => '2026-11-12 18:53:55']], 'provenance' => ['source' => 'reviewed-snapshot','last_sync' => null]],
+    'now' => ['recentRepos' => [['repository' => 'Harfusha/MutaUI','description' => 'Snapshot','repo_url' => 'https://github.com/Harfusha/MutaUI','pushed_at' => '2026-11-12 18:53:55']], 'journalEntries' => $catalog->journal(), 'activity' => $catalog->contributions(), 'provenance' => ['source' => 'reviewed-snapshot','last_sync' => null]],
     'about' => [],
 ];
 foreach (['cs','en'] as $code) {
@@ -544,12 +544,10 @@ verify(
 
 $connectionsRaw = file_get_contents($root . '/data/connections.json');
 verify(is_string($connectionsRaw) && !str_contains($connectionsRaw, '192.168.'), 'No internal IPs in connection model');
-$jsSource = file_get_contents($root . '/webroot/assets/js/app.js');
-verify(is_string($jsSource) && str_contains($jsSource, 'initConnections()'), 'Project graph frontend initialized');
 $middlewareSource = file_get_contents($root . '/src/Middleware/SecurityHeadersMiddleware.php');
 verify(is_string($middlewareSource) && str_contains($middlewareSource, "frame-ancestors 'none'"), 'Frame protection configured');
-$projectGraph = $renderer->render($root . '/templates/Pages/connections.php', ['lang' => new Language('cs'),'projects' => $projects,'edges' => $links]);
-verify(str_contains($projectGraph, 'id="connections-data"') && str_contains($projectGraph, 'data-connections-svg'), 'Interactive graph SSR hooks');
+$projectIndex = $renderer->render($root . '/templates/Pages/connections.php', ['lang' => new Language('cs'),'projects' => $projects]);
+verify(substr_count($projectIndex, 'data-map-project') === count($projects), 'Project index lists every project without invented relationships');
 // GitHub API pages must never partially overwrite a previously valid snapshot.
 $searchPage = static function (array $items, int $total): array {
     return ['items' => $items, 'total_count' => $total, 'incomplete_results' => false];

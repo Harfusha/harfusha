@@ -201,6 +201,10 @@ final class EditorialPersistenceTest extends HttpIntegrationTestCase
             $this->assertRedirect('/admin?saved=1');
             $row = self::row($db, 'SELECT published_at FROM journal_entries WHERE id = :id', ['id' => $id]);
             self::assertSame($connectionDate, self::text($row['published_at'] ?? null));
+            // Keep this new post in the RSS feed's latest-30 window below.
+            $db->execute('UPDATE journal_entries SET published_at = :published WHERE id = :id', [
+                'published' => gmdate('Y-m-d H:i:s'), 'id' => $id,
+            ]);
 
             $this->get('/cs/journal');
             $this->assertResponseOk();
