@@ -20,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[2]
 HTML = Path(os.environ.get('HAFRUSHA_PREVIEW_DIR', str(ROOT / 'tmp' / 'public-preview')))
 APP = (ROOT / 'webroot/assets/js/app.js').read_text(encoding='utf-8')
 CORE = (ROOT / 'webroot/assets/js/lab-core.js').read_text(encoding='utf-8')
-CSS = (ROOT / 'webroot/assets/css/app.css').read_text(encoding='utf-8')
+CSS = "\n".join((ROOT / 'webroot/assets/css' / name).read_text(encoding='utf-8')
+                for name in ('app.css', 'portfolio.css'))
 SCRIPTS = re.compile(r'<script\b[^>]+src="[^"]+"[^>]*></script>', re.IGNORECASE)
 STYLES = re.compile(r'<link\b[^>]+rel="stylesheet"[^>]*>', re.IGNORECASE)
 
@@ -128,8 +129,18 @@ def main() -> None:
                         assert page.locator('h1').count() == 1, (width, site, 'missing/extra H1')
                         if '/connections' in site:
                             assert page.locator('[data-map-project]').count() == 9, (site, 'missing project index cards')
-                            categories = {card.get_attribute('data-category') for card in page.locator('[data-map-project]').all()}
-                            assert page.locator('[data-map-domain]').count() == len(categories), (site, 'map groups must match the real project categories')
+                            themes = {card.get_attribute('data-theme') for card in page.locator('[data-map-project]').all()}
+                            assert themes == {'operate', 'candidate', 'coordinate'}, (site, 'map must use the three thematic groups')
+                            assert page.locator('[data-map-domain]').count() == 3, (site, 'the map must not group by technical repository category')
+                            theme_counts = {theme: sum(card.get_attribute('data-theme') == theme for card in page.locator('[data-map-project]').all()) for theme in themes}
+                            assert theme_counts == {'operate': 3, 'candidate': 3, 'coordinate': 3}, (site, 'each thematic group must show its three assigned projects')
+                            input_label = 'Input / problem' if site.startswith('en/') else 'Vstup / problém'
+                            result_label = 'Result / limit' if site.startswith('en/') else 'Výsledek / limit'
+                            assert all(input_label in (card.text_content() or '') and result_label in card.inner_text() for card in page.locator('[data-map-project]').all()), (site, 'each project must retain its input and show its result')
+                            first_reason = page.locator('.project-map-reason').first
+                            assert first_reason.get_attribute('open') is None
+                            first_reason.locator('summary').click()
+                            assert first_reason.locator('.project-map-problem').is_visible()
                             assert all(card.is_visible() for card in page.locator('[data-map-project]').all()), (site, 'project map must show its grouped catalogue without an extra reveal step')
                             assert page.locator('.project-map-thread').count() == 0, (site, 'remove speculative cross-project comparison tracks')
                             assert page.locator('.project-map-route').count() == 0, (site, 'project index implies unsupported relationships')
@@ -138,7 +149,8 @@ def main() -> None:
                             assert page.locator('.playground-station-link').count() == 8
                             assert page.locator('[data-playground-station]').count() == 8
                             assert all(page.locator('[data-playground-station]').nth(i).is_visible() for i in range(8))
-                            assert page.locator('.playground-project-index .project-card').count() == 9
+                            assert page.locator('.playground-project-index').count() == 0
+                            assert page.locator('main a[href="#demo-stations"]').is_visible()
                             page.locator('[data-preprocess-path]').fill('src/worker.py')
                             page.locator('[data-preprocess-content]').fill('def answer(): return 42')
                             page.locator('[data-preprocess-run]').click()
@@ -187,13 +199,12 @@ def main() -> None:
                             assert page.locator('[data-project-deepdive] .case-walkthrough-steps li').count() == 4, (site, 'missing concrete walkthrough')
                             assert page.locator('#walkthrough-title').inner_text().casefold() != 'co se stane krok za krokem'
                             assert page.locator('[data-project-architecture] li').count() >= 5, (site, 'missing detailed architecture')
-                            assert page.locator('[data-project-architecture] svg').count() == 1, (site, 'missing visual')
-                            expected_width = 1250 if slug in ('local-ai-hub', 'woodbound', 'tiskov') else 630 if slug in ('mutaui', 'scan2cad', 'softwareinc-multiplayer', 'discord-bot') else 940
-                            assert int(page.locator('[data-project-architecture] svg').get_attribute('viewBox').split()[2]) == expected_width
                             diagram = page.locator('[data-project-architecture]')
-                            assert diagram.locator('[data-architecture-node]').count() >= 5, (site, 'missing architecture nodes')
-                            assert diagram.locator('[data-architecture-edge]').count() >= 4, (site, 'missing project relationships')
-                            assert diagram.locator('[data-architecture-canvas] svg').get_attribute('aria-label'), (site, 'missing diagram description')
+                            assert diagram.count() == 1, (site, 'missing component guide')
+                            assert diagram.locator('[data-architecture-node]').count() >= 5, (site, 'missing components')
+                            edges = diagram.locator('[data-architecture-edge]').all()
+                            assert len(edges) >= 4, (site, 'missing project relationships')
+                            assert all(page.locator(edge.get_attribute('href')).count() == 1 for edge in edges)
                             slug = site.split('/')[-1]
                             assert page.locator('[data-project-exhibit]').count() == 0, (site, 'fake project-level interaction must stay removed')
                             assert page.locator('[data-project-story]').count() == 1, (site, 'missing project-specific experience')
@@ -240,7 +251,7 @@ def main() -> None:
                                 assert areas != 'none', (site, 'project story layout is not applied')
                             model_routes = {
                                 'local-ai-hub': '#station-preprocessing', 'mutaui': '#station-sync-preview',
-                                'home-infrastructure': '/homelab', 'woodbound': '#station-route-finder',
+                                'home-infrastructure': '/homelab#network-model', 'woodbound': '#station-route-finder',
                                 'scan2cad': '#station-scale-check', 'shpotify': '#station-queue-conflict',
                                 'softwareinc-multiplayer': '#station-mod-authority', 'tiskov': '#station-tiskov-queue',
                             }
@@ -280,7 +291,7 @@ def main() -> None:
                                 assert expected_provenance in caption, (site, 'source image provenance is missing')
                                 asset = ROOT / 'webroot' / src.lstrip('/')
                                 assert asset.is_file() and asset.read_bytes().startswith(b'\x89PNG\r\n\x1a\n'), (site, 'source image is missing or not PNG')
-                            contrast = diagram.locator('li span').first.evaluate("""el => {
+                            contrast = diagram.locator('[data-architecture-node] p').first.evaluate("""el => {
                                 const luminance = color => color.match(/\\d+/g).slice(0, 3).map(Number).map(v => {
                                     v /= 255; return v <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4;
                                 }).reduce((sum, v, i) => sum + v * [ .2126, .7152, .0722 ][i], 0);
@@ -288,6 +299,21 @@ def main() -> None:
                                 return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
                             }""")
                             assert contrast >= 4.5, (site, f'diagram legend contrast {contrast:.2f}:1')
+                        if site in ('cs/', 'en/'):
+                            assert page.locator('body').evaluate('(el) => getComputedStyle(el).colorScheme') == 'dark'
+                            headline = page.locator('.workbench-intro h1')
+                            assert headline.evaluate('(el) => getComputedStyle(el).fontFamily').startswith('Inter,')
+                            assert headline.evaluate('(el) => getComputedStyle(el).letterSpacing') == 'normal'
+                            assert page.locator('.workbench-cover').get_attribute('href') == '#scale-quick'
+                            assert (ROOT / 'webroot/assets/img/scale-studio.webp').is_file()
+                            assert page.locator('.experiment-grid a').count() == 3
+                            assert page.locator('.showcase-card').count() == 3
+                            quick = page.locator('[data-quick-scale]')
+                            assert '60.00 mm' in quick.locator('[data-scale-probe-result]').inner_text()
+                            quick.locator('[data-scale-mm]').fill('45')
+                            assert '90.00 mm' in quick.locator('[data-scale-probe-result]').inner_text()
+                            quick.locator('[data-scale-mm]').fill('0')
+                            assert not quick.locator('[data-scale-probe-result]').inner_text()
                         if site == 'cs/' and width <= 390:
                             menu = page.locator('details.mobile-menu')
                             menu.locator('summary').click()
@@ -303,7 +329,7 @@ def main() -> None:
                             assert all(cards.nth(i).is_visible() for i in range(cards.count())), 'the catalogue must not hide projects behind a separate action'
                             assert page.locator('[data-map-dependency]').count() == 0, 'the map must not imply unsupported technical dependencies'
                             columns = page.locator('.project-map-list').first.evaluate('(element) => getComputedStyle(element).gridTemplateColumns.split(" ").length')
-                            expected_columns = 1
+                            expected_columns = 1 if width <= 740 else 3
                             assert columns == expected_columns, (site, f'unbalanced map card columns at {width}px: {columns}')
                             search = page.locator('[data-map-search]')
                             search.fill('mutaui')
@@ -312,6 +338,9 @@ def main() -> None:
                             search.fill('no matching project')
                             assert page.locator('[data-map-empty]').is_visible()
                             search.fill('')
+                            page.locator('[data-map-category]').select_option('candidate')
+                            assert page.locator('[data-map-project]:visible').count() == 3, 'thematic filter'
+                            page.locator('[data-map-category]').select_option('all')
                             page.locator('[data-map-state]').select_option('prototype')
                             assert page.locator('[data-map-project]:visible').count() == 5
                             assert '5' in page.locator('[data-map-status]').inner_text()
@@ -320,16 +349,16 @@ def main() -> None:
                             services = page.locator('[data-service-catalog]').inner_text()
                             for name in ('Pi-hole', 'Unbound', 'Jellyfin', 'BookStack', 'Semaphore', 'CUPS', 'Nginx', 'Discord bot'):
                                 assert name in services
-                            nodes = page.locator('g.lab-node[role="button"]')
+                            nodes = page.locator('button[data-lab-node-id]')
                             assert nodes.count() >= 7
                             assert '8 služeb' in nodes.filter(has_text='Raspberry Pi 5').get_attribute('aria-label')
                             assert '1 služba' in nodes.filter(has_text='Pi Zero Print').get_attribute('aria-label')
                             page.locator('[data-failure-mode]').check()
                             nodes.filter(has_text='MikroTik').first.click()
                             assert 'Simulace:' in page.locator('[data-lab-note]').inner_text()
-                            page.locator('g.lab-node[role="button"]').first.focus()
+                            page.locator('button[data-lab-node-id]').first.focus()
                             page.keyboard.press('Enter')
-                            assert page.locator('g.lab-node[role="button"]').first.evaluate('(element) => document.activeElement === element'), 'homelab focus lost on redraw'
+                            assert page.locator('button[data-lab-node-id]').first.evaluate('(element) => document.activeElement === element'), 'homelab focus lost on redraw'
                             page.locator('[data-lab-reset]').click()
                             assert 'Všechny' in page.locator('[data-lab-note]').inner_text()
                             page.locator('[data-lab-view="flows"]').click()
@@ -339,15 +368,24 @@ def main() -> None:
                             assert 'Zálohování' in page.locator('[data-flow-title]').inner_text()
                             assert 'dostupná' in page.locator('[data-flow-result]').inner_text()
                             page.locator('[data-failure-mode]').check()
-                            page.locator('g.lab-node[role="button"]').filter(has_text='QNAP').click()
+                            page.locator('button[data-lab-node-id]').filter(has_text='QNAP').click()
                             assert 'přerušena' in page.locator('[data-flow-result]').inner_text()
                             page.locator('[data-lab-reset]').click()
                             assert 'dostupná' in page.locator('[data-flow-result]').inner_text()
+                            for scenario in ('media', 'printing'):
+                                page.locator(f'[data-lab-scenario="{scenario}"]').click()
+                                assert page.locator('[data-flow-select]').input_value() == scenario
+                                assert 'přerušena' in page.locator('[data-flow-result]').inner_text()
+                                assert page.locator('[data-failure-mode]').is_checked()
+                                page.locator('[data-lab-reset]').click()
+                                assert 'dostupná' in page.locator('[data-flow-result]').inner_text()
                         if site == 'cs/maker':
                             assert page.locator('[data-maker]').count() == 0
-                            assert page.get_by_text('Projekty z dílny postupně doplním').is_visible()
+                            assert page.locator('main a[href="/cs/projects/scan2cad"]').is_visible()
+                            assert page.locator('main a[href="/cs/projects/tiskov"]').is_visible()
                         if site == 'cs/open-source':
                             assert page.locator('[data-activity]').count() >= 10
+                            assert page.locator('.activity-dates').first.inner_text().startswith('Založeno')
                             assert page.locator('select[data-state] option[value=merged]').inner_text() == 'Sloučeno'
                             page.locator('[data-activity-inspect]').first.click()
                             assert 'Sloučeno' in page.locator('[data-activity-repo]').inner_text()
@@ -358,6 +396,7 @@ def main() -> None:
                             page.locator('[data-search]').fill('none-such-repo-zz')
                             assert page.locator('[data-empty]').is_visible()
                         if site == 'en/open-source':
+                            assert page.locator('.activity-dates').first.inner_text().startswith('Created')
                             assert page.locator('select[data-state] option[value=merged]').inner_text() == 'Merged'
                             page.locator('[data-activity-inspect]').first.click()
                             assert 'Merged' in page.locator('[data-activity-repo]').inner_text()
@@ -365,14 +404,31 @@ def main() -> None:
                             page.locator('.dialog-close').click()
                         if site == 'cs/now':
                             assert page.locator('section[aria-labelledby="now-repositories-title"] .activity-body strong').count() == 0, 'empty repository descriptions must not duplicate the name'
+                            history = page.locator('[data-now-activity] [data-activity]')
+                            labels = history.locator('.activity-dates > span').all_inner_texts()
+                            assert len(labels) == history.count() and all(label.startswith(('Založeno', 'Sloučeno', 'Uzavřeno')) for label in labels)
+                            for pull in page.locator('[data-now-activity] [data-activity][data-kind="pr"][data-state="closed"]').all():
+                                assert 'důvod neznámý' in pull.locator('.status').inner_text().casefold()
                             notes = page.locator('[data-now-notes] .now-build-entry')
                             assert notes.count() >= 33, 'the timeline should include the full, broader curated history'
                             assert notes.first.locator('time').inner_text() == '2026-11-17', 'newest dated work should lead the timeline'
+                            visible_notes = page.locator('[data-now-notes] .now-build-entry:visible')
+                            assert visible_notes.count() == 4
+                            assert visible_notes.first.locator('h3 a').get_attribute('href').startswith('/cs/journal#')
+                            archive = page.locator('.now-note-archive')
+                            assert archive.get_attribute('open') is None
+                            archive.locator('summary').click()
+                            assert visible_notes.count() == notes.count()
                             note_dates = {value.strip() for value in notes.locator('time').all_inner_texts()}
                             assert {'2024-08-22', '2024-08-29'} <= note_dates, 'older upstream milestones should remain visible'
                             assert notes.locator('a[href*="/pull/17827"]').count() == 1
                             assert notes.locator('a[href*="/pull/1022"]').count() == 1
                             year_filter = page.locator('[data-activity-browser] select[data-year]')
+                            dated_rows = history.locator('time').evaluate_all('(times) => times.map(el => el.dateTime)')
+                            assert dated_rows == sorted(dated_rows, reverse=True)
+                            for option in year_filter.locator('option:not([value="all"])').all():
+                                year = option.get_attribute('value')
+                                assert int(option.inner_text().split('·')[-1]) == history.and_(page.locator(f'[data-year="{year}"]')).count()
                             if year_filter.locator('option').count() > 1:
                                 year = year_filter.locator('option').nth(1).get_attribute('value')
                                 expected = page.locator(f'[data-activity][data-year="{year}"]').count()
@@ -380,9 +436,18 @@ def main() -> None:
                                 assert page.locator('[data-activity]:not(.hidden)').count() == expected
                                 year_filter.select_option('all')
                             for issue in page.locator('[data-activity][data-kind="issue"][data-state="closed"]').all():
+                                assert 'closed' in (issue.locator('.status').get_attribute('class') or '')
+                                assert 'uzavřeno' in issue.locator('.status').inner_text().casefold()
+                            for issue in page.locator('[data-activity][data-kind="issue"][data-state="completed"]').all():
                                 assert 'completed' in (issue.locator('.status').get_attribute('class') or '')
                                 assert issue.locator('.status').inner_text().casefold() == 'dokončeno'
-                                assert issue.locator('.status').evaluate('(element) => getComputedStyle(element).color') == 'rgb(128, 237, 196)'
+                                assert issue.locator('.status').evaluate('(element) => getComputedStyle(element).color') == 'rgb(144, 231, 189)'
+                        if site == 'en/now':
+                            history = page.locator('[data-now-activity] [data-activity]')
+                            labels = history.locator('.activity-dates > span').all_inner_texts()
+                            assert len(labels) == history.count() and all(label.startswith(('Created', 'Merged', 'Closed')) for label in labels)
+                            for pull in page.locator('[data-now-activity] [data-activity][data-kind="pr"][data-state="closed"]').all():
+                                assert 'reason unknown' in pull.locator('.status').inner_text().casefold()
                         if site == 'cs/journal':
                             assert page.locator('[data-journal-entry]').count() == 44
                             assert page.get_by_text('Jak se rodil Local AI Hub').is_visible()
@@ -395,6 +460,13 @@ def main() -> None:
                             assert page.locator('[data-journal-entry]:not([hidden])').count() == 9
                             page.locator('[data-journal-year="all"]').click()
                             assert page.locator('[data-journal-entry]:not([hidden])').count() == 44
+                            journal_search = page.locator('[data-journal-search]')
+                            journal_search.fill('MutaUI F3')
+                            assert 0 < page.locator('[data-journal-entry]:not([hidden])').count() < 44
+                            page.locator('[data-journal-year="2024"]').click()
+                            assert page.locator('[data-journal-empty]').is_visible()
+                            journal_search.fill('')
+                            assert page.locator('[data-journal-entry]:not([hidden])').count() == 9
                         if site == 'cs/projects':
                             project_text = page.locator('[data-project-browser]').inner_text().casefold()
                             for hidden in ('wishflix', 'code reviews', 'tools extended', 'woodtycoon', 'vítkovské', 'vytiskov'):
@@ -417,24 +489,31 @@ def main() -> None:
                             page.locator('[data-search]').fill('nonexistent-zzzzz')
                             assert page.locator('[data-project]:not(.hidden)').count() == 0
                             assert page.locator('[data-empty]').is_visible()
+                            page.locator('[data-filter-reset]').click()
+                            assert page.locator('[data-search]').input_value() == ''
+                            assert page.locator('[data-filter]').input_value() == 'all'
+                            assert page.locator('[data-project]:not(.hidden)').count() == 9
                         if site.startswith(('cs/projects/', 'en/projects/')):
+                            assert page.locator('.case-evidence-limit').is_visible()
+                            assert page.locator('.case-followup a').count() == 1
                             locale = site.split('/', 1)[0]
                             slug = site.rsplit('/', 1)[-1]
                             model_paths = {
                                 'local-ai-hub': '/playground#station-preprocessing',
                                 'mutaui': '/playground#station-sync-preview',
-                                'home-infrastructure': '/homelab',
+                                'home-infrastructure': '/homelab#network-model',
                                 'woodbound': '/playground#station-route-finder',
                                 'scan2cad': '/playground#station-scale-check',
+                                'tiskov': '/playground#station-tiskov-queue',
                                 'shpotify': '/playground#station-queue-conflict',
                                 'softwareinc-multiplayer': '/playground#station-mod-authority',
                             }
-                            label = 'Otevřít funkční model' if locale == 'cs' else 'Open working model'
-                            model_link = page.locator('.project-detail-hero .detail-links a').filter(has_text=label)
+                            primary_link = page.locator('.project-detail-hero .detail-links .btn-primary')
+                            assert primary_link.count() == 1
                             if slug in model_paths:
-                                assert model_link.get_attribute('href') == f'/{locale}{model_paths[slug]}', f'{slug} must open its real browser model'
+                                assert primary_link.get_attribute('href') == f'/{locale}{model_paths[slug]}', f'{slug} must open its real browser model'
                             else:
-                                assert model_link.count() == 0, f'{slug} must not promise a working model'
+                                assert primary_link.get_attribute('href') == '#project-deepdive-title'
                         if site == 'cs/decisions':
                             cards = page.locator('[data-decision]')
                             assert cards.count() >= 7
@@ -501,7 +580,7 @@ def main() -> None:
                         if args.screenshots and site == 'cs/homelab' and width == 1365:
                             page.locator('[data-lab-reset]').click()
                             page.locator('[data-lab-view="services"]').click()
-                            page.locator('g.lab-node[role="button"]').filter(has_text='Raspberry Pi 5').click()
+                            page.locator('button[data-lab-node-id]').filter(has_text='Raspberry Pi 5').click()
                             page.add_style_tag(content='.site-header{display:none!important}')
                             page.locator('.lab-shell').screenshot(path=str(screenshots / 'readme-homelab.png'))
                             page.locator('[data-service-catalog]').screenshot(path=str(screenshots / 'readme-homelab-services.png'))

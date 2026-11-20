@@ -1,5 +1,7 @@
 # Osobitější Harfusha: návrh
 
+> **Historický návrh a stavový snapshot z 16. 11. 2026.** Aktuální backlog a release stav: [MASTER_PLAN.md](MASTER_PLAN.md). Výsledky v tomto souboru platí jen pro popsané revize a běhy.
+
 ## Záměr
 
 Představit Adama a jeho skutečné projekty srozumitelně, osobně a vizuálně zapamatovatelně. Stránka má návštěvníka rychle dovést k ukázce práce a zároveň vysvětlit, co je experiment a co lze ověřit.

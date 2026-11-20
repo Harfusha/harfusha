@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+use App\Domain\JournalFeed;
 use App\Support\Html;
 use App\Support\Language;
 /** @var Language $lang */
@@ -11,12 +12,26 @@ $githubSynced = $provenance['source'] === 'github-public-api';
 $githubUnavailable = $provenance['source'] === 'unavailable';
 $stateLabels = [
     'merged' => $lang->value('Sloučeno', 'Merged'),
+    'completed' => $lang->value('Dokončeno', 'Completed'),
     'open' => $lang->value('Otevřeno', 'Open'),
-    'closed' => $lang->value('Dokončeno', 'Completed'),
+    'closed' => $lang->value('Uzavřeno', 'Closed'),
 ];
+$activity = array_map(static function (array $item): array {
+    $eventType = match ($item['state'] ?? '') {
+        'merged' => 'merged_at',
+        'closed', 'completed' => 'closed_at',
+        default => 'published_at',
+    };
+    if (empty($item[$eventType])) {
+        $eventType = 'published_at';
+    }
+
+    return $item + ['event_type' => $eventType, 'event_date' => (string)($item[$eventType] ?? '')];
+}, $activity);
+usort($activity, static fn(array $a, array $b): int => strcmp($b['event_date'], $a['event_date']));
 $activityYears = [];
 foreach ($activity as $item) {
-    $year = substr((string)($item['published_at'] ?? ''), 0, 4);
+    $year = substr($item['event_date'], 0, 4);
     if (preg_match('/^\\d{4}$/D', $year) === 1) {
         $activityYears[$year] = ($activityYears[$year] ?? 0) + 1;
     }
@@ -24,43 +39,71 @@ foreach ($activity as $item) {
 krsort($activityYears, SORT_NUMERIC);
 ?>
 <section class="page-hero shell">
-  <span class="eyebrow"><?= $lang->value('PRÁCE · DNES A DŘÍV', 'WORK · NOW AND THEN') ?></span>
-  <h1><?= $lang->value('Co jsem měnil naposledy — a co tomu předcházelo.', 'The latest changes, and what led up to them.') ?></h1>
-  <p><?= $lang->value('Nahoře jsou poslední veřejné změny repozitářů. Níž je delší stopa: zápisky z práce a příspěvky, které vedou na původní záznam. „Právě teď“ neznamená živé sledování počítače.', 'The top shows the latest public repository changes. Below is the longer trail: notes from the work and contributions linked to their original records. “Now” does not mean a live feed from my computer.') ?></p>
+  <h1><?= $lang->value('Co se změnilo', 'What’s changed') ?></h1>
+  <p><?= $lang->value('Kde se naposledy měnil kód, co přibylo v deníku a jak dopadly příspěvky do cizích projektů.', 'See where code last changed, what’s new in the journal and how contributions to other projects turned out.') ?></p>
   <div class="page-meta"><?= $githubSynced ? $lang->value('VEŘEJNÝ IMPORT GITHUBU', 'PUBLIC GITHUB IMPORT') : ($githubUnavailable ? $lang->value('DATA NEDOSTUPNÁ', 'DATA UNAVAILABLE') : $lang->value('RUČNĚ OVĚŘENÝ SNÍMEK', 'REVIEWED SNAPSHOT')) ?> <span>·</span>
   <?php if ($provenance['last_sync'] !== null): ?><?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?>
   <?php elseif ($githubUnavailable): ?><?= $lang->value('Starší záznamy při výpadku nezobrazujeme.', 'Historical records stay hidden while the source is unavailable.') ?>
   <?php else: ?><?= $lang->value('Pravidelný import není potvrzen.', 'A recurring import is not confirmed.') ?><?php endif; ?></div>
 </section>
-
-<section class="shell section" aria-labelledby="now-repositories-title">
-  <div class="section-heading"><div><span class="eyebrow"><?= $lang->value('POSLEDNÍ PUSH', 'LATEST PUSHES') ?></span><h2 id="now-repositories-title"><?= $lang->value('Které repozitáře se změnily naposledy', 'Repositories with the latest changes') ?></h2><p><?= $lang->value('Push čas říká, kdy se změnil repozitář. Neříká, že v něm právě teď pracuji.', 'A push timestamp says when a repository changed. It does not say I am working on it right now.') ?></p></div><a class="inline-link" href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div>
+<nav class="shell case-navigation" aria-label="<?= $lang->value('Obsah časové osy', 'On this timeline') ?>">
+    <a href="#now-repositories-title"><?= $lang->value('Repozitáře', 'Repositories') ?></a>
+    <a href="#now-build-title"><?= $lang->value('Zápisky', 'Journal entries') ?></a>
+    <a href="#now-history-title"><?= $lang->value('Příspěvky', 'Contributions') ?></a>
+</nav>
+<div class="shell now-overview">
+<section class="section" aria-labelledby="now-repositories-title">
+  <div class="section-heading"><div><h2 id="now-repositories-title"><?= $lang->value('Poslední změny v repozitářích', 'Latest repository updates') ?></h2><p><?= $lang->value('Záznamy o posledním odeslání změn na GitHub.', 'The timestamp reflects the last recorded push to GitHub.') ?></p></div><a class="inline-link" href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div>
   <?php if ($recentRepos !== []): ?><div class="activity-list">
-  <?php foreach ($recentRepos as $repo): ?><article class="activity-item"><span class="activity-icon" aria-hidden="true">↳</span><div class="activity-body"><div class="activity-repo"><?= Html::escape($repo['repository']) ?></div><?php if ($repo['description'] !== '' && $repo['description'] !== $repo['repository']): ?><strong><?= Html::escape($repo['description']) ?></strong><?php endif; ?></div><div class="activity-side"><time><?= Html::escape(substr($repo['pushed_at'],0,16)) ?> UTC</time></div><a class="activity-arrow" href="<?= Html::escape(Html::safeUrl($repo['repo_url'])) ?>" target="_blank" rel="noopener noreferrer" aria-label="<?= $lang->value('Otevřít repozitář na GitHubu', 'Open repository on GitHub') ?>">↗</a></article><?php endforeach; ?>
+  <?php foreach ($recentRepos as $repo): ?><article class="activity-item"><span class="activity-icon" aria-hidden="true">↳</span><div class="activity-body"><div class="activity-repo"><a href="<?= Html::escape(Html::safeUrl($repo['repo_url'])) ?>" target="_blank" rel="noopener noreferrer"><?= Html::escape($repo['repository']) ?> <span aria-hidden="true">↗</span></a></div><?php if ($repo['description'] !== '' && $repo['description'] !== $repo['repository'] && !preg_match('/^GitHub snapshot \d{4}-\d{2}-\d{2}$/D', $repo['description'])): ?><strong><?= Html::escape($repo['description']) ?></strong><?php endif; ?></div><div class="activity-side"><time><?= Html::escape(substr($repo['pushed_at'],0,16)) ?> UTC</time></div></article><?php endforeach; ?>
   </div><?php else: ?><p class="empty-state"><?= $lang->value('Čerstvé push údaje teď nejsou dostupné.', 'Fresh push data is not available right now.') ?></p><?php endif; ?>
 </section>
 
-<section class="shell section now-build-history" data-now-notes aria-labelledby="now-build-title">
-  <div class="section-heading"><div><span class="eyebrow"><?= $lang->value('ZÁPISKY Z DÍLNY', 'WORKSHOP NOTES') ?></span><h2 id="now-build-title"><?= $lang->value('Co se v projektech skutečně změnilo', 'What actually changed in the projects') ?></h2><p><?= $lang->value('Krátké datované poznámky k rozhodnutím a změnám. Každá vede na podklad, pokud je veřejný.', 'Short, dated notes on decisions and changes. Each links to its source when one is public.') ?></p></div><a class="inline-link" href="<?= $lang->path('/journal') ?>"><?= $lang->value('Otevřít celý vývojový deník', 'Read the full development journal') ?> →</a></div>
-  <ol class="now-build-list">
-    <?php foreach ($journalEntries as $entry): $publishedAt = (string)($entry['published_at'] ?? ''); $sourceUrl = Html::safeUrl((string)($entry['source_url'] ?? '')); ?>
-      <li class="now-build-entry">
-        <time datetime="<?= Html::escape(substr($publishedAt, 0, 10)) ?>"><?= Html::escape(substr($publishedAt, 0, 10)) ?></time>
-        <div><span class="eyebrow"><?= Html::escape(strtoupper((string)($entry['category'] ?? ''))) ?></span><h3><?= Html::escape($lang->value((string)$entry['title_cs'], (string)$entry['title_en'])) ?></h3><p><?= Html::escape($lang->value((string)$entry['body_cs'], (string)$entry['body_en'])) ?></p>
-          <?php if ($sourceUrl !== ''): ?><a class="inline-link" href="<?= Html::escape($sourceUrl) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Zdroj', 'Source') ?> ↗</a><?php endif; ?>
+<section class="section now-build-history" data-now-notes aria-labelledby="now-build-title">
+    <div class="section-heading">
+        <div>
+            <h2 id="now-build-title"><?= $lang->value('Nové zápisky', 'Recent notes') ?></h2>
+            <p><?= $lang->value('Co se změnilo a kde si o tom přečíst víc.', 'What changed and where to read more.') ?></p>
         </div>
-      </li>
+        <a class="inline-link" href="<?= $lang->path('/journal') ?>"><?= $lang->value('Celý deník', 'All journal entries') ?> <span aria-hidden="true">↗</span></a>
+    </div>
+    <?php $recentNotes = array_slice($journalEntries, 0, 4); $olderNotes = array_slice($journalEntries, 4); ?>
+    <?php if ($recentNotes === []): ?><p class="empty-state"><?= $lang->value('Zatím tu nejsou žádné zápisky.', 'There are no notes yet.') ?></p><?php endif; ?>
+    <?php foreach ([$recentNotes, $olderNotes] as $index => $notes): ?>
+        <?php if ($notes === []) { continue; } ?>
+        <?php if ($index === 1): ?>
+            <details class="now-note-archive">
+                <summary><?= $lang->value('Starší zápisky', 'Older notes') ?> (<?= count($notes) ?>)</summary>
+        <?php endif; ?>
+        <ol class="now-build-list">
+            <?php foreach ($notes as $entry):
+                $date = substr((string)($entry['published_at'] ?? ''), 0, 10);
+                $sourceUrl = Html::safeUrl((string)($entry['source_url'] ?? ''));
+                $entryUrl = $lang->path('/journal#' . JournalFeed::entryId($entry));
+            ?>
+                <li class="now-build-entry">
+                    <time datetime="<?= Html::escape($date) ?>"><?= Html::escape($date) ?></time>
+                    <div>
+                        <h3><a href="<?= Html::escape($entryUrl) ?>"><?= Html::escape($lang->value((string)$entry['title_cs'], (string)$entry['title_en'])) ?></a></h3>
+                        <?php if ($sourceUrl !== '#'): ?>
+                            <a class="inline-link" href="<?= Html::escape($sourceUrl) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Původní podklad', 'Original source') ?> <span aria-hidden="true">↗</span></a>
+                        <?php endif; ?>
+                    </div>
+                </li>
+            <?php endforeach; ?>
+        </ol>
+        <?php if ($index === 1): ?></details><?php endif; ?>
     <?php endforeach; ?>
-  </ol>
 </section>
+</div>
 
 <section class="shell section" aria-labelledby="now-history-title" data-now-activity>
-  <div class="section-heading"><div><span class="eyebrow"><?= $lang->value('DOLOŽENÁ STOPA', 'SOURCE-BACKED TRAIL') ?></span><h2 id="now-history-title"><?= $lang->value('Historie veřejné práce', 'History of public work') ?></h2><p><?= $lang->value('Sloučené změny a dokončené issues. Každá položka vede na původní diskusi; „dokončeno“ tu znamená uzavřené jako hotové, ne neúspěch.', 'Merged changes and completed issues. Each item links to its original discussion; “completed” means finished, not failed.') ?></p></div><a class="inline-link" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Všechny příspěvky', 'All contributions') ?> →</a></div>
+  <div class="section-heading"><div><h2 id="now-history-title"><?= $lang->value('Historie příspěvků', 'Contribution history') ?></h2><p><?= $lang->value('Seřazeno podle poslední zaznamenané události. Rozpracované příspěvky mají datum založení, sloučené a uzavřené datum dokončení, pokud je k dispozici.', 'Sorted by the last recorded event. Open contributions show when they were created. Merged and closed contributions show when that happened, where the date is available.') ?></p></div><a class="inline-link" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Všechny příspěvky', 'All contributions') ?> →</a></div>
   <div data-activity-browser>
-    <div class="filter-bar"><label class="search-field"><span class="visually-hidden"><?= $lang->value('Hledat v historii', 'Search history') ?></span><span aria-hidden="true">⌕</span><input type="search" data-search placeholder="<?= $lang->value('Hledat repozitář nebo změnu…', 'Search repository or change…') ?>"></label><select data-year aria-label="<?= $lang->value('Filtrovat historii podle roku', 'Filter history by year') ?>"><option value="all"><?= $lang->value('Všechny roky', 'All years') ?> · <?= count($activity) ?></option><?php foreach ($activityYears as $year => $count): ?><option value="<?= Html::escape($year) ?>"><?= Html::escape($year) ?> · <?= $count ?></option><?php endforeach; ?></select><select data-state aria-label="<?= $lang->value('Filtrovat podle stavu', 'Filter by status') ?>"><option value="all"><?= $lang->value('Všechny stavy', 'All statuses') ?></option><?php foreach ($stateLabels as $key => $label): ?><option value="<?= Html::escape($key) ?>"><?= Html::escape($label) ?></option><?php endforeach; ?></select><select data-kind aria-label="<?= $lang->value('Filtrovat podle typu', 'Filter by type') ?>"><option value="all"><?= $lang->value('PR i Issues', 'PRs and issues') ?></option><option value="pr">Pull Requests</option><option value="issue">Issues</option></select><span class="filter-count" data-count role="status" aria-live="polite" aria-atomic="true"><?= count($activity) ?> <?= $lang->value('záznamů', 'records') ?></span></div>
+    <div class="filter-bar"><label class="search-field"><span class="visually-hidden"><?= $lang->value('Hledat v historii', 'Search history') ?></span><span aria-hidden="true">⌕</span><input type="search" data-search placeholder="<?= $lang->value('Hledat repozitář nebo změnu…', 'Search repository or change…') ?>"></label><select data-year aria-label="<?= $lang->value('Filtrovat historii podle roku', 'Filter history by year') ?>"><option value="all"><?= $lang->value('Všechny roky', 'All years') ?> · <?= count($activity) ?></option><?php foreach ($activityYears as $year => $count): ?><option value="<?= Html::escape($year) ?>"><?= Html::escape($year) ?> · <?= $count ?></option><?php endforeach; ?></select><select data-state aria-label="<?= $lang->value('Filtrovat podle stavu', 'Filter by status') ?>"><option value="all"><?= $lang->value('Všechny stavy', 'All statuses') ?></option><?php foreach ($stateLabels as $key => $label): ?><option value="<?= Html::escape($key) ?>"><?= Html::escape($label) ?></option><?php endforeach; ?></select><select data-kind aria-label="<?= $lang->value('Filtrovat podle typu', 'Filter by type') ?>"><option value="all"><?= $lang->value('PR i Issues', 'PRs and issues') ?></option><option value="pr">Pull Requests</option><option value="issue">Issues</option></select><button class="btn btn-ghost btn-sm" type="button" data-filter-reset hidden><?= $lang->value('Vymazat filtry', 'Clear filters') ?></button><span class="filter-count" data-count role="status" aria-live="polite" aria-atomic="true"><?= count($activity) ?> <?= $lang->value('záznamů', 'records') ?></span></div>
     <div class="activity-list">
-    <?php foreach ($activity as $item): $url = Html::safeUrl((string)($item['source_url'] ?? '')); $state = (string)($item['state'] ?? ''); $kind = (string)($item['kind'] ?? ''); $stateLabel = $stateLabels[$state] ?? $state; $statusClass = $state === 'closed' && $kind === 'issue' ? 'completed' : $state; $title = (string)($item['title'] ?? ''); $repository = (string)($item['repository'] ?? ''); $publishedAt = (string)($item['published_at'] ?? ''); ?>
-      <article class="activity-item" data-activity data-year="<?= Html::escape(substr($publishedAt, 0, 4)) ?>" data-state="<?= Html::escape($state) ?>" data-kind="<?= Html::escape($kind) ?>" data-search-text="<?= Html::escape(strtolower($repository . ' ' . $title)) ?>"><span class="activity-icon" aria-hidden="true"><?= $kind === 'issue' ? '#' : '↳' ?></span><div class="activity-body"><div class="activity-repo"><?= Html::escape($repository) ?> <span>· <?= Html::escape($kind) ?></span></div><strong><?= Html::escape($title) ?></strong></div><div class="activity-side"><span class="status <?= Html::escape($statusClass) ?>"><?= Html::escape($stateLabel) ?></span><time datetime="<?= Html::escape(substr($publishedAt, 0, 10)) ?>"><?= Html::escape(substr($publishedAt, 0, 10)) ?></time></div><a class="activity-arrow" href="<?= Html::escape($url) ?>" aria-label="<?= $lang->value('Otevřít původní záznam', 'Open original record') ?>" target="_blank" rel="noopener noreferrer">↗</a></article>
+    <?php foreach ($activity as $item): $url = Html::safeUrl((string)($item['source_url'] ?? '')); $state = (string)($item['state'] ?? ''); $kind = (string)($item['kind'] ?? ''); $stateLabel = match ($state) { 'completed' => $lang->value('Dokončeno', 'Completed'), 'merged' => $lang->value('Sloučeno', 'Merged'), 'open' => $lang->value('Otevřeno', 'Open'), 'closed' => $lang->value('Uzavřeno · důvod neznámý', 'Closed · reason unknown'), default => $stateLabels[$state] ?? $state }; $statusClass = $state; $title = (string)($item['title'] ?? ''); $repository = (string)($item['repository'] ?? ''); $eventAt = $item['event_date']; $eventLabel = match ($item['event_type']) { 'merged_at' => $lang->value('Sloučeno', 'Merged'), 'closed_at' => $state === 'completed' ? $lang->value('Dokončeno', 'Completed') : $lang->value('Uzavřeno', 'Closed'), default => $lang->value('Založeno', 'Created') }; ?>
+      <article class="activity-item" data-activity data-year="<?= Html::escape(substr($eventAt, 0, 4)) ?>" data-state="<?= Html::escape($state) ?>" data-kind="<?= Html::escape($kind) ?>" data-search-text="<?= Html::escape(strtolower($repository . ' ' . $title)) ?>"><span class="activity-icon" aria-hidden="true"><?= $kind === 'issue' ? '#' : '↳' ?></span><div class="activity-body"><div class="activity-repo"><?= Html::escape($repository) ?> <span>· <?= Html::escape($kind) ?></span></div><strong><?= Html::escape($title) ?></strong></div><div class="activity-side"><span class="status <?= Html::escape($statusClass) ?>"><?= Html::escape($stateLabel) ?></span><span class="activity-dates"><span><?= $eventLabel ?> <time datetime="<?= Html::escape(substr($eventAt, 0, 10)) ?>"><?= Html::escape(substr($eventAt, 0, 10)) ?></time></span></span></div><a class="activity-arrow" href="<?= Html::escape($url) ?>" aria-label="<?= $lang->value('Otevřít původní záznam', 'Open original record') ?>" target="_blank" rel="noopener noreferrer">↗</a></article>
     <?php endforeach; ?>
     </div><p class="empty-state<?= $activity === [] ? '' : ' hidden' ?>" data-empty><?= $githubUnavailable ? $lang->value('Historie je skrytá, protože její zdroj není dostupný.', 'History is hidden because its source is unavailable.') : $lang->value('Pro tento filtr tu nic není.', 'No records match this filter.') ?></p>
   </div>

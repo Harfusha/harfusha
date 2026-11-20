@@ -1,5 +1,7 @@
 # Verification record — bounded login limiter, 2026-11-13
 
+> **Historical run record.** Results apply only to the revision and environment recorded below; current status: [MASTER_PLAN.md](MASTER_PLAN.md).
+
 ## Scope
 
 This is an **incremental source update** on top of the previous Harfusha Lab

@@ -1,81 +1,81 @@
 [
   {
-    "title_cs": "MutaUI: test patří ke konkrétnímu commitu",
+    "title_cs": "MutaUI: přiřazení výsledků testů ke správné revizi",
     "title_en": "MutaUI: a test result belongs to an exact commit",
-    "body_cs": "Při uzavírání F3 bylo snadné smíchat výsledky z různých revizí. Záznam teď odděluje code baseline od pozdějších auditních poznámek a uvádí přesný commit, na kterém doběhla hosted kontrola #85. Zelený CI výsledek bez revize by neříkal, co vlastně ověřil.",
-    "body_en": "While closing F3, it was easy to mix results from different revisions. The record now separates the code baseline from later audit notes and names the exact commit behind hosted check #85. A green CI result without its revision would not say what was actually verified.",
+    "body_cs": "U vývojové etapy F3 je teď uvedená přesná revize, kterou ověřila kontrola CI č. 85. Záznam ji odděluje od pozdějších auditních poznámek, aby bylo jasné, ke které verzi se výsledek vztahuje.",
+    "body_en": "The F3 record now identifies the exact commit verified by CI check #85. It keeps later audit notes separate so readers can tell which revision the result covers.",
     "category": "Desktop",
     "published_at": "2026-11-17 04:23:18",
     "source_url": "https://github.com/Harfusha/MutaUI/commit/72cf4782d09020ed669ed76a2ac7bfa807a25a2a"
   },
   {
-    "title_cs": "Local AI Hub: timeout zápisu nemá zabít preprocessing",
+    "title_cs": "Local AI Hub: zotavení po vypršení limitu zápisu",
     "title_en": "Local AI Hub: a write timeout should not kill preprocessing",
-    "body_cs": "Když se SQLite writer nestihne ozvat v limitu, GPU worker má bezpečně počkat na další příležitost, ne skončit jako po fatální chybě. Změna upravila právě toto rozlišení a přidala regresní test. Je to úprava chování při konkrétním timeoutu, ne tvrzení o výkonu ani o tom, že běží každý preprocessing backend.",
-    "body_en": "When the SQLite writer misses its deadline, the GPU worker should wait for another bounded opportunity instead of exiting as if the failure were fatal. This change makes that distinction and adds a regression test. It addresses one timeout path; it says nothing about performance or whether every preprocessing backend is running.",
+    "body_cs": "Když zapisovací proces SQLite nestihne odpovědět v limitu, proces předzpracování počká na další příležitost. Regresní test pokrývá konkrétní případ překročení časového limitu.",
+    "body_en": "When the SQLite writer misses its deadline, the preprocessing worker now waits for another opportunity. A regression test covers this timeout path.",
     "category": "AI",
     "published_at": "2026-11-16 17:14:53",
     "source_url": "https://github.com/Harfusha/local-ai-hub/commit/069240979778ddce69cfb6d8caee291222c14e4b"
   },
   {
-    "title_cs": "MutaUI F3: co všechno musí desktopové workflow uhlídat",
+    "title_cs": "MutaUI F3: profily připojení a kontrola konfigurace",
     "title_en": "MutaUI F3: what a desktop workflow has to keep straight",
-    "body_cs": "Větší změna F3 přidala správu spojení, profily, sledování zdraví session, řešení konfliktu i bezpečnější náhled importu nastavení. Důležitá není délka seznamu: před změnou je potřeba vědět, proti kterému daemonu a konfiguraci pracuju a co se opravdu zapíše. Commit také rozšířil testy; neznamená to automaticky přijatou podporu všech platforem.",
-    "body_en": "The larger F3 change added connection and profile management, session health tracking, conflict handling and a safer settings-import preview. The point is not the feature count: before changing a session, I need to know which daemon and configuration it targets and what will actually be written. The commit also expanded tests; it does not automatically establish accepted support on every platform.",
+    "body_cs": "MutaUI ve F3 přidalo profily připojení, kontrolu stavu relací, řešení konfliktů a náhled importu. Před potvrzením změny může uživatel zkontrolovat cílovou službu i nastavení, které se zapíše. Změna také rozšířila testy. Podpora jednotlivých platforem se ověřuje samostatně.",
+    "body_en": "F3 adds connection profiles, session health checks, conflict handling and a settings import preview. Before confirming a change, users can review the target daemon and the settings to be written. The change also expanded test coverage. Each platform still needs separate verification.",
     "category": "Desktop",
     "published_at": "2026-11-16 16:40:28",
     "source_url": "https://github.com/Harfusha/MutaUI/commit/ac4c304c69bccfd2dfb94d30755473e7d3fc26da"
   },
   {
-    "title_cs": "GPU lease má skončit spolu s procesem, který ho drží",
+    "title_cs": "Plánovač uvolňuje rezervaci GPU po pádu Laya",
     "title_en": "A GPU lease should end with the process that owns it",
-    "body_cs": "Plánovač teď odstraňuje kapacitní lease Laya jen tehdy, když ověří, že jeho proces už nežije. Starý záznam tak nemá blokovat další práci, ale aktivní rezervace zůstává chráněná. Je to úklid po pádu procesu, ne automatické předání GPU libovolnému úkolu.",
-    "body_en": "The scheduler now removes a Laya capacity lease only after confirming its owner process is dead. A stale record should not block later work, while active reservations stay protected. This is crash cleanup, not automatic GPU handoff to an arbitrary task.",
+    "body_cs": "Plánovač před uvolněním rezervace ověří, zda proces Laya ještě běží. Po jeho pádu tak další úloha dostane prostor, zatímco živý proces má dál rezervovanou kapacitu.",
+    "body_en": "The scheduler checks whether the Laya process is still running before releasing its GPU reservation. A crashed process leaves room for the next job, while a live process retains its allocation.",
     "category": "AI",
     "published_at": "2026-11-16 16:12:25",
     "source_url": "https://github.com/Harfusha/local-ai-hub/commit/670e08f51232503d3e032b4c969d52a4769e70d4"
   },
   {
-    "title_cs": "Dlouhá indexace musí pustit přednostní práci ke slovu",
+    "title_cs": "Přednostní práce může převzít GPU mezi dávkami",
     "title_en": "Long indexing work must yield to higher-priority tasks",
-    "body_cs": "Embeddingy pro RAG vznikají po dávkách. Mezi nimi může plánovač říct „teď přeruš a uvolni GPU“; rozpracovaný výsledek přitom zachová, které soubory už prošly a kde zůstává nejistota. Preempce tak neznamená falešné „hotovo“ ani zahození celé dosavadní práce.",
-    "body_en": "RAG embeddings are produced in batches. Between them, the scheduler can ask the worker to yield the GPU while preserving which files were processed and where uncertainty remains. Preemption therefore does not mean a false “complete” result or throwing away all prior work.",
+    "body_cs": "Vektory pro vyhledávání vznikají po dávkách. Mezi dávkami může plánovač uvolnit GPU pro přednostní úlohu. Rozpracovaný index si pamatuje, které soubory už prošly a co zbývá dokončit.",
+    "body_en": "Search embeddings are generated in batches. The scheduler can release the GPU for a higher-priority job between batches. The partial index records which files were processed and what remains.",
     "category": "AI",
     "published_at": "2026-11-16 10:19:58",
     "source_url": "https://github.com/Harfusha/local-ai-hub/commit/e18f493ccc4f3f323ff81d250c61f40354ae1386"
   },
   {
-    "title_cs": "Fotografie musí pokrýt skutečně viditelnou část dílu",
+    "title_cs": "Scan2CAD zpřesnil kontrolu viditelnosti na fotografii",
     "title_en": "Photos need to cover the part that is actually visible",
-    "body_cs": "Scan2CAD zpřesnil hranice viditelnosti z fotografie a doplnil čistý CI receipt. To potvrzuje konkrétní kontrolní krok, ne hotový převod skenu do schváleného CAD.",
-    "body_en": "Scan2CAD tightened photo visibility bounds and added a clean CI receipt. That confirms a specific check, not a finished conversion from scan to approved CAD.",
+    "body_cs": "Scan2CAD zpřesnil, kterou část povrchu lze použít z referenční fotografie. Kontrola v CI dokládá tuto dílčí změnu. Rozměry a vhodnost celého CAD modelu se ověřují samostatně.",
+    "body_en": "Scan2CAD refined which parts of a surface can be used from a reference photograph. CI verified this particular change. The dimensions and suitability of the full CAD model require separate checks.",
     "category": "Scan2CAD",
     "published_at": "2026-11-16",
     "source_url": ""
   },
   {
-    "title_cs": "Windows cesta musí přežít i bez CUDA backendu",
+    "title_cs": "Laya na Windows kontroluje dostupnost CUDA předem",
     "title_en": "The Windows path must work without the CUDA backend",
-    "body_cs": "Na Windows se guard pro Laya nemá spustit dřív, než je ověřená dostupnost CUDA. Jinak selže i cesta, která by mohla pokračovat bez ní. Commit 8f89c8410f.",
-    "body_en": "On Windows, the Laya CUDA guard must not run before CUDA availability is checked. Otherwise it can break a path that could continue without it. Commit 8f89c8410f.",
+    "body_cs": "Na Windows se dostupnost CUDA ověřuje před spuštěním ochrany pro Laya. Díky tomu mohou pokračovat i kroky, které CUDA nepotřebují.",
+    "body_en": "On Windows, CUDA availability is checked before the Laya guard starts. Steps that can run without CUDA can still continue.",
     "category": "Local AI Hub",
     "published_at": "2026-11-16",
     "source_url": ""
   },
   {
-    "title_cs": "CUDA ověřit dřív, než se načte backend",
+    "title_cs": "Kontrola CUDA před načtením knihovny",
     "title_en": "Check CUDA before importing the backend",
-    "body_cs": "Kompatibilitu runtime je potřeba rozhodnout ještě před importem knihovny, která může zařízení inicializovat. Oprava odděluje kontrolu prostředí od startu inference. Commit ae7656560a.",
-    "body_en": "Runtime compatibility needs to be checked before importing a library that may initialize the device. The fix separates environment checks from inference startup. Commit ae7656560a.",
+    "body_cs": "Načtení knihovny může rovnou inicializovat zařízení. Oprava proto zjišťuje kompatibilitu prostředí před jejím importem a odděluje ji od spuštění výpočtu.",
+    "body_en": "Importing the library can initialize the device immediately. The fix checks environment compatibility before import and keeps that step separate from starting inference.",
     "category": "Local AI Hub",
     "published_at": "2026-11-16",
     "source_url": ""
   },
   {
-    "title_cs": "Opuštěný GPU lease má skončit s procesem",
+    "title_cs": "Úklid uvolní rezervaci správné instance procesu",
     "title_en": "A GPU lease should end with its process",
-    "body_cs": "Kapacita zůstává zarezervovaná jen po dobu, kdy ji drží skutečný proces. Úklid musí rozpoznat mrtvého vlastníka a nesmí uvolnit cizí generaci reservation. Commit 670e08f512.",
-    "body_en": "Capacity stays reserved only while a real process owns it. Cleanup must identify a dead owner without releasing another reservation generation. Commit 670e08f512.",
+    "body_cs": "Po ukončení procesu se úklid dívá na vlastníka i identitu jeho rezervace. Uvolnění se tak týká konkrétní rezervace ukončeného procesu.",
+    "body_en": "After a process exits, cleanup checks the owner and the reservation identity. It releases the specific allocation held by the exited process.",
     "category": "Local AI Hub",
     "published_at": "2026-11-16",
     "source_url": ""
@@ -90,10 +90,10 @@
     "source_url": "https://github.com/Harfusha/MutaUI/commit/101796a289"
   },
   {
-    "title_cs": "6.1.0: release metadata se musí potkat se zdrojem",
+    "title_cs": "Local AI Hub 6.1.0: metadata vydání odpovídají tagu",
     "title_en": "6.1.0: release metadata has to match its source",
-    "body_cs": "Záznam z 15. listopadu nepopisuje novou funkci: vrací kanonický obsah připnutého archivu Superpowers a srovnává metadata releasu s tagem v6.1. Přesně ten typ opravy, který je snadné přehlédnout v changelogu, ale rozbije důvěru v balíček.",
-    "body_en": "The Nov 15 entry is not a new feature: it restores the canonical pinned Superpowers archive and aligns release metadata with the v6.1 source tag. Easy to overlook in a changelog, but a mismatch undermines trust in the package.",
+    "body_cs": "Změna obnovila původní obsah připnutého archivu Superpowers a sladila metadata vydání s tagem v6.1. Díky tomu lze dohledat, ze kterých souborů balíček vychází.",
+    "body_en": "The change restored the pinned Superpowers archive and aligned release metadata with tag v6.1. That makes it possible to trace the package back to the files it contains.",
     "category": "AI",
     "published_at": "2026-11-15 12:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
@@ -108,19 +108,19 @@
     "source_url": ""
   },
   {
-    "title_cs": "Nulová plocha nemá zvyšovat jistotu",
+    "title_cs": "Scan2CAD: kontrola trojúhelníků s nulovou plochou",
     "title_en": "Zero-area faces must not increase confidence",
-    "body_cs": "Degenerované trojúhelníky nesmějí přidávat falešnou jistotu ani neomezeně nafukovat práci. Oprava kombinuje kontrolu plochy s rozpočtem vrcholů.",
-    "body_en": "Degenerate triangles must not add false confidence or unbounded work. The fix combines area checks with a vertex budget.",
+    "body_cs": "Trojúhelníky s nulovou plochou mohou zkreslit odhad jistoty a přidávat výpočty. Oprava kontroluje plochu a omezuje počet zpracovaných vrcholů.",
+    "body_en": "Zero-area triangles can distort confidence estimates and add processing work. The fix checks triangle area and limits the number of vertices processed.",
     "category": "Scan2CAD",
     "published_at": "2026-11-15",
     "source_url": ""
   },
   {
-    "title_cs": "Přerostlý sken odmítnout před konverzí",
+    "title_cs": "Scan2CAD kontroluje velikost skenu před konverzí",
     "title_en": "Reject an oversized scan before conversion",
-    "body_cs": "Příliš velký mesh se musí zastavit před nákladnou konverzí. Je to hranice vstupu, ne tvrzení o tom, jak přesný výsledný CAD bude.",
-    "body_en": "An oversized mesh must be rejected before expensive conversion. This is an input boundary, not a claim about the accuracy of the resulting CAD.",
+    "body_cs": "Kontrola velikosti zastaví příliš rozsáhlou síť ještě před náročným převodem. Přesnost výsledného CAD modelu se ověřuje později podle fyzické reference.",
+    "body_en": "The size check rejects an oversized mesh before expensive conversion begins. CAD accuracy is assessed later against a physical reference.",
     "category": "Scan2CAD",
     "published_at": "2026-11-15",
     "source_url": ""
@@ -180,10 +180,10 @@
     "source_url": "https://github.com/Harfusha/local-ai-hub"
   },
   {
-    "title_cs": "Při zkrácení odpovědi neztratit identitu plánu",
+    "title_cs": "Zkrácená odpověď zachovává odkaz na plán a úkol",
     "title_en": "Keep plan identity when compacting a response",
-    "body_cs": "Opravy 5.1.4 hlídají, aby kompaktní odpověď pořád nesla ID plánu, revizi souboru i ID úkolu. Když rozpočet nestačí, odmítnutí má zůstat dohledatelné stejně jako úspěšná odpověď.",
-    "body_en": "Version 5.1.4 keeps plan IDs, file revisions and task IDs in compact responses. When a budget is insufficient, the rejection should remain traceable just like a successful response.",
+    "body_cs": "Verze 5.1.4 zachovává identifikátor plánu, revizi souboru i identifikátor úkolu ve zkrácené odpovědi. Pokud se odpověď nevejde do limitu, dohledatelné zůstane i odmítnutí.",
+    "body_en": "Version 5.1.4 keeps the plan ID, file revision and task ID in compact responses. A rejection also remains traceable when the response cannot fit the budget.",
     "category": "AI",
     "published_at": "2026-11-07 16:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
@@ -198,28 +198,28 @@
     "source_url": ""
   },
   {
-    "title_cs": "Windows instalace: nejdřív vědět, který proces drží port",
+    "title_cs": "Local AI Hub: zjištění vlastníka portu na Windows",
     "title_en": "Windows installs: identify the process before restarting",
-    "body_cs": "5.1.3 upravuje rozpoznání PID naslouchajícího procesu a pořadí restartu služby. Vedle toho mění kontrakt checkpointů a zdravotních sond: ne-core timeout nemá sám shodit celý stav Hubu.",
-    "body_en": "Version 5.1.3 improves listener PID detection and service restart sequencing. It also tightens checkpoint contracts and health probes: a non-core timeout should not degrade the whole Hub by itself.",
+    "body_cs": "Verze 5.1.3 upravila určení procesu, který naslouchá na portu, a pořadí při restartu služby. Kontroly stavu zároveň rozlišují výpadek hlavní služby od časového limitu doplňkové kontroly.",
+    "body_en": "Version 5.1.3 changed how the installer identifies the listening process and orders a service restart. Health checks also distinguish core service outages from timeouts in an auxiliary check.",
     "category": "AI",
     "published_at": "2026-10-30 18:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
   },
   {
-    "title_cs": "SQLite na Windows a závod o první zámek",
+    "title_cs": "SQLite na Windows: cesty a souběžné založení indexu",
     "title_en": "SQLite on Windows and the race for the first lock",
-    "body_cs": "Opravy 5.1.2 řeší URI pro read-only SQLite na cestách s písmenem disku a souběžnou inicializaci prázdných indexů. Test nemá záviset na tom, který proces se trefí do první milisekundy.",
-    "body_en": "Version 5.1.2 fixes read-only SQLite URIs on drive-letter paths and concurrent initialization of empty indexes. A test should not depend on which process wins the first millisecond.",
+    "body_cs": "Verze 5.1.2 opravila otevírání databáze jen pro čtení na cestách s písmenem disku. Řeší také situaci, kdy se dva procesy pokusí založit prázdný index současně.",
+    "body_en": "Version 5.1.2 fixed read-only database URIs for Windows drive-letter paths. It also handles two processes trying to initialize an empty index concurrently.",
     "category": "AI",
     "published_at": "2026-10-30 14:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
   },
   {
-    "title_cs": "Zrušená inference nesmí vrátit pozdní výsledek",
+    "title_cs": "Zrušená obrazová úloha zahodí pozdní výsledek",
     "title_en": "A cancelled inference must not return a late result",
-    "body_cs": "5.1.1 zahazuje výstup vision backendu, pokud zrušení dorazí až během nepřerušitelné inference. Zrušení musí zůstat pravdivé i tehdy, když samotný výpočet nešel okamžitě zastavit.",
-    "body_en": "Version 5.1.1 discards vision backend output when cancellation arrives during a non-interruptible inference. Cancellation must remain truthful even when the computation itself could not stop immediately.",
+    "body_cs": "Některé výpočty nelze okamžitě přerušit. Pokud během takového běhu přijde zrušení, verze 5.1.1 už výsledek obrazové úlohy nepředá.",
+    "body_en": "Some computations cannot be interrupted immediately. If cancellation arrives during such a run, version 5.1.1 discards the vision result instead of returning it.",
     "category": "AI",
     "published_at": "2026-10-30 10:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md"
@@ -290,8 +290,8 @@
   {
     "title_cs": "Domácí infrastruktura jako kód",
     "title_en": "Home infrastructure as code",
-    "body_cs": "Ansible zdroj pravdy pro router, Raspberry Pi, NAS a testovací server. Provozní konfigurace zůstává neveřejná.",
-    "body_en": "Ansible source of truth for the router, Raspberry Pi, NAS and test server. Operational configuration remains private.",
+    "body_cs": "Ansible popisuje nastavení routeru, Raspberry Pi, NAS a testovacího serveru. Veřejná část portfolia ukazuje role a závislosti zařízení v modelu.",
+    "body_en": "Ansible describes the configuration for the router, Raspberry Pi, NAS and test server. The public portfolio models what those devices do and how they depend on one another.",
     "category": "Infrastructure",
     "published_at": "2026-08-16 12:00:00",
     "source_url": ""

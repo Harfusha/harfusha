@@ -1,8 +1,10 @@
 <?php
 declare(strict_types=1);
+
 use App\Domain\JournalFeed;
 use App\Support\Html;
 use App\Support\Language;
+
 /** @var Language $lang */
 /** @var list<App\Domain\Project> $projects */
 /** @var list<array<string,mixed>> $journal */
@@ -11,50 +13,137 @@ use App\Support\Language;
 /** @var int $mergedPrCount */
 /** @var array{source:string,last_sync:?string} $provenance */
 ?>
-<section class="hero shell">
- <div class="hero-copy reveal">
-   <p class="hero-kicker"><?= $lang->value('OSOBNÍ WEB / ADAM HALFAR','PERSONAL WEBSITE / ADAM HALFAR') ?></p>
-    <h1><?= $lang->value('Většinou už','Usually,') ?><br><span class="gradient-text"><?= $lang->value('něco existuje.','something already exists.') ?></span></h1>
-    <p class="hero-description"><?= $lang->value('Jsem Adam Halfar. Než začnu psát vlastní nástroj, hledám, jestli už ten problém někdo nevyřešil. Tady ukazuju, co mě vedlo k jednotlivým pokusům, co pro ně existuje místo nich a kde zatím nemám dost důkazů, abych je obhájil.', 'I’m Adam Halfar. Before I write another tool, I look for something that already solves the problem. Here I show what led me to each attempt, what could replace it, and where I still lack evidence to justify building my own.') ?></p>
-   <div class="hero-buttons"><a class="btn btn-primary" href="<?= $lang->path('/projects') ?>"><?= $lang->value('Prohlédnout projekty','Explore projects') ?><span aria-hidden="true">↗</span></a><a class="btn btn-ghost" href="<?= $lang->path('/about') ?>"><?= $lang->value('Něco o mně','About me') ?> <span aria-hidden="true">→</span></a></div>
-    <div class="hero-micro"><?= $lang->value('Nové poznatky a změny rozhodnutí', 'New findings and changing decisions') ?> · <a href="<?= $lang->path('/journal') ?>"><?= $lang->value('Vývojový deník','Development journal') ?> →</a></div>
- </div>
- <aside class="workbench-card reveal" aria-label="<?= $lang->value('Výběr z projektů','Selected projects') ?>">
-  <div class="workbench-top"><span>AH / <?= $lang->value('PRACOVNÍ SEŠIT','WORKBOOK') ?></span><span>001 — 003</span></div>
-  <p class="workbench-note"><?= $lang->value('Na čem pracuji','Things I am making') ?></p>
-  <a href="<?= $lang->path('/projects/local-ai-hub') ?>"><span class="workbench-number">01</span><span><strong>Local AI Hub</strong><small><?= $lang->value('Nástroje pro práci s lokální AI','Tools for working with local AI') ?></small></span><span aria-hidden="true">↗</span></a>
-  <a href="<?= $lang->path('/projects/mutaui') ?>"><span class="workbench-number">02</span><span><strong>MutaUI</strong><small><?= $lang->value('Přehlednější práce se synchronizací','A clearer view of file sync') ?></small></span><span aria-hidden="true">↗</span></a>
-  <a href="<?= $lang->path('/projects/home-infrastructure') ?>"><span class="workbench-number">03</span><span><strong>Home Infrastructure</strong><small><?= $lang->value('Služby, síť a jejich závislosti','Services, network and their dependencies') ?></small></span><span aria-hidden="true">↗</span></a>
-  <div class="workbench-bottom"><?= $lang->value('VÝBĚR Z DÍLNY','NOTES FROM THE WORKSHOP') ?> <span>✳</span></div>
- </aside>
+<section class="shell workbench-hero" aria-labelledby="workbench-title">
+    <div class="workbench-intro">
+        <p class="workbench-author">Adam Halfar <span aria-hidden="true">/</span> Harfusha</p>
+        <h1 id="workbench-title"><?= $lang->value('Změň vstup.', 'Change an input.') ?><br><em><?= $lang->value('Sleduj výsledek.', 'See the result.') ?></em></h1>
+        <p><?= $lang->value('Stavím vývojářské nástroje a spravuju domácí síť. Zkus přepočítat pixely z fotky, porovnat režimy synchronizace nebo zjistit, co se stane při výpadku úložiště.', 'I build developer tools and run a home network. Try converting pixels into a measurement, comparing sync modes or seeing what happens when storage goes offline.') ?></p>
+        <div class="hero-buttons">
+            <a class="btn btn-primary" href="#try-it"><?= $lang->value('Vybrat pokus', 'Choose an experiment') ?> <span aria-hidden="true">↓</span></a>
+            <a class="workbench-text-link" href="#selected-work"><?= $lang->value('Co stavím', 'What I’m building') ?> <span aria-hidden="true">↘</span></a>
+        </div>
+    </div>
+    <a class="workbench-cover" href="#scale-quick">
+        <figure>
+            <img src="/assets/img/scale-studio.webp" width="1448" height="1086" fetchpriority="high" alt="<?= $lang->value('Ilustrační snímek posuvného měřítka u oranžového výtisku', 'Illustration of a caliper measuring an orange 3D print') ?>">
+            <figcaption>
+                <span><?= $lang->value('Jak z pixelů dostaneš milimetry?', 'How do pixels become millimeters?') ?></span>
+                <span aria-hidden="true">↗</span>
+            </figcaption>
+        </figure>
+    </a>
 </section>
-<section class="section shell">
- <div class="section-heading"><div><span class="eyebrow">01 / <?= $lang->value('VYBRANÉ PROJEKTY', 'SELECTED WORK') ?></span><h2><?= $lang->value('Vybrané projekty.','Selected projects.') ?></h2><p><?= $lang->value('Proč vznikly, jak jsou postavené a co je na nich zatím nedokončené.', 'Why they exist, how they work and what remains unfinished.') ?></p></div><a class="inline-link" href="<?= $lang->path('/projects') ?>"><?= $lang->value('Katalog projektů','Project index') ?> ↗</a></div>
- <div class="project-grid">
- <?php foreach ($projects as $i => $project): ?><a class="project-card" href="<?= $lang->path('/projects/'.$project->slug) ?>"><div class="project-card-top"><?php if ($project->slug === 'mutaui'): ?><div class="project-card-media"><img class="project-card-image" src="<?= $lang->value('/assets/img/mutaui-overview-cs-light.png', '/assets/img/mutaui-overview-en-dark.png') ?>" width="1380" height="900" loading="lazy" alt="<?= $lang->value('MutaUI: offline demo s ukázkovými daty', 'MutaUI: offline demo with synthetic data') ?>"><small><?= $lang->value('Ukázková data', 'Demo data') ?></small></div><?php endif; ?><span class="project-glyph glyph-<?= Html::escape($project->category === 'Infrastructure' ? 'infra' : ($project->category === 'AI & Developer Tools' ? 'ai' : 'tool')) ?>" aria-hidden="true">0<?= $i+1 ?></span><span class="status <?= Html::escape($project->status) ?>"><?= Html::escape($project->statusLabel($lang)) ?></span></div><span class="category"><?= Html::escape($project::categoryLabel($project->category, $lang)) ?></span><h3><?= Html::escape($project->name) ?></h3><p><?= Html::escape($project->summary($lang)) ?></p><div class="stack-list"><?php foreach (array_slice($project->stack,0,3) as $tag): ?><span><?= Html::escape($tag) ?></span><?php endforeach; ?></div><span class="card-action"><?= $lang->value('Podrobnosti','Details') ?> ↗</span></a><?php endforeach; ?>
- </div>
+
+<section class="experiment-band" id="try-it" aria-labelledby="experiments-title">
+    <div class="shell">
+        <div class="section-heading">
+            <div>
+                <h2 id="experiments-title"><?= $lang->value('Vyzkoušej si to', 'Try it yourself') ?></h2>
+                <p><?= $lang->value('Vyber otázku, změň jeden vstup a porovnej výsledek přímo v prohlížeči.', 'Pick a question, change one input and compare the result in your browser.') ?></p>
+            </div>
+            <a class="inline-link" href="<?= $lang->path('/playground') ?>"><?= $lang->value('Všech osm pokusů', 'All eight experiments') ?> <span aria-hidden="true">↗</span></a>
+        </div>
+        <article class="quick-scale" id="scale-quick" data-quick-scale aria-labelledby="quick-scale-title">
+            <div class="quick-scale-intro">
+                <h3 id="quick-scale-title"><?= $lang->value('Kolik milimetrů má díl?', 'How many millimeters is the part?') ?></h3>
+                <p><?= $lang->value('Úsek dlouhý 120 pixelů měří na skutečném dílu 30 mm. Zkus změnit referenci nebo délku měřeného úseku.', 'A 120-pixel reference measures 30 mm on the physical part. Change the reference or the length of the section you’re measuring.') ?></p>
+                <a class="inline-link" href="<?= $lang->path('/playground#station-scale-check') ?>"><?= $lang->value('Celý pokus s měřítkem', 'Full scale experiment') ?> <span aria-hidden="true">↗</span></a>
+            </div>
+            <form class="quick-scale-form" data-scale-form>
+                <fieldset disabled data-quick-scale-controls>
+                    <legend class="visually-hidden"><?= $lang->value('Vstupy pro přepočet měřítka', 'Scale calculation inputs') ?></legend>
+                    <label><?= $lang->value('Reference (px)', 'Reference (px)') ?><input type="number" min="0.01" step="any" value="120" data-scale-pixels required></label>
+                    <label><?= $lang->value('Reference (mm)', 'Reference (mm)') ?><input type="number" min="0.01" step="any" value="30" data-scale-mm required></label>
+                    <label><?= $lang->value('Měřený úsek (px)', 'Measured span (px)') ?><input type="number" min="0" step="any" value="240" data-scale-probe required></label>
+                </fieldset>
+                <output class="quick-scale-output">
+                    <strong data-scale-probe-result><?= $lang->value('240 px odpovídá 60 mm', '240 px corresponds to 60 mm') ?></strong>
+                    <span data-scale-result>4 px/mm</span>
+                </output>
+            </form>
+        </article>
+        <div class="experiment-grid">
+            <a class="experiment-link experiment-sync" href="<?= $lang->path('/playground#station-sync-preview') ?>">
+                <span class="experiment-topic"><?= $lang->value('Synchronizace', 'File sync') ?></span>
+                <h3><?= $lang->value('Který soubor se přepíše?', 'Which file gets overwritten?') ?></h3>
+                <p><?= $lang->value('Porovnej náhled jednosměrné a obousměrné synchronizace.', 'Compare previews for one-way and two-way sync.') ?></p>
+                <span class="experiment-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="experiment-link experiment-network" href="<?= $lang->path('/homelab#network-model') ?>">
+                <span class="experiment-topic"><?= $lang->value('Domácí síť', 'Home network') ?></span>
+                <h3><?= $lang->value('Poběží video bez NAS?', 'Will video play without the NAS?') ?></h3>
+                <p><?= $lang->value('Vypni úložiště v modelu a sleduj cestu od klienta až k souboru.', 'Take storage offline in the model and follow the path from the client to the file.') ?></p>
+                <span class="experiment-arrow" aria-hidden="true">↗</span>
+            </a>
+            <a class="experiment-link experiment-route" href="<?= $lang->path('/playground#station-route-finder') ?>">
+                <span class="experiment-topic"><?= $lang->value('Hledání trasy', 'Pathfinding') ?></span>
+                <h3><?= $lang->value('Najde se cesta kolem překážky?', 'Is there a route around the obstacle?') ?></h3>
+                <p><?= $lang->value('Zablokuj jedno pole v krajině a nech trasu přepočítat.', 'Block one cell on the map and recalculate the route.') ?></p>
+                <span class="experiment-arrow" aria-hidden="true">↗</span>
+            </a>
+        </div>
+    </div>
 </section>
-<section class="stats-strip shell" aria-label="<?= $lang->value('Ověřitelné počty v katalogu', 'Verifiable catalog counts') ?>">
- <div><strong><?= $projectCount ?></strong><span><?= $lang->value('projektových studií v katalogu', 'curated project studies') ?></span></div>
- <div><strong><?= $mergedPrCount ?></strong><span><?= $lang->value('sloučených externích PR v přehledu', 'merged external PRs in the activity feed') ?></span></div>
- <div><strong><?= count($recentRepos) ?></strong><span><?= $lang->value('posledních aktualizací repozitářů', 'recent repository updates') ?></span></div>
- <div class="stat-note"><?= $provenance['source'] === 'github-public-api'
-     ? $lang->value('Údaje z posledního úspěšného veřejného importu GitHubu; nejde o celoživotní statistiky.', 'Counts use the latest successful public GitHub import, not lifetime statistics.')
-     : ($provenance['source'] === 'unavailable'
-         ? $lang->value('GitHub údaje jsou dočasně nedostupné; nezobrazujeme zastaralý historický seznam.', 'GitHub data is temporarily unavailable; the old historical list is intentionally withheld.')
-         : $lang->value('Údaje z kurátorovaného katalogu a veřejného historického snímku; nejde o živá ani celoživotní čísla.', 'Counts use the curated catalog and a reviewed historical snapshot, not live or lifetime statistics.')) ?></div>
+
+<section class="section shell portfolio-section" id="selected-work" aria-labelledby="selected-work-title">
+    <div class="section-heading">
+        <div>
+            <h2 id="selected-work-title"><?= $lang->value('Co stavím', 'What I’m building') ?></h2>
+            <p><?= $lang->value('Jaký problém řeším, jak nástroj funguje a co jsem ověřil.', 'The problem each tool tackles, how it works and what I’ve verified.') ?></p>
+        </div>
+        <a class="inline-link" href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projekty', 'All projects') ?> <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="showcase-grid showcase-grid-featured">
+        <?php foreach ($projects as $project): ?>
+            <?php require dirname(__DIR__) . '/element/portfolio_showcase.php'; ?>
+        <?php endforeach; ?>
+    </div>
 </section>
-<section class="section shell">
- <div class="section-heading"><div><span class="eyebrow">02 / <?= $lang->value('LABORATOŘ', 'THE LAB') ?></span><h2><?= $lang->value('Prozkoumej, jak věci fungují.','Explore how things work.') ?></h2><p><?= $lang->value('Některé systémy si můžeš rozkliknout, jiné přímo ovládat v bezpečné simulaci.', 'Inspect real architecture and try safe, interactive simulations.') ?></p></div><a class="inline-link" href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projektové ukázky','All project exhibits') ?> ↗</a></div>
- <div class="explorer-grid">
-  <a href="<?= $lang->path('/homelab') ?>" class="explorer-card explorer-primary"><span class="card-index">LAB / 001</span><div class="mini-network" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i></i><i></i><i></i></div><div><span class="category"><?= $lang->value('INFRASTRUKTURA', 'INFRASTRUCTURE') ?></span><h3>Home Lab Explorer</h3><p><?= $lang->value('Klikací mapa sítě. Vypni virtuální zařízení a sleduj dopad na služby.','A clickable network map. Disable virtual devices to inspect dependent services.') ?></p><span class="card-action"><?= $lang->value('Otevřít laboratoř', 'Open lab') ?> ↗</span></div></a>
-  <a href="<?= $lang->path('/playground#station-preprocessing') ?>" class="explorer-card"><span class="card-index">LAB / 002</span><div class="visual-rows" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div><span class="category"><?= $lang->value('LOKÁLNÍ AI', 'LOCAL AI') ?></span><h3>Agent Workflow</h3><p><?= $lang->value('Porovnej přesný dotaz z indexu se širším kontextem a hostitelským ověřením.','Compare an indexed exact lookup with broader context and host verification.') ?></p><span class="card-action"><?= $lang->value('Prozkoumat', 'Explore') ?> ↗</span></div></a>
-  <a href="<?= $lang->path('/playground#station-sync-preview') ?>" class="explorer-card"><span class="card-index">LAB / 003</span><div class="visual-sync" aria-hidden="true"><b>LOCAL</b><span>⇄</span><b>REMOTE</b></div><div><span class="category"><?= $lang->value('DESKTOPOVÉ NÁSTROJE', 'DESKTOP TOOLS') ?></span><h3>Sync or Forward</h3><p><?= $lang->value('Porovnej synchronizaci souborů s přesměrováním portu; příkaz se nespustí.','Compare file synchronization with port forwarding; no command runs.') ?></p><span class="card-action"><?= $lang->value('Prozkoumat', 'Explore') ?> ↗</span></div></a>
-  <a href="<?= $lang->path('/playground#station-scale-check') ?>" class="explorer-card"><span class="card-index">LAB / 004</span><div class="visual-cube" aria-hidden="true"><span></span><i></i></div><div><span class="category"><?= $lang->value('KONSTRUKCE', 'ENGINEERING') ?></span><h3><?= $lang->value('Kontrola měřítka', 'Scale check') ?></h3><p><?= $lang->value('Když jednotky nejsou potvrzené, rekonstrukce se zastaví místo hádání rozměrů.','When units are unconfirmed, reconstruction stops instead of guessing dimensions.') ?></p><span class="card-action"><?= $lang->value('Prozkoumat', 'Explore') ?> ↗</span></div></a>
- </div>
+
+<?php if ($journal !== []): ?>
+<section class="section shell portfolio-section" aria-labelledby="portfolio-journal-title">
+    <div class="section-heading">
+        <h2 id="portfolio-journal-title"><?= $lang->value('Vývojový deník', 'Development journal') ?></h2>
+        <a class="inline-link" href="<?= $lang->path('/journal') ?>"><?= $lang->value('Všechny zápisky', 'All entries') ?> <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="journal-preview">
+        <?php foreach (array_slice($journal, 0, 3) as $entry): ?>
+        <article>
+            <time class="journal-date"><?= Html::escape(substr((string)$entry['published_at'], 0, 10)) ?></time>
+            <div>
+                <h3><a href="<?= Html::escape($lang->path('/journal') . '#' . JournalFeed::entryId($entry)) ?>"><?= Html::escape((string)$entry['title_' . $lang->code]) ?></a></h3>
+                <p><?= Html::escape((string)$entry['body_' . $lang->code]) ?></p>
+            </div>
+        </article>
+        <?php endforeach; ?>
+    </div>
 </section>
-<section class="shell"><a class="connections-promo" href="<?= $lang->path('/connections') ?>"><span class="eyebrow"><?= $lang->value('PŘEHLED PROJEKTŮ', 'PROJECT INDEX') ?></span><strong><?= $lang->value('Každý z nich má jiný důvod.', 'Each one has a different reason.') ?></strong><span><?= $lang->value('Prohlédni si projekty samostatně. U každého najdeš alternativy, skutečné podklady i to, co zatím není ověřené.', 'Explore each project on its own, with alternatives, source evidence and the gaps that remain.') ?> ↗</span></a></section>
-<section class="shell"><a class="connections-promo" href="<?= $lang->path('/decisions') ?>"><span class="eyebrow"><?= $lang->value('TECHNICKÁ ROZHODNUTÍ', 'ARCHITECTURE DECISION EXPLORER') ?></span><strong><?= $lang->value('Proč právě tohle řešení?', 'Why this design?') ?></strong><span><?= $lang->value('Problémy, rozhodnutí, kompromisy a skutečná omezení','Problems, decisions, trade-offs and real limitations') ?> ↗</span></a></section>
-<section class="shell recent-work" aria-label="<?= $lang->value('Poslední veřejná aktivita repozitářů', 'Recent public repository activity') ?>"><div><span class="eyebrow"><?= $lang->value('Z GITHUBU', 'FRESH FROM GITHUB') ?></span><h2><?= $lang->value('Poslední veřejná aktivita.','Recent public activity.') ?></h2><p><?= $lang->value('Poslední zaznamenané aktualizace veřejných repozitářů. Stav importu najdeš na stránce Právě teď.', 'The latest recorded updates to public repositories. See the Now page for import status.') ?></p></div><div class="recent-items"><?php foreach (array_slice($recentRepos,0,3) as $repo): ?><a href="<?= Html::escape(Html::safeUrl((string)$repo['repo_url'])) ?>" target="_blank" rel="noopener noreferrer"><span class="recent-dot"></span><strong><?= Html::escape((string)$repo['repository']) ?></strong><time><?= Html::escape(substr((string)$repo['pushed_at'],0,16)) ?></time><span>↗</span></a><?php endforeach; ?></div></section>
-<section class="section shell workshop-section"><div class="section-heading"><div><span class="eyebrow">03 / <?= $lang->value('DENÍK DÍLNY', 'WORKSHOP LOG') ?></span><h2><?= $lang->value('Co se právě staví.','What is being built.') ?></h2><p><?= $lang->value('Poznámky o tom, co vzniklo a kam se projekty posouvají.','Notes on what has changed and where the projects are heading.') ?></p></div><a class="inline-link" href="<?= $lang->path('/journal') ?>"><?= $lang->value('DENÍK DÍLNY', 'WORKSHOP LOG') ?> ↗</a></div><div class="journal-preview"><?php foreach ($journal as $entry): ?><article><span class="journal-date"><?= Html::escape(substr((string)$entry['published_at'],0,10)) ?></span><div><span class="category"><?= Html::escape((string)$entry['category']) ?></span><h3><a href="<?= Html::escape($lang->path('/journal') . '#' . JournalFeed::entryId($entry)) ?>"><?= Html::escape((string)$entry['title_'.$lang->code]) ?></a></h3><p><?= Html::escape((string)$entry['body_'.$lang->code]) ?></p></div></article><?php endforeach; ?></div></section>
-<section class="shell ending-cta"><span class="eyebrow"><?= $lang->value('SOUVISLOSTI', 'THE WHOLE PICTURE') ?></span><h2><?= $lang->value('Zajímá tě, jak to funguje?','Curious how it works?') ?></h2><p><?= $lang->value('Podívej se na skutečné změny ve zdrojovém kódu, otestuj simulátory nebo projdi architekturu domácích služeb.','Inspect actual upstream code changes, try a simulator, or trace the architecture of home services.') ?></p><a class="btn btn-primary" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Procházet open source','Browse open source') ?> ↗</a></section>
+<?php endif; ?>
+
+<section class="section shell portfolio-section portfolio-activity" aria-labelledby="portfolio-activity-title">
+    <div class="section-heading">
+        <h2 id="portfolio-activity-title"><?= $lang->value('Co se změnilo na GitHubu', 'Recent GitHub activity') ?></h2>
+        <a class="inline-link" href="<?= $lang->path('/now') ?>"><?= $lang->value('Časová osa', 'Work timeline') ?> <span aria-hidden="true">↗</span></a>
+    </div>
+    <div class="stats-strip">
+        <div><strong><?= $projectCount ?></strong><span><?= $lang->value('projektů v portfoliu', 'curated project studies') ?></span></div>
+        <div><strong><?= $mergedPrCount ?></strong><span><?= $lang->value('sloučených pull requestů v přehledu', 'merged external PRs in the activity feed') ?></span></div>
+        <div><strong><?= count($recentRepos) ?></strong><span><?= $lang->value('nedávno aktualizovaných repozitářů', 'recent repository updates') ?></span></div>
+        <div class="stat-note"><?= match ($provenance['source']) {
+            'github-public-api' => $lang->value('GitHub údaje vycházejí z posledního úspěšného importu.', 'GitHub figures are based on the latest successful import.'),
+            'unavailable' => $lang->value('Údaje z GitHubu jsou dočasně nedostupné.', 'GitHub data is temporarily unavailable.'),
+            default => $lang->value('GitHub údaje vycházejí z uloženého přehledu.', 'GitHub figures are based on a reviewed snapshot.'),
+        } ?></div>
+    </div>
+    <?php if ($recentRepos !== []): ?>
+    <div class="recent-items">
+        <?php foreach (array_slice($recentRepos, 0, 3) as $repo): ?>
+        <a href="<?= Html::escape(Html::safeUrl((string)$repo['repo_url'])) ?>" target="_blank" rel="noopener noreferrer">
+            <strong><?= Html::escape((string)$repo['repository']) ?></strong>
+            <time><?= Html::escape(substr((string)$repo['pushed_at'], 0, 10)) ?></time>
+            <span aria-hidden="true">↗</span>
+        </a>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+</section>

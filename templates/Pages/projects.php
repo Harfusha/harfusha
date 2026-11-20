@@ -1,12 +1,50 @@
 <?php
 declare(strict_types=1);
+
+use App\Domain\Project;
 use App\Support\Html;
 use App\Support\Language;
+
 /** @var Language $lang */
-/** @var list<App\Domain\Project> $projects */
+/** @var list<Project> $projects */
+$categories = array_unique(array_map(static fn (Project $project): string => $project->category, $projects));
 ?>
-<section class="page-hero shell"><span class="eyebrow"><?= $lang->value('VÝBĚR Z DÍLNY','FROM THE WORKSHOP') ?></span><h1><?= $lang->value('Nejdřív potřeba. Pak projekt.','Need first. Project second.') ?></h1><p><?= $lang->value('Devět různých systémů, ne devět kopií stejné případové studie. U každého hledám, co už problém řeší, proč by dávalo smysl stavět další věc a které části zatím zůstávají jen prototypem.', 'Nine different systems, not nine copies of the same case study. Each asks what already solves the problem, why another thing might be worth building, and which parts remain prototypes.') ?></p><div class="page-meta"><?= count($projects) ?> <?= $lang->value('PROJEKTOVÝCH STUDIÍ', 'PROJECT STUDIES') ?> <span>·</span> <?= $lang->value('VČETNĚ ALTERNATIV A NEOVĚŘENÝCH HRANIC', 'INCLUDING ALTERNATIVES AND UNVERIFIED BOUNDARIES') ?></div></section>
-<section class="section shell" data-project-browser><div class="filter-bar"><label class="search-field"><span class="visually-hidden"><?= $lang->value('Hledat projekt','Search projects') ?></span><span aria-hidden="true">⌕</span><input type="search" placeholder="<?= $lang->value('Hledat podle názvu nebo technologie…','Find a name or technology…') ?>" data-search autocomplete="off"></label><select data-filter aria-label="<?= $lang->value('Kategorie','Category') ?>"><option value="all"><?= $lang->value('Všechny kategorie','All categories') ?></option><?php foreach (array_unique(array_map(static fn ($p) => $p->category, $projects)) as $category): ?><option value="<?= Html::escape(strtolower($category)) ?>"><?= Html::escape(App\Domain\Project::categoryLabel($category, $lang)) ?></option><?php endforeach; ?></select><span class="filter-count" data-count role="status" aria-live="polite" aria-atomic="true"><?= count($projects) ?> <?= $lang->value('projektů', 'projects') ?></span></div>
-<div class="project-grid" data-results>
-<?php foreach ($projects as $i => $project): ?><a class="project-card" data-project data-category="<?= Html::escape(strtolower($project->category)) ?>" data-search-text="<?= Html::escape(strtolower($project->name.' '.implode(' ', $project->stack).' '.$project->category.' '.App\Domain\Project::categoryLabel($project->category, $lang).' '.$project->summary($lang))) ?>" href="<?= $lang->path('/projects/'.$project->slug) ?>"><div class="project-card-top"><?php if ($project->slug === 'mutaui'): ?><div class="project-card-media"><img class="project-card-image" src="<?= $lang->value('/assets/img/mutaui-overview-cs-light.png', '/assets/img/mutaui-overview-en-dark.png') ?>" width="1380" height="900" loading="lazy" alt="<?= $lang->value('MutaUI: offline demo s ukázkovými daty', 'MutaUI: offline demo with synthetic data') ?>"><small><?= $lang->value('Ukázková data', 'Demo data') ?></small></div><?php endif; ?><span class="project-glyph" aria-hidden="true"><?= str_pad((string)($i+1),2,'0',STR_PAD_LEFT) ?></span><span class="status <?= Html::escape($project->status) ?>"><?= Html::escape($project->statusLabel($lang)) ?></span></div><span class="category"><?= Html::escape($project::categoryLabel($project->category, $lang)) ?></span><h3><?= Html::escape($project->name) ?></h3><p><?= Html::escape($project->summary($lang)) ?></p><div class="stack-list"><?php foreach (array_slice($project->stack,0,4) as $tag): ?><span><?= Html::escape($tag) ?></span><?php endforeach; ?></div><span class="card-action"><?= $lang->value('Prohlédnout projekt', 'View project') ?> ↗</span></a><?php endforeach; ?>
-</div><p class="empty-state hidden" data-empty><?= $lang->value('Žádný projekt neodpovídá filtru.','No projects match the filter.') ?></p></section>
+<section class="page-hero shell">
+    <h1><?= $lang->value('Projekty', 'Projects') ?></h1>
+    <p><?= $lang->value('Vývojářské nástroje, domácí infrastruktura a experimenty s 3D modely. U každého projektu najdeš problém, zvolený postup a stav ověření.', 'Developer tools, home infrastructure and experiments with 3D models. Each project explains the problem, the approach and what I’ve verified.') ?></p>
+    <div class="page-hero-links">
+        <a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Co je ověřené', 'What’s been verified') ?> <span aria-hidden="true">↗</span></a>
+        <a class="inline-link" href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Proč jsem zvolil tento postup', 'Why I chose these approaches') ?> <span aria-hidden="true">↗</span></a>
+    </div>
+</section>
+
+<section class="section shell" data-project-browser>
+    <div class="filter-bar">
+        <label class="search-field">
+            <span class="visually-hidden"><?= $lang->value('Hledat projekt', 'Search projects') ?></span>
+            <span aria-hidden="true">⌕</span>
+            <input type="search" placeholder="<?= $lang->value('Hledat podle názvu nebo technologie…', 'Search by name or technology…') ?>" data-search autocomplete="off">
+        </label>
+        <select data-filter aria-label="<?= $lang->value('Kategorie', 'Category') ?>">
+            <option value="all"><?= $lang->value('Všechny kategorie', 'All categories') ?></option>
+            <?php foreach ($categories as $category): ?>
+            <option value="<?= Html::escape(strtolower($category)) ?>"><?= Html::escape(Project::categoryLabel($category, $lang)) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <button class="btn btn-ghost btn-sm" type="button" data-filter-reset hidden><?= $lang->value('Vymazat filtry', 'Clear filters') ?></button>
+        <span class="filter-count" data-count role="status" aria-live="polite" aria-atomic="true"><?= count($projects) ?> <?= $lang->value('projektů', 'projects') ?></span>
+    </div>
+    <div class="project-grid" data-results>
+        <?php foreach ($projects as $project): ?>
+            <?php require dirname(__DIR__) . '/element/portfolio_project_card.php'; ?>
+        <?php endforeach; ?>
+    </div>
+    <p class="empty-state hidden" data-empty><?= $lang->value('Žádný projekt neodpovídá hledání.', 'No projects match your search.') ?></p>
+</section>
+<section class="shell section reading-footer" aria-labelledby="catalog-next-title">
+    <div>
+        <h2 id="catalog-next-title"><?= $lang->value('Co už je ověřené?', 'What has been verified?') ?></h2>
+        <p><?= $lang->value('Přehled výsledků ukazuje, co je doložené ve zdroji, co běží jako model a co ještě potřebuje ověření.', 'The results show what is documented in source, what runs as a model and what still needs verification.') ?></p>
+    </div>
+    <a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Porovnat výsledky', 'Compare results') ?> <span aria-hidden="true">↗</span></a>
+</section>

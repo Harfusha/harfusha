@@ -1,5 +1,7 @@
 # Verification supplement — 2026-11-13 (follow-up)
 
+> **Historical run record.** Results apply only to the revision and environment recorded below; current status: [MASTER_PLAN.md](MASTER_PLAN.md).
+
 This is a follow-up to `VERIFICATION-2026-11-13.md`. It reports tests actually
 executed in the current authoring container. It does **not** supersede the
 unverified release blockers in `MASTER_PLAN.md`.

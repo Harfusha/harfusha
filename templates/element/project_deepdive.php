@@ -147,7 +147,7 @@ $walkthrough = match ($project->slug) {
         ['01','Hráč navrhne spolupráci','A player proposes collaboration','Sdílený projekt nebo dohoda začíná vstupem z herní vrstvy.','A shared project or agreement starts with an input from the game layer.'],
         ['02','Jádro ověří pravidla','The core checks rules','C# doména kontroluje účastníky a stav nezávisle na části herního adaptéru.','The C# domain checks participants and state separately from the game adapter.'],
         ['03','Adaptér předá změnu','The adapter passes the change','Nativní vazba a persistence se musí ověřit při spuštění i restartu cílové hry.','Native integration and persistence need verification during a target-game run and restart.'],
-        ['04','Hratelné vydání není potvrzené','A playable release is not confirmed','Testy jádra proběhly pro konkrétní DLL, ale kandidát nebyl spuštěn ve hře.','Core tests ran for a specific DLL, but the candidate was not launched in-game.'],
+        ['04','Dílčí běh ve hře','Partial in-game check','Jeden kandidát se ve hře spustil a po opětovném načtení našel testovací cíle. Dohody a hratelnost multiplayeru čekají na ověření.','One candidate launched in-game and found synthetic test targets after a reload. Agreements and multiplayer playability still need verification.'],
     ],
     'discord-bot' => [
         ['01','Začni u katalogu','Start from the catalog','Portfolio katalog zmiňuje aplikační příkazy; checkout není k dispozici k nezávislé kontrole.','The portfolio catalog mentions application commands; no checkout is available for independent review.'],
@@ -161,13 +161,10 @@ $walkthrough = match ($project->slug) {
  <?php if ($detail !== null):
 [$copy] = $detail;
 [$architectureNodes, $architectureEdges] = $architecture;
-$architectureColumns = match ($project->slug) {
- 'local-ai-hub', 'woodbound', 'tiskov' => 4,
- 'mutaui', 'scan2cad', 'softwareinc-multiplayer', 'discord-bot' => 2,
- default => 3,
-};
-$architectureWidth = 40 + $architectureColumns * 280 + max(0, $architectureColumns - 1) * 30;
-$architectureHeight = max(300, (int)ceil(count($architectureNodes) / $architectureColumns) * 142 + 20);
+$architectureLinks = [];
+foreach ($architectureEdges as [$source, $target]) {
+    $architectureLinks[$source][] = $target;
+}
 $walkthroughTitle = match ($project->slug) {
  'local-ai-hub' => $lang->value('Od změny souboru k ověřitelnému výsledku', 'From a changed file to a verifiable result'),
  'mutaui' => $lang->value('Co se musí stát před synchronizací', 'What must happen before sync'),
@@ -206,27 +203,33 @@ $more = match ($project->slug) {
 };
 ?>
 <section class="section shell project-deepdive" data-project-deepdive aria-labelledby="project-deepdive-title">
- <div class="section-heading"><div><span class="eyebrow"><?= $lang->value('PODROBNĚJI', 'IN DEPTH') ?></span><h2 id="project-deepdive-title"><?= Html::escape($copy[0]) ?></h2></div></div>
+ <div class="section-heading"><div><h2 id="project-deepdive-title"><?= Html::escape($copy[0]) ?></h2></div></div>
  <div class="project-deepdive-copy"><p><?= Html::escape($copy[1]) ?></p><p><?= Html::escape($copy[2]) ?></p><p><?= Html::escape($more) ?></p></div>
  <section class="case-walkthrough" aria-labelledby="walkthrough-title">
-  <div class="case-walkthrough-heading"><div><span class="eyebrow"><?= $lang->value('JEDEN KONKRÉTNÍ PRŮCHOD', 'ONE CONCRETE TRACE') ?></span><h3 id="walkthrough-title"><?= Html::escape($walkthroughTitle) ?></h3></div><span class="demo-stamp"><?= $lang->value('ILUSTRATIVNÍ PRŮCHOD', 'ILLUSTRATIVE TRACE') ?></span></div>
+  <div class="case-walkthrough-heading"><div><h3 id="walkthrough-title"><?= Html::escape($walkthroughTitle) ?></h3></div><span class="demo-stamp"><?= $lang->value('ILUSTRATIVNÍ PRŮCHOD', 'ILLUSTRATIVE TRACE') ?></span></div>
   <ol class="case-walkthrough-steps"><?php foreach ($walkthrough as [$number,$titleCs,$titleEn,$bodyCs,$bodyEn]): ?><li><span><?= Html::escape($number) ?></span><div><h4><?= Html::escape($lang->value($titleCs,$titleEn)) ?></h4><p><?= Html::escape($lang->value($bodyCs,$bodyEn)) ?></p></div></li><?php endforeach; ?></ol>
  </section>
- <figure class="architecture-figure" data-project-architecture>
-  <figcaption><strong><?= Html::escape($architectureTitle) ?></strong><span><?= $lang->value('Šipky ukazují návaznosti popsané v podkladech; diagram není snímek ani živý stav.', 'Arrows show relationships described in the source material; this is not a screenshot or live status.') ?></span></figcaption>
-  <div class="architecture-canvas" data-architecture-canvas role="region" tabindex="0" aria-label="<?= $lang->value('Diagram lze na úzké obrazovce posouvat vodorovně', 'Scroll the diagram horizontally on a narrow screen') ?>">
-   <svg viewBox="0 0 <?= $architectureWidth ?> <?= $architectureHeight ?>" role="img" aria-label="<?= $lang->value('Komponenty projektu a doložené návaznosti; popisy jsou v seznamu pod schématem', 'Project components and documented relationships; descriptions follow below') ?>" xmlns="http://www.w3.org/2000/svg">
-    <defs><marker id="architecture-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#49665f" /></marker></defs>
-    <?php foreach ($architectureEdges as [$from, $to]): $sourceX = 20 + ($from % $architectureColumns) * 310; $sourceY = 24 + intdiv($from, $architectureColumns) * 142; $targetX = 20 + ($to % $architectureColumns) * 310; $targetY = 24 + intdiv($to, $architectureColumns) * 142; ?>
-    <?php $dx = ($targetX + 140) - ($sourceX + 140); $dy = ($targetY + 48) - ($sourceY + 48); $ratio = min(140 / max(1, abs($dx)), 48 / max(1, abs($dy))); $x1 = $sourceX + 140 + $dx * $ratio; $y1 = $sourceY + 48 + $dy * $ratio; $x2 = $targetX + 140 - $dx * $ratio; $y2 = $targetY + 48 - $dy * $ratio; ?>
-    <path data-architecture-edge d="M <?= $x1 ?> <?= $y1 ?> L <?= $x2 ?> <?= $y2 ?>" fill="none" stroke="#49665f" stroke-width="3" marker-end="url(#architecture-arrow)" />
+ <figure class="architecture-figure component-figure" data-project-architecture>
+  <figcaption>
+    <strong><?= Html::escape($architectureTitle) ?></strong>
+    <span><?= $lang->value('Části systému a návaznosti podle projektových podkladů.', 'System components and how they connect, based on project material.') ?></span>
+  </figcaption>
+  <ul class="component-grid">
+    <?php foreach ($architectureNodes as $index => $node): ?>
+    <li id="component-<?= $index ?>" data-architecture-node>
+      <h4><?= Html::escape($lang->value($node[0], $node[1])) ?></h4>
+      <p><?= Html::escape($lang->value($node[2], $node[3])) ?></p>
+      <?php if (isset($architectureLinks[$index])): ?>
+      <div class="component-links">
+        <span><?= $lang->value('Navazuje', 'Connects to') ?></span>
+        <?php foreach ($architectureLinks[$index] as $target): $next = $architectureNodes[$target]; ?>
+        <a data-architecture-edge href="#component-<?= $target ?>"><?= Html::escape($lang->value($next[0], $next[1])) ?> <span aria-hidden="true">↗</span></a>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
+    </li>
     <?php endforeach; ?>
-    <?php foreach ($architectureNodes as $i => $node): $x = 20 + ($i % $architectureColumns) * 310; $y = 24 + intdiv($i, $architectureColumns) * 142; ?>
-    <g data-architecture-node><rect x="<?= $x ?>" y="<?= $y ?>" width="280" height="96" rx="12" fill="#142f38" stroke="#3cdeb3" stroke-width="2" /><text x="<?= $x + 140 ?>" y="<?= $y + 40 ?>" text-anchor="middle" fill="#eff8f8" font-size="17" font-family="sans-serif"><?= Html::escape($lang->value($node[0], $node[1])) ?></text><text x="<?= $x + 140 ?>" y="<?= $y + 67 ?>" text-anchor="middle" fill="#b8d7d0" font-size="12" font-family="sans-serif"><?= Html::escape($lang->value($node[2], $node[3])) ?></text></g>
-    <?php endforeach; ?>
-   </svg>
-  </div>
-  <ol><?php foreach ($architectureNodes as $node): ?><li><strong><?= Html::escape($lang->value($node[0], $node[1])) ?></strong><span><?= Html::escape($lang->value($node[2], $node[3])) ?></span></li><?php endforeach; ?></ol>
+  </ul>
  </figure>
 </section>
 <?php endif; ?>

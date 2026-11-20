@@ -1,5 +1,7 @@
 # Verification record — archive integrity and admin roundtrip (2026-11-14)
 
+> **Historical run record.** Results apply only to the revision and environment recorded below; current status: [MASTER_PLAN.md](MASTER_PLAN.md).
+
 ## Environment
 
 - Source: release-hardening ZIP from 2026-11-14, updated with archive integrity verifier and admin HTTP test.

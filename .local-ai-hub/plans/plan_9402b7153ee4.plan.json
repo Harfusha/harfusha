@@ -1,0 +1,59 @@
+{
+  "default_target_ref": "refs/heads/master",
+  "description": "Kompletní oprava, Local AI Hub konfigurace, release, nasazení a provozní ověření na adam-halfar.cz",
+  "id": "plan_9402b7153ee4",
+  "lifecycle": "completed",
+  "schema_version": 1,
+  "spec_refs": [],
+  "tasks": {
+    "task_live_deploy": {
+      "acceptance_criteria": [
+        "Veřejné požadavky obsluhuje pouze webroot přes ověřené root rewrite; citlivé kořenové cesty vrací 403/404.",
+        "Privátní .env je mimo webroot, FTP oprávnění 600 a HTTPS test odmítá jeho veřejné vydání.",
+        "Serverový PHP preflight a read-only databázové SELECT 1 projdou; před nasazením byly ověřeny všechny tři migrace jako up.",
+        "HTTPS smoke projde routy, bezpečnostní hlavičky, RSS/sitemap/API i citlivé cesty.",
+        "Ověřený release ZIP je zachován lokálně pro obnovu; předchozí cílový adresář byl prázdný a uživatel požadoval smazat jeho původní obsah."
+      ],
+      "blocker": null,
+      "clarifications": [],
+      "depends_on": [],
+      "description": "adam-halfar.cz nasazen přes FTPS do prázdného cílového adresáře. Kořenové .htaccess bezpečně přepisuje do webroot; citlivé cesty vrací 403/404. .env zůstává mimo webroot, chmod 600. Uživatel výslovně povolil dříve testovací DB pro live web.",
+      "kind": "operation",
+      "next_action": "",
+      "title": "Nasadit a ověřit adam-halfar.cz",
+      "work_status": "completed"
+    },
+    "task_local_review": {
+      "acceptance_criteria": [
+        "Současný worktree a všechny dirty změny jsou posouzeny.",
+        "Otevřené vady mají opravu nebo zdůvodněný limit.",
+        "Hub registrace a preprocessing mají ověřený stav."
+      ],
+      "blocker": null,
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Lokální aplikace a hub integrace prošly kontrolou. Hosting PHP-FPM zakazoval putenv; environment lookup se opravil přes App\\\\Support\\\\Environment a preflight fallback. Live preflight, SELECT 1 a HTTP smoke prošly. Project registered; preprocessing aktivně čeká slot, bez force refresh. POSIX LoginLimiter testy zůstávají skip na Windows; produkční Linux runtime použije POSIX.",
+      "kind": "analysis",
+      "next_action": "",
+      "title": "Prověřit aktuální aplikaci a dokončit opravy",
+      "work_status": "completed"
+    },
+    "task_release_gates": {
+      "acceptance_criteria": [
+        "Schválený veřejný obsah zůstal beze změny a jeho approval byl ověřen před sestavením.",
+        "Finální ZIP prošel scripts/release_package.py a scripts/verify_archive.py; manifest i SHA256 zkontrolovány.",
+        "PHP syntax, standalone, PHPStan, PHPCS a produkční platform check prošly po změně environment lookupu.",
+        "Živý HTTPS smoke a produkční preflight/DB SELECT 1 prošly; PHPUnit nebyl opakován proti live DB."
+      ],
+      "blocker": null,
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Veřejný obsah schválen před buildem. Produkční ZIP finální ověřen: 1438 souborů včetně SHA256SUMS, bez .env/test/dev balíků; PHP check-platform-reqs --no-dev prošel. Po úpravě env fallbacku: syntax 118 PHP souborů, standalone 182 PASS, PHPStan čistý, PHPCS čistý. Plný PHPUnit/composer quality úspěšně proběhl před finální runtime úpravou; nebyl opakován proti DB, která nyní slouží live web.",
+      "kind": "operation",
+      "next_action": "",
+      "title": "Ověřit release gates a připravit produkční artefakt",
+      "work_status": "completed"
+    }
+  },
+  "title": "Harfusha – dokončení a nasazení"
+}

@@ -424,6 +424,10 @@ $prFixture = ['html_url' => 'https://github.com/cakephp/cakephp/pull/18957','tit
 $issueFixture = ['html_url' => 'https://github.com/phpstan/phpstan/issues/13291','title' => 'Regression','state' => 'closed','created_at' => '2025-07-22T00:00:00Z','user' => ['login' => 'Harfusha']];
 $records = GithubSnapshot::externalActivity([$prFixture], [$prFixture], [$issueFixture], 'Harfusha');
 verify(count($records) === 2 && $records[0]->state === 'merged' && $records[1]->kind === 'issue', 'GitHub snapshot classification');
+$completedIssueFixture = ['html_url' => 'https://github.com/phpstan/phpstan/issues/13291','title' => 'Regression','state' => 'closed','created_at' => '2025-07-22T00:00:00Z','user' => ['login' => 'Harfusha'],'state_reason' => 'completed'];
+$unplannedIssueFixture = ['html_url' => 'https://github.com/cakephp/cakephp/issues/18954','title' => 'Aware TableLocator','state' => 'closed','created_at' => '2025-10-07T00:00:00Z','user' => ['login' => 'Harfusha'],'state_reason' => 'not_planned'];
+$recordsReason = GithubSnapshot::externalActivity([], [], [$completedIssueFixture, $unplannedIssueFixture], 'Harfusha');
+verify($recordsReason[0]->state === 'completed' && $recordsReason[1]->state === 'closed', 'GitHub issue completed vs closed classification');
 foreach (
     [
     [[array_replace($prFixture, ['user' => ['login' => 'Other']])], [], []],
@@ -532,6 +536,26 @@ foreach (['cs','en'] as $code) {
         verify(strlen($html) > 100 && str_contains($html, 'class='), "SSR template {$code}/{$name}");
     }
 }
+$renderedOpenSource = $renderer->render($root . '/templates/Pages/open_source.php', [
+    'lang' => new Language('cs'),
+    'activity' => [
+        ['source_url' => 'https://github.com/phpstan/phpstan/issues/13291', 'title' => 'Fixed bug', 'repository' => 'phpstan/phpstan', 'kind' => 'issue', 'state' => 'completed', 'published_at' => '2025-07-22', 'closed_at' => '2025-07-23'],
+        ['source_url' => 'https://github.com/cakephp/cakephp/issues/18954', 'title' => 'Rejected proposal', 'repository' => 'cakephp/cakephp', 'kind' => 'issue', 'state' => 'closed', 'published_at' => '2025-10-07', 'closed_at' => '2025-10-08'],
+    ],
+    'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null],
+]);
+verify(str_contains($renderedOpenSource, 'Dokončeno') && str_contains($renderedOpenSource, 'Uzavřeno · důvod neznámý'), 'open_source template renders Dokončeno and Uzavřeno · důvod neznámý');
+$renderedNow = $renderer->render($root . '/templates/Pages/now.php', [
+    'lang' => new Language('cs'),
+    'recentRepos' => [],
+    'journalEntries' => [],
+    'activity' => [
+        ['source_url' => 'https://github.com/phpstan/phpstan/issues/13291', 'title' => 'Fixed bug', 'repository' => 'phpstan/phpstan', 'kind' => 'issue', 'state' => 'completed', 'published_at' => '2025-07-22', 'closed_at' => '2025-07-23'],
+        ['source_url' => 'https://github.com/cakephp/cakephp/issues/18954', 'title' => 'Rejected proposal', 'repository' => 'cakephp/cakephp', 'kind' => 'issue', 'state' => 'closed', 'published_at' => '2025-10-07', 'closed_at' => '2025-10-08'],
+    ],
+    'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null],
+]);
+verify(str_contains($renderedNow, 'Dokončeno') && str_contains($renderedNow, 'Uzavřeno · důvod neznámý'), 'now template renders Dokončeno and Uzavřeno · důvod neznámý');
 $labRaw = file_get_contents($root . '/data/topology.json');
 verify(is_string($labRaw) && !str_contains($labRaw, '192.168.') && !str_contains($labRaw, '10.0.0.'), 'No internal IPs in published model');
 $homelabText = $renderer->render($root . '/templates/Pages/homelab.php', [

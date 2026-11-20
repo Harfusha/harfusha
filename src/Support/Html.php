@@ -34,7 +34,7 @@ final class Html
      */
     public static function versionedAsset(string $asset): string
     {
-        $allowed = ['assets/css/app.css', 'assets/js/app.js', 'assets/js/lab-core.js'];
+        $allowed = ['assets/css/app.css', 'assets/css/portfolio.css', 'assets/js/app.js', 'assets/js/lab-core.js'];
         if (!in_array($asset, $allowed, true)) {
             throw new InvalidArgumentException('Unsupported public asset');
         }

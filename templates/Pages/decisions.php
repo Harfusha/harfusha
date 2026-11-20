@@ -28,7 +28,7 @@ $decisionChapters = [
     $lang->value('Repozitář popisuje zvolenou cestu i její cenu. Je to důkaz záměru a architektury, ne automatické potvrzení živého provozu.', 'The repository describes the chosen path and its cost. That documents intent and architecture; it does not automatically prove live operation.'),
   ],
   'prototype' => [
-    $lang->value('Směr je vidět. Důkaz ještě ne.', 'The direction is visible. Proof is still missing.'),
+    $lang->value('Návrhy a prototypy v ověřování', 'Designs and prototypes under review'),
     $lang->value('Tady zdroj ukazuje návrh nebo prototyp. Otevřená zůstává fyzická kontrola, přijatá herní smyčka nebo ověření v běhu.', 'Here the source shows a design or prototype. Physical review, an accepted gameplay loop or runtime verification remains open.'),
   ],
   'planned' => [
@@ -42,15 +42,13 @@ foreach ($decisions as $decision) {
 }
 ?>
 <section class="page-hero shell">
-  <span class="eyebrow"><?= $lang->value('CO UŽ FUNGUJE · CO JEŠTĚ CHYBÍ', 'WHAT WORKS · WHAT IS STILL MISSING') ?></span>
-  <h1><?= $lang->value('Nejdřív zkusím najít hotové řešení.', 'First, I look for something that already works.') ?></h1>
-  <p><?= $lang->value('Když hotová alternativa pokryje potřebu, vlastní projekt nemá důvod. Smysl má až tam, kde zůstane konkrétní mezera — a kde je fér ukázat i cenu, údržbu a to, co zatím ověřené není.',
-      'If an existing tool covers the need, there is no reason for a custom project. It only makes sense where a concrete gap remains, and where I can show its cost, maintenance burden and what is still unverified.') ?></p>
-  <div class="page-meta"><?= $lang->value('HOTOVÁ ALTERNATIVA', 'EXISTING OPTION') ?> <span>·</span> <?= $lang->value('KONKRÉTNÍ MEZERA', 'A SPECIFIC GAP') ?> <span>·</span> <?= $lang->value('CENA A DŮKAZ', 'COST AND EVIDENCE') ?></div>
+  <h1><?= $lang->value('Technická rozhodnutí', 'Engineering decisions') ?></h1>
+  <p><?= $lang->value('Proč jsem v MutaUI zachoval Mutagen CLI? Kdy se u domácích služeb vyplatí Ansible? Rozklikni rozhodnutí a porovnej možnosti, které dávaly smysl.',
+      'Why does MutaUI keep using the Mutagen CLI? When is Ansible worth the setup for home services? Open a decision to see what I chose and what the alternatives offered.') ?></p>
 </section>
 <section class="shell decision-principle" aria-label="<?= $lang->value('Pravidlo pro vlastní projekty', 'Rule for custom projects') ?>">
   <span class="eyebrow"><?= $lang->value('MOJE VÝCHOZÍ VOLBA', 'MY DEFAULT') ?></span>
-  <p><?= $lang->value('Použít hotový nástroj. Vlastní cestu volím až tehdy, když dokážu pojmenovat, co v ní chybí — a co navíc budu muset udržovat.', 'Use the existing tool. I choose a custom path only when I can name what it is missing and what extra work I will have to maintain.') ?></p>
+  <p><?= $lang->value('Začínám s hotovým nástrojem. Vlastní řešení stavím, když vím, co mi chybí a co mě bude stát údržba.', 'I start with the tool that already exists. I build my own when I can name what is missing and what it will take to maintain.') ?></p>
 </section>
 <section class="shell section" data-decision-browser>
   <div class="filter-bar">
@@ -63,6 +61,7 @@ foreach ($decisions as $decision) {
       <option value="prototype"><?= $lang->value('Prototyp / rozpracováno', 'Prototype / in progress') ?></option>
       <option value="planned"><?= $lang->value('Plán', 'Planned') ?></option>
     </select>
+    <button class="btn btn-ghost btn-sm" type="button" data-filter-reset hidden><?= $lang->value('Vymazat filtry', 'Clear filters') ?></button>
     <span class="filter-count" data-count role="status" aria-live="polite" aria-atomic="true"><?= count($decisions) ?> <?= $lang->value('rozhodnutí','decisions') ?></span>
   </div>
   <div class="decision-chapters">
@@ -74,20 +73,19 @@ foreach ($decisions as $decision) {
       <details class="decision-card" data-decision data-status="<?= Html::escape($decision->status) ?>"
         data-search-text="<?= Html::escape($decision->project.' '.$decision->title($lang).' '.$decision->context($lang).' '.$decision->choice($lang)) ?>">
         <summary>
-          <span class="eyebrow"><?= $lang->value('ROZHODNUTÍ · ', 'DECISION · ') ?><?= Html::escape($decisionStatusLabels[$decision->status] ?? $decision->status) ?></span>
           <strong><?= Html::escape($decision->title($lang)) ?></strong>
           <span class="decision-context"><?= Html::escape($decision->context($lang)) ?></span>
           <span class="decision-quick-choice"><span><?= $lang->value('VOLBA', 'CHOICE') ?></span><?= Html::escape($decision->choice($lang)) ?></span>
           <?php if ($alternativePreview !== null): ?><span class="decision-quick-alternative"><span><?= $lang->value('ALTERNATIVA', 'ALTERNATIVE') ?></span><?= Html::escape($alternativePreview['name']) ?></span><?php endif; ?>
-          <span class="decision-more"><?= $lang->value('Proč právě tahle cesta?', 'Why this route?') ?> <span aria-hidden="true">+</span></span>
+          <span class="decision-more"><?= $lang->value('Kompromis a podklady', 'Trade-offs and evidence') ?> <span aria-hidden="true">+</span></span>
         </summary>
         <div class="decision-detail">
           <?php if ($alternativePreview !== null): $alternative = $alternativePreview; ?>
           <div class="decision-alternative"><span class="eyebrow"><?= $lang->value('CO UŽ UMÍ JINÉ ŘEŠENÍ', 'WHAT THE ALTERNATIVE ALREADY DOES') ?></span><p><a href="<?= Html::escape($alternative['url']) ?>" target="_blank" rel="noopener noreferrer"><?= Html::escape($alternative['name']) ?> ↗</a></p><p><?= Html::escape($alternative['summary']) ?></p></div>
           <div><span class="eyebrow"><?= $lang->value('MEZERA, KTEROU ZKOUŠÍM', 'THE GAP I AM TESTING') ?></span><p><?= Html::escape($alternative['scope']) ?></p></div>
           <?php else: ?><div><span class="eyebrow">02 / <?= $lang->value('VOLBA', 'CHOICE') ?></span><p><?= Html::escape($decision->choice($lang)) ?></p></div><?php endif; ?>
-          <div><span class="eyebrow"><?= $lang->value('CO TÍM ZÍSKÁVÁM A CO ZTRÁCÍM', 'WHAT I GAIN AND WHAT I GIVE UP') ?></span><p><?= Html::escape($decision->tradeoff($lang)) ?></p></div>
-          <div><span class="eyebrow"><?= $lang->value('CO JE DOOPRAVDY OVĚŘENÉ', 'WHAT IS ACTUALLY VERIFIED') ?></span><p><?= Html::escape($decision->evidence($lang)) ?></p></div>
+          <div><span class="eyebrow"><?= $lang->value('KOMPROMIS', 'TRADE-OFF') ?></span><p><?= Html::escape($decision->tradeoff($lang)) ?></p></div>
+          <div><span class="eyebrow"><?= $lang->value('PODKLADY A STAV OVĚŘENÍ', 'EVIDENCE AND VERIFICATION') ?></span><p><?= Html::escape($decision->evidence($lang)) ?></p></div>
           <a class="inline-link" href="<?= $lang->path('/projects/'.$decision->project) ?>"><?= $lang->value('Otevřít případovou studii','Read the related case study') ?> ↗</a>
         </div>
       </details>
@@ -97,8 +95,9 @@ foreach ($decisions as $decision) {
     <?php endforeach; ?>
   </div>
   <p class="empty-state hidden" data-empty><?= $lang->value('Žádné rozhodnutí neodpovídá filtru.', 'No decisions match this filter.') ?></p>
-  <div class="notice note-info"><strong><?= $lang->value('Záznam rozhodnutí není audit.', 'A design record is not an audit.') ?></strong>
-    <p><?= $lang->value('Tyto záznamy jsou kurátorované technické poznámky a transparentně popisují omezení. Neznamenají automaticky bezpečnostní certifikaci ani provozní benchmark.',
-    'These are curated engineering notes with explicit limitations, not security certifications or operational benchmarks.') ?></p>
+  <div class="notice note-info"><strong><?= $lang->value('Rozhodnutí a výsledky', 'Decisions and results') ?></strong>
+    <p><?= $lang->value('U každého rozhodnutí je uvedený podklad a jeho hranice. Pro srovnání toho, kam se projekty skutečně dostaly, použijte přehled výsledků.',
+    'Each decision identifies its supporting evidence and its limits. The project results compare how far the individual projects progressed.') ?></p>
+    <a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Přehled výsledků', 'Project results') ?> <span aria-hidden="true">↗</span></a>
   </div>
 </section>

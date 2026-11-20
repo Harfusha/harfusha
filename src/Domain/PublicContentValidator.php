@@ -156,7 +156,7 @@ final class PublicContentValidator
         self::string($row, 'title', $label, 1, 250);
         if (
             !in_array($row['kind'] ?? null, ['pr','issue'], true)
-            || !in_array($row['state'] ?? null, ['merged','open','closed'], true)
+            || !in_array($row['state'] ?? null, ['merged','open','closed','completed'], true)
         ) {
             throw new InvalidArgumentException('Invalid contribution state: ' . $label);
         }

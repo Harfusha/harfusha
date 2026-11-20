@@ -126,8 +126,8 @@ def main() -> int:
     cases = [
         ('/', 302, None), ('/cs/', 200, b'HARFUSHA'),
         ('/en/', 200, b'HARFUSHA'), ('/cs/projects', 200, b'Local AI Hub'),
-        ('/cs/decisions', 200, 'Rozhodnutí za kódem'.encode('utf-8')),
-        ('/en/homelab', 200, b'Inside the network'),
+        ('/cs/decisions', 200, 'Technická rozhodnutí'.encode('utf-8')),
+        ('/en/homelab', 200, 'If a host goes down, what stops working?'.encode('utf-8')),
         ('/cs/projects/missing-project', 404, None),
         ('/sitemap.xml', 200, b'<urlset'),
         ('/cs/feed.xml', 200, b'<rss'),

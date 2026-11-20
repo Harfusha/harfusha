@@ -5,7 +5,7 @@ use App\Support\Html;
 
 $stories = [
     'local-ai-hub' => [
-        'claim' => $lang->value('Agent nemá při každém dotazu začínat od nuly.', 'An agent should not have to start from zero for every question.'),
+        'claim' => $lang->value('Co nabízí předem připravený index', 'What a prebuilt index makes possible'),
         'why' => $lang->value('Začal jsem nad tím přemýšlet, protože se přes AI řeší i věci, které jdou udělat programově a deterministicky. A chybělo mi jednou zaregistrovat repozitář, nechat předem doběhnout tu náročnou práci a při vývoji už neplatit zdroji za stejné hledání pořád dokola. Proto Hub nejdřív projde soubory, spočítá hashe a připraví index. Model přichází až ve chvíli, kdy deterministické podklady nestačí.', 'I started thinking about this because AI was doing work that could be handled programmatically and deterministically. I also wanted to register a repository once, let the expensive work finish ahead of time, and stop spending resources on the same discovery during every task. So the Hub inventories files, hashes them and prepares an index first. A model comes in only when deterministic evidence is not enough.'),
         'alternatives' => [
             ['Continue', 'https://docs.continue.dev/faqs', $lang->value('Indexuje codebase a umí z něj vybírat kontext. Pro mnoho editorových úloh může stačit.', 'Indexes a codebase and retrieves context. That can be enough for many editor workflows.')],
@@ -17,7 +17,7 @@ $stories = [
         'interaction' => $lang->value('Uprav vzorek, spočítej jeho SHA-256 a sleduj navazující vrstvy.', 'Edit the sample, calculate its SHA-256 and inspect the downstream layers.'),
     ],
     'mutaui' => [
-        'claim' => $lang->value('Mutagen už dělá těžkou práci. MutaUI mu dává ovládací panel.', 'Mutagen does the hard work. MutaUI gives it a control surface.'),
+        'claim' => $lang->value('Kdy pomáhá grafická správa relací', 'When a graphical session manager helps'),
         'why' => $lang->value('Mutagen už synchronizuje, takže vlastní sync engine by jen dělal stejnou práci podruhé. MutaUI chce dát relace, diagnostiku a nastavení do jednoho okna a předem ukázat, co operace změní. Dokumentace doporučuje začít na dvou testovacích složkách; screenshoty jsou z offline dema a nic nespouštějí. Co mě přivedlo k úplně prvnímu commitu, zdrojový kód neříká.', 'Mutagen already handles synchronization, so a second sync engine would repeat its work. MutaUI puts sessions, diagnostics and settings in one window and previews what an operation will change. The docs recommend starting with two disposable folders; the screenshots come from an offline demo and execute nothing. The source does not say what triggered the very first commit.'),
         'alternatives' => [
             ['Mutagen CLI', 'https://mutagen.io/documentation/introduction/getting-started/', $lang->value('Nejkratší cesta, pokud mi vyhovují příkazy a výstupy v terminálu. MutaUI bez něj nefunguje.', 'The simplest route when terminal commands and output are enough. MutaUI still depends on it.')],
@@ -29,8 +29,8 @@ $stories = [
         'interaction' => $lang->value('Prohlédni si náhled synchronizační operace.', 'Inspect a sync operation preview.'),
     ],
     'home-infrastructure' => [
-        'claim' => $lang->value('Není to nový produkt. Je to popsaná konfigurace konkrétní domácnosti.', 'This is not a new product. It is configuration for one specific home.'),
-        'why' => $lang->value('Tady nejde o jeden server. Router, hlavní Raspberry Pi, tiskové Pi, NAS a testovací Proxmox mají každý jiný úkol i režim provozu. První commit nevysvětluje, proč jsem s tím začal; pozdější audity ale ukazují, co mi ten popis dnes dává: v Gitu vidím, co patří na který host a co obnovit po výpadku. Mapa je dokumentace, ne živý monitoring.', 'This is not one server. The router, main Raspberry Pi, print Pi, NAS and test Proxmox each have a different job and operating pattern. The first commit does not explain why I started; later audits do show what the documentation gives me today: Git records what belongs on each host and what to restore after an outage. The map is documentation, not live monitoring.'),
+        'claim' => $lang->value('Jak je rozdělená správa domácích služeb', 'How home service management is divided'),
+        'why' => $lang->value('Tady nejde o jeden server. Router, hlavní Raspberry Pi, tiskové Pi, NAS a testovací Proxmox mají odlišné role. Repozitář popisuje jejich správu, služby i obnovu po výpadku; první commit ale nezachycuje, proč jsem s tím začal. Mapa na webu je dokumentace, ne živý monitoring.', 'This is not one server. The router, main Raspberry Pi, print Pi and NAS each have a distinct role; Proxmox is used for testing. The repository documents their management, services and recovery after an outage, but the first commit does not preserve why I started. The site map is documentation, not live monitoring.'),
         'alternatives' => [
             ['Ruční Ansible CLI', 'https://docs.ansible.com/ansible/latest/cli/ansible-playbook.html', $lang->value('Méně běžící infrastruktury; dobrá volba pro pár občasných změn.', 'Less infrastructure to maintain; a sensible choice for occasional changes.')],
             ['AWX', 'https://github.com/ansible/awx', $lang->value('Širší automatizační rozhraní; jeho provozní režii pro tuto síť jsem neměřil.', 'A broader automation interface; I have not measured its operating overhead for this network.')],
@@ -42,7 +42,7 @@ $stories = [
         'interaction' => $lang->value('Zvol hosta. Prohlédni jeho zdokumentované služby.', 'Choose a host. Inspect its documented services.'),
     ],
     'woodbound' => [
-        'claim' => $lang->value('Les není dekorace; musí navazovat na vodu, terén i logistiku.', 'A forest is more than decoration; it must fit water, terrain and logistics.'),
+        'claim' => $lang->value('Jak terén určuje tok surovin', 'How terrain determines material flow'),
         'why' => $lang->value('Pěkný terén sám o sobě nestačí. Podle návrhu má hráč projít od ruční práce v lese přes výrobu až k přepravě dřeva; proto se musí potkat reliéf, voda, regiony, průmyslová místa i průchozí trasy. Právě to propojení pravidel je důvod pro vlastní generovací pipeline. Je to cíl návrhu, ne důkaz, že už vznikl přijatý hratelný svět.', 'Attractive terrain is not enough. The design takes the player from manual forestry through production to timber transport, so terrain, water, regions, industrial sites and traversable routes have to fit together. Connecting those rules is the reason for a custom generation pipeline. That is the design goal, not proof of an accepted playable world.'),
         'alternatives' => [
             ['Unity Terrain Tools', 'https://docs.unity.cn/6000.0/Documentation/Manual/terrain-Tools.html', $lang->value('Přímo v Unity: ruční práce s terénem a jeho nástroji. Vhodná pro autorsky řízené prostředí.', 'Built into Unity: author terrain with its native tools. A fit for hand-directed environments.')],
@@ -53,7 +53,7 @@ $stories = [
         'interaction' => $lang->value('Změň vrstvu. Odhal pravidlo, které musí navazovat.', 'Change a layer. Reveal the rule that must follow.'),
     ],
     'scan2cad' => [
-        'claim' => $lang->value('Tady už jsou dospělé nástroje. Vlastní prototyp musí přiznat, co ještě neumí.', 'Mature tools already exist. A custom prototype must say what it still cannot do.'),
+        'claim' => $lang->value('Kde při rekonstrukci pomáhají fotografie', 'Where photographs help in reconstruction'),
         'why' => $lang->value('U skenu se dá snadno splést hezký tvar se správně změřeným modelem. Proto návrh nezačíná slibem automatického převodu: pracuje s lokálním PLY, OBJ nebo STL, potvrzením jednotek, referenčními fotkami a viditelnou nejistotou. Člověk má kandidát upravit a rozměry ověřit dřív, než ho použije v CADu. Přesnost se pořád musí měřit fyzicky.', 'A convincing shape can still be the wrong size. That is why the design does not promise an automatic conversion: it works with local PLY, OBJ or STL files, confirmed units, reference photos and visible uncertainty. A person should correct the candidate and verify its dimensions before using it in CAD. Accuracy still needs physical measurement.'),
         'alternatives' => [
             ['Autodesk ReCap Pro', 'https://help.autodesk.com/cloudhelp/ENU/Reality-Capture/files/Product_Overview/recap_product_tiers.html', $lang->value('Hotové nástroje pro import, čištění a zarovnání mračen bodů. Pro zavedený průmyslový proces může být správná odpověď koupit hotový produkt.', 'Established point-cloud import, cleanup and alignment tools. For an industrial workflow, buying a mature product may be the right answer.')],
@@ -65,7 +65,7 @@ $stories = [
         'interaction' => $lang->value('Ověř měřítko na skutečném výpočtu.', 'Check scale with an actual calculation.'),
     ],
     'tiskov' => [
-        'claim' => $lang->value('Pro kalkulaci tisku už existují služby. Tiskov míří na konkrétní místní postup.', 'Print quoting services already exist. Tiskov describes a specific local workflow.'),
+        'claim' => $lang->value('Jak by fungovala místní tisková fronta', 'How a local print queue would work'),
         'why' => $lang->value('U Tiskova nemám zdrojový repozitář, jen návrh postupu. Ten posílá poptávku z webu do fronty v MySQL, dál na slicer na Raspberry Pi a nakonec k člověku, který potvrdí cenu. Původní důvod vzniku dostupné podklady neříkají, takže tu nebudu předstírat hotovou službu ani vymyšlenou vzpomínku.', 'I do not have Tiskov\'s source repository, only a proposed workflow. A web request goes to a MySQL queue, then to a slicer on Raspberry Pi, and finally to a person who confirms the price. The available material does not say why the project began, so I will not present a finished service or invent a memory.'),
         'alternatives' => [
             ['Craftcloud', 'https://craftcloud3d.com/en/upload', $lang->value('Nahraješ model, zvolíš technologii a porovnáš nabídky tiskových partnerů. Pro běžnou zakázku to může být dostatečné řešení.', 'Upload a model, select a process and compare printing-provider offers. That may be enough for an ordinary order.')],
@@ -75,7 +75,7 @@ $stories = [
         'interaction' => $lang->value('Tiskov zatím končí u návrhu toku.', 'Tiskov currently stops at a proposed flow.'),
     ],
     'shpotify' => [
-        'claim' => $lang->value('Nejtěžší otázka: není vlastní aplikace zbytečná?', 'The hardest question: is another app unnecessary?'),
+        'claim' => $lang->value('Jak se liší spolupráce ve sdílené frontě', 'How collaboration differs in a shared queue'),
         'why' => $lang->value('V podkladech jsou místnosti a společná fronta, ale chybí původní rozhovor, který měl nápad vysvětlit. Nechci tedy tvrdit, že už řeší jasný problém: Spotify Jam nabízí společný poslech také. Otázka pro mě je, jestli existuje jiná potřeba než jen další tlačítko pro přidání skladby — a jestli jde přehrávání dovést od pozvánky až ke konci skladby.', 'The material shows rooms and a shared queue, but the original conversation behind the idea is missing. I do not want to claim it already solves a clear problem: Spotify Jam offers shared listening too. The question for me is whether there is a need beyond another add-track button, and whether playback can work from invitation through the end of a track.'),
         'alternatives' => [
             ['Spotify Jam', 'https://newsroom.spotify.com/2026-01-07/listening-activity-request-to-jam-messages-updates/', $lang->value('Už nabízí společnou frontu, sdílené poslechové sezení a návrhy podle vkusu skupiny. Pro většinu běžného poslechu může plně stačit.', 'Already offers a shared queue, joint listening and suggestions based on the group’s taste. It may fully meet ordinary listening needs.')],
@@ -85,7 +85,7 @@ $stories = [
         'interaction' => $lang->value('Přidávej do fronty. Zvuk zůstává mimo simulaci.', 'Add to the queue. Audio stays outside the simulation.'),
     ],
     'softwareinc-multiplayer' => [
-        'claim' => $lang->value('Steam verze hry už má online kooperaci. Co má přidat další mod?', 'The Steam edition already has online co-op. What should another mod add?'),
+        'claim' => $lang->value('Na co se zaměřují dohody mezi hráči', 'What player agreements are designed to cover'),
         'why' => $lang->value('Tady je fér začít otázkou: proč další mod, když Steam verze hry už má online co-op? Podklady popisují sdílené projekty, hosting, distribuci a obchodní dohody. Jeden běh kandidáta po reloadu znovu našel testovací cíle; neověřil ale dohodu ve hře ani hotový multiplayer. Osobní důvod pro další mod se v dokumentaci nedochoval.', 'The fair starting question is: why another mod when the Steam edition already has online co-op? The docs describe shared projects, hosting, distribution and business agreements. One candidate run found its test targets after reload, but it did not verify an in-game agreement or finished multiplayer. The personal reason for another mod is not recorded.'),
         'alternatives' => [
             ['Software Inc. Multiplayer (SIMM)', 'https://github.com/software-inc-multiplayer/software-inc-multiplayer', $lang->value('Existující komunitní mod pro společný svět. Než stavět další, je třeba porovnat aktivitu, kompatibilitu a konkrétní chybějící funkci.', 'An existing community mod for a shared world. Compare maintenance, compatibility and the specific missing feature before building another.')],
@@ -97,7 +97,7 @@ $stories = [
         'interaction' => $lang->value('Co prokázal jediný běh kandidáta?', 'What did a single candidate run prove?'),
     ],
     'discord-bot' => [
-        'claim' => $lang->value('Než přidám další bot příkaz, ověřím, že má uživatel opravdu důvod opustit SSH či správní rozhraní.', 'Before adding another bot command, check why an operator should leave SSH or an admin console.'),
+        'claim' => $lang->value('Kdy dává smysl spravovat službu z Discordu', 'When it makes sense to maintain a service from Discord'),
         'why' => $lang->value('O Discord botu mám jen veřejný katalog: zmiňuje aplikační příkazy a oddělenou údržbovou větev. Zdrojový repozitář nemám, takže neznám přesné příkazy ani jejich oprávnění. Záznam o syntaktické chybě je stopa k ověření, ne důkaz dnešního chování.', 'I only have the public catalog for the Discord bot: it mentions application commands and a separate maintenance path. I do not have the source repository, so I cannot verify the exact commands or permissions. The syntax-error note is a lead to check, not proof of current behavior.'),
         'alternatives' => [
             ['SSH + systemd', 'https://www.freedesktop.org/software/systemd/man/latest/systemctl.html', $lang->value('Menší plocha útoku a přímé oprávnění správce. Pro vlastní údržbu bývá často lepší volba.', 'Smaller attack surface and direct operator permissions. Often the better choice for personal maintenance.')],
@@ -157,11 +157,11 @@ $storyLayouts = [
    <article class="project-fit"><span class="eyebrow"><?= Html::escape($lang->value($labels['fit'][0], $labels['fit'][1])) ?></span><p><?= Html::escape($lang->value($story['fit'], $story['fit'])) ?></p></article>
    <article class="project-alternatives"><span class="eyebrow"><?= Html::escape($lang->value($labels['alternatives'][0], $labels['alternatives'][1])) ?></span><small class="alternative-date"><?= $lang->value('ověřeno 16. 11. 2026', 'checked 16 Nov 2026') ?></small><ul><?php foreach ($story['alternatives'] as [$name, $url, $copy]): ?><li><a href="<?= Html::escape($url) ?>" target="_blank" rel="noopener noreferrer"><?= Html::escape($name) ?> ↗</a><p><?= Html::escape($copy) ?></p></li><?php endforeach; ?></ul></article>
  </div>
- <?php if (isset($playgroundLinks[$project->slug])): ?>
+ <?php if ($hasInteractiveModel): ?>
  <aside class="project-lab-link">
-   <span class="eyebrow"><?= $project->slug === 'tiskov' ? $lang->value('NÁVRHOVÁ SIMULACE', 'PROPOSAL SIMULATION') : $lang->value('PŘÍMO K FUNKČNÍMU MODELU', 'OPEN THE WORKING MODEL') ?></span>
+   <span class="eyebrow"><?= $project->slug === 'tiskov' ? $lang->value('NÁVRHOVÁ SIMULACE', 'PROPOSAL SIMULATION') : $lang->value('INTERAKTIVNÍ MODEL', 'INTERACTIVE MODEL') ?></span>
    <p><?= Html::escape($story['interaction']) ?></p>
-   <a class="btn btn-primary btn-sm" href="<?= $lang->path($playgroundLinks[$project->slug]) ?>"><?= $project->slug === 'tiskov' ? $lang->value('Otevřít návrhovou simulaci', 'Open proposal simulation') : $lang->value('Otevřít model', 'Open model') ?> →</a>
+   <a class="btn btn-primary btn-sm" href="<?= Html::escape($primaryHref) ?>"><?= Html::escape($primaryText) ?> <span aria-hidden="true">↗</span></a>
  </aside>
  <?php endif; ?>
 </section>

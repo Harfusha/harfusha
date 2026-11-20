@@ -72,4 +72,17 @@ final class GithubSnapshotTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         GithubSnapshot::externalActivity([['title' => 'Without URL', 'user' => ['login' => 'Harfusha']]], [], [], 'Harfusha');
     }
+
+    public function testIssueClosureReasonDistinguishesCompletedFromOtherClosedInSnapshot(): void
+    {
+        $completedIssue = self::record('https://github.com/phpstan/phpstan/issues/13291', 'closed') + ['state_reason' => 'completed'];
+        $unplannedIssue = self::record('https://github.com/cakephp/cakephp/issues/18954', 'closed') + ['state_reason' => 'not_planned'];
+        $unknownIssue = self::record('https://github.com/ansible/ansible/issues/84560', 'closed');
+
+        $result = GithubSnapshot::externalActivity([], [], [$completedIssue, $unplannedIssue, $unknownIssue], 'Harfusha');
+        self::assertCount(3, $result);
+        self::assertSame('completed', $result[0]->state);
+        self::assertSame('closed', $result[1]->state);
+        self::assertSame('closed', $result[2]->state);
+    }
 }

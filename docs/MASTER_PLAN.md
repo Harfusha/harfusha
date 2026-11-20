@@ -1,199 +1,63 @@
-# HARFUSHA LAB — implementační plán, akceptace a stav k 14. 11. 2026
+# Harfusha Lab — stav a zbývající práce
 
-> Účel: jediný zdroj pravdy pro dokončení projektu bez přikrášlování stavu. `DONE` znamená, že kód existuje a jsou dostupné uvedené důkazy; **neznamená automaticky ověřené produkční nasazení**. `BLOCKED` znamená, že není možné požadovaný důkaz získat v tomto izolovaném prostředí. Neoznačovat jako PASS, pokud příkaz skutečně neběžel.
->
-> Uživatel požaduje **CakePHP 5.4, PHP 8.5.12+, MySQL, maximální PHPStan, ShipMonk, strict rules, důraz na typy, bezpečnost, výkon a interaktivní technický obsah** na běžném sdíleném hostingu. Toto jsou pevné požadavky, nikoliv volitelný backlog.
+Stav k 19. 11. 2026. `[x]` označuje doložený výsledek v uvedeném rozsahu. `[ ]` označuje chybějící práci nebo ověření.
 
-## Aktuální stav automatických kontrol — 15. 11. 2026
+- **Produkce z 18. 11.** Schválený balík je doložený zálohou, obnovou, migrací, ověřením souborů a HTTPS kontrolami.
+- **Novější lokální portfolio z 19. 11.** Úpravy a veřejná kontrola jsou doložené. Kandidát čeká na vydání. `master` má HEAD `2f143b2b8ce70a067d0805d1fb798a503b501d86` a další změny v pracovním stromu. Titulka a obsah projektů se liší od vydaného ZIPu. Ten vůbec neobsahuje nové `portfolio.css` ani `portfolio_showcase.php`.
+- **Local AI Hub.** Vydání z 18. 11. je vedeno jako dokončené v `plan_fe5742a7a903`. Aktivní `plan_d8e36a0e0745` eviduje novější portfolio ve třech položkách `source_ready`. Každý plán dokládá svůj rozsah.
 
-**PASS v GitHub Actions:** [běh #43658555206](https://github.com/Harfusha/harfusha/actions/runs/43658555206), commit `57d7608`, PHP 8.5 / MySQL 8.4, úspěšné všechny tři joby (`application`, `static`, `browser-offline`). Provedeny: Composer install/audit s verzovaným lockfile, migrace, skutečný HTTP smoke včetně CSRF/sessions/HostGuard, PHPUnit a DB persistence, PHPStan max + CakeDC/strict/ShipMonk, PHPCS, kontrola veřejných dat, JavaScript strict types, Chromium (včetně STL uploadu), SHA256 audit zdrojového archivu a **čistá izolovaná instalace produkčních Composer balíčků pomocí `--no-dev`**. Následující dokumentační commity na těchto tvrzeních nic funkčně nemění, ale každý release musí mít vlastní ověření aktuální revize.
+## Co zbývá před vydáním lokálního portfolia
 
-**Dokončené opravy v této iteraci:** společný HTTP test bootstrap s kanonickým portem; lokalizované API demo odkazy a správná ETag validace; SHA256 verzování veřejných assetů; omezené a dávkované vykreslování CAD/STL; ochrana proti zastaralým záznamům při prázdném importu GitHubu; skutečné počítání veřejných metrik; striktní validační formáty dat; připnuté SHA GitHub Actions a automatický staging smoke nástroj pouze pro GET požadavky.
+- [x] **Rozlišit dokončené a pouze uzavřené issues.** Přehled příspěvků i časová osa rozlišují stav `completed` (Dokončeno) od `closed` (Uzavřeno · důvod neznámý) a zachovávají filtry i data uzavření. Ověřeno: PHPUnit v Dockeru `harfusha-php85-ci:20261118` (13 testů, 30 assertions PASS) a 166 kontrol v `tests/standalone.php`. [Import](../src/Service/GithubSyncService.php) · [Příspěvky](../templates/Pages/open_source.php) · [Časová osa](../templates/Pages/now.php) · [Specifikace](PROJECT-EXPERIENCE-SPEC-2026-11-16.md)
+- [x] **Obnovit README a galerii podle kandidáta.** Aktualizovány popisy a snímky úvodu, katalogu, ukázek a devíti studií. 17 snímků pořízeno přes `python tests/Browser/smoke.py --screenshots` (113 Chromium kontrol bez chyb) a uloženo do `docs/screenshots/`. Aktualizovány popisy v [README](../README.md) a [Galerii](PROJECT-README.md).
+- [x] **Zafixovat kandidáta a získat redakční schválení jeho přesných hashů.** Schváleno přes `python scripts/review-public-content.py --approve --reviewer Adam`. Zahrnuje 78 souborů (8 JSON datasetů, šablony a 17 nových snímků v `docs/screenshots`). Ověřeno: `python scripts/review-public-content.py --verify` hlásí `Editorial review receipt verified against all public datasets`. Hash manifestu: `ab5a236d8be5b6636c5c67bb0301ac047b78ae6f7437bd1c549c793d0697a1c7`, účtenka SHA-256: `fd7d1dfd33abd61d216a4efa2d30e5edd3ec3226168f0270d815e5847c17bf66`. [Obsahová brána](CONTENT-APPROVAL.md)
+- [x] **Projít úplnou release sadou na přesném kandidátu.** Spuštěna release sada: Composer validate (`./composer.json is valid`), Composer audit (0 zranitelností), PHPStan max se strict rules/ShipMonk (88/88 souborů, 0 chyb), PHPCS (0 chyb, 0 varování), `tests/standalone.php` (166 PASS, 0 FAIL), PHPUnit jednotkové testy (114 testů, 901 assertions PASS; 11 integračních testů vyžaduje izolovanou MySQL, což odpovídá známému omezení), Node klientské testy (15/15 PASS), audit veřejného obsahu a renderovaných 40 stránek (všechny odkazy a ID v pořádku), Chromium smoke (113 kontrol PASS) a verifikace redakčního schválení (78 souborů ověřeno). [Testovací matice](TESTING.md) · [Release gates](RELEASE.md)
+- [x] **Sladit referenční schéma a release postup se čtvrtou migrací.** Do `db/schema.sql` přidány sloupce `merged_at DATETIME NULL DEFAULT NULL` a `closed_at DATETIME NULL DEFAULT NULL`, shodné se 4. migrací `20261117000100_AddGithubActivityEventTimes.php` i `schema-dump-default.lock`. V [Nasazení](DEPLOYMENT.md) i [Release gates](RELEASE.md) aktualizovány zmínky ze 3 na 4 migrace. [SQL reference](../db/schema.sql) · [Migrace](../config/Migrations/20261117000100_AddGithubActivityEventTimes.php) · [Nasazení](DEPLOYMENT.md) · [Release gates](RELEASE.md)
+- [x] **Sestavit nový produkční ZIP s `vendor/`.** Vytvořen produkční balík `C:\Ostatní\harfusha-release\harfusha-lab-deploy.zip`. SHA-256: `579ab10f0ed091aded15287ff390e6a4c3e9b2bb9e6c2b76c900b28c1542dc9b`. Manifest obsahuje 1 460 položek (1 459 hashovaných souborů + `SHA256SUMS`). Platform requirements na PHP 8.5.12 ověřeny. Vyloučeny: `.env`, testy, dev závislosti, `.git`, cache a tajemství. Ověřeno přes `scripts/verify_archive.py --variant production`. [Release gates](RELEASE.md)
+- [x] **Vydat ověřený balík.** Pořízena souborová záloha (1 461 souborů) a DB dump (29 846 B, SHA-256 `8f15fa85053f94c4962c57f39ef6687e91398baaf50000e7c9a181aa61ca40c6`). Obnova doložena: 1 461 souborů s 0 chybami hashe a lokální restore do MySQL 8.4.11 se shodnými počty řádků všech 7 tabulek. Nahráno 40 aktualizovaných souborů kandidáta a ověřeno přes FTPS. Živý HTTPS smoke doložil 46 GET kontrol bez chyb, bezpečnostní hlavičky, 403/404 pro citlivé cesty a čistý aplikační log. Autorizovaný GitHub import POST proběhl úspěšně (127 aktivit, 3 repozitáře). [Nasazení](DEPLOYMENT.md) · [Provoz](OPERATIONS.md)
 
-**Zbývající podmínky skutečného produkčního vydání:** PHP-FPM/Apache a HTTPS na cílovém hostingu, vytvoření a ověření produkčního ZIPu se schváleným veřejným obsahem, skutečný staging podle `docs/DEPLOYMENT.md`, konfigurace domény/cron, backup + RESTORE + rollback MySQL a ruční schválení popisů a obrázků ze soukromých projektů. **Zelené CI není potvrzením production-ready.** Starší datované oddíly níže jsou historický záznam tehdejšího stavu a nelze je interpretovat jako nové otevřené blokery.
+## Další otevřené body a omezení
 
-## A. Cílový produkt a kritéria hotovosti
+- [x] **Přístupnost mimo dosavadní Chromium kontroly.** Zoom 200 % (640 px) i 400 % (320 px) ověřen na všech klíčových trasách bez přetečení (`scrollWidth <= innerWidth`, 0 chyb). Klávesnicová navigace (`Tab`) plynule prochází odkazy, rozbalovací prvky (`summary`), vyhledávací pole i stavové filtry (`select`). [Návrh a historické kontroly](DESIGN-OSOBITEJSI-WEB.md)
+- [x] **Širší provozní kontrola.** Ověřeno TLS spojení s produkční DB (`TLS_AES_256_GCM_SHA384`), kompletní migrační ledger se 4 migracemi, schéma se 7 tabulkami a sloupci `merged_at`/`closed_at`. Poslední autorizovaný sync ze dne 19. 11. 2026 22:42:15 UTC má 127 záznamů a 3 repozitáře. Doložena obnova zálohy souborů i DB v izolovaném prostředí (0 chyb). [Provoz](OPERATIONS.md) · [Nasazení](DEPLOYMENT.md)
+- [x] **Doplňková kompatibilita, výkon a publikace.** RSS feedy CS i EN jsou validní XML (30 položek s perma-odkazy na `#entry-...`), Sitemap obsahuje 40 ověřených tras a kanonické URL souhlasí. STL parser (ASCII, binární i chybové stavy) ověřen sadou 15 klientských testů (`lab-core.test.cjs`). [Návrh](DESIGN-OSOBITEJSI-WEB.md) · [Testování](TESTING.md)
+- [x] **Důkaz Local AI Hub.** Registrace `harfusha` je aktivní a doložená (`preprocess_status` dokládá 184/184 deterministických souborů, 184 karet, fáze souborů 98,4 %, celkově 89,7 %, `waiting` ve slotu bez chyb). Lokální plán `plan_d8e36a0e0745` byl formálně uzavřen (`lifecycle: completed`), všechny 3 úkoly (`task_80aedf9cba43`, `task_c9efb5b2abf9`, `task_ca478c2b5656`) převedeny do `completed` přes autorizované MCP `plan_task_edit`. Dřívější plán `plan_fe5742a7a903` je rovněž `completed`.
+- **Hostingové limity.** PHP-FPM 8.5.12 byl potvrzen včetně potřebných rozšíření. OPcache nebyl načtený. DB účet bez oprávnění `EVENT` nemůže potvrdit úplný seznam definic. Hostingová administrace zůstává podle pokynu uživatele mimo rozsah.
+- **Podklady pro další obsah.** Nové snímky skutečných aplikací, fotografie výrobků, benchmarky s metodikou, profesní kontakt a zveřejnění soukromých materiálů závisí na podkladech a souhlasu autora. Současná doména je doložená. Pro Maker platí zveřejnění fyzických výrobků až po doložení a schválení. Živá telemetrie, přehrávač záznamů agentů, licencované 3D modely a další obsahové funkce byly v původním plánu volitelné. Automatický cron byl novějším zadáním vyloučen. [Specifikace](PROJECT-EXPERIENCE-SPEC-2026-11-16.md) · [Handoff](HANDOFF-REMAINING-WORK-2026-11-17.md)
 
-**Výsledek:** dvojjazyčný digitální workshop, kde lze procházet skutečné vlastní projekty, jejich vazby, anonymizovanou domácí infrastrukturu, výsledky open-source práce a ručně schválené vývojové poznámky. Veřejné interaktivní nástroje jsou **lokální bezpečné simulace**, nikoliv přístup do domácí sítě, k AI agentům, hernímu enginu či soukromému kódu.
+## Hotovo v lokálním portfoliu
 
-**Definition of done = zároveň:**
+- [x] **Důkazy a alternativy.** Zpracováno devět projektů. Studie uvádějí doložený problém, způsob práce, příklad, alternativu a hranici ověření. Zůstávají názvy Woodbound, Tiskov a Discord bot. Původní motiv je uvedený tam, kde je k němu zdroj. [Projektová evidence](PROJECT-EVIDENCE-RECONCILIATION-2026-11-16.md) · [Srovnání alternativ](PROJECT-ALTERNATIVES-RESEARCH-2026-11-16.md) · [Podklady](PROJECT-RESEARCH-2026-11-16.md)
+- [x] **Úvod a orientace.** Tmavý vzhled, Inter, ukázka přepočtu měřítka, výběr tří studií a úplný katalog. Přehled výsledků nahradil původní graf třemi tematickými okruhy, hledáním, filtrem stavu a popisem práce i důkazu u každého projektu. [Úvod](../templates/Pages/home.php) · [Přehled výsledků](../templates/Pages/connections.php)
+- [x] **Devět případových studií a jedenáct veřejných sekcí.** Provedena vizuální a redakční revize CS/EN včetně nižších částí stránky. Detaily mají vlastní hierarchii, obrazový podklad nebo označené schéma a vedou ke konkrétní ukázce. Zahrnuto About, Maker bez neověřených produktů, mobilní přepínač jazyka a lokalizované chybové cesty. [Detail projektu](../templates/Pages/project.php) · [Specifikace](PROJECT-EXPERIENCE-SPEC-2026-11-16.md)
+- [x] **Interakce a historie.** Playground obsahuje osm klientských modelů se změnou stavu nebo výpočtem. HomeLab ukazuje zdokumentované služby a model jejich výpadku. Deník, časová osa a rozhodnutí mají datované zdroje, výstupy a odkazy. U příspěvků se ukládá a zobrazuje založení, sloučení a uzavření zvlášť. Důvod uzavření issue zůstává otevřený výše. [Playground](../templates/Pages/playground.php) · [HomeLab](../templates/Pages/homelab.php) · [Časová osa](../templates/Pages/now.php) · [Rozhodnutí](../templates/Pages/decisions.php)
+- [x] **Cílené lokální ověření.** Předání „Vylepši portfolio“ dokládá 80 zobrazení 20 tras ve dvou jazycích a dvou šířkách, 18 průchodů projektovými akcemi, 113 Chromium kontrol, audit 40 HTML výstupů, 26 jednotkových PHP testů, 163 samostatných kontrol a 15 klientských testů. Lokální záznam `tmp/portfolio-whole/verification.json` navíc obsahuje 80 HTTP 200 a osm očekávaných HTTP 404. Snímky poslední revize a jednotlivé stránky jsou v `tmp/portfolio-page-review/final/Kontrola-stranek.md`.
+- [x] **README pro předchozí verzi webu.** Popis tří tematických skupin a galerie devíti snímků už existují. Obnova pro novější úpravy zůstává otevřená výše. [README](../README.md) · [Galerie](PROJECT-README.md)
 
-1. Všechny hlavní stránky fungují bez JavaScriptu pro čtení; interaktivní demonstrace s JS fungují na desktopu, mobilu a klávesnici.
-2. Veřejné údaje jsou dohledatelné, aktuálnost uvedena, historický snímek neoznačen jako „živý“.
-3. Žádný soukromý repo obsah, přihlašovací údaj, IP adresa, tajný token, pracovní kontext nebo osobní údaj není automaticky publikován.
-4. Veškeré vstupy administrace, GitHub API a veřejného JSON katalogu mají typovou a sémantickou validaci. Žádné tiché zpracování neúplných dat.
-5. **Opravdu proběhne** Composer dependency solver, `composer.lock`, PHP 8.5.12+ kontrola, PHPStan `level: max`, strict rules, ShipMonk, CakeDC, PHPUnit, migrations, MySQL integrace, PHPCS, browser smoke, privacy scan a staging test.
-6. Nasazení i rollback jsou ověřeny na skutečném sdíleném hostingu, včetně zálohy a obnovení databáze. Až tehdy lze veřejně tvrdit *production ready*.
+Hranice případových studií zůstávají součástí zadání. Local AI Hub dokládá předzpracování, MutaUI používá samostatný Mutagen a HomeLab popisuje konfiguraci. Scan2CAD dává kandidáta s kontrolou měřítka. Tiskov je návrh, u Discord bota je dostupný katalog, u Shpotify chybí přijaté ověření přehrávání a u Woodbound a Software Inc přijetí herního provozu. Zachovat ochranu soukromých dat, schválené názvy, označení simulací a zdrojové odkazy. [Důkazní hranice](PROJECT-EVIDENCE-RECONCILIATION-2026-11-16.md)
 
-## B. Implementované moduly — kód a akceptační testy
+## Hotovo pro vydání z 18. 11. 2026
 
-| Stav | Modul | Implementace | Ověření / poznámka |
-|---|---|---|---|
-| DONE | PHP 8.5/CakePHP struktura | `composer.json`, `src/Application.php`, `config/`, `templates/`, `webroot/` | CI PHP 8.5 / CakePHP runtime / HTTP smoke PASS; cílový hosting neověřen |
-| DONE | Výběr reálných projektů | `data/projects.json`, `ProjectCatalog`, stránka `/projects`, detail `/{lang}/projects/{slug}` | Ověřený model + 13 studií; fotografie jsou nedodané |
-| DONE | Dvojjazyčná navigace | CS/EN URL a texty, canonical/alternate | 48 offline stránek a kontrola odkazů |
-| DONE | Vazby projektů | `data/connections.json`, `ProjectConnections`, `/connections` | 13 uzlů, klávesnice, dotyk, filtrování; browser smoke |
-| DONE | Engineering Decisions | `data/decisions.json`, typovaná `EngineeringDecision`, `/{lang}/decisions` | 7 kontextů, voleb a kompromisů; browser + validace; nenahrazuje skutečné benchmarky |
-| DONE | Redigovaná historie editoru | `editorial_audit`, `EditorialAuditTrail`, administrace | Transakční audit receipt a publikování draftů; MySQL integrační testy PASS v CI |
-| DONE | Bezpečný GitHub repo parser | `PublicRepository` | Odmítá privátní/neúplné/nesprávné/duplicitní záznamy před transakcí |
-| DONE | Produkční konfigurace | `DeploymentPolicy`, bootstrap, preflight | Vynucuje APP_ENV/HTTPS/sůl/debug; runtime PHP 8.5 PASS v CI; hosting neověřen |
-| DONE | Reálné HTTP smoke CI | `scripts/http-smoke.py`, `.github/workflows/ci.yml` | Reálný CakePHP HTTP smoke prošel v CI; externí staging neověřen |
-| DONE | Homelab explorer | `data/topology.json`, `/homelab`, `lab-core.js` | 7 anonymizovaných uzlů; výpadky / závislosti; DOM smoke |
-| DONE | Conceptual Data Paths | `data/flows.json`, `NetworkFlow`, `/homelab`, `traceFlow()` | Four bilingual scenarios, topology-adjacent hop validation, outage propagation, PHP/JS/Chromium tests; not real network monitoring |
-| DONE | Pět simulátorů | `/playground#ai,#sync,#world,#cad,#request` | 13 JS unit testů + browser smoke; **ne skutečné runtime systémy** |
-| DONE | Maker Lab | `data/maker.json`, `/maker` | 5 projektů, metadata, stav; odstraněno mobilní přetečení |
-| DONE | Open Source browser | `/open-source`, `data/contributions.json`, GitHub sync | Kurátorovaný fallback 14 položek, plný veřejný import vyžaduje cron a DB |
-| DONE | Aktuální práce | `/now`, feed veřejných repo pushů, vývojový deník | Označení zdroje a času; fallback je historický snímek |
-| DONE | RSS | `/cs/feed.xml`, `/en/feed.xml`, `JournalFeed` | Typovaný XML export, bezpečné escapování a testy |
-| DONE | Typované JSON API | `ApiController`, `PublicProjectView`, `/api/v1/projects` | Redigovaná CS/EN data, ETag/304; CakePHP testy PASS v CI |
-| DONE | Multijazyčný sitemap | `PublicSitemap`, `/sitemap.xml` | Testované cs/en/x-default; CakePHP integrační sada PASS v CI |
-| DONE | MySQL modely | `config/Migrations`, `src/Model`, `ContentRepository` | Tři migrace a PHPUnit s izolovanou MySQL 8.4 PASS v CI; rollback neověřen |
-| DONE | Editor | `/admin`, login, editace projektů, drafty, publikování | Pure `EditorialInput`, CSRF a integrační HTTP testy PASS v CI |
-| DONE | GitHub import | `GithubSyncService`, `GithubSnapshot`, `GithubSyncCommand` | Veřejné API bez tokenu, atomické refresh, lock, kontrola úplnosti; remote E2E BLOCKED |
-| DONE | Bezpečnostní bariéry | `PublicContentValidator`, HostGuard, SecurityHeaders, `Html::escape` | Unit/standalone testy a privacy heuristika, ale nikoliv penetrační audit |
-| DONE | CI a sestavení | `.github/workflows/ci.yml`, `scripts/build-release.py`, `scripts/release_package.py` | Izolovaný build a DB guard; Composer závislosti / PHPStan / PHPUnit PASS v CI, host staging čeká |
-| DONE | Offline browser QA | `tests/Browser/smoke.py` | Skutečné Chromium vykreslení DOM; ne HTTP E2E |
-| DONE | Source ZIP + manifest | `scripts/build-source.py` | Přepočitatelné SHA256 a CRC kontrola ZIP |
+- [x] **Schválení a build.** Obsahový snapshot `00da4212b880ee7c528acd69d12d0de2b11f4b5cd3538a6592d1884f96558fe1` pokryl 69 veřejných položek. Izolovaný linuxový build PHP 8.5.12 prošel migracemi, Composer validate/audit, quality včetně PHPUnit/MySQL, skutečným HTTP auth smoke, Python/JS/TypeScript a 113 Chromium kontrolami. Archiv znovu ověřen 19. 11. pomocí `scripts/verify_archive.py --variant production`. Manifest 1 450 souborů, bezpečné cesty, SHA-256 ZIPu `bb0d784db9990b41382125e197f6084b5a58505cb19932bb26aecba0152d8616`.
+- [x] **Stagingový incident.** Úvodní 500 nahradila diagnostikovaná chyba rewrite. Oprava kořenového `.htaccess` obnovila 40 sitemap tras i kontroly API, feedů a assetů. Soubory na stagingu prošly samostatnou zkouškou rollbacku a opětovného nahrání. Finální produkční vydání proběhlo přímo podle výslovného pokynu uživatele.
+- [x] **Produkční zálohy a lokální obnova.** Před zápisem ověřena obnova 1 457 souborů a SQL zálohy se sedmi tabulkami, migrační historií a shodnými počty řádků. K dispozici je podklad pro rollback.
+- [x] **Nasazení a migrace.** Nasazeno na `adam-halfar.cz`. Ověřeno všech 1 450 kandidátních hashů přes FTPS. Čtvrtá migrace přidala `merged_at` a `closed_at`. Záznamy aplikace a soukromá konfigurace byly při nasazení zachovány.
+- [x] **Živý smoke a první synchronizace po migraci.** Doloženo 45 HTTPS GET kontrol, bezpečnostní hlavičky, HTTP 403/404 pro citlivé cesty a kontrola logů. Jediný autorizovaný POST po migraci vrátil HTTP 200, 127 aktivit včetně 62 merge a 31 issues a 3 veřejné repozitáře. Tím je historické HTTP 502 uzavřené.
 
-## C. BLOKÁTORY pro skutečné produkční schválení
+<details>
+<summary>Archiv provozních důkazů z 18. 11. 2026</summary>
 
-Každý bod vyžaduje **vnější prostředí, přístup, autorství skutečných podkladů nebo nezávislé ověření**. Není vhodné zkoušet jej „napodobit“ v ZIPu.
+- **Produkční archiv:** `%LOCALAPPDATA%\Temp\harfusha-build-cp-20261118-02-output\harfusha-lab-deploy.zip`. SHA-256 `bb0d784db9990b41382125e197f6084b5a58505cb19932bb26aecba0152d8616`.
+- **Zálohy produkce:** `%LOCALAPPDATA%\Harfusha\production-backups\20261118T20261118-164326`. Souborová záloha zahrnula 1 457 souborů včetně `.env`. Původních 1 449 položek manifestu souhlasilo. Obnovená kopie měla nula rozdílů v hashi. `production-database.sql` měla 3 560 B, SHA-256 `ab6f2a7a6af56106d25c0d27c0de7c920b0a882554e0b528ab9325e324724f6b`. Obnoveno do MySQL 8.4.11 se sedmi tabulkami a třemi původními migračními záznamy.
+- **Připojení k DB:** TLS 1.3, `TLS_AES_256_GCM_SHA384`. Ve stejném spojení byly před autentizací ověřeny CA `14a63b1bc785a49905c5aeed881d8eb2b66395b7eb3f5f5abe5661313acfb35d` a leaf `613dbe1eacc0e0e01f5f6c7d57f314ee526dd3267fbaa22a6e06b07989de1526`. Chybělo ověření hostname. Certifikát neměl SAN a CA nesplnila profil X.509 strict.
+- **Oprava stagingu:** Rewrite z kořenového `.htaccess`, SHA-256 `7306a31f5251600eb420b5fd29a1349c3502a1333de8fcc2a03fd1072901fbd2`. Do stagingu nahráno 30 změněných a dva nové soubory. Po ověření hashů proběhl rollback těchto položek a opětovné nasazení s 32/32 shodami. Původní stagingový archiv `%LOCALAPPDATA%\Temp\harfusha-staging-rollback-20261118.zip` obsahuje 1 449 souborů, SHA-256 `eb196de58e103a800206de13195854df57fd0e21028969d58d6b88bad967f00d`. Stagingový SQL dump ze sdílené DB byl obnoven do izolovaného MySQL, SHA-256 `09f8bc2c2b56a9442a7d83ea20d2f77fb49ad48b4130d23d879a72444b639b74`.
+- **Nasazení produkce:** Změněno 61 souborů a manifest. Kontrola všech 1 450 položek prošla a `.env` odpovídal záloze. Ledger po přímé migraci obsahoval čtyři záznamy. Počty řádků odpovídaly záloze plus jednomu migračnímu záznamu. Jednorázový sync použil veřejné GitHub API a transakční aktualizaci snapshotu.
+- **PHP a logy:** Produkční probe potvrdil `fpm-fcgi`, PHP 8.5.12 a `intl`, `pdo_mysql`, `mbstring`, `json`, `openssl`. Po odstranění vracel 404. Aktivní Apache log evidoval dva parse errors z prvních dvou pokusů probe. Po úspěšném probe byly nové fatální chyby, varování i chyby SQL nulové. Rotovaný Apache log s 16 fatal/uncaught a deseti warning pocházel z období před vydáním.
 
-### P0. Composer/PHPStan/MySQL/runtime (release blokující)
+</details>
 
-1. [ ] Připravit **reálné** PHP 8.5.12+ (CLI i FPM), MySQL 8.4/MariaDB, rozšíření a Composer 2. `php -v` a `php -m` obou SAPI musí potvrdit kompatibilitu.
-2. [x] Jednorázově vyřešené závislosti na PHP 8.5, `composer.lock` uložený v Git a `composer install` úspěšný v CI. Příště používat `composer install`, aktualizace lockfile pouze v kontrolovaném PR.
-3. [x] GitHub Actions používají izolovanou MySQL 8.4, neprivilegovaného uživatele a `LAB_TEST_DB_CONFIRM=DB_NAME`. Pro hosting ověřit samostatně.
-4. [x] `composer validate --strict`, `composer audit --locked`, `composer stan`, `composer test`, `composer cs-check` PASS v CI [#43648999069](https://github.com/Harfusha/harfusha/actions/runs/43648999069). PHPStan `level: max` a přísná rozšíření zůstávají zapnutá.
-5. [ ] Všechny tři migrace na prázdné izolované MySQL **PASS v CI**. Zbývá test rollbacku na kopii databáze, upgrade z předchozí verze, obnova zálohy a porovnání schématu s `db/schema.sql`.
-6. [ ] Automatické CakePHP HTTP smoke a PHPUnit integrační testy **PASS v CI** včetně relací a MySQL. Zbývá ověřit úplnou sadu scénářů na stagingu, chybové stavy databáze a zásahy administrace s bezpečnou kopií dat.
-7. [ ] Založit a otestovat cron, včetně reálných HTTP 403/429/502 a návratu k poslednímu platnému snímku, případně ručně auditovat upstream výsledky. `GithubSnapshot` odmítá rozpor PR/merge i neúplné stránky.
-8. [ ] Zajistit staging deployment **vendor-inclusive** buildu; teprve potom produkční publikace. Testovat stejné PHP-FPM/OPcache/rewrite/chmod jako na hostingu.
+## Zdroje pro stavové rozhodnutí
 
-Příkazy a důvody: `docs/PROJECT-README.md`, `docs/TESTING.md`, `docs/RELEASE.md`, `docs/DEPLOYMENT.md`.
-
-### P0. Bezpečnost a soukromí (release blokující)
-
-1. [ ] Ručně schválit všechny popisy odvozené ze soukromých repozitářů, fotografie, architekturu sítě a časovou osu. `scripts/audit-public.py` je jen heuristika.
-2. [ ] Ověřit v produkci `.env`, `src/`, `config/`, `data/`, `vendor/`, `tmp/`, `logs/` **mimo HTTP DocumentRoot**. Ověřit požadavky na skryté soubory, chybové stránky, zálohy a soubory s příponou `.bak`.
-3. [ ] HTTPS/HSTS, cookies, login bruteforce, CSRF, host header, URL rewrite, rate limit, CSP, žádné inline script zásahy.
-4. [ ] Otestovat restrikce MySQL uživatele a administrace; cron tajemství jen v hlavičce, ne v URL, JS ani logu.
-5. [ ] Projít závislosti bezpečnostním auditem. Nedovolit neznámé vnější skripty, analytiku ani CDN.
-
-### P1. Skutečné podklady, které musí dodat autor
-
-1. [ ] Vlastní screenshoty aplikací Local AI Hub, MutaUI, Scan2CAD, Shpotify, Tiskov, Woodbound a modu Software Inc; neprezentovat generické ilustrace jako realitu.
-2. [ ] Fotografie skutečných Maker výrobků, zařízení a dokumentovaných projektů bez identifikačních údajů domácnosti.
-3. [ ] Schválené benchmarky s metodikou, hardwarem, verzemi, datem, počtem vzorků a raw daty. Žádné neověřené „x % faster“.
-4. [ ] Dopracovat každou případovou studii do formátu **problém / omezení / návrhové rozhodnutí / implementace / testy / výsledky / co nefungovalo**.
-5. [ ] Potvrdit, které soukromé projekty mohou mít veřejné ukázky, popisy a případné downloady bez úniku licencovaného/privátního obsahu.
-6. [ ] Zvolit a ověřit finální doménu a profesní kontakt; web nyní neodhaduje osobní kontaktní informace.
-
-### P1. UX/performance po autentickém deploymentu
-
-1. [ ] Pomalá síť a telefony: WebPageTest/Lighthouse měřit na staging doméně (např. LCP do 2,5 s, CLS do 0,1, INP do 200 ms pro reprezentativní zařízení; cíle nikoliv tvrzení o dosažení).
-2. [ ] Keyboard-only, NVDA/VoiceOver, zoom 200–400 %, `prefers-reduced-motion`, tmavý režim, dlouhé české/anglické texty, 320/390/768/1365/1920 px.
-3. [ ] Vyzkoušet STL s 0, velkým, poškozeným, binárním a ASCII souborem v Safari/Chromiu/Firefoxu. Udržet omezení velikosti a žádný upload na server.
-4. [ ] Ověřit RSS ve čtečce, indexování sitemap, správné kanonické linky, časové zóny a automatické obnovení cache.
-5. [ ] Zachytit skutečné prod incidenty (sanitizovaně) a opravit je s reprodukčními testy.
-
-### P2. Volitelné funkce (nejsou nutné pro první bezpečné vydání)
-
-- Nahradit veřejný anonymizovaný model homelabu **pouze schvalovaným podepsaným agregovaným snapshotem telemetrie**; nepovolovat vzdálené admin akce.
-- Přehrávač verzovaných, povolených agentických trace s naměřenými metrikami; veřejný uživatel nikdy nedostane přístup do interního orchestru agenta.
-- 3D modely s explicitními licencemi a kontrolovanými soubory, případně měření odchylky vedle STL modelu.
-- Přímé párování case studies s releases, changelogy a screenshoty; editor pro evidence.
-- Archiv technických článků s verzovaným Markdownem a redakčním review, nikoli libovolný HTML vstup.
-
-## D. Závěrečná akceptace a release protokol
-
-**Důkazy, které musí existovat pro veřejné schválení:**
-
-- SHA a verze commitu, `composer.lock`, výpis `php -v`, výpis aktivních extensions.
-- Zelený CI run pro daný commit, jeho logy a žádné přeskočené povinné kontroly.
-- Testy s reálným MySQL a ověřením rollbacku, ne jen statické PHP testy.
-- Protokol o soukromí: schválení každého soukromého projektu a každého screenshotu.
-- ZIP z `scripts/build-release.py` se závislostmi a výsledky výše uvedených quality gates.
-- Staging release checklist: HTTP, přihlášení, editor, cron, RSS, SEO, responzivita, obnova ze zálohy, rollback.
-
-Pokud chybí libovolná povinná P0 položka, vydání má stav **SOURCE CANDIDATE — NOT PRODUCTION VERIFIED**. Toto pravidlo je záměrné a nesmí se obejít jen změnou dokumentace nebo čísla verze.
-
-## E. Další implementační iterace — 13. 11. 2026
-
-**Dokončeno ve zdrojovém kódu:** 7 odůvodněných architektonických rozhodnutí, editorský append-only audit, bezpečnější transakce, explicitní produkční konfigurace, validace veřejných GitHub repozitářů, integrační HTTP testy, nové CakePHP TestCase a rozšíření skutečného Chromium testování na pět šířek včetně 320 px. Opravena konkrétní mobilní chyba overflow na upstream příspěvcích.
-
-**Stále release BLOCKED:** skutečný Composer solver a lockfile, PHPStan max, PHPUnit IntegrationTestTrait, všechny tři migrace a rollback na MySQL, reálný HTTP smoke, host staging, autorovo schválení soukromých case studies a jejich screenshoty, kvalitativní měření na produkčním hardwaru. Předání ZIPu tato kritéria **nepovažuje za splněná**.
-
-## F. Follow-up implementation — operational diagnostics (2026-11-13)
-
-**Implemented (source + isolated test only):** authenticated admin readiness
-panel, private CLI command `lab_health`, pure `OperationsStatus` classification,
-no-cache public liveness endpoint, deterministic health-policy tests and
-integration-test code for real ORM writes and editorial audit/draft workflow.
-
-**Acceptance blockers:** run `bin/cake.php lab_health` against a provisioned,
-migrated MySQL instance after a **real** GitHub sync; execute the new
-`EditorialPersistenceTest` under PHPUnit against the disposable test database;
-verify `/admin` rendering after authentication on PHP 8.5.12+; verify PHPStan
-max, strict extensions, CSRF and persistence. None of those checks can be
-considered green based on the isolated syntax/test runs.
-
-## G. Implemented follow-up: bounded and atomic login throttling
-
-**DONE (verified in isolated PHP runtime):** The previous `LoginLimiter`
-created one file for each address and checked/recorded failures in separate
-critical sections. It is replaced by a fixed 32-shard store, 512 identities
-per shard, five attempts per sliding 15-minute window, full exclusive locks
-covering both check and record, strict JSON state validation, a 256 KiB per
-shard cap, safe reset after valid login, 429 `Retry-After`, and fail-closed
-handling for capacity, symlinks, corrupt state and storage failure. Unit tests
-and a process-level concurrency regression were added. Operational details
-and capacity trade-offs: `docs/AUTH-THROTTLE.md`.
-
-**DONE (source only):** Manual GitHub Actions PHP 8.5 lockfile resolution
-workflow added to produce a reviewable `composer.lock` artifact. It is not
-a claim that the workflow has been executed or dependency resolution passed.
-
-**Still P0 BLOCKED:** Composer lock artifact must actually be resolved,
-reviewed and committed; the PHP 8.5.12+ CI pipeline must run to completion
-including PHPStan max, PHPUnit, MySQL migrations/rollback, actual HTTP auth
-response and target-host deployment. No source-side test substitutes for that.
-
-## H. Follow-up — API snapshot consistency and release editorial approval (2026-11-14)
-
-**Implemented & independently tested:** pure typed GitHub search/repository page collectors reject duplicates, pagination drift, invalid Search responses, premature termination and excess page budget. Wired to actual importer, whose DB transactional refresh remains fail-closed. PHP standalone and PHPUnit test definitions cover these invariants.
-
-**Implemented & independently tested:** local human review receipt bound to SHA-256 hashes of eight public JSON files, templates and public visual assets, rejected on any change or added file. The release builder now requires this before publishing; receipt is private, gitignored and not packaged. This verification does **not** replace human inspection of screenshots/templates or prove any privacy approval happened.
-
-**Release blockers unchanged:** GitHub Search & MySQL end-to-end, actual PHP 8.5 with Composer and `composer.lock`, full PHPStan max/CakeDC/ShipMonk, CakePHP + PHPUnit/Migrations, staging deployment, explicit human case-study/content approval. Documented in `docs/GITHUB-IMPORT-INTEGRITY.md` and `docs/CONTENT-APPROVAL.md`.
-
-## Dodatek — 14. 11. 2026, produkční hardening
-
-- **DONE (offline):** TestDatabaseGuard přidaný přímo do `tests/bootstrap.php` před inicializací frameworku, 6 samostatných pozitivních/negativních kontrol a vlastní PHPUnit testy (druhé zatím BLOCKED).
-- **DONE (offline):** Produkční builder kopíruje allowlist zdrojů do izolovaného stagingu, tam instaluje Composer `--no-dev`, nevystavuje `.env`, schvalovací receipt ani testy a zapisuje SHA-256 manifest; 6 nových Python testů balení úspěšných.
-- **BLOCKED:** Reálný běh Composeru, PHPUnit nad CakePHP, PHPStan a MySQL v PHP 8.5; bez `composer.lock` a vendor nelze produkční archive vydat.
-- **P0:** Po vygenerování lockfile projít celý gate v CI + staging deployment; následně ručně schválit veřejná data, otestovat backup/restore MySQL a přístupnost na hostingu.
-
-
-## Latest implementation — verified archive & complete admin HTTP smoke (2026-11-14)
-
-**IMPLEMENTED (source and isolated test verified):** independent archive verifier
-(`scripts/verify_archive.py`) checks every file against a complete SHA-256
-manifest, rejects duplicate/unsafe paths, symlinks and leaked secret filenames,
-and differentiates source packages from vendor-inclusive deployment bundles.
-The source and production builders invoke the verifier rather than relying only
-on ZIP CRC checks. A dedicated regression suite covers failures and successful
-packages. CI includes a separate source ZIP reproducibility/integrity gate.
-
-**IMPLEMENTED (integration test code; runtime execution BLOCKED locally):**
-`http-smoke.py` now tests the real admin CSRF, cookie/session and login/logout
-roundtrip and rejected editorial writes. Its test credentials are random and
-restricted to an explicitly disposable `APP_ENV=testing` process; CI and the
-production builder prepare ephemeral password hashes. Python transport-mock
-unit tests verify the test harness asserts each crucial boundary, but **do not
-substitute for running against CakePHP**.
-
-**RELEASE BLOCKERS UNCHANGED:** obtain genuine PHP 8.5.12+, Composer `vendor/`
-and reviewed lockfile, pass full PHPStan max/strict + PHPUnit + MySQL migration
-and HTTP tests, and personally authorize every private-derived description.
-No automatic approvals or security claims are inferred from the tests above.
+- [Handoff z 17. 11.](HANDOFF-REMAINING-WORK-2026-11-17.md), [pracovní plán z 16. 11.](superpowers/plans/2026-11-16-osobitejsi-web.md), [návrh](DESIGN-OSOBITEJSI-WEB.md) a [akceptační specifikace](PROJECT-EXPERIENCE-SPEC-2026-11-16.md). Neznámý výsledek dřívějšího review jobu zůstává historickou poznámkou v handoffu.
+- [Release hardening](RELEASE-HARDENING-2026-11-14.md), [testovací matice](TESTING.md), [nasazení](DEPLOYMENT.md), [release](RELEASE.md), [provoz](OPERATIONS.md) a [historické výsledky z 13.–14. 11.](VERIFICATION-2026-11-14.md). Staré neprovedené kroky jsou vyhodnocené podle novějších důkazů a rozsahu příslušného kandidáta.
+- Local AI Hub `plan_ae87b942e337`, `plan_9402b7153ee4`, `plan_fe5742a7a903` a `plan_d8e36a0e0745`. Předání v chatech „Proveď úkoly z hlavního souboru“ a „Vylepši portfolio“. Starší implementační plán a jeho doplňkové úkoly jsou dohledatelné i v `git show 2f143b2:docs/MASTER_PLAN.md`.

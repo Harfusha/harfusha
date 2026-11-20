@@ -139,7 +139,7 @@ Keep the previous directory intact, replace only application release files atomi
 ## Revised production packaging and upgrade
 
 1. Use the committed, reviewed `composer.lock` via `composer install` on PHP 8.5.12+; require a fresh green PHPStan/PHPCS/PHPUnit/MySQL CI run for the release commit.
-2. If upgrading from the initial source candidate, run **all three** migrations. `20261112000200_AddEditorialFields.php` adds nullable project narrative fields and `20261113000100_AddEditorialAudit.php` adds audit receipts; do not use `db/schema.sql` for migration on an already populated database.
+2. If upgrading from the initial source candidate, run **all four** migrations. `20261112000200_AddEditorialFields.php` adds nullable project narrative fields, `20261113000100_AddEditorialAudit.php` adds audit receipts, and `20261117000100_AddGithubActivityEventTimes.php` adds `merged_at` and `closed_at` to GitHub activity; do not use `db/schema.sql` for migration on an already populated database.
 3. On a suitable local CI build machine, install TypeScript 5.8.3 for the client-core strict type check and run `python3 scripts/build-release.py --output ../harfusha-lab-deploy.zip`. This script runs all configured quality gates and then installs production-only packages.
 4. Test the deployable ZIP on **staging**, compare behavior under target PHP-FPM and MySQL, test cron and backups and only then deploy. Do not upload `compose.dev.yml` or its test credentials.
 

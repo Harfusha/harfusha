@@ -1,5 +1,7 @@
 # Harfusha Lab — verified iteration on 14 November 2026
 
+> **Historical run record.** Results apply only to the revision and environment recorded below; current status: [MASTER_PLAN.md](MASTER_PLAN.md).
+
 This record is limited to commands that actually ran in the current isolated container, and distinguishes a source archive from a production deployment.
 
 ## Results observed

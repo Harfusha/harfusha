@@ -1,5 +1,7 @@
 # Záznam ověření – 13. listopadu 2026
 
+> **Historický běhový záznam.** Výsledky platí pro tehdy uvedenou revizi a prostředí; aktuální stav: [MASTER_PLAN.md](MASTER_PLAN.md).
+
 Tento soubor zachycuje **skutečně provedené testy** u zdrojového balíčku. Nenahrazuje externí CI, runtime CakePHP, audit PHPStanu ani staging na sdíleném hostingu. Podrobný seznam práce a přejímacích podmínek obsahuje `MASTER_PLAN.md`.
 
 | Oblast | Výsledek v autorském prostředí | Příkaz / důkaz |

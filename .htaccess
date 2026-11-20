@@ -2,7 +2,9 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteRule ^webroot/ - [L]
-    RewriteRule ^$ webroot/index.php [END]
+    RewriteRule ^assets/(.+)$ /webroot/assets/$1 [END]
+    RewriteRule ^robots\.txt$ /webroot/robots.txt [END]
+    RewriteRule ^$ /webroot/index.php [PT,L]
 
     RewriteCond %{DOCUMENT_ROOT}/webroot%{REQUEST_URI} -f
     RewriteRule ^(.+)$ webroot/$1 [END]
@@ -11,5 +13,5 @@ Options -Indexes
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [F,L]
 
-    RewriteRule ^ webroot/index.php [QSA,END]
+    RewriteRule ^ /webroot/index.php [QSA,PT,L]
 </IfModule>

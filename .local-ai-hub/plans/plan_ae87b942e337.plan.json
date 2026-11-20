@@ -1,0 +1,66 @@
+{
+  "default_target_ref": "refs/heads/master",
+  "description": "Cíl: zmapovat aplikaci, opravit pouze doložené vady, cíleně ověřit změny a nastavit Hub. Kritéria: pokrýt zdroj, testy, skripty, konfiguraci a bezpečnostní hranice; každou změnu doložit a ověřit; Hub zná projekt a preprocessing běží bez force-refresh; uzavírat jen ověřené části.",
+  "id": "plan_ae87b942e337",
+  "lifecycle": "completed",
+  "schema_version": 1,
+  "spec_refs": [],
+  "tasks": {
+    "task_fixes": {
+      "acceptance_criteria": [],
+      "blocker": null,
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Opraveno: smoke login používá náhodné heslo; klientské testy přeskočí Windows symlink jen při WinError 1314. Přidán explicitní vzdálený DB test opt-in: APP_ENV=testing, nepriviligovaný účet a LAB_TEST_DB_REMOTE_CONFIRM přesně DB_HOST/DB_NAME; lokální guard beze změny. Guard unit: 12/12. Plná lokální PHPUnit nad autorizovanou DB: 155 testů, 587 assertions, 146 prošlo; 9 POSIX-mode kontrol selhalo jen na Windows. Přesný HEAD `92ebafd` má zelený Linux CI; pracovní dirty změny byly ověřeny cíleně lokálně.",
+      "kind": "code",
+      "next_action": "",
+      "title": "Opravit potvrzené vady nejmenším úplným zásahem",
+      "work_status": "done"
+    },
+    "task_hub": {
+      "acceptance_criteria": [],
+      "blocker": null,
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Projekt registrován; preprocessing zařazen do fronty. Hub defaulty stačí, lokální config nebyl potřeba.",
+      "kind": "code",
+      "next_action": "",
+      "title": "Zaregistrovat projekt a ověřit Hub konfiguraci",
+      "work_status": "done"
+    },
+    "task_inventory": {
+      "acceptance_criteria": [],
+      "blocker": null,
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Hub mapa: 184 souborů; 119 PHP, 21 Python, 24 Markdown, šablony/web/config/data/CI. Pokryté routy, auth/CSRF, security headers, GitHub sync/import, public content, editorial, migrations, testy, release packaging a provozní dokumentace.",
+      "kind": "code",
+      "next_action": "",
+      "title": "Zmapovat architekturu, konfiguraci, bezpečnost, provoz a testy",
+      "work_status": "done"
+    },
+    "task_review": {
+      "acceptance_criteria": [],
+      "blocker": null,
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Prošel routy, auth/CSRF, security headers, GitHub sync/import, veřejný obsah, editorial audit a release packaging. Security audit čistý pro 35 způsobilých projektových souborů; secret scan 226 souborů bez úniku. CakePHP HTTP public routes/headers prošly; admin GET prošel, Windows login POST vrací 429. NTFS tmp ACL uděluje Authenticated Users Modify a Users Read, proto limiter zůstává fail-closed. Přesný HEAD 92ebafd má na GitHub Actions 15. 11. 2026 úspěšné application, static a browser-offline joby. Linux/shared-hosting cíl je ověřen CI; živý hosting ne.",
+      "kind": "code",
+      "next_action": "",
+      "title": "Prověřit hlavní aplikační toky a najít doložené vady",
+      "work_status": "done"
+    },
+    "task_verify": {
+      "acceptance_criteria": [],
+      "blocker": null,
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Aktuální GitHub Actions checks přesného HEAD 92ebafd 15. 11. 2026: application, static, browser-offline úspěšné; Ubuntu 24.04/PHP 8.5 workflow obsahuje MySQL 8.4 migrace, CakePHP HTTP smoke, PHPStan, PHPUnit, PHPCS, JS/Python i Chromium. Lokální pracovní strom má 11 dirty/untracked cest; na autorizované vzdálené DB PHPUnit 155 testů / 587 assertions, 146 prošlo a 9 POSIX-mode kontrol selhalo jen kvůli Windows. DB guard 12/12; PHPStan 85 files, PHPCS, Python 48/3 skip, Node 15/15, TypeScript, public/rendered audit, Chromium 50/50 a secret scan 226 files čisté. PHP 8.5.12 ověřeno a použito přes absolutní cestu. Composer 2.9.7 byl již nainstalován; přes PHP 8.5.12 prošly composer validate --strict, audit --locked bez advisory a check-platform-reqs. DB má 7 migračních tabulek, spojení bez TLS; FTPS read-only listing přes TLS uspěl s certifikátovým ověřením vypnutým pouze pro daný host. Windows local admin login zůstává fail-closed (429) kvůli širokým tmp ACL; Linux/shared-hosting cíl ověřen CI. Živý hosting, deploy/rollback a DB restore nebyly součástí tohoto nasazení.",
+      "kind": "code",
+      "next_action": "",
+      "title": "Provést cílené ověření a zapsat limity",
+      "work_status": "done"
+    }
+  },
+  "title": "Harfusha – audit aplikace a integrace Local AI Hub"
+}

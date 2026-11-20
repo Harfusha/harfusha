@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS github_activity (
   kind VARCHAR(10) NOT NULL,
   state VARCHAR(10) NOT NULL,
   published_at DATETIME NOT NULL,
+  merged_at DATETIME NULL DEFAULT NULL,
+  closed_at DATETIME NULL DEFAULT NULL,
   INDEX idx_activity_time (published_at),
   INDEX idx_activity_kind_state (kind, state, published_at),
   INDEX idx_activity_repo (repository)

@@ -1,5 +1,7 @@
 # Follow-up verification — 14 November 2026
 
+> **Historical run record.** Results apply only to the revision and environment recorded below; current status: [MASTER_PLAN.md](MASTER_PLAN.md).
+
 ## Actual checks run in this authoring environment
 
 - `php -v`: PHP 8.4.24 CLI, **not** the required PHP 8.5.12+; `composer` absent, ext-intl, ext-mbstring, ext-pdo_mysql and ext-simplexml not installed.

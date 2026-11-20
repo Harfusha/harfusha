@@ -1,5 +1,7 @@
 # Release hardening — 14 November 2026
 
+> **Historický release-hardening snapshot.** Výsledky platí jen pro tehdy popsanou revizi; aktuální release gate: [MASTER_PLAN.md](MASTER_PLAN.md).
+
 ## What's actually changed
 
 1. **Destructive database guard** (`src/Security/TestDatabaseGuard.php`). The PHPUnit bootstrap now refuses to initialize CakePHP when `APP_ENV` is not exactly `testing`; the DB name isn't a safe disposable suffix (`_test`, `_testing`, `_ci`); `LAB_TEST_DB_CONFIRM` isn't the exact `DB_NAME`; the DB host is remote; or the DB username is an administrative account. The guard runs *before* the Composer autoloader and framework test fixtures. This prevents common accidental test runs against real data. **It is a secondary safeguard, not a guarantee**: use separate credentials and a disposable MySQL instance.

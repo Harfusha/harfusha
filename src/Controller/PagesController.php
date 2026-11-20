@@ -98,10 +98,11 @@ final class PagesController extends AppController
 
         return $this->show(
             'home',
-            'Harfusha Lab — Projekty, infrastruktura a experimenty',
-            'Harfusha Lab — Projects, infrastructure & experiments',
-            'Interaktivní dílna Adama Halfara.',
-            'The interactive engineering workshop of Adam Halfar.',
+            'Harfusha | Pokusy a projekty Adama Halfara',
+            'Harfusha | Adam Halfar’s experiments and projects',
+            'Projekty Adama Halfara. Zkus si synchronizaci souborů, výpadek zařízení nebo '
+            . 'přepočet měřítka přímo v prohlížeči.',
+            'Adam Halfar’s projects. Try file sync, a device outage or scan calibration directly in the browser.',
             '/',
             [
                 'projects' => array_slice($featured, 0, 4),
@@ -121,10 +122,10 @@ final class PagesController extends AppController
     {
         return $this->show(
             'projects',
-            'Projekty | Harfusha Lab',
-            'Projects | Harfusha Lab',
-            'Software, experimenty, nástroje a hry.',
-            'Software, experiments, tools and games.',
+            'Projekty | Harfusha',
+            'Projects | Harfusha',
+            'Případové studie vývojářských nástrojů, infrastruktury a technických prototypů.',
+            'Case studies in developer tools, infrastructure and engineering prototypes.',
             '/projects',
             ['projects' => $this->content()->projects()],
         );
@@ -166,8 +167,8 @@ final class PagesController extends AppController
     {
         return $this->show(
             'connections',
-            'Přehled projektů | Harfusha Lab',
-            'Project index | Harfusha Lab',
+            'Co je ověřené | Harfusha',
+            'What’s Been Verified | Harfusha',
             'Samostatné projekty, jejich fáze a případové studie.',
             'Independent projects, their stages and case studies.',
             '/connections',
@@ -182,8 +183,8 @@ final class PagesController extends AppController
     {
         return $this->show(
             'homelab',
-            'Interaktivní homelab | Harfusha Lab',
-            'Interactive home lab | Harfusha Lab',
+            'Mapa domácí sítě | Harfusha Lab',
+            'Home Network Map | Harfusha Lab',
             'Prozkoumej síť, služby a simulaci výpadků.',
             'Explore the network, services and failure simulations.',
             '/homelab',
@@ -198,12 +199,11 @@ final class PagesController extends AppController
     {
         return $this->show(
             'playground',
-            'Interaktivní playground | Harfusha Lab',
-            'Interactive playground | Harfusha Lab',
-            'Funkční ukázky vývojových projektů.',
-            'Functional interactive project demos.',
+            'Interaktivní pokusy | Harfusha',
+            'Browser experiments | Harfusha',
+            'Modely synchronizace, 3D rekonstrukce a dalších projektů přímo v prohlížeči.',
+            'Browser-based models of file sync, 3D reconstruction and other projects.',
             '/playground',
-            ['projects' => $this->content()->projects()],
         );
     }
 
@@ -230,10 +230,10 @@ final class PagesController extends AppController
     {
         return $this->show(
             'maker',
-            'Maker Lab | Harfusha Lab',
-            'Maker Lab | Harfusha Lab',
-            '3D tisk, technické experimenty a fyzické prototypy.',
-            '3D printing, hardware experiments and physical prototypes.',
+            'Od skenu k tisku | Harfusha',
+            'From Scan to Print | Harfusha',
+            'Projekty Scan2CAD Studio a Tiskov.',
+            'The Scan2CAD Studio and Tiskov projects.',
             '/maker',
             ['items' => $this->content()->maker()],
         );
@@ -246,10 +246,10 @@ final class PagesController extends AppController
     {
         return $this->show(
             'open_source',
+            'Open-source příspěvky | Harfusha Lab',
             'Open Source | Harfusha Lab',
-            'Open Source | Harfusha Lab',
-            'Reálné příspěvky do dalších projektů.',
-            'Real upstream contributions.',
+            'Vybrané pull requesty a hlášení chyb do open-source projektů.',
+            'Selected pull requests and bug reports in open-source projects.',
             '/open-source',
             ['activity' => $this->content()->activity(),
                 'provenance' => $this->content()->githubProvenance()],
@@ -263,8 +263,8 @@ final class PagesController extends AppController
     {
         return $this->show(
             'now',
-            'Právě vzniká | Harfusha Lab',
-            'Now building | Harfusha Lab',
+            'Co se změnilo | Harfusha',
+            'What’s Changed | Harfusha',
             'Přehled posledních zaznamenaných změn veřejných repozitářů.',
             'A view of the latest recorded changes in public repositories.',
             '/now',
@@ -284,10 +284,10 @@ final class PagesController extends AppController
     {
         return $this->show(
             'journal',
-            'Workshop log | Harfusha Lab',
-            'Workshop log | Harfusha Lab',
-            'Co se právě vyvíjí a proč.',
-            'What is being built and why.',
+            'Vývojový deník | Harfusha Lab',
+            'Development Journal | Harfusha Lab',
+            'Poznámky k opravám, novým funkcím a technickým rozhodnutím.',
+            'Notes on fixes, new features and engineering decisions.',
             '/journal',
             ['journal' => $this->content()->journal()],
         );
@@ -302,8 +302,8 @@ final class PagesController extends AppController
             'about',
             'O mně | Harfusha Lab',
             'About | Harfusha Lab',
-            'Backendový vývojář, open-source přispěvatel a maker.',
-            'Backend developer, open-source contributor and maker.',
+            'Adam Halfar, backendový vývojář se zaměřením na PHP a CakePHP.',
+            'Adam Halfar, a backend developer focused on PHP and CakePHP.',
             '/about',
         );
     }

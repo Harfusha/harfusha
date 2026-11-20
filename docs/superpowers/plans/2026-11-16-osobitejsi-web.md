@@ -1,5 +1,7 @@
 # Osobitější Harfusha Implementation Plan
 
+> **NAHRAZENO.** Tento pracovní plán z 16. 11. už není backlog. Aktuální pořadí práce: [docs/MASTER_PLAN.md](../../MASTER_PLAN.md). Zachováno jako záznam původního návrhu.
+
 > **For agentic workers:** Use superpowers:executing-plans to implement and verify each task.
 
 **Goal:** Proměnit portfolio v osobitý, názorný a důvěryhodný web.

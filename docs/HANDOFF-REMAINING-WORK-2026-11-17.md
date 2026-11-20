@@ -1,5 +1,7 @@
 # Harfusha Lab — handoff zbývající práce
 
+> **NAHRAZENO — historický handoff k 17. 11. 2026.** Jeho stav a další kroky už neplatí; aktuální plán je [MASTER_PLAN.md](MASTER_PLAN.md). Záznam ponechán kvůli historii tehdejší candidate větve.
+
 Stav k 17. 11. 2026. Uživatel požádal práci zastavit, zbývající práci zapsat a goal pozastavit. Goal není dokončený.
 
 ## Cíl

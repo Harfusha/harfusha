@@ -1,0 +1,28 @@
+{
+  "default_target_ref": "refs/heads/master",
+  "description": "Výzkum, přepracování obsahu a vizuálního zážitku, ověření a nasazení dle nového cíle.",
+  "id": "plan_fe5742a7a903",
+  "lifecycle": "completed",
+  "schema_version": 1,
+  "spec_refs": [],
+  "tasks": {
+    "task_c86bb21f46df": {
+      "acceptance_criteria": [
+        "Fresh full production file backup and direct MySQL backup are created, hashed, and restored locally before production writes.",
+        "Apply AddGithubActivityEventTimes directly to production only after backup/restore succeeds; verify migration ledger, merged_at/closed_at columns and existing data counts.",
+        "Upload the exact approved production ZIP contents over FTPS; preserve private .env and keep public root/rewrite behavior correct.",
+        "Production read-only HTTP/security/asset checks and server error-log review pass after deployment.",
+        "A verified file/database rollback path is ready; production remains on the candidate only after every check passes."
+      ],
+      "blocker": "Uživatelsky zakázána hostingová administrace; PHP-FPM konfigurace mimo FTP/DB pravomoci; DB účet nemá EVENT. Agent OS task/receipt není dostupný; žádný receipt ani waiver.",
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Přímé produkční vydání dokončeno: zálohy souborů i DB obnoveny lokálně; schválený ZIP nasazen a 1 450 hashů ověřeno; migrace a 45 HTTPS GET kontrol prošly. Po migraci proveden jediný autorizovaný POST /cron/github: HTTP 200, 127 aktivit, 62 merge, 31 issues, 3 veřejné repozitáře. PHP-FPM 8.5.12 a požadovaná rozšíření potvrzena.",
+      "kind": "code",
+      "next_action": "Žádná podporovaná release práce nezbývá. Hostingová administrace zakázaná a nastavení nelze změnit; OPcache není načten; DB účet nemá EVENT privilege; plný EVENT přehled a důvěryhodný Agent OS command_id nelze získat. Nevykreslovat je jako hotové.",
+      "title": "Doložený, osobitý web bez nefunkčních ukázek",
+      "work_status": "completed"
+    }
+  },
+  "title": "Harfusha – osobitější web"
+}

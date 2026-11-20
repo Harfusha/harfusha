@@ -15,3 +15,9 @@
 
 # Generated at ZIP packaging time; never commit a stale checksum manifest.
 /SHA256SUMS
+
+/node_modules/
+__pycache__/
+*.py[cod]
+/.serena/
+

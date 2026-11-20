@@ -6,13 +6,13 @@ This site is an interactive engineering workshop, not just a self-promotion page
 
 > **Live site-content snapshot, 16 Nov 2026:** Commit `f05adfe` passed all three jobs in [manual GitHub Actions run #43950641423](https://github.com/Harfusha/harfusha/actions/runs/43950641423). Its verified production archive contains 1,449 packaged files (SHA-256 `6868d237f8cb61d44addd5394b7c9ae59ffeca9bceaca1e74c64e1f45b2f9635`). Post-deploy HTTPS smoke passed; all 40 sitemap URLs and 10 referenced assets returned successfully. The current Tiskov and Discord copy distinguishes catalog/design claims from verified source. No separate staging hostname or production PHP-FPM version check was available.
 
-## Current project-story direction (16 Nov 2026)
+## Current project-story direction (19 Nov 2026)
 
 The catalogue contains **nine** projects. Each detail now follows a concrete input through the components that act on it, then states what remains a prototype, simulation or unverified runtime claim. The source-aligned architecture map is explanatory; it is not telemetry.
 
 Local AI Hub is described as a repository lifecycle: one idempotent registration, asynchronous preprocessing (inventory, hashes, code index, deterministic cards, optional Serena/RAG and project maps), then exact indexed retrieval and narrow source slices. Exact questions use indexed facts and narrow source slices; broader tasks can compose adaptive context from multiple sources, with RAG and model synthesis after cheaper indexed routes. Models are optional advisers; tests run in the host environment.
 
-The Playground uses one method across five browser-only cases: input → system trace → evidence. The Hub case branches between first-use preprocessing, a warm index and an unavailable local model. Simulations do not invoke the actual Hub, Mutagen, Unity generator, CAD repair or CakePHP server.
+The Playground uses one method across eight browser-only cases: input → system trace → evidence. The Hub case branches between first-use preprocessing, a warm index and an unavailable local model. Simulations do not invoke the actual Hub, Mutagen, Unity generator, CAD repair or CakePHP server.
 
 Fresh browser captures for the current source snapshot:
 
@@ -24,13 +24,27 @@ Fresh browser captures for the current source snapshot:
 
 ![Mobile Local AI Hub walkthrough](screenshots/readme-local-ai-hub-mobile.png)
 
+## Project story captures
+
+| Local AI Hub | Home infrastructure | MutaUI |
+|---|---|---|
+| ![Local AI Hub project story](screenshots/project-story-local-ai-hub.png) | ![Home infrastructure project story](screenshots/project-story-home-infrastructure.png) | ![MutaUI project story](screenshots/project-story-mutaui.png) |
+
+| Scan2CAD | Shpotify | Software Inc multiplayer |
+|---|---|---|
+| ![Scan2CAD project story](screenshots/project-story-scan2cad.png) | ![Shpotify project story](screenshots/project-story-shpotify.png) | ![Software Inc multiplayer project story](screenshots/project-story-softwareinc-multiplayer.png) |
+
+| Tiskov | Woodbound | Discord bot |
+|---|---|---|
+| ![Tiskov project story](screenshots/project-story-tiskov.png) | ![Woodbound project story](screenshots/project-story-woodbound.png) | ![Discord bot project story](screenshots/project-story-discord-bot.png) |
+
 ## Explore the site
 
 | Public URL (both `/cs` and `/en`) | Behavior |
 |---|---|
 | `/` | Project-first homepage with interactive areas and recent *public* repository snapshot |
 | `/projects` and `/projects/{slug}` | Filterable catalogue and 9 curated case studies, with private project *descriptions* only |
-| `/connections` | Interactive relationship graph of projects, tools and home infrastructure |
+| `/connections` | Searchable map of three thematic work groups; the groups do not imply technical dependencies between repositories |
 | `/decisions` | Seven explainable architectural choices with context, trade-offs and documented limitations |
 | `/homelab` | Network topology, node inspection, failure simulation and four bilingual conceptual data paths |
 | `/maker` | Physical prototypes, design notes, FDM experiments and links to related software |

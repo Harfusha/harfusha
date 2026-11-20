@@ -33,6 +33,16 @@
     };
     input?.addEventListener('input', run);
     filters.forEach(({element}) => element?.addEventListener('change', run));
+    const reset = $('[data-filter-reset]', root);
+    if (reset) {
+      reset.hidden = false;
+      reset.addEventListener('click', () => {
+        if (input) input.value = '';
+        filters.forEach(({element}) => { if (element) element.value = 'all'; });
+        run();
+        input?.focus();
+      });
+    }
     run();
   }
 
@@ -84,7 +94,7 @@
     const cards = $$('[data-map-project]', root);
     const domains = $$('[data-map-domain]', root);
     const search = $('[data-map-search]', root);
-    const category = $('[data-map-category]', root);
+    const theme = $('[data-map-category]', root);
     const state = $('[data-map-state]', root);
     const status = $('[data-map-status]', root);
     const empty = $('[data-map-empty]', root);
@@ -93,7 +103,7 @@
       let visible = 0;
       cards.forEach(card => {
         const matches = (!query || card.dataset.search?.toLocaleLowerCase().includes(query))
-          && (!category || category.value === 'all' || card.dataset.category === category.value)
+          && (!theme || theme.value === 'all' || card.dataset.theme === theme.value)
           && (!state || state.value === 'all' || card.dataset.state === state.value);
         card.hidden = !matches;
         if (matches) visible++;
@@ -103,7 +113,7 @@
       if (empty) empty.hidden = visible !== 0;
     };
     search?.addEventListener('input', filter);
-    category?.addEventListener('change', filter);
+    theme?.addEventListener('change', filter);
     state?.addEventListener('change', filter);
   }
   initProjectMap();
@@ -111,13 +121,21 @@
   function initJournalFilter() {
     const root = $('[data-journal-filter]');
     if (!root) return;
-    const entries = $$('[data-journal-entry]', root);
+    const entries = $$('[data-journal-entry]', root).map(entry => ({
+      entry, text: normalizeSearch(entry.textContent || '').replace(/\s+/g, ' '),
+    }));
     const buttons = $$('[data-journal-year]', root);
     const count = $('[data-journal-count]', root);
-    const render = year => {
+    const search = $('[data-journal-search]', root);
+    const searchControl = $('[data-journal-search-control]', root);
+    const empty = $('[data-journal-empty]', root);
+    let year = 'all';
+    if (searchControl) searchControl.hidden = false;
+    const render = () => {
+      const query = normalizeSearch(search?.value || '').trim().replace(/\s+/g, ' ');
       let visible = 0;
-      entries.forEach(entry => {
-        const matches = year === 'all' || entry.dataset.year === year;
+      entries.forEach(({entry, text}) => {
+        const matches = (year === 'all' || entry.dataset.year === year) && text.includes(query);
         entry.hidden = !matches;
         if (matches) visible++;
       });
@@ -126,9 +144,15 @@
         button.classList.toggle('active', active);
         button.setAttribute('aria-pressed', String(active));
       });
-      if (count) count.textContent = `${visible} ${count.dataset.label || ''}`.trim();
+      if (empty) empty.hidden = visible !== 0;
+      if (count) count.textContent = `${visible} ${local(visible === 1 ? 'zápisek' : visible >= 2 && visible <= 4 ? 'zápisky' : 'zápisků', visible === 1 ? 'entry' : 'entries')}`;
     };
-    buttons.forEach(button => button.addEventListener('click', () => render(button.dataset.journalYear || 'all')));
+    buttons.forEach(button => button.addEventListener('click', () => {
+      year = button.dataset.journalYear || 'all';
+      render();
+    }));
+    search?.addEventListener('input', render);
+    render();
   }
   initJournalFilter();
 
@@ -167,7 +191,7 @@
     let nodes, flows;
     try { nodes = JSON.parse(json.textContent); flows = JSON.parse(flowsJson.textContent); } catch { return; }
     if (!Array.isArray(nodes) || nodes.length < 2 || !Array.isArray(flows) || !flows.length) return;
-    const svg = $('[data-lab-svg]', root), modeButtons = $$('[data-lab-view]', root), failureMode = $('[data-failure-mode]', root);
+    const devices = $('[data-lab-devices]', root), modeButtons = $$('[data-lab-view]', root), failureMode = $('[data-failure-mode]', root);
     const inspectorName = $('[data-lab-name]', root), description = $('[data-lab-description]', root), tech = $('[data-lab-tech]', root), services = $('[data-lab-services]', root), note = $('[data-lab-note]', root), index = $('[data-lab-index]', root);
     const flowToolbar = $('[data-flow-toolbar]', root), flowSelect = $('[data-flow-select]', root);
     const flowInspector = $('[data-flow-inspector]', root), flowTitle = $('[data-flow-title]', root);
@@ -179,62 +203,57 @@
     const countLabel = (count, cs, en) => language === 'en'
       ? `${count} ${en}`
       : `${count} ${count === 1 ? cs[0] : count < 5 && count > 1 ? cs[1] : cs[2]}`;
-    const svgEl = (name, attrs = {}, contents = null) => {
-      const el = document.createElementNS('http://www.w3.org/2000/svg', name);
-      Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, String(value)));
-      if (contents !== null) el.textContent = contents;
-      return el;
-    };
     const unavailable = () => new Set(core.affectedNodes(nodes, [...knockedOut]));
     const render = () => {
-      svg.replaceChildren();
       const down = unavailable();
       const up = id => !down.has(id);
       const flowStatus = core.traceFlow(nodes, currentFlow, [...knockedOut]);
-      const flowLinks = new Set();
-      if (view === 'flows') {
-        for (let i = 1; i < currentFlow.path.length; i++) {
-          flowLinks.add([currentFlow.path[i-1], currentFlow.path[i]].sort().join('|'));
-        }
-      }
+      const selectedNode = nodeMap.get(selected);
       flowToolbar.classList.toggle('hidden', view !== 'flows');
       flowInspector.classList.toggle('hidden', view !== 'flows');
-      const edges = svgEl('g', {'aria-hidden':'true'});
-      nodes.forEach(n => (n.depends || []).forEach(dep => {
-        const parent = nodeMap.get(dep);
-        if (!parent) return;
-        const highlight = (view === 'dependencies' && (n.id === selected || parent.id === selected)) ||
-          (view === 'flows' && flowLinks.has([n.id, parent.id].sort().join('|')));
-        const failed = !up(n.id) || !up(parent.id);
-        const edge = svgEl('path', {
-          d: `M${parent.x} ${parent.y+38} Q${(parent.x+n.x)/2} ${(parent.y+n.y)/2} ${n.x} ${n.y-38}`,
-          class:`lab-edge${highlight ? ' highlight':''}${failed ? ' failed':''}`,
-        });
-        edges.append(edge);
-      }));
-      svg.append(edges);
-      nodes.forEach((node, i) => {
+      devices.replaceChildren(...nodes.map(node => {
+        const active = node.id === selected;
         const alive = up(node.id);
-        const detail = view==='services' ? countLabel((node.services||[]).length, ['služba','služby','služeb'], 'services') : view==='dependencies' ? countLabel((node.depends||[]).length, ['závislost','závislosti','závislostí'], 'dependencies') : view==='flows' && currentFlow.path.includes(node.id) ? local('NA CESTĚ','IN PATH') : node.kind.toUpperCase();
-        const group = svgEl('g',{class:`lab-node${node.id===selected?' selected':''}${alive?'':' failed'}`,role:'button',tabindex:'0', 'aria-label': `${node.name} ${detail}${alive ? '' : local(' – nedostupné v simulaci', ' – unavailable in simulation')}`, 'aria-pressed': String(node.id===selected), 'data-lab-node-id': node.id});
-        group.append(svgEl('rect',{x:node.x-105,y:node.y-38,width:210,height:76,rx:13}));
-        group.append(svgEl('circle',{cx:node.x-82,cy:node.y-15,r:5}));
-        group.append(svgEl('text',{x:node.x-68,y:node.y-9},node.name));
-        group.append(document.createTextNode(' '));
-        group.append(svgEl('text',{x:node.x-80,y:node.y+18,class:'sub'},detail));
-        const select = () => {
+        const inPath = view === 'flows' && currentFlow.path.includes(node.id);
+        const related = view === 'dependencies' && (
+          (selectedNode.depends || []).includes(node.id) || (node.depends || []).includes(selected)
+        );
+        const detail = view === 'services'
+          ? countLabel((node.services || []).length, ['služba', 'služby', 'služeb'], 'services')
+          : view === 'dependencies'
+            ? countLabel((node.depends || []).length, ['závislost', 'závislosti', 'závislostí'], 'dependencies')
+            : inPath ? local('Na trase', 'On the route') : (node.tech || []).slice(0, 2).join(' · ') || node.kind;
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'lab-device';
+        button.classList.toggle('is-selected', active);
+        button.classList.toggle('is-in-path', inPath || related);
+        button.classList.toggle('is-down', !alive);
+        button.dataset.labNodeId = node.id;
+        button.setAttribute('aria-pressed', String(active));
+        button.setAttribute('aria-label', node.name + ' ' + detail + (alive ? '' : local(' · nedostupné v simulaci', ' · unavailable in simulation')));
+
+        const name = document.createElement('strong');
+        name.textContent = node.name;
+        const sub = document.createElement('span');
+        sub.textContent = detail;
+        const availability = document.createElement('span');
+        availability.className = 'lab-device-state';
+        availability.textContent = alive ? local('Dostupné', 'Available') : local('Nedostupné', 'Unavailable');
+        button.append(name, sub, availability);
+
+        button.addEventListener('click', () => {
           selected = node.id;
           if (failureMode.checked && node.id !== 'internet') {
             if (knockedOut.has(node.id)) knockedOut.delete(node.id);
             else knockedOut.add(node.id);
           }
           render();
-          svg.querySelectorAll('[data-lab-node-id]').forEach(candidate=>{if(candidate.getAttribute('data-lab-node-id')===node.id)candidate.focus();});
-        };
-        group.addEventListener('click', select);
-        group.addEventListener('keydown', event => {if(event.key==='Enter' || event.key===' '){event.preventDefault();select();}});
-        svg.append(group);
-      });
+          [...devices.children].find(candidate => candidate.dataset.labNodeId === selected)?.focus();
+        });
+        return button;
+      }));
       const node = nodeMap.get(selected);
       inspectorName.textContent = node.name;
       description.textContent = (language === 'en' ? node.description_en : node.description_cs) || '';
@@ -253,7 +272,7 @@
           const name = nodeMap.get(step.id).name;
           const description = language === 'en' ? currentFlow.steps_en[i] : currentFlow.steps_cs[i];
           const state = step.available ? local('dostupný','available') : local('nedostupný','unavailable');
-          li.textContent = `${i+1}. ${name}: ${description} (${state})`;
+          li.textContent = `${name}: ${description} (${state})`;
           flowSteps.append(li);
         });
         flowResult.textContent = flowStatus.available
@@ -265,6 +284,24 @@
     };
     modeButtons.forEach(btn=>btn.addEventListener('click',()=>{view=btn.dataset.labView;render();}));
     flowSelect.addEventListener('change', () => {currentFlow=flows.find(flow=>flow.id===flowSelect.value) || flows[0];render();});
+    const scenarioGroup = $('[data-lab-scenarios]', root);
+    if (scenarioGroup) {
+      scenarioGroup.hidden = false;
+      $$('[data-lab-scenario]', scenarioGroup).forEach(button => button.addEventListener('click', () => {
+        const flow = flows.find(item => item.id === button.dataset.labScenario);
+        const failedNode = button.dataset.failNode;
+        if (!flow?.path.includes(failedNode) || !nodeMap.has(failedNode)) return;
+        knockedOut.clear();
+        knockedOut.add(failedNode);
+        selected = failedNode;
+        currentFlow = flow;
+        view = 'flows';
+        flowSelect.value = flow.id;
+        failureMode.checked = true;
+        render();
+        flowResult.focus();
+      }));
+    }
     $('[data-lab-reset]',root)?.addEventListener('click',()=>{knockedOut.clear();failureMode.checked=false;render();});
     failureMode.addEventListener('change',render);
     render();
@@ -311,6 +348,27 @@
       ]
     }
   };
+
+  function initScale(root) {
+    if (!root) return;
+    const scaleForm = $('[data-scale-form]', root);
+    if (!scaleForm) return;
+    const quickControls = $('[data-quick-scale-controls]', scaleForm);
+    if (quickControls) quickControls.disabled = false;
+    const renderScale = () => {
+      const mm = Number($('[data-scale-mm]', root).value);
+      const pixels = Number($('[data-scale-pixels]', root).value);
+      const probeInput = $('[data-scale-probe]', root).value;
+      const probe = Number(probeInput);
+      const valid = probeInput !== '' && Number.isFinite(mm) && mm > 0 && Number.isFinite(pixels) && pixels > 0 && Number.isFinite(probe) && probe >= 0;
+      $('[data-scale-result]', root).textContent = valid ? local(`${(pixels / mm).toFixed(2)} px/mm`, `${(pixels / mm).toFixed(2)} px/mm`) : local('Zadej platné kladné měření.', 'Enter a valid positive measurement.');
+      $('[data-scale-probe-result]', root).textContent = valid ? local(`${probe} px odpovídá ${(probe * mm / pixels).toFixed(2)} mm`, `${probe} px corresponds to ${(probe * mm / pixels).toFixed(2)} mm`) : '';
+    };
+    scaleForm.addEventListener('submit', event => event.preventDefault());
+    scaleForm.addEventListener('input', renderScale);
+    renderScale();
+  }
+  initScale($('[data-quick-scale]'));
 
   function initPlayground() {
     const root = $('[data-playground]');
@@ -430,17 +488,7 @@
     $('[data-sync-preview]', syncForm).addEventListener('click', renderSync);
     renderSync();
 
-    const scaleForm = $('[data-scale-form]', root);
-    const renderScale = () => {
-      const mm = Number($('[data-scale-mm]', root).value);
-      const pixels = Number($('[data-scale-pixels]', root).value);
-      const probe = Number($('[data-scale-probe]', root).value);
-      const valid = Number.isFinite(mm) && mm > 0 && Number.isFinite(pixels) && pixels > 0 && Number.isFinite(probe) && probe >= 0;
-      $('[data-scale-result]', root).textContent = valid ? local(`${(pixels / mm).toFixed(2)} px/mm`, `${(pixels / mm).toFixed(2)} px/mm`) : local('Zadej platné kladné měření.', 'Enter a valid positive measurement.');
-      $('[data-scale-probe-result]', root).textContent = valid ? local(`${probe} px odpovídá ${(probe * mm / pixels).toFixed(2)} mm`, `${probe} px corresponds to ${(probe * mm / pixels).toFixed(2)} mm`) : '';
-    };
-    scaleForm.addEventListener('input', renderScale);
-    renderScale();
+    initScale(root);
 
     const grid = $('[data-route-grid]', root);
     const gridSize = 8;

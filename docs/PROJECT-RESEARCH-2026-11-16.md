@@ -1,5 +1,7 @@
 # Podklady k veřejným případovým studiím — 16. 11. 2026
 
+> **Historický výzkumný snapshot.** Reconciliaci novějších tvrzení obsahuje [PROJECT-EVIDENCE-RECONCILIATION-2026-11-16.md](PROJECT-EVIDENCE-RECONCILIATION-2026-11-16.md); aktuální backlog a stav: [MASTER_PLAN.md](MASTER_PLAN.md).
+
 Tento záznam shrnuje kontrolované zdrojové revize a hranice toho, co lze tvrdit na veřejném webu. Neobsahuje interní adresy, přihlašovací údaje ani absolutní cesty z pracovní stanice. Příklady na webu jsou označené jako ilustrativní, pokud nejde o přímo ověřený běh.
 
 ## Kontrolované zdroje

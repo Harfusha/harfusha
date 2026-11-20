@@ -12,6 +12,8 @@ use Cake\ORM\Entity;
  * @property string $kind
  * @property string $state
  * @property \Cake\I18n\DateTime $published_at
+ * @property \Cake\I18n\DateTime|null $merged_at
+ * @property \Cake\I18n\DateTime|null $closed_at
  */
 final class GithubActivity extends Entity
 {

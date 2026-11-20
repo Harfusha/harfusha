@@ -73,8 +73,8 @@ def verify(
     errors: list[str] = []
     pages = {
         '/healthz': b'ok',
-        '/cs/': b'HARFUSHA',
-        '/en/': b'HARFUSHA',
+        '/cs/': b'Harfusha',
+        '/en/': b'Harfusha',
         '/cs/projects': b'Local AI Hub',
         '/en/projects': b'Local AI Hub',
         '/api/v1/projects?lang=en': b'"projects"',

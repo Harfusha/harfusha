@@ -36,7 +36,7 @@ These images are fresh captures of this checkout running locally. Diagrams descr
 
 ![Playground: eight distinct browser-side models for preprocessing, sync, scan scale, routes, shared queues, service outages, multiplayer authority and a clearly labeled Tiskov proposal](docs/screenshots/readme-playground.png)
 
-![Project overview: seven real fields group nine projects; searchable cards show each problem and hardest part](docs/screenshots/readme-project-map.png)
+![Project overview: three thematic groups organize nine projects; searchable cards show input, difficult work and the evidenced result or limit](docs/screenshots/readme-project-map.png)
 
 ![Home infrastructure: service-first network topology with the Raspberry Pi host and its documented services selected](docs/screenshots/readme-homelab.png)
 

@@ -32,13 +32,19 @@ final class GithubSyncIntegrationTest extends TestCase
     /** @return array<string,mixed> */
     private static function event(string $url): array
     {
-        return [
+        $event = [
             'html_url' => $url,
             'title' => 'Reviewed remote contribution',
             'state' => 'closed',
             'created_at' => '2026-11-12T12:00:00Z',
+            'closed_at' => '2026-11-12T13:00:00Z',
             'user' => ['login' => 'Harfusha'],
         ];
+        if (str_contains($url, '/pull/')) {
+            $event['pull_request'] = ['merged_at' => '2026-11-12T12:30:00Z'];
+        }
+
+        return $event;
     }
 
     /** @return array<string,mixed> */
@@ -112,10 +118,18 @@ final class GithubSyncIntegrationTest extends TestCase
                 (new GithubSyncService())->synchronize(),
             );
 
-            $activity = $db->execute('SELECT source_url FROM github_activity ORDER BY source_url')->fetchAll('assoc');
+            $activity = $db->execute(
+                'SELECT source_url, merged_at, closed_at FROM github_activity ORDER BY source_url',
+            )->fetchAll('assoc');
             self::assertSame([
-                ['source_url' => 'https://github.com/cakephp/cakephp/pull/99'],
-                ['source_url' => 'https://github.com/phpstan/phpstan/issues/42'],
+                [
+                    'source_url' => 'https://github.com/cakephp/cakephp/pull/99',
+                    'merged_at' => '2026-11-12 12:30:00', 'closed_at' => '2026-11-12 13:00:00',
+                ],
+                [
+                    'source_url' => 'https://github.com/phpstan/phpstan/issues/42',
+                    'merged_at' => null, 'closed_at' => '2026-11-12 13:00:00',
+                ],
             ], $activity);
             $repos = $db->execute('SELECT repository FROM github_public_repos')->fetchAll('assoc');
             self::assertSame([['repository' => 'Harfusha/local-ai-hub']], $repos);

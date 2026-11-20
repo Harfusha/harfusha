@@ -69,8 +69,12 @@ final class GithubSnapshot
         foreach ($issues as $item) {
             self::assertAuthor($item, $author);
             $state = $item['state'] ?? null;
-            if (!is_string($state) || !in_array($state, ['open', 'closed'], true)) {
+            if (!is_string($state) || !in_array($state, ['open', 'closed', 'completed'], true)) {
                 throw new InvalidArgumentException('Unexpected issue status');
+            }
+            $stateReason = $item['state_reason'] ?? null;
+            if ($state === 'closed' && ($stateReason === 'completed' || $stateReason === 'merged')) {
+                $state = 'completed';
             }
             $record = GithubRecord::fromGithub($item, 'issue', $state);
             self::includeExternal($records, $record, $author);

@@ -1,5 +1,7 @@
 # Harfusha Lab — verification evidence (14 November 2026)
 
+> **Historical run record.** Results apply only to the revision and environment recorded below; current status: [MASTER_PLAN.md](MASTER_PLAN.md).
+
 ## Scope
 
 Continuation of the 13 November complete source candidate. Added the

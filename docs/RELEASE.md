@@ -5,7 +5,7 @@
 - An actual runtime of **PHP 8.5.12+** and required extensions (Web and CLI) is available. No Composer `--ignore-platform-reqs` or fake platform version.
 - Use the already committed, reviewed **`composer.lock`** with `composer install` on PHP 8.5. Future dependency updates require review and a fresh `composer validate --strict` and CI run.
 - The code passes **PHPStan level max + strict rules + ShipMonk + CakeDC** without ignores/baseline. Check that the installed extension configuration is valid.
-- PHPUnit unit and CakePHP integration tests run against an isolated MySQL database after all three Migrations. Do not run CI against production.
+- PHPUnit unit and CakePHP integration tests run against an isolated MySQL database after all four Migrations. Do not run CI against production.
 - CakePHP CodeSniffer and privacy checks pass; 48 bilingual pages are rendered and their internal links, assets and IDs audited.
 - Browser manual QA: keyboard navigation, focus, mobile, both languages, graph interaction, sync conflicts, STL upload on real browsers, reduced motion preference, CSP and console errors.
 - Manual review approves publication of every case study derived from a **private** GitHub repository; public topology reveals no private addressing, hostnames, secrets or administrative links.

@@ -65,6 +65,7 @@ final class GithubSyncService
     /** @return array{imported:int,merged:int,issues:int,repositories:int} */
     private function performSynchronization(): array
     {
+        // Remote searches preserve event states and closure reasons (e.g. completed issues vs closed/unspecified).
         $prs = $this->search('is:pr author:' . $this->author, 3);
         $merged = $this->search('is:pr is:merged author:' . $this->author, 3);
         $issues = $this->search('is:issue author:' . $this->author, 2);
@@ -92,11 +93,13 @@ final class GithubSyncService
             $connection->execute('DELETE FROM github_activity');
             $connection->execute('DELETE FROM github_public_repos');
             foreach ($records as $event) {
-                $connection->execute('INSERT INTO github_activity (source_url,title,repository,kind,state,published_at)
-                    VALUES (:url,:title,:repo,:kind,:state,:published)
+                $connection->execute('INSERT INTO github_activity
+                    (source_url,title,repository,kind,state,published_at,merged_at,closed_at)
+                    VALUES (:url,:title,:repo,:kind,:state,:published,:merged,:closed)
                     ', [
                         'url' => $event->url, 'title' => $event->title, 'repo' => $event->repository,
                         'kind' => $event->kind, 'state' => $event->state, 'published' => $event->createdAt,
+                        'merged' => $event->mergedAt, 'closed' => $event->closedAt,
                     ]);
             }
             foreach ($publicRepos as $repo) {

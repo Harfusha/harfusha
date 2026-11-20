@@ -17,8 +17,13 @@ final readonly class GithubRecord
         public string $kind,
         public string $state,
         public string $createdAt,
+        public ?string $mergedAt,
+        public ?string $closedAt,
     ) {
-        if (!in_array($kind, ['pr', 'issue'], true) || !in_array($state, ['open','closed','merged'], true)) {
+        if (
+            !in_array($kind, ['pr', 'issue'], true)
+            || !in_array($state, ['open', 'closed', 'merged', 'completed'], true)
+        ) {
             throw new InvalidArgumentException('Invalid GitHub event classification');
         }
     }
@@ -26,6 +31,10 @@ final readonly class GithubRecord
     /** @param array<string,mixed> $item */
     public static function fromGithub(array $item, string $kind, string $state): self
     {
+        $stateReason = $item['state_reason'] ?? null;
+        if ($kind === 'issue' && $state === 'closed' && ($stateReason === 'completed' || $stateReason === 'merged')) {
+            $state = 'completed';
+        }
         $url = $item['html_url'] ?? null;
         if (
             !is_string($url)
@@ -45,6 +54,14 @@ final readonly class GithubRecord
             throw new InvalidArgumentException('Missing creation time');
         }
         $created = GithubTimestamp::normalize($date);
+        $pullRequest = $item['pull_request'] ?? null;
+        if ($pullRequest !== null && (!is_array($pullRequest) || array_is_list($pullRequest))) {
+            throw new InvalidArgumentException('Invalid GitHub pull request metadata');
+        }
+        $mergedAt = $kind === 'pr'
+            ? self::optionalTimestamp(is_array($pullRequest) ? ($pullRequest['merged_at'] ?? null) : null)
+            : null;
+        $closedAt = self::optionalTimestamp($item['closed_at'] ?? null);
         $title = $item['title'] ?? null;
         if (!is_string($title) || trim($title) === '') {
             throw new InvalidArgumentException('Missing event title');
@@ -58,6 +75,21 @@ final readonly class GithubRecord
             $kind,
             $state,
             $created,
+            $mergedAt,
+            $closedAt,
         );
+    }
+
+    /** Validate an optional GitHub event time and normalize it for storage. */
+    private static function optionalTimestamp(mixed $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+        if (!is_string($value)) {
+            throw new InvalidArgumentException('Invalid GitHub event timestamp');
+        }
+
+        return GithubTimestamp::normalize($value);
     }
 }

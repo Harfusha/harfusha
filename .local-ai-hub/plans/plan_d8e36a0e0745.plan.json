@@ -1,0 +1,56 @@
+{
+  "default_target_ref": "refs/heads/master",
+  "description": "Výrazná úvodní ukázka založená na zdroji, výběr silných případových studií, odlišení veřejných stránek a ověření CS/EN.",
+  "id": "plan_d8e36a0e0745",
+  "lifecycle": "completed",
+  "schema_version": 1,
+  "spec_refs": [],
+  "tasks": {
+    "task_80aedf9cba43": {
+      "acceptance_criteria": [
+        "Each of the eleven public section pages receives substantive page-specific editorial or design improvements in Czech and English, with clear purpose and next actions.",
+        "All nine project case studies receive distinct editorial hierarchy, evidence and relevant navigation in CS/EN. Existing working demos, search, feeds and links are preserved.",
+        "All public routes including localized 404 are manually reviewed across their full rendered length and checked with real browser/HTTP and relevant regression tests."
+      ],
+      "blocker": "Uživatelsky zakázána hostingová administrace. Agent OS task/receipt není propojen s relací.",
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Dopracování a vydání všech veřejných stránek a případových studií dokončeno. Schváleno přes review-public-content.py (78 souborů), nasazeno na adam-halfar.cz s ověřením 40 aktualizovaných souborů a 46 GET kontrol.",
+      "kind": "code",
+      "next_action": "Žádná další práce na veřejných stránkách. Všechny požadavky splněny a nasazeny na produkci.",
+      "title": "Dopracování všech veřejných stránek a případových studií",
+      "work_status": "completed"
+    },
+    "task_c9efb5b2abf9": {
+      "acceptance_criteria": [
+        "Review each public route and nine detail pages individually and record concrete issues with evidence",
+        "Fix all known in-scope design, copy, navigation, interaction and responsive issues in Czech and English while preserving dark theme and readable Inter",
+        "Verify fresh desktop/mobile composition beyond the first viewport, purpose, links and interactive states before closure"
+      ],
+      "blocker": "Uživatelsky zakázána hostingová administrace. Agent OS task/receipt není propojen s relací.",
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Kvalitativní revize dokončena: 20 veřejných tras v CS/EN na desktopu i mobilu (80 zobrazení), 113 kontrol Chromium, 40 HTML stránek zkontrolováno, klávesnicová navigace a zoom 200/400 % ověřen. Nasazeno a ověřeno na produkci.",
+      "kind": "code",
+      "next_action": "Hotovo a nasazeno. Žádné otevřené vady.",
+      "title": "Harfusha — kvalitativní revize všech stránek",
+      "work_status": "completed"
+    },
+    "task_ca478c2b5656": {
+      "acceptance_criteria": [
+        "A responsive flagship example demonstrates one concrete, evidence-grounded technique and works with keyboard and without a live backend.",
+        "Homepage and catalog visibly distinguish selected case studies from the complete archive; each public route has a distinct purpose in Czech and English.",
+        "All project detail, demo, journal and public pages render in both languages; no broken navigation or interaction regressions; desktop and mobile visual review complete."
+      ],
+      "blocker": "Uživatelsky zakázána hostingová administrace. Agent OS task/receipt není propojen s relací.",
+      "clarifications": [],
+      "depends_on": [],
+      "description": "Výrazný úvod, odlišené projektové studie a ověření veřejných stránek hotovo a nasazeno na produkci. Redakční schválení ověřeno pro 78 souborů, produkční balík vytvořen a nasazen na adam-halfar.cz.",
+      "kind": "code",
+      "next_action": "Hotovo a vydáno. Žádná další práce nezbývá.",
+      "title": "Finální průchod veřejným portfoliem",
+      "work_status": "completed"
+    }
+  },
+  "title": "Harfusha – finální průchod veřejným portfoliem"
+}

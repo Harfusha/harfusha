@@ -222,6 +222,10 @@ final class ContentRepository
                     'repository' => $record->get('repository'), 'kind' => $record->get('kind'),
                     'state' => $record->get('state'),
                     'published_at' => $created instanceof DateTimeInterface ? $created->format('Y-m-d H:i:s') : '',
+                    'merged_at' => $record->get('merged_at') instanceof DateTimeInterface
+                        ? $record->get('merged_at')->format('Y-m-d H:i:s') : null,
+                    'closed_at' => $record->get('closed_at') instanceof DateTimeInterface
+                        ? $record->get('closed_at')->format('Y-m-d H:i:s') : null,
                 ];
             }
 

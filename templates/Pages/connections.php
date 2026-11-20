@@ -5,12 +5,14 @@ use App\Support\Language;
 /** @var Language $lang */
 /** @var list<App\Domain\Project> $projects */
 $projectBySlug = [];
-$categories = [];
 foreach ($projects as $project) {
     $projectBySlug[$project->slug] = $project;
-    $categories[$project->category] = $project::categoryLabel($project->category, $lang);
 }
-asort($categories, SORT_NATURAL | SORT_FLAG_CASE);
+$themes = [
+    'operate' => ['title' => $lang->value('Nástroje a provoz', 'Tools and operations'), 'description' => $lang->value('Služby, nástroje a provozní informace pro konkrétní prostředí.', 'Services, tools and operational information for a specific environment.'), 'slugs' => ['local-ai-hub', 'home-infrastructure', 'discord-bot']],
+    'candidate' => ['title' => $lang->value('Rekonstrukce a návrh', 'Reconstruction and design'), 'description' => $lang->value('Zpracovat zadání nebo data a ukázat výsledek, který ještě potřebuje kontrolu.', 'Process a request or input data and show a result that still needs review.'), 'slugs' => ['scan2cad', 'tiskov', 'woodbound']],
+    'coordinate' => ['title' => $lang->value('Spolupráce a synchronizace', 'Collaboration and sync'), 'description' => $lang->value('Změny, na kterých musí být mezi lidmi nebo nástroji shoda.', 'Changes that people or tools need to agree on.'), 'slugs' => ['mutaui', 'shpotify', 'softwareinc-multiplayer']],
+];
 $states = [
     'active' => $lang->value('Aktivní vývoj', 'In active development'),
     'prototype' => $lang->value('Prototyp', 'Prototype'),
@@ -27,40 +29,47 @@ $notes = [
     'tiskov' => [$lang->value('Slicer může běžet dlouho. Návrh proto odděluje přijetí poptávky od výpočtu a lidského potvrzení.', 'Slicing can take a long time. The proposal separates request intake from computation and human approval.'), $lang->value('Je to popsaná fronta a Raspberry Pi worker, ne ověřená běžící služba.', 'This is a described queue and Raspberry Pi worker, not a verified running service.'), $lang->value('Zatím jen návrh', 'Still a proposal')],
     'discord-bot' => [$lang->value('V katalogu je příkazová a údržbová větev, ale chybí zdroj, podle kterého bych ověřil oprávnění i chování.', 'The catalog lists application and maintenance commands, but without source I cannot verify permissions or behavior.'), $lang->value('Nechávám projekt odděleně. Hlášení chyby ani katalog nejsou důkazem živého provozu.', 'I keep this project separate. A bug report and a catalog are not proof of live operation.'), $lang->value('Bez zdroje to netvrdím', 'Not claimed without source')],
 ];
-$mapSections = [];
-foreach ($projects as $project) {
-    $mapSections[$project->category]['title'] = $categories[$project->category];
-    $mapSections[$project->category]['slugs'][] = $project->slug;
-}
-ksort($mapSections, SORT_NATURAL | SORT_FLAG_CASE);
+$outcomes = [
+    'local-ai-hub' => $lang->value('Zdroj zpřístupňuje deterministické hledání a přesné zdrojové výřezy; nenahrazuje agenta ani testy.', 'Source provides deterministic search and exact source slices; it does not replace an agent or tests.'),
+    'mutaui' => $lang->value('Aplikace ovládá Mutagen; obrázky ukazují offline demo se syntetickými daty.', 'The app controls Mutagen; screenshots show an offline demo with synthetic data.'),
+    'scan2cad' => $lang->value('Výstupem je kandidátní geometrie; bez rozměrové kontroly nejde o hotový díl.', 'The output is candidate geometry; without dimensional checks, it is not a finished part.'),
+    'home-infrastructure' => $lang->value('Repozitář dokumentuje konfiguraci a obnovu; mapa webu není živý monitoring.', 'The repository documents configuration and recovery; the site map is not live monitoring.'),
+    'shpotify' => $lang->value('Fronta a souběžné změny jsou implementované; přijaté přehrávání celé cesty doložené není.', 'Queue and concurrent updates are implemented; accepted end-to-end playback is not evidenced.'),
+    'softwareinc-multiplayer' => $lang->value('Zdroj obsahuje návrh rozšíření; přijaté ověření hry ani multiplayeru chybí.', 'Source contains an extension; accepted game or multiplayer validation is missing.'),
+    'woodbound' => $lang->value('Generační části jsou ve zdroji; přijatý runtime ani hratelná smyčka doložené nejsou.', 'Generation stages exist in source; an accepted runtime or playable loop is not evidenced.'),
+    'tiskov' => $lang->value('Jde o popsaný návrh fronty; běžící služba ani fyzické výsledky doložené nejsou.', 'This is a queue proposal; a running service or physical results are not evidenced.'),
+    'discord-bot' => $lang->value('Katalog popisuje aplikační příkazy a údržbu. Přesné příkazy, oprávnění a běh čekají na ověření ve zdroji.', 'The catalog describes application commands and maintenance. The exact commands, permissions and operation still need source verification.'),
+];
+$mapSections = $themes;
 ?>
 <section class="page-hero shell project-map-hero">
-  <span class="eyebrow"><?= $lang->value('PŘEHLED PRÁCE', 'WORK INDEX') ?></span>
-  <h1><?= $lang->value('Co stavím, proč a jak to funguje.', 'What I build, why, and how it works.') ?></h1>
-  <p><?= $lang->value('Najdeš tu devět různých věcí: aplikace, nástroje pro AI a vývoj, hru i domácí infrastrukturu. Rozdělil jsem je podle oboru; na každé kartě je rovnou problém a nejtěžší kus práce.', 'Here are nine different things: apps, AI and development tools, a game, and home infrastructure. I grouped them by field; each card goes straight to the problem and the hardest part.') ?></p>
-  <div class="page-meta"><?= count($projects) ?> <?= $lang->value('PROJEKTŮ', 'PROJECTS') ?> <span>·</span> <?= count($mapSections) ?> <?= $lang->value('SKUTEČNÝCH OBLASTÍ', 'PROJECT AREAS') ?></div>
+  <h1><?= $lang->value('Co je ověřené', 'What’s been verified') ?></h1>
+  <p><?= $lang->value('Porovnej, co lze u projektů doložit zdrojovým kódem, co si můžeš vyzkoušet jako model a kde ještě chybí ověření v praxi.', 'Compare what the source shows, what you can try in a model and which claims still need real-world verification.') ?></p>
 </section>
 <section class="section shell project-map" data-project-map-filter aria-label="<?= $lang->value('Projekty seskupené podle toho, co je potřeba ověřit', 'Projects grouped by what needs to be checked') ?>">
   <div class="project-map-catalog">
-    <div class="section-heading"><div><span class="eyebrow"><?= count($mapSections) ?> <?= $lang->value('OBORŮ', 'FIELDS') ?></span><h2><?= $lang->value('Vyber oblast. Pak uvidíš konkrétní práci.', 'Pick a field. Then see the work itself.') ?></h2><p><?= $lang->value('Skupiny vycházejí z toho, co projekt dělá — ne z domnělých vazeb mezi repozitáři.', 'Groups follow what each project does, not imagined links between repositories.') ?></p></div></div>
   <div class="project-map-choices">
     <label><span><?= $lang->value('Hledat projekt nebo problém', 'Search projects or problems') ?></span><input type="search" data-map-search placeholder="<?= $lang->value('Např. preprocessing, fronta, zálohy…', 'For example: preprocessing, queue, backups…') ?>"></label>
-    <label><span><?= $lang->value('Oblast', 'Area') ?><select data-map-category><option value="all"><?= $lang->value('Všechny oblasti', 'All areas') ?></option><?php foreach ($categories as $value => $label): ?><option value="<?= Html::escape($value) ?>"><?= Html::escape($label) ?></option><?php endforeach; ?></select></span></label>
+    <label><span><?= $lang->value('Tematický okruh', 'Thematic group') ?><select data-map-category><option value="all"><?= $lang->value('Všechny okruhy', 'All groups') ?></option><?php foreach ($mapSections as $value => $section): ?><option value="<?= Html::escape($value) ?>"><?= Html::escape($section['title']) ?></option><?php endforeach; ?></select></span></label>
     <label><span><?= $lang->value('Stav projektu', 'Project stage') ?><select data-map-state><option value="all"><?= $lang->value('Všechny stavy', 'All stages') ?></option><?php foreach ($states as $value => $label): ?><option value="<?= Html::escape($value) ?>"><?= Html::escape($label) ?></option><?php endforeach; ?></select></span></label>
   </div>
   <p class="project-map-status" data-map-status data-label="<?= $lang->value('projektů zobrazeno','projects shown') ?>" role="status" aria-live="polite" aria-atomic="true"><?= count($projects) ?> <?= $lang->value('projektů zobrazeno','projects shown') ?></p>
   <div class="project-map-domains">
-    <?php foreach ($mapSections as $category => $section): $sectionId = 'map-category-' . trim((string)preg_replace('/[^a-z0-9]+/i', '-', $category), '-'); ?>
+    <?php foreach ($mapSections as $theme => $section): $sectionId = 'map-theme-' . $theme; ?>
     <section class="project-map-domain" data-map-domain="<?= Html::escape($sectionId) ?>" aria-labelledby="<?= Html::escape($sectionId) ?>">
-        <header class="project-map-domain-heading"><span><?= count($section['slugs']) ?> <?= $lang->value('PROJEKTŮ', 'PROJECTS') ?></span><div><h2 id="<?= Html::escape($sectionId) ?>"><?= Html::escape($section['title']) ?></h2></div><small><?= $lang->value('OBLAST', 'AREA') ?></small></header>
+        <header class="project-map-domain-heading"><h2 id="<?= Html::escape($sectionId) ?>"><?= Html::escape($section['title']) ?></h2><p><?= Html::escape($section['description']) ?></p></header>
       <div class="project-map-list">
       <?php foreach ($section['slugs'] as $slug): if (!isset($projectBySlug[$slug])) continue; $project = $projectBySlug[$slug]; [$problem, $hardPart, $hardLabel] = $notes[$slug]; ?>
-        <article class="project-map-item" id="map-project-<?= Html::escape($slug) ?>" data-map-project data-category="<?= Html::escape($project->category) ?>" data-state="<?= Html::escape($project->status) ?>" data-search="<?= Html::escape($project->name . ' ' . $project->category . ' ' . $project->summary($lang) . ' ' . $problem . ' ' . $hardPart) ?>">
+        <article class="project-map-item" id="map-project-<?= Html::escape($slug) ?>" data-map-project data-theme="<?= Html::escape($theme) ?>" data-state="<?= Html::escape($project->status) ?>" data-search="<?= Html::escape($project->name . ' ' . $project->category . ' ' . $project::categoryLabel($project->category, $lang) . ' ' . $project->summary($lang) . ' ' . $problem . ' ' . $hardPart . ' ' . $outcomes[$slug]) ?>">
           <div class="project-map-item-heading"><span class="category"><?= Html::escape($project::categoryLabel($project->category, $lang)) ?></span><span class="status <?= Html::escape($project->status) ?>"><?= Html::escape($project->statusLabel($lang)) ?></span></div>
           <h3><a href="<?= $lang->path('/projects/' . $project->slug) ?>"><?= Html::escape($project->name) ?></a></h3>
-          <p class="project-map-problem"><?= Html::escape($problem) ?></p>
+          <p class="project-map-hard project-map-outcome"><span><?= $lang->value('Výsledek / limit', 'Result / limit') ?></span><?= Html::escape($outcomes[$slug]) ?></p>
+          <details class="project-map-reason">
+          <summary><?= $lang->value('Jak jsem k výsledku došel', 'What went into the result') ?></summary>
+          <p class="project-map-hard project-map-problem"><span><?= $lang->value('Vstup / problém', 'Input / problem') ?></span><?= Html::escape($problem) ?></p>
           <p class="project-map-hard"><span><?= Html::escape($hardLabel) ?></span><?= Html::escape($hardPart) ?></p>
-          <a class="inline-link" href="<?= $lang->path('/projects/' . $project->slug) ?>"><?= $lang->value('Rozebrat projekt a jeho alternativy', 'Explore the project and its alternatives') ?> →</a>
+          </details>
+          <a class="inline-link" href="<?= $lang->path('/projects/' . $project->slug) ?>"><?= $lang->value('Případová studie', 'Case study') ?> →</a>
         </article>
       <?php endforeach; ?>
       </div>
@@ -68,5 +77,5 @@ ksort($mapSections, SORT_NATURAL | SORT_FLAG_CASE);
     <?php endforeach; ?>
   </div>
   </div>
-  <p class="project-map-empty" data-map-empty hidden><?= $lang->value('Tomu hledání nic neodpovídá. Zkus jiný název, oblast nebo stav.', 'No project matches those filters. Try another name, area or stage.') ?></p>
+  <p class="project-map-empty" data-map-empty hidden><?= $lang->value('Výsledky pro tento výběr chybí. Zkuste jiný název, oblast nebo stav.', 'No project matches those filters. Try another name, area or stage.') ?></p>
 </section>

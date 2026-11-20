@@ -128,7 +128,7 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->get('/cs/connections');
         $this->assertResponseOk();
         $this->assertResponseContains('Co stavím, proč a jak to funguje.');
-        $this->assertResponseContains('Skupiny vycházejí z toho, co projekt dělá');
+        $this->assertResponseContains('Devět projektů, tři tematické okruhy. Okruh pomáhá najít podobný typ práce; neznamená technickou závislost mezi repozitáři.');
         $this->assertResponseContains('data-map-category');
         $this->assertResponseContains('data-map-state');
         $this->assertResponseContains('data-map-project');
@@ -173,7 +173,7 @@ final class PagesControllerTest extends HttpIntegrationTestCase
 
         $this->get('/cs/projects/discord-bot');
         $this->assertResponseOk();
-        $this->assertResponseContains('Zdrojový repozitář teď nemám');
+        $this->assertResponseContains('Zdrojový repozitář nemám');
         $this->assertResponseNotContains('data-discord-role');
     }
 
@@ -206,7 +206,7 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->assertResponseNotContains('192.168.');
         $this->get('/en/connections');
         $this->assertResponseOk();
-        $this->assertResponseContains('Groups follow what each project does, not imagined links between repositories');
+        $this->assertResponseContains('Nine projects, three thematic groups. A group helps find similar work; it does not imply technical dependencies between repositories.');
         $this->assertResponseContains('data-map-project');
         $this->assertResponseNotContains('maker-lab');
     }
