@@ -32,6 +32,7 @@ def main() -> None:
         shutil.rmtree(stage_dir)
     stage_dir.mkdir(parents=True, exist_ok=True)
 
+    container_name = f'harfusha-build-{os.getpid()}'
     try:
         app_dir = stage_dir / 'app'
         app_dir.mkdir(parents=True, exist_ok=True)
@@ -40,26 +41,27 @@ def main() -> None:
         count = stage_application(ROOT, app_dir)
         print(f'   Staged {count} files.')
 
-        print('2. Running composer install --no-dev in Docker PHP 8.5.12 container...')
-        cmd_install = [
-            'docker', 'run', '--rm',
-            '-v', f'{app_dir}:/app',
-            '-w', '/app',
-            'harfusha-php85-ci:20261118',
+        print('2. Running composer install --no-dev in isolated container filesystem...')
+        subprocess.run(['docker', 'rm', '-f', container_name], capture_output=True)
+        subprocess.run(['docker', 'run', '-d', '--name', container_name, 'harfusha-php85-ci:20261118', 'sleep', '300'], check=True)
+        subprocess.run(['docker', 'exec', container_name, 'mkdir', '-p', '/app'], check=True)
+        subprocess.run(['docker', 'cp', f'{app_dir}/.', f'{container_name}:/app/'], check=True)
+
+        subprocess.run([
+            'docker', 'exec', '-w', '/app', container_name,
             'composer', 'install', '--no-dev', '--prefer-dist',
             '--optimize-autoloader', '--no-interaction', '--no-progress',
-        ]
-        subprocess.run(cmd_install, check=True)
+        ], check=True)
 
         print('3. Checking platform requirements...')
-        cmd_check = [
-            'docker', 'run', '--rm',
-            '-v', f'{app_dir}:/app',
-            '-w', '/app',
-            'harfusha-php85-ci:20261118',
+        subprocess.run([
+            'docker', 'exec', '-w', '/app', container_name,
             'composer', 'check-platform-reqs', '--no-dev',
-        ]
-        subprocess.run(cmd_check, check=True)
+        ], check=True)
+
+        print('   Copying installed vendor back from container...')
+        subprocess.run(['docker', 'cp', f'{container_name}:/app/vendor', f'{app_dir}/vendor'], check=True)
+        subprocess.run(['docker', 'rm', '-f', container_name], capture_output=True)
 
         print('4. Writing archive...')
         files_count, digest = write_archive(app_dir, out)
@@ -72,6 +74,7 @@ def main() -> None:
         print(f'   Verified {verified_count} hashed files against SHA256SUMS.')
 
     finally:
+        subprocess.run(['docker', 'rm', '-f', container_name], capture_output=True)
         if stage_dir.exists():
             shutil.rmtree(stage_dir, ignore_errors=True)
 

@@ -16,18 +16,24 @@ use App\Support\Language;
 <section class="shell workbench-hero" aria-labelledby="workbench-title">
     <div class="workbench-intro">
         <p class="workbench-author">Adam Halfar <span aria-hidden="true">/</span> Harfusha</p>
-        <h1 id="workbench-title"><?= $lang->value('Změň vstup.', 'Change an input.') ?><br><em><?= $lang->value('Sleduj výsledek.', 'See the result.') ?></em></h1>
-        <p><?= $lang->value('Stavím vývojářské nástroje a spravuju domácí síť. Zkus přepočítat pixely z fotky, porovnat režimy synchronizace nebo zjistit, co se stane při výpadku úložiště.', 'I build developer tools and run a home network. Try converting pixels into a measurement, comparing sync modes or seeing what happens when storage goes offline.') ?></p>
+        <h1 id="workbench-title"><?= $lang->value('Backend & Systems Developer.', 'Backend & Systems Developer.') ?><br><em><?= $lang->value('Spolehlivý software a infrastruktura.', 'Resilient software & infrastructure.') ?></em></h1>
+        <p><?= $lang->value('Vyvíjím distribuované backendové nástroje, lokální AI tooling a orchestraci systémů. Přispívám do jádra CakePHP a open-source frameworků. Žádný marketingový balast – měřitelná architektura, čistý kód a funkční systémy.', 'Building distributed backend tooling, local AI systems and infrastructure automation. Core contributor to CakePHP and open-source frameworks. Clean code, resilient architecture and production-grade systems.') ?></p>
+        <div class="hero-pills">
+            <span class="hero-pill"><span>60+</span> <?= $lang->value('sloučených core PRs', 'merged core PRs') ?></span>
+            <span class="hero-pill"><span>PHP 8.5 & CakePHP</span> <?= $lang->value('hloubková typovost', 'strict typing') ?></span>
+            <span class="hero-pill"><span>Python & MCP</span> <?= $lang->value('agentní tooling', 'agent tooling') ?></span>
+            <span class="hero-pill"><span>GitOps Homelab</span> <?= $lang->value('WireGuard & Ansible', 'WireGuard & Ansible') ?></span>
+        </div>
         <div class="hero-buttons">
-            <a class="btn btn-primary" href="#try-it"><?= $lang->value('Vybrat pokus', 'Choose an experiment') ?> <span aria-hidden="true">↓</span></a>
-            <a class="workbench-text-link" href="#selected-work"><?= $lang->value('Co stavím', 'What I’m building') ?> <span aria-hidden="true">↘</span></a>
+            <a class="btn btn-primary" href="#selected-work"><?= $lang->value('Prozkoumat projekty', 'Explore projects') ?> <span aria-hidden="true">↓</span></a>
+            <a class="btn btn-ghost" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Open source příspěvky', 'Open source work') ?> <span aria-hidden="true">↗</span></a>
         </div>
     </div>
     <a class="workbench-cover" href="#scale-quick">
         <figure>
-            <img src="/assets/img/scale-studio.webp" width="1448" height="1086" fetchpriority="high" alt="<?= $lang->value('Ilustrační snímek posuvného měřítka u oranžového výtisku', 'Illustration of a caliper measuring an orange 3D print') ?>">
+            <img src="/assets/img/scale-studio.webp" width="1448" height="1086" fetchpriority="high" alt="<?= $lang->value('Hardware a systémový workbench', 'Hardware and systems workbench') ?>">
             <figcaption>
-                <span><?= $lang->value('Jak z pixelů dostaneš milimetry?', 'How do pixels become millimeters?') ?></span>
+                <span><?= $lang->value('Systémový a hardwarový workbench', 'Systems and hardware workbench') ?></span>
                 <span aria-hidden="true">↗</span>
             </figcaption>
         </figure>
@@ -38,15 +44,15 @@ use App\Support\Language;
     <div class="shell">
         <div class="section-heading">
             <div>
-                <h2 id="experiments-title"><?= $lang->value('Vyzkoušej si to', 'Try it yourself') ?></h2>
-                <p><?= $lang->value('Vyber otázku, změň jeden vstup a porovnej výsledek přímo v prohlížeči.', 'Pick a question, change one input and compare the result in your browser.') ?></p>
+                <h2 id="experiments-title"><?= $lang->value('Interaktivní workbench & simulátory', 'Interactive workbench & simulators') ?></h2>
+                <p><?= $lang->value('Živé ověření systémových modelů, kalibrace hardware a síťového routingu v reálném čase.', 'Live verification of system models, hardware calibration and network routing.') ?></p>
             </div>
             <a class="inline-link" href="<?= $lang->path('/playground') ?>"><?= $lang->value('Všech osm pokusů', 'All eight experiments') ?> <span aria-hidden="true">↗</span></a>
         </div>
         <article class="quick-scale" id="scale-quick" data-quick-scale aria-labelledby="quick-scale-title">
             <div class="quick-scale-intro">
-                <h3 id="quick-scale-title"><?= $lang->value('Kolik milimetrů má díl?', 'How many millimeters is the part?') ?></h3>
-                <p><?= $lang->value('Úsek dlouhý 120 pixelů měří na skutečném dílu 30 mm. Zkus změnit referenci nebo délku měřeného úseku.', 'A 120-pixel reference measures 30 mm on the physical part. Change the reference or the length of the section you’re measuring.') ?></p>
+                <h3 id="quick-scale-title"><?= $lang->value('Optická kalibrace rozměrů (Scan2CAD)', 'Optical dimension calibration (Scan2CAD)') ?></h3>
+                <p><?= $lang->value('Převod pixelové matice ze snímače na metrologický rozměr na základě referenční kalibrační báze.', 'Sensor pixel matrix conversion to physical metrology dimensions based on calibrated reference base.') ?></p>
                 <a class="inline-link" href="<?= $lang->path('/playground#station-scale-check') ?>"><?= $lang->value('Celý pokus s měřítkem', 'Full scale experiment') ?> <span aria-hidden="true">↗</span></a>
             </div>
             <form class="quick-scale-form" data-scale-form>
@@ -64,21 +70,21 @@ use App\Support\Language;
         </article>
         <div class="experiment-grid">
             <a class="experiment-link experiment-sync" href="<?= $lang->path('/playground#station-sync-preview') ?>">
-                <span class="experiment-topic"><?= $lang->value('Synchronizace', 'File sync') ?></span>
-                <h3><?= $lang->value('Který soubor se přepíše?', 'Which file gets overwritten?') ?></h3>
-                <p><?= $lang->value('Porovnej náhled jednosměrné a obousměrné synchronizace.', 'Compare previews for one-way and two-way sync.') ?></p>
+                <span class="experiment-topic"><?= $lang->value('Mutagen IPC & Sync', 'Mutagen IPC & Sync') ?></span>
+                <h3><?= $lang->value('Prevence souběhu a konfliktů', 'Concurrency & conflict prevention') ?></h3>
+                <p><?= $lang->value('Obousměrný plán synchronizace a atomické přechody stavů.', 'Two-way synchronization planner and atomic state transitions.') ?></p>
                 <span class="experiment-arrow" aria-hidden="true">↗</span>
             </a>
             <a class="experiment-link experiment-network" href="<?= $lang->path('/homelab#network-model') ?>">
-                <span class="experiment-topic"><?= $lang->value('Domácí síť', 'Home network') ?></span>
-                <h3><?= $lang->value('Poběží video bez NAS?', 'Will video play without the NAS?') ?></h3>
-                <p><?= $lang->value('Vypni úložiště v modelu a sleduj cestu od klienta až k souboru.', 'Take storage offline in the model and follow the path from the client to the file.') ?></p>
+                <span class="experiment-topic"><?= $lang->value('Homelab GitOps & Routing', 'Homelab GitOps & Routing') ?></span>
+                <h3><?= $lang->value('Simulace výpadku a failoveru', 'Outage & failover simulation') ?></h3>
+                <p><?= $lang->value('Izolace služeb a závislostí při nedostupnosti nodu v síti.', 'Service and dependency isolation during node unavailability.') ?></p>
                 <span class="experiment-arrow" aria-hidden="true">↗</span>
             </a>
             <a class="experiment-link experiment-route" href="<?= $lang->path('/playground#station-route-finder') ?>">
-                <span class="experiment-topic"><?= $lang->value('Hledání trasy', 'Pathfinding') ?></span>
-                <h3><?= $lang->value('Najde se cesta kolem překážky?', 'Is there a route around the obstacle?') ?></h3>
-                <p><?= $lang->value('Zablokuj jedno pole v krajině a nech trasu přepočítat.', 'Block one cell on the map and recalculate the route.') ?></p>
+                <span class="experiment-topic"><?= $lang->value('A* Pathfinding & Grid', 'A* Pathfinding & Grid') ?></span>
+                <h3><?= $lang->value('Průchodnost procedurálního terénu', 'Procedural terrain traversal') ?></h3>
+                <p><?= $lang->value('Hledání optimální trasy s topologickými překážkami.', 'Optimal pathfinding with topological obstacles.') ?></p>
                 <span class="experiment-arrow" aria-hidden="true">↗</span>
             </a>
         </div>

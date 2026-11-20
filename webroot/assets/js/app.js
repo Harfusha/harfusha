@@ -576,6 +576,32 @@
       $('[data-sync-conflicts]', root).replaceChildren(...conflicts.map(path => { const li = document.createElement('li'); li.textContent = local(`${path}: obě kopie se změnily od společného základu.`, `${path}: both copies changed since the common base.`); return li; }));
     };
     $('[data-sync-preview]', syncForm).addEventListener('click', renderSync);
+    $$('[data-sync-scenario]', syncForm).forEach(btn => {
+      btn.addEventListener('click', () => {
+        const scenario = btn.dataset.syncScenario;
+        const baseEl = $('[data-sync-base]', syncForm);
+        const localEl = $('[data-sync-local]', syncForm);
+        const remoteEl = $('[data-sync-remote]', syncForm);
+        const modeEl = $('[data-sync-mode]', syncForm);
+        if (scenario === 'conflict') {
+          baseEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v1';
+          localEl.value = 'config.yml|v2\nREADME.md|v1\ntheme.css|v1\nnotes.md|v1';
+          remoteEl.value = 'config.yml|v3\nREADME.md|v1\ntheme.css|v2';
+          modeEl.value = 'two-way';
+        } else if (scenario === 'clean') {
+          baseEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v1';
+          localEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v1\nnotes.md|v1';
+          remoteEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v2';
+          modeEl.value = 'two-way';
+        } else if (scenario === 'authoritative') {
+          baseEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v1';
+          localEl.value = 'config.yml|v2\nREADME.md|v2\ntheme.css|v1';
+          remoteEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v2';
+          modeEl.value = 'one-way';
+        }
+        renderSync();
+      });
+    });
     renderSync();
 
     initScale(root);

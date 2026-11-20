@@ -6,7 +6,47 @@ use App\Support\Language;
 /** @var list<array<string,mixed>> $nodes */
 /** @var list<App\Domain\NetworkFlow> $flows */
 ?>
-<section class="page-hero shell"><h1><?= $lang->value('Domácí síť při výpadku','Home network outages') ?></h1><p><?= $lang->value('Co se stane s videem, tiskem nebo zálohou, když vypadne jedno zařízení? Vyber scénář a sleduj, kde se cesta přeruší.', 'What happens to video, printing or backups when one device goes offline? Pick a scenario and see where the path breaks.') ?></p></section>
+<section class="page-hero shell">
+    <span class="eyebrow"><?= $lang->value('INFRASTRUKTURA & GITOPS', 'INFRASTRUCTURE & GITOPS') ?></span>
+    <h1><?= $lang->value('Domácí síť & modelování výpadků', 'Home Network & Outage Simulation') ?></h1>
+    <p><?= $lang->value('Infrastruktura jako kód (IaC) spravovaná přes Ansible a Git. Segmentace sítě, WireGuard mesh a živý interaktivní model dostupnosti služeb při výpadku hardware.', 'Infrastructure as Code (IaC) managed via Ansible and Git. Network segmentation, WireGuard mesh, and live simulation of service resilience during hardware outages.') ?></p>
+</section>
+
+<section class="shell section" aria-labelledby="homelab-topology-title">
+    <div class="section-heading">
+        <div>
+            <span class="eyebrow"><?= $lang->value('SÍŤOVÉ VRSTVY & PROTOKOLY', 'NETWORK LAYERS & PROTOCOLS') ?></span>
+            <h2 id="homelab-topology-title"><?= $lang->value('Architektura síťových vrstev', 'Network Layer Architecture') ?></h2>
+            <p><?= $lang->value('Fyzická i logická segmentace služeb, směrování portů a zabezpečené datové toky mezi uzly.', 'Physical and logical service segmentation, port routing and secured inter-node data flows.') ?></p>
+        </div>
+    </div>
+    <div class="code-block" style="margin-top: 1.2rem;">
+        <div class="code-header">
+            <span>homelab-network-topology.spec</span>
+            <span class="code-tag">WireGuard & VLANs</span>
+        </div>
+        <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Architektonické schéma sítě', 'Network architecture diagram') ?>"><code>┌────────────────────────────────────────────────────────────────────────┐
+│ [01 / EDGE GATEWAY]  MikroTik RouterOS (RB5009)                       │
+│ ├─ WAN (DHCP/PPPoE)  ➔ Firewall Filter & NAT Drop Inbound              │
+│ ├─ WireGuard VPN     ➔ UDP 51820 (šifrovaný mesh pro vzdálenou správu) │
+│ └─ VLAN Trunk        ➔ Izolace IoT, managementu a lokálních klientů    │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+    ┌───────────────────────────────┼───────────────────────────────┐
+    ▼                               ▼                               ▼
+┌────────────────────────┐  ┌────────────────────────┐  ┌────────────────────────┐
+│ [02 / CORE CLUSTER]    │  │ [03 / PRINT NODE]      │  │ [04 / STORAGE & BACKUP]│
+│ Raspberry Pi 5         │  │ Raspberry Pi Zero W    │  │ QNAP NAS (RAID-1)      │
+│ ├─ Pi-hole + Unbound   │  │ ├─ CUPS Server         │  │ ├─ SMB3 Storage Share  │
+│ │  (DNS UDP/TCP 53)    │  │ │  (IPP Port 631)      │  │ ├─ Restic šifrované    │
+│ ├─ Nginx Reverse Proxy │  │ ├─ Brother HL-1222WE   │  │ │  zálohy snapshotů    │
+│ │  (HTTPS 443 / SSL)   │  │ └─ Read-only rootfs    │  │ └─ Časové okno záloh   │
+│ ├─ Semaphore & Ansible │  │    (ochrana SD karty)  │  │    01:30–03:00 (SPOF)  │
+│ └─ Jellyfin & BookStack│  └────────────────────────┘  └────────────────────────┘
+└────────────────────────┘</code></pre>
+    </div>
+</section>
+
 <section class="shell lab-section" id="network-model"><div class="lab-shell" data-homelab data-lang="<?= Html::escape($lang->code) ?>">
 <div class="lab-scenarios" data-lab-scenarios hidden>
   <div>
