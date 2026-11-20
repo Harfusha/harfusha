@@ -49,9 +49,9 @@ $stateLabels = [
                         <span>src/ORM/Association.php</span>
                         <span class="code-tag">PHPStan & Generics</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code>- /**
--  * @property string $name
--  */
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- /**</span>
+<span class="code-diff-del">-  * @property string $name</span>
+<span class="code-diff-del">-  */</span>
 <span class="code-diff-add">+ /**</span>
 <span class="code-diff-add">+  * @template T of \Cake\ORM\Table</span>
 <span class="code-diff-add">+  * @mixin T</span>
@@ -79,8 +79,8 @@ abstract class Association { ... }</code></pre>
                         <span>src/Model/Table/RequestsTable.php</span>
                         <span class="code-tag">SQLite & Compression</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code>- $content = serialize($panel->data());
-- $statement->bindValue(':content', $content, PDO::PARAM_STR);
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- $content = serialize($panel->data());</span>
+<span class="code-diff-del">- $statement->bindValue(':content', $content, PDO::PARAM_STR);</span>
 <span class="code-diff-add">+ $content = gzdeflate(serialize($panel->data()), 6);</span>
 <span class="code-diff-add">+ $statement->bindValue(':content', $content, PDO::PARAM_LOB);</span></code></pre>
                 </div>
@@ -104,7 +104,7 @@ abstract class Association { ... }</code></pre>
                         <span>config/set/code-quality.php</span>
                         <span class="code-tag">Rector & AST</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code>- $rectorConfig->rule(SimplifyUselessVariableRector::class);
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- $rectorConfig->rule(SimplifyUselessVariableRector::class);</span>
 <span class="code-diff-add">+ // Preserves intermediate variables for step debugging (Xdebug)</span>
 <span class="code-diff-add">+ // and expressive domain naming before return statements</span></code></pre>
                 </div>
@@ -128,7 +128,7 @@ abstract class Association { ... }</code></pre>
                         <span>src/ORM/Locator/TableLocator.php</span>
                         <span class="code-tag">Type Safety & ORM</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code>- public function get(string $alias, array $options = []): Table
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- public function get(string $alias, array $options = []): Table</span>
 <span class="code-diff-add">+ /**</span>
 <span class="code-diff-add">+  * @template T of Table</span>
 <span class="code-diff-add">+  * @param class-string&lt;T&gt;|string $alias</span>
@@ -156,11 +156,11 @@ abstract class Association { ... }</code></pre>
                         <span>src/ChronosDate.php</span>
                         <span class="code-tag">Chronos & Strict Types</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code>- /** @return static */
-- public function addDays(int $value): static
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- /** @return static */</span>
+<span class="code-diff-del">- public function addDays(int $value): static</span>
 <span class="code-diff-add">+ /** @return static */</span>
 <span class="code-diff-add">+ public function addDays(int $value): static</span>
-- public function subYears(int $value): DateTimeImmutable
+<span class="code-diff-del">- public function subYears(int $value): DateTimeImmutable</span>
 <span class="code-diff-add">+ public function subYears(int $value): static</span></code></pre>
                 </div>
             </div>
@@ -183,7 +183,7 @@ abstract class Association { ... }</code></pre>
                         <span>src/Database/Driver.php</span>
                         <span class="code-tag">Database & Telemetry</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code>- $this->log('Active transaction on disconnect', 'warning');
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- $this->log('Active transaction on disconnect', 'warning');</span>
 <span class="code-diff-add">+ $context = sprintf('[URI: %s, IP: %s]', $request?->getRequestTarget(), $request?->clientIp());</span>
 <span class="code-diff-add">+ $this->log('Active transaction on disconnect: ' . $context, 'warning');</span></code></pre>
                 </div>

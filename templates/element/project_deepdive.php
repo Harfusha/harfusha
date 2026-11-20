@@ -300,13 +300,17 @@ foreach ($architectureEdges as [$source, $target]) {
   <div class="pipeline-track" role="group" aria-label="<?= $lang->value('Pipeline toku dat', 'Data pipeline flow') ?>">
     <?php foreach ($pipelineStages[0] as $stageIdx => $stageName): ?>
       <?php if ($stageIdx > 0): ?><span class="pipeline-arrow" aria-hidden="true">➔</span><?php endif; ?>
-      <span class="pipeline-phase"><?= Html::escape($stageName) ?></span>
+      <button type="button" class="pipeline-phase" data-pipeline-stage="<?= $stageIdx ?>"><?= Html::escape($stageName) ?></button>
     <?php endforeach; ?>
   </div>
   <?php endif; ?>
   <ul class="component-grid">
-    <?php foreach ($architectureNodes as $index => $node): ?>
-    <li id="component-<?= $index ?>" data-architecture-node>
+    <?php
+    $stageCount = max(1, count($pipelineStages[0] ?? []));
+    foreach ($architectureNodes as $index => $node):
+        $nodeStage = intdiv($index * $stageCount, count($architectureNodes));
+    ?>
+    <li id="component-<?= $index ?>" data-architecture-node data-node-stage="<?= $nodeStage ?>">
       <div class="node-meta-row">
         <span class="node-badge">STEP <?= sprintf('%02d', $index + 1) ?></span>
         <?php if (isset($node[4])): ?><span class="node-runtime"><?= Html::escape($node[4]) ?></span><?php endif; ?>

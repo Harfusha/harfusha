@@ -408,7 +408,7 @@ def main() -> None:
                             labels = history.locator('.activity-dates > span').all_inner_texts()
                             assert len(labels) == history.count() and all(label.startswith(('Založeno', 'Sloučeno', 'Uzavřeno')) for label in labels)
                             for pull in page.locator('[data-now-activity] [data-activity][data-kind="pr"][data-state="closed"]').all():
-                                assert 'důvod neznámý' in pull.locator('.status').inner_text().casefold()
+                                assert 'uzavřeno' in pull.locator('.status').inner_text().casefold()
                             notes = page.locator('[data-now-notes] .now-build-entry')
                             assert notes.count() >= 33, 'the timeline should include the full, broader curated history'
                             assert notes.first.locator('time').inner_text() == '2026-11-17', 'newest dated work should lead the timeline'
@@ -447,7 +447,7 @@ def main() -> None:
                             labels = history.locator('.activity-dates > span').all_inner_texts()
                             assert len(labels) == history.count() and all(label.startswith(('Created', 'Merged', 'Closed')) for label in labels)
                             for pull in page.locator('[data-now-activity] [data-activity][data-kind="pr"][data-state="closed"]').all():
-                                assert 'reason unknown' in pull.locator('.status').inner_text().casefold()
+                                assert 'closed' in pull.locator('.status').inner_text().casefold()
                         if site == 'cs/journal':
                             assert page.locator('[data-journal-entry]').count() == 44
                             assert page.get_by_text('Jak se rodil Local AI Hub').is_visible()

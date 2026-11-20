@@ -732,6 +732,27 @@
       queueResult.textContent = '';
       renderQueue();
     });
+    $$('[data-queue-preset]', root).forEach(btn => btn.addEventListener('click', () => {
+      const p = btn.dataset.queuePreset;
+      if (p === 'conflict') {
+        version = 12;
+        queueItems = ['Night Drive', 'Quiet Signal', 'Client A · Track 01'];
+        version = 13;
+        queueResult.textContent = local('Klient B poslal zastaralou verzi 12, aktuální je 13; nastal konflikt verzí a požadavek byl zamítnut.', 'Client B sent stale version 12, current is 13; conflict detected and edit rejected.');
+        renderQueue();
+      } else if (p === 'dedup') {
+        version = 12;
+        queueItems = ['Night Drive', 'Quiet Signal', 'Client A · Track 01'];
+        version = 13;
+        queueResult.textContent = local('Klient A poslal identickou skladbu znovu; deduplikační filtr zachoval konzistentní frontu.', 'Client A sent identical track again; deduplication preserved consistent queue.');
+        renderQueue();
+      } else if (p === 'reset') {
+        version = 12;
+        queueItems = ['Night Drive', 'Quiet Signal'];
+        queueResult.textContent = '';
+        renderQueue();
+      }
+    }));
     renderQueue();
 
     const tiskovForm = $('[data-tiskov-form]', root);
@@ -770,6 +791,23 @@
         }));
       };
       [jobsInput, workersInput, minutesInput].forEach(input => input.addEventListener('input', renderTiskov));
+      $$('[data-tiskov-preset]', root).forEach(btn => btn.addEventListener('click', () => {
+        const p = btn.dataset.tiskovPreset;
+        if (p === 'bottleneck') {
+          jobsInput.value = 8;
+          workersInput.value = 1;
+          minutesInput.value = 45;
+        } else if (p === 'parallel') {
+          jobsInput.value = 6;
+          workersInput.value = 3;
+          minutesInput.value = 30;
+        } else if (p === 'express') {
+          jobsInput.value = 3;
+          workersInput.value = 2;
+          minutesInput.value = 15;
+        }
+        renderTiskov();
+      }));
       renderTiskov();
     }
 
@@ -813,6 +851,23 @@
       $('[data-authority-detail]', root).textContent = result[1];
     };
     authorityForm.addEventListener('change', renderAuthority);
+    $$('[data-authority-preset]', root).forEach(btn => btn.addEventListener('click', () => {
+      const p = btn.dataset.authorityPreset;
+      if (p === 'host') {
+        $('[data-authority-role]', root).value = 'host';
+        $('[data-authority-version]', root).value = 'current';
+        $('[data-authority-roster]', root).checked = true;
+      } else if (p === 'guest') {
+        $('[data-authority-role]', root).value = 'guest';
+        $('[data-authority-version]', root).value = 'current';
+        $('[data-authority-roster]', root).checked = false;
+      } else if (p === 'stale') {
+        $('[data-authority-role]', root).value = 'guest';
+        $('[data-authority-version]', root).value = 'stale';
+        $('[data-authority-roster]', root).checked = true;
+      }
+      renderAuthority();
+    }));
     renderAuthority();
   }
 
@@ -870,5 +925,55 @@
     });
   });
 
+  // Architecture pipeline ribbon & diagram interaction
+  function initArchitecturePipeline() {
+    const figure = $('[data-project-architecture]');
+    if (!figure) return;
+    const phases = $$('.pipeline-phase', figure);
+    const nodes = $$('[data-architecture-node]', figure);
+    if (!phases.length || !nodes.length) return;
+
+    phases.forEach((phase, stageIdx) => {
+      const activate = () => {
+        phases.forEach(p => p.classList.toggle('is-active', p === phase));
+        nodes.forEach(node => {
+          const match = node.dataset.nodeStage === String(stageIdx);
+          node.classList.toggle('is-highlighted', match);
+        });
+      };
+      phase.addEventListener('mouseenter', activate);
+      phase.addEventListener('focus', activate);
+      phase.addEventListener('click', () => {
+        activate();
+        const targetNode = $(`[data-node-stage="${stageIdx}"]`, figure);
+        if (targetNode) {
+          targetNode.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          targetNode.classList.remove('is-target');
+          void targetNode.offsetWidth;
+          targetNode.classList.add('is-target');
+        }
+      });
+    });
+
+    figure.addEventListener('mouseleave', () => {
+      phases.forEach(p => p.classList.remove('is-active'));
+      nodes.forEach(node => node.classList.remove('is-highlighted'));
+    });
+
+    $$('[data-architecture-edge]', figure).forEach(link => {
+      link.addEventListener('click', () => {
+        const targetId = link.getAttribute('href')?.replace('#', '');
+        if (!targetId) return;
+        const targetNode = document.getElementById(targetId);
+        if (targetNode) {
+          targetNode.classList.remove('is-target');
+          void targetNode.offsetWidth;
+          targetNode.classList.add('is-target');
+        }
+      });
+    });
+  }
+
+  initArchitecturePipeline();
   initPlayground();
 })();
