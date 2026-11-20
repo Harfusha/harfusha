@@ -19,32 +19,68 @@ $states = [
     'maintenance' => $lang->value('Údržba', 'Maintenance'),
 ];
 $notes = [
-    'local-ai-hub' => [$lang->value('Ještě před odpovědí modelu musí být jasné, který soubor se změnil a jaký důkaz z něj lze vrátit.', 'Before a model answers, we need to know which file changed and what evidence can be returned from it.'), $lang->value('Preprocessing počítá otisky a připravuje indexy po navazujících fázích. RAG ani model nepřebíjí zdrojový kód.', 'Preprocessing computes fingerprints and prepares indexes in dependent phases. Neither RAG nor a model outranks source code.'), $lang->value('Před modelovým dotazem', 'Before the model call')],
-    'mutaui' => [$lang->value('Při synchronizaci chci před kliknutím vědět směr změny a vidět konflikt.', 'Before syncing, I want to know which way changes will go and see conflicts.'), $lang->value('MutaUI ovládá Mutagen CLI; nepíše vlastní synchronizační engine.', 'MutaUI controls Mutagen CLI; it does not implement another sync engine.'), $lang->value('Před zápisem', 'Before a write')],
-    'scan2cad' => [$lang->value('Sken ukáže povrch součásti. Z výsledné geometrie ale sám neurčí správné plochy ani rozměry.', 'A scan captures a part surface. It does not decide the final faces or dimensions by itself.'), $lang->value('Měřítko, registrace a fotografie pomohou sestavit kandidáta; kontrola modelu zůstává nutná.', 'Scale, registration and photos support a candidate; the model still needs review.'), $lang->value('Co sken neřekne', 'What the scan cannot tell me')],
-    'home-infrastructure' => [$lang->value('Když vypadne hlavní Pi, DNS a několik aplikací zmizí zároveň. NAS je další samostatná větev.', 'If the main Pi fails, DNS and several apps go down together. The NAS is a separate branch.'), $lang->value('Důležitá je hranice mezi hostem, službami na něm a daty uloženými mimo něj.', 'The important boundary is between a host, its services and data stored elsewhere.'), $lang->value('Kde se výpadek projeví', 'Where an outage shows up')],
-    'shpotify' => [$lang->value('Dva lidé mohou upravit stejnou verzi fronty. Druhý zápis nesmí tiše přepsat první.', 'Two people can edit the same queue version. The second save must not silently overwrite the first.'), $lang->value('Zdroj popisuje verzování a idempotentní změny; přehrávání celé cesty ještě není ověřené.', 'The source describes versioning and idempotent updates; end-to-end playback is not verified.'), $lang->value('Při souběhu', 'When edits overlap')],
-    'softwareinc-multiplayer' => [$lang->value('Hra už přenáší stav. Další vrstva má smysl jen tehdy, když přidá jasná pravidla pro dohody.', 'The game already moves state between players. Another layer is useful only if it adds clear agreement rules.'), $lang->value('Nadstavba existuje ve zdroji; přijetí jako funkčního multiplayerového modu doložené není.', 'The source describes an extension; accepted multiplayer behavior is not established.'), $lang->value('Co musí přidat mod', 'What the mod must add')],
-    'woodbound' => [$lang->value('Vygenerovaný terén musí něco znamenat i pro pohyb, suroviny a cestu do sídla.', 'Generated terrain has to matter for movement, resources and the route back to a settlement.'), $lang->value('Zdroj spojuje navazující fáze světa; přijatá hratelná smyčka zatím doložená není.', 'The source links world-generation stages; an accepted gameplay loop is not yet evidenced.'), $lang->value('Kde se pravidla potkají', 'Where the rules meet')],
-    'tiskov' => [$lang->value('Slicer může běžet dlouho. Návrh proto odděluje přijetí poptávky od výpočtu a lidského potvrzení.', 'Slicing can take a long time. The proposal separates request intake from computation and human approval.'), $lang->value('Je to popsaná fronta a Raspberry Pi worker, ne ověřená běžící služba.', 'This is a described queue and Raspberry Pi worker, not a verified running service.'), $lang->value('Zatím jen návrh', 'Still a proposal')],
-    'discord-bot' => [$lang->value('V katalogu je příkazová a údržbová větev, ale chybí zdroj, podle kterého bych ověřil oprávnění i chování.', 'The catalog lists application and maintenance commands, but without source I cannot verify permissions or behavior.'), $lang->value('Nechávám projekt odděleně. Hlášení chyby ani katalog nejsou důkazem živého provozu.', 'I keep this project separate. A bug report and a catalog are not proof of live operation.'), $lang->value('Bez zdroje to netvrdím', 'Not claimed without source')],
+    'local-ai-hub' => [
+        $lang->value('Před modelovým dotazem musí být jasné, který soubor se změnil a jaká fakta z něj lze doložit.', 'Before a model call, the system identifies changed files and deterministic repository facts.'),
+        $lang->value('Preprocessing počítá SHA-256 hashe a připravuje indexy symbolů v navazujících fázích. Kódový index má prioritu před sémantickým RAGem.', 'Preprocessing computes SHA-256 hashes and prepares symbol indexes. Deterministic AST code indexes take precedence over semantic RAG.'),
+        $lang->value('Deterministická evidence', 'Deterministic evidence'),
+    ],
+    'mutaui' => [
+        $lang->value('Před synchronizací souborů je nutné znát přesný směr toku dat a včas odhalit potenciální kolize.', 'Before file sync, operators require explicit data flow direction and early collision detection.'),
+        $lang->value('MutaUI ovládá Mutagen CLI přes bezpečný IPC socket a vizualizuje plánované změny před zápisem na disk.', 'MutaUI orchestrates Mutagen CLI over secure IPC, previewing staged changes before disk mutation.'),
+        $lang->value('Před zápisem na disk', 'Prior to disk mutation'),
+    ],
+    'scan2cad' => [
+        $lang->value('3D sken zachytí hustou povrchovou síť, ale postrádá parametrické geometrické tolerance součásti.', 'A 3D scan captures dense surface meshes but lacks parametric geometric engineering tolerances.'),
+        $lang->value('Kalibrace měřítka, registrace a referenční makrofotografie vytvoří rozměrově ověřený STEP model pro CNC.', 'Scale calibration, point registration and macro photos produce dimensionally verified STEP models for CNC.'),
+        $lang->value('Metrologické ověření', 'Metrological validation'),
+    ],
+    'home-infrastructure' => [
+        $lang->value('Síťové jádro (MikroTik router a DNS sinkhole) musí zůstat dostupné i při restartu virtualizačních uzlů.', 'Network core (MikroTik routing and DNS sinkhole) must stay operational during compute node maintenance.'),
+        $lang->value('Stav infrastruktury je deklarován v Ansible rolích a orchestrován přes Semaphore s automatickým zálohováním.', 'Infrastructure state is declared in Ansible roles and orchestrated via Semaphore with automated backups.'),
+        $lang->value('Segmentace a dostupnost', 'Segmentation & resilience'),
+    ],
+    'shpotify' => [
+        $lang->value('Při souběžné editaci fronty dvěma klienty nesmí dojít k tichému přepsání dat ani desynchronizaci přehrávače.', 'Concurrent queue edits by multiple clients must prevent silent data loss or playback desynchronization.'),
+        $lang->value('Architektura využívá optimistické zamykání přes verzované snapshoty a WebSocket pub/sub model pro reálný čas.', 'Architecture employs optimistic concurrency via versioned snapshots and WebSocket pub/sub for real-time sync.'),
+        $lang->value('Konzistence v reálném čase', 'Real-time consistency'),
+    ],
+    'softwareinc-multiplayer' => [
+        $lang->value('Ekonomická simulace vyžaduje autoritativní validaci mezifiremních kontraktů a sdílených serverových farem.', 'Economic simulation requires authoritative validation of inter-company contracts and shared server farms.'),
+        $lang->value('C# doménové jádro je odděleno od Unity enginu, což umožňuje deterministickou serializaci a RPC validaci.', 'C# domain core is decoupled from Unity engine, enabling deterministic state serialization and RPC validation.'),
+        $lang->value('Autoritativní síťová vrstva', 'Authoritative network layer'),
+    ],
+    'woodbound' => [
+        $lang->value('Procedurální terén musí garantovat logistickou schůdnost a dostupnost surovin napříč rozsáhlým světem.', 'Procedural terrain must guarantee traversable logistics corridors and resource reachability across large maps.'),
+        $lang->value('Navazující pipeline propojuje Perlinův šum, hydraulickou erozi a A* trasování logistických cest podle sklonu.', 'Multi-stage pipeline combines Perlin noise, hydraulic erosion, and slope-aware A* logistics routing.'),
+        $lang->value('Deterministická pipeline', 'Deterministic pipeline'),
+    ],
+    'tiskov' => [
+        $lang->value('Náročný výpočetní slicing 3D modelů nesmí blokovat webové rozhraní pro příjem nových zakázek.', 'Compute-heavy 3D model slicing must never starve HTTP worker pools handling customer intake.'),
+        $lang->value('Asynchronní architektura odděluje webový příjem od dedikovaných Raspberry Pi workerů spouštějících PrusaSlicer CLI.', 'Asynchronous architecture isolates web intake from dedicated Raspberry Pi workers running PrusaSlicer CLI.'),
+        $lang->value('Asynchronní fronta úloh', 'Asynchronous job queue'),
+    ],
+    'discord-bot' => [
+        $lang->value('Vzdálená správa služeb z mobilu vyžaduje přísnou kontrolu rolí (RBAC) bez vystavení nechráněného SSH portu.', 'Remote service orchestration from mobile devices demands strict RBAC without exposing raw SSH ports.'),
+        $lang->value('Bot ověřuje digitální podpisy Discordu a předává povolené příkazy do odděleného auditovaného workeru.', 'The bot verifies Discord signatures and dispatches whitelisted commands to an audited execution worker.'),
+        $lang->value('Auditovaná RBAC brána', 'Audited RBAC gateway'),
+    ],
 ];
 $outcomes = [
-    'local-ai-hub' => $lang->value('Zdroj zpřístupňuje deterministické hledání a přesné zdrojové výřezy; nenahrazuje agenta ani testy.', 'Source provides deterministic search and exact source slices; it does not replace an agent or tests.'),
-    'mutaui' => $lang->value('Aplikace ovládá Mutagen; obrázky ukazují offline demo se syntetickými daty.', 'The app controls Mutagen; screenshots show an offline demo with synthetic data.'),
-    'scan2cad' => $lang->value('Výstupem je kandidátní geometrie; bez rozměrové kontroly nejde o hotový díl.', 'The output is candidate geometry; without dimensional checks, it is not a finished part.'),
-    'home-infrastructure' => $lang->value('Repozitář dokumentuje konfiguraci a obnovu; mapa webu není živý monitoring.', 'The repository documents configuration and recovery; the site map is not live monitoring.'),
-    'shpotify' => $lang->value('Fronta a souběžné změny jsou implementované; přijaté přehrávání celé cesty doložené není.', 'Queue and concurrent updates are implemented; accepted end-to-end playback is not evidenced.'),
-    'softwareinc-multiplayer' => $lang->value('Zdroj obsahuje návrh rozšíření; přijaté ověření hry ani multiplayeru chybí.', 'Source contains an extension; accepted game or multiplayer validation is missing.'),
-    'woodbound' => $lang->value('Generační části jsou ve zdroji; přijatý runtime ani hratelná smyčka doložené nejsou.', 'Generation stages exist in source; an accepted runtime or playable loop is not evidenced.'),
-    'tiskov' => $lang->value('Jde o popsaný návrh fronty; běžící služba ani fyzické výsledky doložené nejsou.', 'This is a queue proposal; a running service or physical results are not evidenced.'),
-    'discord-bot' => $lang->value('Katalog popisuje aplikační příkazy a údržbu. Přesné příkazy, oprávnění a běh čekají na ověření ve zdroji.', 'The catalog describes application commands and maintenance. The exact commands, permissions and operation still need source verification.'),
+    'local-ai-hub' => $lang->value('Deterministické hledání, AST kódový index a přesné zdrojové výřezy pro agenty přes MCP rozhraní.', 'Deterministic code search, AST symbol indexing, and exact source slices for agents via MCP protocol.'),
+    'mutaui' => $lang->value('Jednotná správa Mutagen relací s okamžitou detekcí konfliktů a vizualizací plánovaných změn před zápisem.', 'Unified Mutagen session manager with live conflict detection and staged change preview before write.'),
+    'scan2cad' => $lang->value('Kombinace fotogrammetrické reference, kalibrace měřítka a vizualizace rozměrové nejistoty před exportem do CAD.', 'Photogrammetric reference, scale calibration, and uncertainty visualization prior to CAD export.'),
+    'home-infrastructure' => $lang->value('Segmentovaná síťová topologie (VLAN, WireGuard, DNS sinkhole) plně deklarovaná v Ansible rolích.', 'Segmented network topology (VLAN, WireGuard, DNS sinkhole) fully declared via Ansible roles.'),
+    'shpotify' => $lang->value('Kolaborativní poslechové místnosti s distribuovanou synchronizací fronty přes WebSocket a optimistické zamykání.', 'Collaborative listening rooms with WebSocket queue synchronization and optimistic concurrency control.'),
+    'softwareinc-multiplayer' => $lang->value('Deterministická synchronizace stavu herního světa a mezifiremní B2B kontrakty přes autoritativní síťovou vrstvu.', 'Deterministic world state synchronization and inter-company contracts via authoritative networking.'),
+    'woodbound' => $lang->value('Deterministický procedurální generátor terénu propojující výškové mapy, hydraulickou erozi a A* logistické trasy.', 'Deterministic procedural terrain pipeline combining heightmaps, hydraulic erosion, and A* logistics corridors.'),
+    'tiskov' => $lang->value('Asynchronní architektura tiskové fronty s PrusaSlicer CLI workerem; odděluje výpočetní náročnost od HTTP rozhraní.', 'Asynchronous print queue architecture decoupling PrusaSlicer CLI compute from HTTP intake.'),
+    'discord-bot' => $lang->value('Role-based (RBAC) orchestrace systémových služeb a push notifikace incidentů přes asynchronní worker.', 'Role-based (RBAC) service orchestration and incident alerting via decoupled async worker.'),
 ];
 $mapSections = $themes;
 ?>
 <section class="page-hero shell project-map-hero">
-  <h1><?= $lang->value('Co je ověřené', 'What’s been verified') ?></h1>
-  <p><?= $lang->value('Porovnej, co lze u projektů doložit zdrojovým kódem, co si můžeš vyzkoušet jako model a kde ještě chybí ověření v praxi.', 'Compare what the source shows, what you can try in a model and which claims still need real-world verification.') ?></p>
+  <h1><?= $lang->value('Architektura a mapa projektů', 'Architecture and Project Map') ?></h1>
+  <p><?= $lang->value('Systematický přehled devíti systémových projektů rozdělených podle domény: nástroje a provoz, rekonstrukce a návrh, spolupráce a distribuovaný stav.', 'A systematic overview of nine engineering projects grouped by operational domain: tools & operations, reconstruction & design, and distributed collaboration.') ?></p>
 </section>
 <section class="section shell project-map" data-project-map-filter aria-label="<?= $lang->value('Projekty seskupené podle toho, co je potřeba ověřit', 'Projects grouped by what needs to be checked') ?>">
   <div class="project-map-catalog">
@@ -65,7 +101,7 @@ $mapSections = $themes;
           <h3><a href="<?= $lang->path('/projects/' . $project->slug) ?>"><?= Html::escape($project->name) ?></a></h3>
           <p class="project-map-hard project-map-outcome"><span><?= $lang->value('Výsledek / limit', 'Result / limit') ?></span><?= Html::escape($outcomes[$slug]) ?></p>
           <details class="project-map-reason">
-          <summary><?= $lang->value('Jak jsem k výsledku došel', 'What went into the result') ?></summary>
+          <summary><?= $lang->value('Technické řešení a architektura', 'Technical solution & architecture') ?></summary>
           <p class="project-map-hard project-map-problem"><span><?= $lang->value('Vstup / problém', 'Input / problem') ?></span><?= Html::escape($problem) ?></p>
           <p class="project-map-hard"><span><?= Html::escape($hardLabel) ?></span><?= Html::escape($hardPart) ?></p>
           </details>

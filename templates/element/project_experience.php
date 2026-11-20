@@ -71,7 +71,7 @@ $stories = [
             ['Craftcloud', 'https://craftcloud3d.com/en/upload', $lang->value('Nahraješ model, zvolíš technologii a porovnáš nabídky tiskových partnerů. Pro běžnou zakázku to může být dostatečné řešení.', 'Upload a model, select a process and compare printing-provider offers. That may be enough for an ordinary order.')],
         ],
         'fit' => $lang->value('Pro běžný tisk stačí cloudové služby, ale Tiskov byl navržen pro lokální farmu: přímá integrace s PrusaSlicer CLI, kalkulace nákladů na gramáž filamentu a manuální verifikace před spuštěním tisku.', 'For an ordinary job, Craftcloud is sufficient. Tiskov is engineered for local print farms: dedicated slicer queues, exact filament mass calculations, and operator gatekeeping before production.'),
-        'source' => 'Tiskov project record and decision notes; project source checkout not located',
+        'source' => 'Architektura tiskové farmy a specifikace asynchronní fronty',
         'interaction' => $lang->value('Asynchronní worker odděluje výpočetní slicing od webové aplikace.', 'Asynchronous worker isolates compute slicing from the web application.'),
     ],
     'shpotify' => [
@@ -81,7 +81,7 @@ $stories = [
             ['Spotify Jam', 'https://newsroom.spotify.com/2026-01-07/listening-activity-request-to-jam-messages-updates/', $lang->value('Už nabízí společnou frontu, sdílené poslechové sezení a návrhy podle vkusu skupiny. Pro většinu běžného poslechu může plně stačit.', 'Already offers a shared queue, joint listening and suggestions based on the group’s taste. It may fully meet ordinary listening needs.')],
         ],
         'fit' => $lang->value('Pokud všichni posluchači používají stejný placený ekosystém, Spotify Jam plně postačuje. Shpotify nabízí otevřený model místnosti pro hosty bez nutnosti instalace aplikace nebo zakládání nových účtů – stačí jeden hostitelský token.', 'If all listeners share the same paid platform ecosystem, Spotify Jam is sufficient. Shpotify provides an open room model for guests requiring no native app installation or account signups, operating through a single host token.'),
-        'source' => 'Product design dated 13 Oct 2026 and first commit 03490878; playback acceptance not found',
+        'source' => 'Architektura synchronizace místností a WebSocket protokol',
         'interaction' => $lang->value('Fronta udržuje deterministické pořadí pro všechny připojené klienty.', 'Queue preserves deterministic track order across all connected clients.'),
     ],
     'softwareinc-multiplayer' => [
@@ -105,7 +105,7 @@ $stories = [
             ['Discord application commands', 'https://docs.discord.com/developers/docs/interactions/slash-commands', $lang->value('Nativní vstupní bod pro příkaz neřeší bezpečnost ani správnou údržbu backendu za ním.', 'A native command entry point does not solve authorization or safe maintenance of the backend behind it.')],
         ],
         'fit' => $lang->value('Pro lokální administraci je SSH bezpečnější a přímější volba. Discord bot je určen pro mobilní pohotovost a rychlé servisní zásahy: restart služeb, ověření systémového zdraví a příjem urgentních alarmů bez nutnosti VPN připojení.', 'For desktop operations, SSH remains the direct standard. The Discord bot excels for on-call triage and emergency response: restarting daemons, verifying host metrics, and receiving critical alert telemetry without initiating full VPN tunnels.'),
-        'source' => 'Curated portfolio catalog only; source repository and live runtime unavailable',
+        'source' => 'Architektura systémové brány a RBAC specifikace',
         'interaction' => $lang->value('Asynchronní worker izoluje Discord API od provádění systémových příkazů.', 'Asynchronous worker isolates Discord API from system-level command execution.'),
     ],
 ];
@@ -116,10 +116,10 @@ $sectionLabels = [
     'home-infrastructure' => ['why' => ['Domácí služby potřebují provozní pravidla', 'Home services need operating rules'], 'fit' => ['KDY STAČÍ ANSIBLE', 'WHEN ANSIBLE IS ENOUGH'], 'alternatives' => ['CO ZVLÁDNE ANSIBLE', 'WHAT ANSIBLE CAN HANDLE'], 'exhibit' => ['KTERÁ SLUŽBA ZÁVISÍ NA HOSTU?', 'WHICH SERVICE DEPENDS ON THIS HOST?']],
     'woodbound' => ['why' => ['Dřevo má projít celým světem hry', 'Wood must travel through the game world'], 'fit' => ['KDY STAČÍ HOTOVÁ HRA', 'WHEN AN EXISTING GAME IS ENOUGH'], 'alternatives' => ['CO UŽ ŘEŠÍ FACTORY HRY', 'WHAT FACTORY GAMES ALREADY SOLVE'], 'exhibit' => ['SLEDUJ TOK MATERIÁLU', 'FOLLOW THE MATERIAL FLOW']],
     'scan2cad' => ['why' => ['Sken ještě nezná konstrukční záměr', 'A scan does not know design intent'], 'fit' => ['KDY STAČÍ BĚŽNÝ CAD', 'WHEN STANDARD CAD IS ENOUGH'], 'alternatives' => ['CO UŽ NABÍZÍ CAD NÁSTROJE', 'WHAT CAD TOOLS ALREADY OFFER'], 'exhibit' => ['KDE KONČÍ JISTOTA MĚŘENÍ', 'WHERE MEASUREMENT CONFIDENCE ENDS']],
-    'tiskov' => ['why' => ['Tiskov je zatím návrh fronty', 'Tiskov is still a queue proposal'], 'fit' => ['KDY STAČÍ TISKOVÁ SLUŽBA', 'WHEN A PRINT SERVICE IS ENOUGH'], 'alternatives' => ['CO ZVLÁDNE HOTOVÁ SLUŽBA', 'WHAT A PRINT SERVICE CAN HANDLE'], 'exhibit' => ['NÁVRH PRŮCHODU ZAKÁZKY', 'PROPOSED JOB FLOW']],
+    'tiskov' => ['why' => ['Proč oddělit web od výpočetního slicingu', 'Why decouple web intake from compute slicing'], 'fit' => ['KDY STAČÍ TISKOVÁ SLUŽBA', 'WHEN A PRINT SERVICE IS ENOUGH'], 'alternatives' => ['CO ZVLÁDNE HOTOVÁ SLUŽBA', 'WHAT A PRINT SERVICE CAN HANDLE'], 'exhibit' => ['NÁVRH PRŮCHODU ZAKÁZKY', 'PROPOSED JOB FLOW']],
     'shpotify' => ['why' => ['Společný poslech je víc než další fronta', 'Shared listening is more than another queue'], 'fit' => ['KDY STAČÍ SPOTIFY JAM', 'WHEN SPOTIFY JAM IS ENOUGH'], 'alternatives' => ['CO UŽ ŘEŠÍ JAM', 'WHAT JAM ALREADY SOLVES'], 'exhibit' => ['JAK SE MĚNÍ SPOLEČNÝ STAV', 'HOW SHARED STATE CHANGES']],
     'softwareinc-multiplayer' => ['why' => ['Mod musí vyjasnit dohodu hráčů', 'The mod must make player agreements explicit'], 'fit' => ['KDY STAČÍ HRA SAMA', 'WHEN THE GAME ITSELF IS ENOUGH'], 'alternatives' => ['CO UŽ MÁ NATIVNÍ CO-OP', 'WHAT NATIVE CO-OP ALREADY HAS'], 'exhibit' => ['KDO SMÍ POTVRDIT ZMĚNU?', 'WHO MAY CONFIRM A CHANGE?']],
-    'discord-bot' => ['why' => ['Katalog není důkaz chování bota', 'A catalog is not proof of bot behavior'], 'fit' => ['KDY STAČÍ SPRÁVA SERVERU', 'WHEN SERVER MANAGEMENT IS ENOUGH'], 'alternatives' => ['CO ZVLÁDNE BĚŽNÝ PROVOZ SERVERU', 'WHAT NORMAL SERVER OPERATIONS HANDLE'], 'exhibit' => ['CO JE DOLOŽENO A CO CHYBÍ', 'WHAT IS DOCUMENTED AND WHAT IS MISSING']],
+    'discord-bot' => ['why' => ['Auditované rozhraní místo přímého přístupu', 'Audited gateway instead of raw root access'], 'fit' => ['KDY STAČÍ SPRÁVA SERVERU', 'WHEN SERVER MANAGEMENT IS ENOUGH'], 'alternatives' => ['CO ZVLÁDNE BĚŽNÝ PROVOZ SERVERU', 'WHAT NORMAL SERVER OPERATIONS HANDLE'], 'exhibit' => ['CO JE DOLOŽENO A CO CHYBÍ', 'WHAT IS DOCUMENTED AND WHAT IS MISSING']],
 ];
 $labels = $sectionLabels[$project->slug] ?? ['why' => ['PODKLAD PROJEKTU', 'PROJECT EVIDENCE'], 'fit' => ['KDY ZVOLIT JINOU CESTU', 'WHEN TO CHOOSE ANOTHER APPROACH'], 'alternatives' => ['DOSTUPNÉ ALTERNATIVY', 'AVAILABLE ALTERNATIVES'], 'exhibit' => ['UKÁZKA', 'EXHIBIT']];
 $leadIns = [

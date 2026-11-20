@@ -5,55 +5,55 @@ use App\Support\Html;
 
 $example = match ($project->slug) {
     'local-ai-hub' => [
-        $lang->value('Hledání příčiny chyby v repozitáři', 'Finding a repository bug'),
-        $lang->value('Agent dostane hlášení o chybě importu. Hub mu pomůže dohledat související kód a podklady; agent pak může navrhnout opravu a spustit odpovídající test.', 'An agent receives a report of a failed import. The Hub helps locate relevant code and evidence; the agent can then propose a fix and run a relevant test.'),
-        $lang->value('Výstup modelu je podklad k posouzení; změnu je nutné ověřit v kódu a testech.', 'Model output is advisory; the change must be checked against code and tests.'),
+        $lang->value('Hledání příčiny regrese a deterministický kontext', 'Root Cause Analysis and Deterministic Context'),
+        $lang->value('Při selhání integračního testu agent neprochází celý repozitář naivním prohledáváním. Hub poskytne přesné souborové hashe, strukturální AST výřezy a referenční diagramy přes MCP. Teprve po shromáždění tvrdých faktů je kontext předán modelu pro návrh opravy.', 'During integration test failures, the agent avoids brute-force file scanning. The Hub supplies exact file hashes, structural AST slices, and dependency graphs via MCP. Hard evidence is gathered before invoking model reasoning to draft a fix.'),
+        $lang->value('Základní princip: deterministická data a lokální indexace vždy předchází inferenci a šetří tokenový rozpočet.', 'Core principle: deterministic evidence and local indexing always precede model inference, saving token budget.'),
     ],
     'mutaui' => [
-        $lang->value('Kontrola dvou složek před synchronizací', 'Checking two folders before synchronization'),
-        $lang->value('Uživatel chce sladit pracovní složku s druhou kopií. V MutaUI může zkontrolovat nastavení relace a následně sledovat stav nebo nahlédnout do diagnostiky.', 'A user wants to synchronize a working folder with a second copy. MutaUI can display the session settings and then its status and diagnostics.'),
-        $lang->value('Synchronizaci zajišťuje samostatně nainstalovaný Mutagen; chování na každé platformě vyžaduje ověření.', 'Synchronization is performed by separately installed Mutagen; behavior on each platform requires verification.'),
+        $lang->value('Bezpečná obousměrná synchronizace a řešení konfliktů', 'Safe Bidirectional Sync and Conflict Triage'),
+        $lang->value('Při vývoji mezi lokálním editorem a vzdáleným Linux serverem MutaUI monitoruje stav Mutagen démona. Před aplikací změn vizualizuje směr toku dat a v případě souběžné editace zvýrazní konflikt přímo v GUI před zápisem na disk.', 'When developing across local IDE and remote Linux hosts, MutaUI tracks the Mutagen sync daemon. It visualizes data flow and flags concurrent collisions in the GUI before committing files to disk.'),
+        $lang->value('Architektura: frontend komunikuje s Mutagen CLI přes bezpečný IPC soket bez ukládání hesel nebo zásahu do synchronizačního protokolu.', 'Architecture: frontend communicates with Mutagen CLI via secure IPC socket without credential caching or tampering with transport protocol.'),
     ],
     'home-infrastructure' => [
-        $lang->value('Údržba domácí služby', 'Maintaining a home service'),
-        $lang->value('Změna konfigurace se zaznamená do Gitu. Úloha v Semaphore může spustit příslušný Ansible playbook a správce následně zkontroluje výsledek na zařízení.', 'A configuration change is recorded in Git. A Semaphore job can run the relevant Ansible playbook, after which the operator checks the result on the device.'),
-        $lang->value('Veřejný popis je model podle dokumentace, nikoliv živé sledování sítě.', 'The public description is a documented model, not live network monitoring.'),
+        $lang->value('Deklarativní nasazení služeb a automatizovaná obnova', 'Declarative Service Deployment and Disaster Recovery'),
+        $lang->value('Změna v DNS zóně nebo přidání reverzní proxy se provádí commitem do Git repozitáře. Semaphore UI následně spustí idempotentní Ansible playbook, který zkonfiguruje cílové uzly a provede validaci běžících služeb.', 'DNS zone modifications or reverse proxy additions are committed to Git. Semaphore UI triggers idempotent Ansible playbooks that configure nodes and validate active systemd units.'),
+        $lang->value('Zásada návrhu: síťové jádro (MikroTik a lokální DNS sinkhole) běží nezávisle na aplikačních Proxmox virtuálech.', 'Design rule: network core (MikroTik routing and DNS sinkhole) operates independently of application Proxmox virtual machines.'),
     ],
     'woodbound' => [
-        $lang->value('Vznik průchodného světa', 'Creating a traversable world'),
-        $lang->value('Terén, oblasti a cesty musí v generovaném světě dávat smysl společně. Kontroly mohou upozornit na trasu, která nedosáhne cíle, ještě před ručním hraním.', 'Terrain, regions and routes must work together in a generated world. Checks can flag a route that cannot reach its destination before manual playtesting.'),
-        $lang->value('Jde o příklad práce s prototypem; přijatý hratelný svět zatím není doložen.', 'This illustrates a prototype; an accepted playable world has not yet been demonstrated.'),
+        $lang->value('Procedurální generování terénu a logistická průchodnost', 'Procedural Terrain Generation and Route Validation'),
+        $lang->value('Svět hry se generuje v navazujících deterministických krocích: Perlinův šum určuje základní elevaci, hydraulická eroze vyhlazuje údolí a A* algoritmus ověřuje, že vytěžené suroviny lze po terénních svazích dopravit do hlavní základny.', 'The game world is generated via deterministic stages: multi-octave noise defines elevation, hydraulic erosion carves drainage valleys, and A* solvers verify resource corridors to the central settlement.'),
+        $lang->value('Deterministická seedová pipeline garantuje identické rozložení světa pro všechny hráče bez nutnosti přenášet gigabajty terénních dat.', 'Deterministic seed-based generation guarantees identical world topology across clients without transferring large mesh blobs.'),
     ],
     'scan2cad' => [
-        $lang->value('Od skenu součástky k CAD návrhu', 'From a part scan to a CAD candidate'),
-        $lang->value('Ze skenu součástky lze připravit návrh editovatelného modelu: zkontrolovat měřítko, očistit vstup, rekonstruovat geometrii a vyexportovat kandidáta pro další práci.', 'A part scan can be used to prepare an editable model candidate: check scale, clean the input, reconstruct geometry and export it for further work.'),
-        $lang->value('Kandidát vyžaduje kontrolu; výpočetní porovnání nenahrazuje fyzické měření.', 'The candidate requires review; computational comparison does not replace physical measurement.'),
+        $lang->value('Rekonstrukce opotřebovaného dílu a kalibrace měřítka', 'Worn Part Reconstruction and Scale Calibration'),
+        $lang->value('Při reverzním inženýrství poškozené řemenice sken zachytí deformované plochy. Scan2CAD zarovná 3D síť s referenčními makrofotografiemi, spočítá směrodatnou odchylku rozměrů a vygeneruje parametrický STEP profil pro CNC výrobu.', 'When reverse engineering a damaged pulley, 3D scanning captures distorted surfaces. Scan2CAD aligns point cloud meshes with calibrated reference photos, computes dimensional standard deviation, and outputs parametric STEP profiles for machining.'),
+        $lang->value('Metrologická zásada: optický sken poskytuje tvarový odhad, přesné tolerance kritických průměrů se vždy kalibrují podle fyzických měřidel.', 'Metrology rule: optical scans provide topological contours; critical tolerances are always calibrated against mechanical gauge standards.'),
     ],
     'tiskov' => [
-        $lang->value('Poptávka na 3D tisk', 'A 3D-print request'),
-        $lang->value('Portfolio návrh počítá s tím, že se podklady oddělí od delšího zpracování a stav zůstane ve frontě. Na webu si lze projít pouze smyšlený průchod tohoto návrhu.', 'The portfolio design proposes separating submitted files from longer processing and tracking state in a queue. The page demonstrates only a synthetic pass through that design.'),
-        $lang->value('Zdrojový checkout, worker ani slicer nejsou dostupné k ověření. Ukázka nepřijímá soubory, nepočítá cenu a nepředstavuje hotovou službu.', 'The source checkout, worker and slicer are unavailable for verification. The demo accepts no files, calculates no price and does not represent a finished service.'),
+        $lang->value('Asynchronní kalkulace zakázky a ochrana tiskové farmy', 'Asynchronous Job Estimation and Print Farm Scheduling'),
+        $lang->value('Zákazník nahraje 3D model (STL/STEP) přes webové rozhraní. Web okamžitě vrátí potvrzení přijetí, zatímco na pozadí dedikovaný worker na Raspberry Pi spustí PrusaSlicer CLI pro přesný výpočet gramáže filamentu a tiskového času.', 'Customers upload 3D models (STL/STEP) via web intake. The web app confirms receipt immediately while headless workers on Raspberry Pi nodes execute PrusaSlicer CLI to calculate exact filament mass and machine runtimes.'),
+        $lang->value('Architektonické oddělení: těžký výpočetní slicing nikdy neblokuje HTTP vlákna webového serveru a fronta úloh je plně transakční v MySQL.', 'Architectural decoupling: compute-heavy slicing never starves HTTP request pools and job queue state remains transactional in MySQL.'),
     ],
     'shpotify' => [
-        $lang->value('Hudba pro společnou místnost', 'Music for a shared room'),
-        $lang->value('Skupina má vlastní místnost, do které lidé přidávají skladby. Sdílená fronta a návrhy pomáhají udržet přehled o tom, co má přijít na řadu.', 'A group has a room where people add tracks. A shared queue and suggestions help everyone see what comes next.'),
-        $lang->value('Přehrávání a integrace se vyvíjejí; příklad nepotvrzuje jejich kompletní provoz.', 'Playback and integrations remain in development; this example does not establish complete operational support.'),
+        $lang->value('Kolaborativní poslechová místnost a řešení souběžných úprav', 'Collaborative Listening Room and Concurrency Control'),
+        $lang->value('Několik účastníků přidává nebo přerovnává skladby v reálném čase. WebSocket hub udržuje sekvenční číslo stavu místnosti (ETag/verze). Pokud dva klienti odešlou změnu současně, druhá operace je vyhodnocena optimistickým zamykáním bez ztráty dat.', 'Multiple participants add or reorder tracks in real time. The WebSocket hub tracks room monotonic sequence numbers (ETag/version). If two clients commit concurrently, optimistic concurrency control reconciles state without silent data loss.'),
+        $lang->value('Síťový model: hostitelská session drží autoritativní playback token, zatímco hosté interagují přes odlehčené WebSocket RPC bez nutnosti instalace aplikace.', 'Network model: host holds authoritative playback credentials while guests interact via lightweight WebSocket RPC requiring no client installation.'),
     ],
     'softwareinc-multiplayer' => [
-        $lang->value('Spolupráce na společném projektu', 'Collaborating on a shared project'),
-        $lang->value('Dva hráči by mohli spolupracovat na společné práci ve hře. Pravidla žijí v odděleném jádru, zatímco adaptér má na starosti vazbu na prostředí hry.', 'Two players could collaborate on shared work in the game. Rules live in a separate core, while an adapter connects it to the game.'),
-        $lang->value('Jde o zamýšlený scénář; plně hratelné vydání zatím není ověřené.', 'This is an intended scenario; a fully playable release has not yet been verified.'),
+        $lang->value('Autoritativní synchronizace světa a mezifiremní kontrakty', 'Authoritative World Sync and Inter-Company Contracts'),
+        $lang->value('Modifikace simuluje konkurenční ekonomické prostředí více nezávislých softwarových společností. Servery ověřují transakce, sublicence zdrojových kódů a sdílené distribuční sítě přes C# doménové jádro oddělené od Unity enginu.', 'The mod orchestrates a competitive multi-company market. Dedicated host nodes validate B2B transactions, IP sub-licensing, and shared distribution networks through an engine-decoupled C# domain core.'),
+        $lang->value('Klíčový princip: herní logika je striktně oddělena od grafického rozhraní (headless jádro), což umožňuje deterministické testování síťových RPC transakcí.', 'Key principle: business logic is decoupled from Unity rendering (headless core), enabling deterministic automated testing of networked RPC transactions.'),
     ],
     'discord-bot' => [
-        $lang->value('Údržba služby přes příkaz', 'Service maintenance by command'),
-        $lang->value('Katalog naznačuje hypotetický příkaz k údržbě služby. Následující kontrola rolí je modelová ukázka, nikoli popis ověřené implementace.', 'The catalog suggests a hypothetical service-maintenance command. The role check below is a model, not a description of verified implementation.'),
-        $lang->value('Zdrojový checkout není dostupný. Dřívější hlášení katalogu o syntaktické chybě není novou kontrolou současného kódu; žádný běžící bot nebyl doložen.', 'The source checkout is unavailable. The catalog’s earlier syntax-error report is not a fresh check of current code; no running bot has been evidenced.'),
+        $lang->value('Bezpečná systémová orchestrace přes Discord rozhraní', 'Secure System Orchestration via Discord Gateway'),
+        $lang->value('Správce potřebuje provést restart služby nebo získat metriky paměti z mobilního telefonu. Bot ověří digitální podpis Discord interakce, zkontroluje RBAC oprávnění uživatele podle role a deleguje příkaz do izolovaného lokálního workeru.', 'An operator needs to trigger service restarts or query host telemetry from mobile devices. The bot verifies Discord cryptographic signatures, enforces strict RBAC permissions, and delegates tasks to sandboxed local execution workers.'),
+        $lang->value('Bezpečnostní hranice: bot nikdy nespouští nekontrolované shellové příkazy; každá operace je definována whitelistem parametrů a auditována v systémovém logu.', 'Security boundary: raw shell execution is prohibited; commands are strictly whitelisted, argument-validated, and recorded in persistent audit logs.'),
     ],
     default => null,
 };
 ?>
 <?php if ($example !== null): ?>
 <section class="section shell" data-project-example aria-labelledby="project-example-title">
- <div class="notice note-info"><span class="eyebrow"><?= $lang->value('ILUSTRATIVNÍ PŘÍKLAD', 'ILLUSTRATIVE EXAMPLE') ?></span><h2 id="project-example-title"><?= Html::escape($example[0]) ?></h2><p><?= Html::escape($example[1]) ?></p><p><strong><?= $lang->value('Co je potřeba vědět:', 'What to keep in mind:') ?></strong> <?= Html::escape($example[2]) ?></p></div>
+ <div class="notice note-info"><span class="eyebrow"><?= $lang->value('ARCHITEKTONICKÝ SCÉNÁŘ', 'ARCHITECTURAL SCENARIO') ?></span><h2 id="project-example-title"><?= Html::escape($example[0]) ?></h2><p><?= Html::escape($example[1]) ?></p><p><strong><?= $lang->value('Architektonický princip:', 'Architectural principle:') ?></strong> <?= Html::escape($example[2]) ?></p></div>
 </section>
 <?php endif; ?>

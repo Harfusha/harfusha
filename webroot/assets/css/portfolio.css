@@ -213,6 +213,11 @@ body[data-language] .featured-contribution-card {
   max-width: 100%;
   transition: border-color .2s ease, transform .2s ease;
 }
+@media (min-width: 1025px) {
+  body[data-language] .featured-contribution-card {
+    min-height: 785px;
+  }
+}
 body[data-language] .featured-contribution-card > div:first-child {
   display: flex;
   flex-direction: column;
@@ -480,9 +485,45 @@ body[data-language] .component-figure figcaption { border: 1px solid var(--strok
 body[data-language] .component-figure figcaption strong { color: var(--text); font: 800 clamp(1.25rem, 2.6vw, 1.8rem) / 1.15 var(--display); }
 body[data-language] .component-figure figcaption span { color: var(--sub); }
 .component-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .8rem; margin: 1rem 0 0; padding: 0; list-style: none; }
-.component-grid > li { min-width: 0; border: 1px solid var(--stroke); border-radius: 9px; padding: .9rem; background: #1a233b; scroll-margin-top: 86px; transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease; }
-.component-grid > li:hover { border-color: rgba(144, 189, 237, 0.45); }
-.component-grid > li.is-highlighted { border-color: var(--lime) !important; box-shadow: 0 0 16px rgba(60, 222, 179, 0.25); transform: translateY(-2px); }
+.component-grid > li {
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  padding: 1.1rem;
+  background: linear-gradient(180deg, #1c2642 0%, #151d32 100%);
+  scroll-margin-top: 86px;
+  transition: all .25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.component-grid > li::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: .8rem;
+  right: .8rem;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(144, 189, 237, 0.25), transparent);
+  border-radius: 2px;
+  transition: background .25s ease;
+}
+.component-grid > li:hover {
+  border-color: rgba(144, 189, 237, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.component-grid > li:hover::before {
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+}
+.component-grid > li.is-highlighted {
+  border-color: var(--lime) !important;
+  box-shadow: 0 0 20px rgba(60, 222, 179, 0.3), 0 8px 24px rgba(0, 0, 0, 0.3);
+  transform: translateY(-3px);
+}
+.component-grid > li.is-highlighted::before {
+  background: linear-gradient(90deg, transparent, var(--lime), transparent);
+  height: 3px;
+}
 .component-grid > li.is-target { animation: node-pulse 1.2s ease; }
 @keyframes node-pulse {
   0% { box-shadow: 0 0 0 0 rgba(60, 222, 179, 0.7); border-color: var(--lime); }
@@ -770,6 +811,11 @@ body[data-language] .featured-contribution-card {
   max-width: 100%;
   transition: border-color .2s ease, transform .2s ease;
 }
+@media (min-width: 1025px) {
+  body[data-language] .featured-contribution-card {
+    min-height: 785px;
+  }
+}
 body[data-language] .featured-contribution-card > div:first-child {
   display: flex;
   flex-direction: column;
@@ -985,6 +1031,11 @@ body[data-language] .featured-contribution-card {
   min-width: 0;
   max-width: 100%;
   transition: border-color .2s ease, transform .2s ease;
+}
+@media (min-width: 1025px) {
+  body[data-language] .featured-contribution-card {
+    min-height: 785px;
+  }
 }
 body[data-language] .featured-contribution-card > div:first-child {
   display: flex;
@@ -1566,8 +1617,16 @@ body[data-language] .anchor-copy-btn.is-copied {
     color: var(--sub);
   }
   :root[data-theme="light"] body[data-language] .component-grid > li {
-    background: #ffffff;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     border-color: var(--stroke);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+  :root[data-theme="light"] body[data-language] .component-grid > li::before {
+    background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.2), transparent);
+  }
+  :root[data-theme="light"] body[data-language] .component-grid > li:hover {
+    border-color: #2563eb;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
   }
   :root[data-theme="light"] body[data-language] .component-grid h4 {
     color: var(--text);
