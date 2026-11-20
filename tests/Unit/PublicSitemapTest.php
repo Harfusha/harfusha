@@ -30,4 +30,21 @@ final class PublicSitemapTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         PublicSitemap::render('https://portfolio.example', ['projects', 'projects']);
     }
+
+    public function testIncludesLastmodWhenProvided(): void
+    {
+        $xml = PublicSitemap::render(
+            'https://portfolio.example',
+            ['projects', 'journal'],
+            ['projects' => '2026-11-20', 'journal' => '2026-11-19'],
+        );
+        self::assertStringContainsString('<lastmod>2026-11-20</lastmod>', $xml);
+        self::assertStringContainsString('<lastmod>2026-11-19</lastmod>', $xml);
+    }
+
+    public function testRejectsInvalidLastmodFormat(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        PublicSitemap::render('https://portfolio.example', ['projects'], ['projects' => 'invalid-date']);
+    }
 }

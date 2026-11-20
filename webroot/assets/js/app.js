@@ -49,7 +49,7 @@
   initFilter($('[data-maker-browser]'), '[data-maker]', [['[data-maker-status]', 'status']]);
   initFilter($('[data-project-browser]'), '[data-project]', [['[data-filter]', 'category']]);
   initFilter($('[data-activity-browser]'), '[data-activity]', [['[data-year]', 'year'], ['[data-state]', 'state'], ['[data-kind]', 'kind']]);
-  initFilter($('[data-decision-browser]'), '[data-decision]', [['[data-decision-status]', 'status']]);
+  initFilter($('[data-decision-browser]'), '[data-decision]', [['[data-decision-status]', 'status'], ['[data-decision-project]', 'project']]);
   const contributionDialog = $('[data-activity-dialog]');
   if (contributionDialog) {
     $$('[data-activity-inspect]').forEach(button => button.addEventListener('click', () => {
@@ -128,14 +128,20 @@
     const count = $('[data-journal-count]', root);
     const search = $('[data-journal-search]', root);
     const searchControl = $('[data-journal-search-control]', root);
+    const projectControl = $('[data-journal-project-control]', root);
+    const projectSelect = $('[data-journal-project]', root);
     const empty = $('[data-journal-empty]', root);
     let year = 'all';
     if (searchControl) searchControl.hidden = false;
+    if (projectControl) projectControl.hidden = false;
     const render = () => {
       const query = normalizeSearch(search?.value || '').trim().replace(/\s+/g, ' ');
+      const proj = projectSelect?.value || 'all';
       let visible = 0;
       entries.forEach(({entry, text}) => {
-        const matches = (year === 'all' || entry.dataset.year === year) && text.includes(query);
+        const matches = (year === 'all' || entry.dataset.year === year)
+          && (proj === 'all' || entry.dataset.project === proj)
+          && text.includes(query);
         entry.hidden = !matches;
         if (matches) visible++;
       });
@@ -152,6 +158,7 @@
       render();
     }));
     search?.addEventListener('input', render);
+    projectSelect?.addEventListener('change', render);
     render();
   }
   initJournalFilter();

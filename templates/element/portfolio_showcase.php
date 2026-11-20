@@ -19,9 +19,12 @@ static fn(Project $p): bool
     </figure>
     <?php elseif ($project->slug === 'mutaui'): ?>
     <figure class="showcase-visual showcase-desktop">
-        <img src="<?= $lang->value('/assets/img/mutaui-forward-cs-dark.png', '/assets/img/mutaui-overview-en-dark.png') ?>"
-            width="1380" height="900" loading="lazy"
-            alt="<?= $lang->value('Přehled přesměrování portů v MutaUI', 'Session and service overview in MutaUI') ?>">
+        <picture>
+            <source type="image/webp" srcset="<?= $lang->value('/assets/img/mutaui-forward-cs-dark.webp', '/assets/img/mutaui-overview-en-dark.webp') ?>">
+            <img src="<?= $lang->value('/assets/img/mutaui-forward-cs-dark.png', '/assets/img/mutaui-overview-en-dark.png') ?>"
+                width="1380" height="900" loading="lazy"
+                alt="<?= $lang->value('Přehled přesměrování portů v MutaUI', 'Session and service overview in MutaUI') ?>">
+        </picture>
         <figcaption><?= $lang->value('Rozhraní offline dema s ukázkovými daty', 'Offline demo with sample data') ?></figcaption>
     </figure>
     <?php elseif ($project->slug === 'home-infrastructure'): ?>

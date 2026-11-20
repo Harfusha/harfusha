@@ -71,24 +71,30 @@ $projectLimitations = [
   <p><?= $lang->value('V rozhraní poznáš, odkud a kam relace přesměrovává provoz a v jakém je stavu. Snímek pochází z offline dema s ukázkovými daty a vypnutým ovládáním.', 'See the sync and forwarding sessions, the daemon and system resources in one window. This screenshot is from an offline demo with sample data and disabled actions.') ?></p>
   <a class="inline-link" href="https://github.com/Harfusha/MutaUI/blob/master/docs/screenshots.md" target="_blank" rel="noopener noreferrer"><?= $lang->value('Další snímky a jejich původ', 'More screenshots and their source') ?> ↗</a>
  </div>
- <figure><img src="<?= $lang->value('/assets/img/mutaui-forward-cs-dark.png', '/assets/img/mutaui-overview-en-dark.png') ?>" width="1380" height="900" loading="lazy" alt="<?= $lang->value('MutaUI s ukázkovými relacemi přesměrování portů', 'MutaUI overview with sample sessions and charts') ?>"><figcaption><?= $lang->value('MutaUI / offline demo / ukázková data', 'MutaUI / offline demo / synthetic data') ?></figcaption></figure>
+ <figure><picture>
+  <source type="image/webp" srcset="<?= $lang->value('/assets/img/mutaui-forward-cs-dark.webp', '/assets/img/mutaui-overview-en-dark.webp') ?>">
+  <img src="<?= $lang->value('/assets/img/mutaui-forward-cs-dark.png', '/assets/img/mutaui-overview-en-dark.png') ?>" width="1380" height="900" loading="lazy" alt="<?= $lang->value('MutaUI s ukázkovými relacemi přesměrování portů', 'MutaUI overview with sample sessions and charts') ?>">
+ </picture><figcaption><?= $lang->value('MutaUI / offline demo / ukázková data', 'MutaUI / offline demo / synthetic data') ?></figcaption></figure>
 </section>
 <details class="shell project-gallery">
  <summary><?= $lang->value('Další snímek aplikace', 'Another application screenshot') ?></summary>
- <figure><img src="<?= $lang->value('/assets/img/mutaui-overview-cs-light.png', '/assets/img/mutaui-sync-en-light.png') ?>" width="1380" height="900" loading="lazy" alt="<?= $lang->value('Přehledové okno MutaUI s ukázkovými relacemi a grafy', 'MutaUI: sample synchronization session overview') ?>"><figcaption><?= $lang->value('MutaUI / offline demo / ukázková data', 'MutaUI / offline demo / synthetic data') ?></figcaption></figure>
+ <figure><picture>
+  <source type="image/webp" srcset="<?= $lang->value('/assets/img/mutaui-overview-cs-light.webp', '/assets/img/mutaui-sync-en-light.webp') ?>">
+  <img src="<?= $lang->value('/assets/img/mutaui-overview-cs-light.png', '/assets/img/mutaui-sync-en-light.png') ?>" width="1380" height="900" loading="lazy" alt="<?= $lang->value('Přehledové okno MutaUI s ukázkovými relacemi a grafy', 'MutaUI: sample synchronization session overview') ?>">
+ </picture><figcaption><?= $lang->value('MutaUI / offline demo / ukázková data', 'MutaUI / offline demo / synthetic data') ?></figcaption></figure>
 </details>
 <?php endif; ?>
 <?php
 $sourceVisual = match ($project->slug) {
     'tiskov' => [
-        '/assets/img/tiskov-bambu-lab-a1.png', 1200, 630,
+        '/assets/img/tiskov-bambu-lab-a1.png', '/assets/img/tiskov-bambu-lab-a1.webp', 1200, 630,
         $lang->value('Odhad tisku pro Bambu Lab A1', 'Estimate for Bambu Lab A1 printing'),
         $lang->value('Grafika pochází z podkladů projektu Tiskov. Popisuje orientační výpočet, ruční kontrolu a absenci online platby; nejde o snímek běžící objednávky.', 'This graphic comes from the Tiskov project assets. It describes an indicative estimate, manual review and no online payment; it is not a screenshot of a live order.'),
         $lang->value('Projektová grafika; nikoli screenshot aplikace nebo potvrzení konkrétní ceny.', 'Project graphic; not an application screenshot or confirmation of a specific price.'),
         $lang->value('Grafika Tiskov pro 3D tisk na Bambu Lab A1', 'Tiskov graphic for 3D printing on a Bambu Lab A1'),
     ],
     'woodbound' => [
-        '/assets/img/woodbound-region-development.png', 1280, 720,
+        '/assets/img/woodbound-region-development.png', '/assets/img/woodbound-region-development.webp', 1280, 720,
         $lang->value('Pracovní podoba lesní oblasti', 'Development scene: forest region'),
         $lang->value('Záběr pochází z vývojových podkladů mapy. Ukazuje pracovní scénu, ale nepotvrzuje přijetí ani hratelnost celého světa.', 'This scene comes from world-map development evidence. It shows a work in progress, not acceptance or playability of the complete world.'),
         $lang->value('Vývojový záběr z 8. 9. 2026; hratelnost celého světa není potvrzena.', 'Development capture from 8 Sep 2026; the complete world is not confirmed playable.'),
@@ -97,11 +103,14 @@ $sourceVisual = match ($project->slug) {
     default => null,
 };
 if ($sourceVisual !== null):
-    [$visualSrc, $visualWidth, $visualHeight, $visualTitle, $visualDescription, $visualCaption, $visualAlt] = $sourceVisual;
+    [$visualSrc, $visualWebp, $visualWidth, $visualHeight, $visualTitle, $visualDescription, $visualCaption, $visualAlt] = $sourceVisual;
 ?>
 <section class="shell project-preview project-source-visual" data-project-source-image aria-labelledby="project-source-visual-title">
  <div class="project-preview-copy"><span class="eyebrow"><?= $lang->value('OBRÁZEK Z PODKLADŮ', 'SOURCE IMAGE') ?></span><h2 id="project-source-visual-title"><?= Html::escape($visualTitle) ?></h2><p><?= Html::escape($visualDescription) ?></p></div>
- <figure><img src="<?= Html::escape($visualSrc) ?>" width="<?= $visualWidth ?>" height="<?= $visualHeight ?>" loading="lazy" alt="<?= Html::escape($visualAlt) ?>"><figcaption><?= Html::escape($visualCaption) ?></figcaption></figure>
+ <figure><picture>
+  <source type="image/webp" srcset="<?= Html::escape($visualWebp) ?>">
+  <img src="<?= Html::escape($visualSrc) ?>" width="<?= $visualWidth ?>" height="<?= $visualHeight ?>" loading="lazy" alt="<?= Html::escape($visualAlt) ?>">
+ </picture><figcaption><?= Html::escape($visualCaption) ?></figcaption></figure>
 </section>
 <?php endif; ?>
 <section class="section shell project-case" id="project-overview" aria-label="<?= $lang->value('Přehled studie', 'Case study overview') ?>"><div class="case-main"><div class="case-block"><h2><?= Html::escape($caseProblem) ?></h2><p><?= Html::escape($project->problem($lang)) ?></p></div><div class="case-block"><h2><?= Html::escape($caseApproach) ?></h2><p><?= Html::escape($project->solution($lang)) ?></p></div><div class="case-block"><h2><?= $lang->value('Hlavní funkce','Key features') ?></h2><ul class="feature-list"><?php foreach ($project->localizedFeatures($lang) as $feature): ?><li><?= Html::escape($feature) ?></li><?php endforeach; ?></ul></div>

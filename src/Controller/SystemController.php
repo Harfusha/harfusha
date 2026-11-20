@@ -51,13 +51,47 @@ final class SystemController extends AppController
             '', 'projects', 'connections', 'decisions', 'homelab', 'maker',
             'playground', 'open-source', 'now', 'journal', 'about',
         ];
-        foreach ((new ContentRepository())->projects() as $project) {
+        $content = new ContentRepository();
+        $projects = $content->projects();
+        foreach ($projects as $project) {
             $pages[] = 'projects/' . $project->slug;
+        }
+
+        $lastmods = [];
+        $latestJournalDate = '2026-11-20';
+        $projectDates = [];
+        foreach ($content->journal() as $entry) {
+            $publishedAt = is_string($entry['published_at'] ?? null) ? $entry['published_at'] : '';
+            $date = substr($publishedAt, 0, 10);
+            if (preg_match('~^\d{4}-\d{2}-\d{2}$~D', $date) === 1) {
+                if ($date > $latestJournalDate) {
+                    $latestJournalDate = $date;
+                }
+                $p = is_string($entry['project'] ?? null) ? $entry['project'] : '';
+                if ($p !== '' && (!isset($projectDates[$p]) || $date > $projectDates[$p])) {
+                    $projectDates[$p] = $date;
+                }
+            }
+        }
+        $lastmods['journal'] = $latestJournalDate;
+        $lastmods['now'] = $latestJournalDate;
+        $lastmods[''] = '2026-11-20';
+        $lastmods['projects'] = '2026-11-20';
+        $lastmods['decisions'] = '2026-11-20';
+        $lastmods['homelab'] = '2026-11-20';
+        $lastmods['maker'] = '2026-11-20';
+        $lastmods['playground'] = '2026-11-20';
+        $lastmods['open-source'] = '2026-11-20';
+        $lastmods['about'] = '2026-11-20';
+        $lastmods['connections'] = '2026-11-20';
+
+        foreach ($projects as $project) {
+            $lastmods['projects/' . $project->slug] = $projectDates[$project->slug] ?? '2026-11-20';
         }
 
         return $this->response->withType('xml')
             ->withHeader('Cache-Control', 'public, max-age=3600, must-revalidate')
-            ->withStringBody(PublicSitemap::render($origin, $pages));
+            ->withStringBody(PublicSitemap::render($origin, $pages, $lastmods));
     }
 
     /**

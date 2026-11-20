@@ -37,6 +37,8 @@ $decisionChapters = [
   ],
 ];
 $decisionsByStatus = [];
+$decisionProjects = array_values(array_unique(array_map(static fn(EngineeringDecision $d): string => $d->project, $decisions)));
+sort($decisionProjects);
 foreach ($decisions as $decision) {
   $decisionsByStatus[$decision->status][] = $decision;
 }
@@ -61,6 +63,12 @@ foreach ($decisions as $decision) {
       <option value="prototype"><?= $lang->value('Prototyp / rozpracováno', 'Prototype / in progress') ?></option>
       <option value="planned"><?= $lang->value('Plán', 'Planned') ?></option>
     </select>
+    <select data-decision-project aria-label="<?= $lang->value('Projekt', 'Project') ?>">
+      <option value="all"><?= $lang->value('Všechny projekty', 'All projects') ?></option>
+      <?php foreach ($decisionProjects as $dProj): ?>
+      <option value="<?= Html::escape($dProj) ?>"><?= Html::escape($dProj) ?></option>
+      <?php endforeach; ?>
+    </select>
     <button class="btn btn-ghost btn-sm" type="button" data-filter-reset hidden><?= $lang->value('Vymazat filtry', 'Clear filters') ?></button>
     <span class="filter-count" data-count role="status" aria-live="polite" aria-atomic="true"><?= count($decisions) ?> <?= $lang->value('rozhodnutí','decisions') ?></span>
   </div>
@@ -70,7 +78,7 @@ foreach ($decisions as $decision) {
       <header><div><span class="eyebrow"><?= Html::escape($decisionStatusLabels[$status] ?? $status) ?></span><h2 id="decision-chapter-<?= Html::escape($status) ?>"><?= Html::escape($chapterTitle) ?></h2><p><?= Html::escape($chapterCopy) ?></p></div><strong><?= count($records) ?><span><?= $lang->value('ZÁZNAMY', 'RECORDS') ?></span></strong></header>
       <div class="decision-grid">
     <?php foreach ($records as $decision): $alternativePreview = $alternatives[$decision->id] ?? null; ?>
-      <details class="decision-card" data-decision data-status="<?= Html::escape($decision->status) ?>"
+      <details class="decision-card" data-decision data-status="<?= Html::escape($decision->status) ?>" data-project="<?= Html::escape($decision->project) ?>"
         data-search-text="<?= Html::escape($decision->project.' '.$decision->title($lang).' '.$decision->context($lang).' '.$decision->choice($lang)) ?>">
         <summary>
           <strong><?= Html::escape($decision->title($lang)) ?></strong>

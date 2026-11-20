@@ -16,6 +16,31 @@ $nav = [
     ['about', $lang->value('O mně', 'About')],
 ];
 $fullUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . $lang->path($route);
+$ogImage = $ogImage ?? '/assets/img/scale-studio.webp';
+$ogImageWidth = $ogImageWidth ?? 1448;
+$ogImageHeight = $ogImageHeight ?? 1086;
+$ogImageAlt = $ogImageAlt ?? $lang->value('Harfusha – inženýrské portfolio a experimentální dílna', 'Harfusha – engineering portfolio and interactive workshop');
+
+if (isset($project) && $project instanceof App\Domain\Project) {
+    if ($project->slug === 'mutaui') {
+        $ogImage = '/assets/img/mutaui-overview-en-dark.png';
+        $ogImageWidth = 1380;
+        $ogImageHeight = 900;
+        $ogImageAlt = $lang->value('MutaUI – synchronizace a přesměrování portů', 'MutaUI – sync and port forwarding');
+    } elseif ($project->slug === 'tiskov') {
+        $ogImage = '/assets/img/tiskov-bambu-lab-a1.png';
+        $ogImageWidth = 1200;
+        $ogImageHeight = 630;
+        $ogImageAlt = $lang->value('Tiskov – 3D tisk na Bambu Lab A1', 'Tiskov – 3D printing on Bambu Lab A1');
+    } elseif ($project->slug === 'woodbound') {
+        $ogImage = '/assets/img/woodbound-region-development.png';
+        $ogImageWidth = 1280;
+        $ogImageHeight = 720;
+        $ogImageAlt = $lang->value('Woodbound – vývojový záběr lesní krajiny', 'Woodbound – development capture');
+    }
+}
+
+$fullOgImageUrl = str_starts_with((string)$ogImage, 'http') ? (string)$ogImage : rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . (string)$ogImage;
 ?>
 <!doctype html>
 <html lang="<?= Html::escape($lang->code) ?>">
@@ -26,9 +51,20 @@ $fullUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://e
   <meta name="theme-color" content="#0d1019">
   <meta name="description" content="<?= Html::escape($description) ?>">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Harfusha Lab">
   <meta property="og:title" content="<?= Html::escape($title) ?>">
   <meta property="og:description" content="<?= Html::escape($description) ?>">
   <meta property="og:url" content="<?= Html::escape($fullUrl) ?>">
+  <meta property="og:image" content="<?= Html::escape($fullOgImageUrl) ?>">
+  <meta property="og:image:width" content="<?= Html::escape((string)$ogImageWidth) ?>">
+  <meta property="og:image:height" content="<?= Html::escape((string)$ogImageHeight) ?>">
+  <meta property="og:image:alt" content="<?= Html::escape($ogImageAlt) ?>">
+  <meta property="og:locale" content="<?= $lang->code === 'cs' ? 'cs_CZ' : 'en_US' ?>">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<?= Html::escape($title) ?>">
+  <meta name="twitter:description" content="<?= Html::escape($description) ?>">
+  <meta name="twitter:image" content="<?= Html::escape($fullOgImageUrl) ?>">
+  <meta name="twitter:image:alt" content="<?= Html::escape($ogImageAlt) ?>">
   <link rel="canonical" href="<?= Html::escape($fullUrl) ?>">
   <link rel="alternate" type="application/rss+xml" title="Harfusha Lab Journal" href="<?= $lang->path('/feed.xml') ?>">
   <link rel="alternate" hreflang="cs" href="<?= Html::escape(rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . Html::path('cs',$route)) ?>">

@@ -450,3 +450,314 @@ body[data-language] .profile-work-list article { border-top: 2px solid #576eab; 
   .lab-device { min-height: 104px; }
 }
 @media (prefers-reduced-motion: reduce) { .experiment-link:hover { transform: none; } }
+
+@media (prefers-color-scheme: light) {
+  body[data-language] {
+    color-scheme: dark;
+    --bg: #f8fafc;
+    --bg2: #f1f5f9;
+    --surface: #ffffff;
+    --surface2: #f8fafc;
+    --surface3: #f1f5f9;
+    --stroke: #cbd5e1;
+    --stroke-soft: #e2e8f0;
+    --text: #0f172a;
+    --sub: #334155;
+    --muted: #475569;
+    --lime: #047857;
+    --lime-dim: #ecfdf5;
+    --blue: #1d4ed8;
+    --orange: #b45309;
+    --red: #b91c1c;
+    --portfolio-accent: #047857;
+    --portfolio-panel: #ffffff;
+    background: var(--bg);
+    color: var(--text);
+  }
+  body[data-language] .site-header {
+    background: rgba(248, 250, 252, 0.92);
+    border-bottom: 1px solid rgba(15, 23, 42, 0.12);
+  }
+  body[data-language] .site-footer {
+    --text: #0f172a;
+    --sub: #334155;
+    --muted: #475569;
+    --blue: #1d4ed8;
+    background: #f1f5f9;
+    border-top: 1px solid var(--stroke);
+  }
+  body[data-language] .site-footer :is(.brand, p) { color: var(--text); }
+  body[data-language] .site-footer a:not(.brand) { color: var(--sub); }
+  body[data-language] .site-footer .footer-aside { color: var(--muted); }
+  body[data-language] .site-footer .eyebrow { color: var(--blue); }
+
+  body[data-language] :is(.notice.note-info, .decision-alternative, .decision-quick-choice, .project-map-hard.project-map-outcome, .service-group,
+    .scenario-card, .workbench-method, .architecture-figure figcaption) {
+    background: #f1f5f9;
+    border-color: var(--stroke);
+    color: var(--text);
+  }
+  body[data-language] :is(.project-detail-hero, .playground-hero) {
+    background: #f1f5f9;
+    color: var(--text);
+  }
+  body[data-language] .case-evidence {
+    background: #eff6ff !important;
+    color: #1e3a8a !important;
+    border-color: #93c5fd !important;
+  }
+  body[data-language] .case-evidence :is(p, strong) {
+    color: #1e3a8a !important;
+  }
+  body[data-language] .case-evidence-limit {
+    border-color: #93c5fd !important;
+  }
+  body[data-language] .project-preview {
+    background: #f8fafc;
+    color: var(--text);
+  }
+  body[data-language] .project-preview :is(h2, p, figcaption) {
+    color: var(--sub);
+  }
+  body[data-language] .component-grid > li {
+    background: #ffffff;
+    border-color: var(--stroke);
+  }
+  body[data-language] .component-grid h4 {
+    color: var(--text);
+  }
+  body[data-language] .component-grid p {
+    color: var(--sub);
+  }
+  body[data-language] .component-links a {
+    color: var(--blue);
+  }
+  body[data-language] .case-walkthrough-steps li {
+    background: #ffffff;
+    border-color: var(--stroke);
+    color: var(--text);
+  }
+  body[data-language] .case-walkthrough-steps li > span {
+    background: #eff6ff;
+    color: var(--blue);
+  }
+  body[data-language] .case-walkthrough-steps h4 {
+    color: var(--text);
+  }
+  body[data-language] :is(.stack-list span, .tag, .stack-large span) {
+    background: #f1f5f9;
+    border-color: var(--stroke);
+    color: var(--text);
+  }
+  body[data-language] :is(.lab-toolbar, .lab-flow-toolbar, .lab-scenarios, .lab-canvas-wrap) {
+    background: #f8fafc;
+    color: var(--text);
+    border-color: var(--stroke);
+  }
+  body[data-language] :is(.lab-tabs .tab.active, .tab[aria-selected="true"]) {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #047857;
+  }
+  body[data-language] :is(.station-output pre, .fingerprint-value, .sync-pane, .tiskov-job, .route-result, .solution-step) {
+    background: #f8fafc;
+    color: var(--text);
+    border-color: var(--stroke);
+  }
+  body[data-language] .lab-inspector :is(.lab-tech span, .service-list li) {
+    background: #f1f5f9;
+    color: var(--sub);
+    border-color: var(--stroke);
+  }
+  body[data-language] :is(.search-field input, .filter-bar select, .project-map-choices input, .project-map-choices select,
+    .journal-search input, .journal-project-filter select, .lab-flow-toolbar select, .station-controls input, .station-controls select,
+    .station-controls textarea, .lab-tabs .tab, .mini-button) {
+    background: #ffffff;
+    color: var(--text);
+    border-color: var(--stroke);
+  }
+  body[data-language] .decision-summary {
+    background: #ffffff;
+    color: var(--text);
+  }
+  body[data-language] .decision-summary p {
+    color: var(--sub);
+  }
+  body[data-language] .decision-summary strong {
+    color: var(--text);
+  }
+  body[data-language] .decision-summary small {
+    color: var(--muted);
+  }
+  body[data-language] .decision-card[open] {
+    background: #ffffff;
+    border-color: var(--stroke);
+  }
+  body[data-language] .status {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+    color: #334155;
+  }
+  body[data-language] .status:is(.active, .completed, .merged) {
+    border-color: #a7f3d0;
+    background: #ecfdf5;
+    color: #065f46;
+  }
+  body[data-language] .status:is(.prototype, .planned, .open) {
+    border-color: #fde68a;
+    background: #fffbeb;
+    color: #92400e;
+  }
+  body[data-language] .status:is(.failed, .closed, .archived) {
+    border-color: #fecaca;
+    background: #fef2f2;
+    color: #991b1b;
+  }
+  body[data-language] .btn-primary {
+    background: var(--lime);
+    color: #ffffff;
+  }
+  body[data-language] .btn-primary:hover {
+    background: #065f46;
+  }
+  body[data-language] .btn-ghost {
+    background: #ffffff;
+    border-color: var(--stroke);
+    color: var(--text);
+  }
+  body[data-language] .btn-ghost:hover {
+    border-color: var(--lime);
+    color: var(--lime);
+  }
+  body[data-language] .project-card, body[data-language] .explorer-card, body[data-language] .info-card,
+  body[data-language] .sidebar-panel, body[data-language] .timeline-copy, body[data-language] .decision-card {
+    background: #ffffff;
+  }
+  body[data-language] .activity-item {
+    background: #ffffff;
+    border-color: var(--stroke);
+  }
+  body[data-language] .activity-item:hover {
+    background: #f1f5f9;
+  }
+  body[data-language] .activity-icon {
+    background: #ecfdf5;
+    color: var(--lime);
+  }
+  body[data-language] .journal-project-tag {
+    background: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #047857;
+  }
+  body[data-language] .experiment-band {
+    background: #f1f5f9;
+    color: var(--text);
+    border-color: var(--stroke);
+  }
+  body[data-language] .portfolio-card.is-featured {
+    background: #ffffff;
+    border-top: 4px solid var(--lime);
+  }
+  body[data-language] .workbench-cover {
+    background: #f1f5f9;
+  }
+  body[data-language] .workbench-cover figcaption {
+    background: #ffffff;
+    color: var(--text);
+  }
+  body[data-language] :is(.quick-scale, .experiment-link, .experiment-sync, .experiment-network, .experiment-route,
+    .station-article, .lab-device, .station-output, .scale-output, .sync-panes, .quick-scale-output) {
+    background: #ffffff !important;
+    border-color: var(--stroke) !important;
+    color: var(--text) !important;
+  }
+  body[data-language] .scale-output strong {
+    color: var(--lime) !important;
+  }
+  body[data-language] .scale-output p {
+    color: var(--sub) !important;
+  }
+  body[data-language] .scale-output .station-boundary {
+    color: var(--muted) !important;
+  }
+  body[data-language] .experiment-band {
+    background: #f1f5f9 !important;
+    color: var(--text) !important;
+    border-color: var(--stroke) !important;
+  }
+  body[data-language] .experiment-band .section-heading :is(h2, p, .inline-link) {
+    color: var(--text) !important;
+  }
+  body[data-language] :is(.station-heading h2, .station-heading p, .quick-scale-intro h3, .quick-scale-intro p) {
+    color: var(--text) !important;
+  }
+  body[data-language] .station-heading p {
+    color: var(--sub) !important;
+  }
+  body[data-language] .lab-device span {
+    color: var(--sub) !important;
+  }
+  body[data-language] .lab-device strong {
+    color: var(--text) !important;
+  }
+  body[data-language] .lab-device.is-in-path {
+    background: #eff6ff !important;
+    border-color: #3b82f6 !important;
+  }
+  body[data-language] .lab-device.is-down {
+    background: #fef2f2 !important;
+    border-color: #ef4444 !important;
+  }
+  body[data-language] .quick-scale-output {
+    background: #eff6ff !important;
+    color: #1e3a8a !important;
+  }
+  body[data-language] .quick-scale-output :is(strong, span) {
+    color: #1e3a8a !important;
+  }
+  body[data-language] .homelab-contracts {
+    background: #ffffff !important;
+    border-color: var(--stroke) !important;
+  }
+  body[data-language] .homelab-contract-grid article {
+    background: #ffffff !important;
+    border-color: var(--stroke) !important;
+  }
+  body[data-language] .homelab-contract-grid article > span {
+    color: var(--lime) !important;
+  }
+  body[data-language] .homelab-contract-grid h3 {
+    color: var(--text) !important;
+  }
+  body[data-language] .homelab-contract-grid p {
+    color: var(--sub) !important;
+  }
+
+  body[data-language] :is(.playground-station, .playground-station-link, .pipeline-workbench, .sync-panes > *, .request-controls, .request-results, .station-article) {
+    background: #ffffff !important;
+    border-color: var(--stroke) !important;
+    color: var(--text) !important;
+  }
+  body[data-language] .playground-station-link:hover {
+    background: #f1f5f9 !important;
+    border-color: var(--lime) !important;
+  }
+  body[data-language] .playground-station-link span {
+    color: var(--lime) !important;
+  }
+  body[data-language] .playground-station-link strong {
+    color: var(--text) !important;
+  }
+  body[data-language] :is(.station-heading h2, .station-heading div > h2) {
+    color: var(--text) !important;
+  }
+  body[data-language] :is(.station-heading p, .station-heading div > p) {
+    color: var(--sub) !important;
+  }
+  body[data-language] .station-heading .eyebrow {
+    color: var(--lime) !important;
+  }
+  body[data-language] .station-heading .inline-link {
+    color: var(--blue) !important;
+  }
+}

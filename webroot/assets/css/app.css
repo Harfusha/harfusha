@@ -655,3 +655,93 @@ body[data-language] .project-detail-hero {
   .journal-controls { position: static; }
   .case-followup, .reading-footer { align-items: flex-start; flex-direction: column; margin-top: 2.25rem; }
 }
+
+.journal-project-filter { margin-bottom: .85rem; }
+.journal-project-filter select {
+  min-width: 0;
+  width: 100%;
+  padding: .68rem .75rem;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--stroke);
+  border-radius: 7px;
+}
+.status.closed[title] {
+  cursor: help;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+}
+
+@media print {
+  *, *:before, *:after {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    font-size: 11pt;
+    line-height: 1.4;
+  }
+  .site-header, .site-backdrop, .skip-link, .mobile-menu, .header-actions,
+  .filter-bar, .journal-controls, .site-footer, .btn, .inline-dep-btn,
+  .activity-actions, .lab-toolbar, .demo-nav, .step-controls, .sync-actions,
+  .world-controls, .cad-controls, .dialog-close, button[type="button"],
+  .filter-count, .empty-state.hidden, [hidden] {
+    display: none !important;
+  }
+  .shell {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .page-hero {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    border-bottom: 2px solid #333 !important;
+  }
+  .page-hero h1 {
+    font-size: 24pt !important;
+    color: #000 !important;
+  }
+  .project-grid, .explorer-grid, .about-grid, .triptych, .journal-preview {
+    display: block !important;
+  }
+  .project-card, .explorer-card, .info-card, .timeline-item, .activity-item,
+  .decision-card, .case-block, .sidebar-panel, .diagram-wrap {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 1.5rem !important;
+    border: 1px solid #ccc !important;
+    padding: 1rem !important;
+    border-radius: 6px !important;
+  }
+  details[open], details {
+    display: block !important;
+  }
+  details summary {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #555 !important;
+  }
+  a.brand:after, a[href^="#"]:after, a[href^="javascript:"]:after {
+    content: "";
+  }
+  h1, h2, h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+    color: #000 !important;
+  }
+  img, svg, canvas {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

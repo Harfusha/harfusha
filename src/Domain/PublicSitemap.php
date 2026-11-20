@@ -19,8 +19,11 @@ final class PublicSitemap
     {
     }
 
-    /** @param list<string> $routes */
-    public static function render(string $origin, array $routes): string
+    /**
+     * @param list<string> $routes
+     * @param array<string,string> $lastmodMap Map of route => YYYY-MM-DD
+     */
+    public static function render(string $origin, array $routes, array $lastmodMap = []): string
     {
         if (preg_match('~^https?://[a-z0-9.-]+(?::[0-9]{1,5})?$~iD', $origin) !== 1) {
             throw new InvalidArgumentException('Sitemap origin must be a bare HTTP(S) host');
@@ -35,8 +38,15 @@ final class PublicSitemap
             if ($route !== '' && preg_match('~^[a-z0-9]+(?:[a-z0-9/-]*[a-z0-9])?$~D', $route) !== 1) {
                 throw new InvalidArgumentException('Invalid sitemap route');
             }
+            $lastmod = $lastmodMap[$route] ?? null;
+            if ($lastmod !== null && preg_match('~^\d{4}-\d{2}-\d{2}$~D', $lastmod) !== 1) {
+                throw new InvalidArgumentException('Invalid sitemap lastmod format');
+            }
             foreach (['cs', 'en'] as $language) {
                 $xml .= '<url><loc>' . self::escape($origin . Html::path($language, $route)) . '</loc>';
+                if ($lastmod !== null) {
+                    $xml .= '<lastmod>' . self::escape($lastmod) . '</lastmod>';
+                }
                 foreach (['cs', 'en', 'x-default'] as $alternate) {
                     $target = $alternate === 'x-default' ? 'cs' : $alternate;
                     $xml .= '<xhtml:link rel="alternate" hreflang="' . $alternate

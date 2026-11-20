@@ -8,13 +8,19 @@ use App\Support\Language;
 /** @var Language $lang */
 /** @var list<array<string,mixed>> $journal */
 $journalYears = [];
+$journalProjects = [];
 foreach ($journal as $entry) {
     $year = substr((string)($entry['published_at'] ?? ''), 0, 4);
     if (preg_match('/^\d{4}$/D', $year) === 1) {
         $journalYears[$year] = ($journalYears[$year] ?? 0) + 1;
     }
+    $proj = (string)($entry['project'] ?? '');
+    if ($proj !== '') {
+        $journalProjects[$proj] = ($journalProjects[$proj] ?? 0) + 1;
+    }
 }
 krsort($journalYears, SORT_NUMERIC);
+ksort($journalProjects);
 ?>
 <section class="page-hero shell">
     <h1><?= $lang->value('Vývojový deník', 'Development journal') ?></h1>
@@ -31,6 +37,14 @@ krsort($journalYears, SORT_NUMERIC);
             <span><?= $lang->value('Hledat v zápiscích', 'Search entries') ?></span>
             <input type="search" data-journal-search placeholder="<?= $lang->value('Projekt, změna nebo téma…', 'Project, change or topic…') ?>">
         </label>
+        <div class="journal-project-filter" data-journal-project-control hidden>
+            <select data-journal-project aria-label="<?= $lang->value('Filtrovat podle projektu', 'Filter by project') ?>">
+                <option value="all"><?= $lang->value('Všechny projekty', 'All projects') ?> (<?= count($journal) ?>)</option>
+                <?php foreach ($journalProjects as $pSlug => $pCount): ?>
+                <option value="<?= Html::escape($pSlug) ?>"><?= Html::escape($pSlug) ?> (<?= $pCount ?>)</option>
+                <?php endforeach; ?>
+            </select>
+        </div>
         <div class="lab-tabs journal-year-filter" role="group" aria-label="<?= $lang->value('Filtrovat deník podle roku', 'Filter journal by year') ?>">
             <button class="tab active" type="button" data-journal-year="all" aria-pressed="true"><?= $lang->value('Všechny roky', 'All years') ?> <span><?= count($journal) ?></span></button>
             <?php foreach ($journalYears as $year => $count): ?>
