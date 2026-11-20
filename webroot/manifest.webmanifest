@@ -1,0 +1,18 @@
+{
+  "name": "Harfusha Lab",
+  "short_name": "Harfusha",
+  "description": "Inženýrské portfolio a experimentální dílna – Adam Halfar",
+  "start_url": "/cs",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0d1019",
+  "theme_color": "#0d1019",
+  "icons": [
+    {
+      "src": "/assets/img/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

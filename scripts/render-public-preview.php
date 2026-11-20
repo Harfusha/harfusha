@@ -166,6 +166,11 @@ namespace {
         }
         copy($entry->getPathname(), $target);
     }
+    foreach (['manifest.webmanifest', 'robots.txt'] as $topFile) {
+        if (is_file($root . '/webroot/' . $topFile)) {
+            copy($root . '/webroot/' . $topFile, $out . '/' . $topFile);
+        }
+    }
     restore_error_handler();
     printf("Offline preview: %d public pages rendered to %s\n", $count, $out);
 }

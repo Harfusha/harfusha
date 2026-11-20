@@ -41,6 +41,65 @@ if (isset($project) && $project instanceof App\Domain\Project) {
 }
 
 $fullOgImageUrl = str_starts_with((string)$ogImage, 'http') ? (string)$ogImage : rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . (string)$ogImage;
+
+$baseUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/');
+$jsonLdGraph = [
+    [
+        '@type' => 'Person',
+        '@id' => $baseUrl . '/#person',
+        'name' => 'Adam Halfar',
+        'alternateName' => 'Harfusha',
+        'url' => $baseUrl,
+        'jobTitle' => $lang->value('Backendový vývojář', 'Backend Developer'),
+        'sameAs' => [
+            'https://github.com/Harfusha',
+        ],
+    ],
+    [
+        '@type' => 'WebSite',
+        '@id' => $baseUrl . '/#website',
+        'url' => $baseUrl,
+        'name' => 'Harfusha Lab',
+        'publisher' => [
+            '@id' => $baseUrl . '/#person',
+        ],
+    ],
+    [
+        '@type' => 'WebPage',
+        '@id' => $fullUrl,
+        'url' => $fullUrl,
+        'name' => $title,
+        'description' => $description,
+        'isPartOf' => [
+            '@id' => $baseUrl . '/#website',
+        ],
+        'inLanguage' => $lang->code,
+    ],
+];
+
+if (isset($project) && $project instanceof App\Domain\Project) {
+    /** @var array<string,mixed> $softwareData */
+    $softwareData = [
+        '@type' => 'SoftwareSourceCode',
+        'name' => $project->name,
+        'description' => $project->summary($lang),
+        'author' => [
+            '@id' => $baseUrl . '/#person',
+        ],
+    ];
+    if (!$project->private && $project->repo !== '') {
+        $softwareData['codeRepository'] = Html::safeUrl($project->repo);
+    }
+    if ($project->stack !== []) {
+        $softwareData['programmingLanguage'] = implode(', ', $project->stack);
+    }
+    $jsonLdGraph[] = $softwareData;
+}
+
+$jsonLd = json_encode([
+    '@context' => 'https://schema.org',
+    '@graph' => $jsonLdGraph,
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP);
 ?>
 <!doctype html>
 <html lang="<?= Html::escape($lang->code) ?>">
@@ -48,6 +107,9 @@ $fullOgImageUrl = str_starts_with((string)$ogImage, 'http') ? (string)$ogImage :
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
+  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+  <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#0d1019">
   <meta name="description" content="<?= Html::escape($description) ?>">
   <meta property="og:type" content="website">
@@ -75,6 +137,7 @@ $fullOgImageUrl = str_starts_with((string)$ogImage, 'http') ? (string)$ogImage :
   <link rel="stylesheet" href="<?= Html::escape(Html::versionedAsset('assets/css/portfolio.css')) ?>">
   <script src="<?= Html::escape(Html::versionedAsset('assets/js/lab-core.js')) ?>" defer></script>
   <script src="<?= Html::escape(Html::versionedAsset('assets/js/app.js')) ?>" defer></script>
+  <?php if ($jsonLd !== false): ?><script type="application/ld+json"><?= $jsonLd ?></script><?php endif; ?>
   <title><?= Html::escape($title) ?></title>
 </head>
 <body data-language="<?= Html::escape($lang->code) ?>">
@@ -89,6 +152,7 @@ $fullOgImageUrl = str_starts_with((string)$ogImage, 'http') ? (string)$ogImage :
       <?php endforeach; ?>
     </nav>
     <div class="header-actions">
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="<?= $lang->value('Přepnout barevný motiv', 'Toggle color theme') ?>" title="<?= $lang->value('Přepnout světlý / tmavý režim', 'Toggle light / dark mode') ?>"><span class="theme-toggle-icon" aria-hidden="true">◐</span></button>
       <a class="lang-toggle" href="<?= Html::path($lang->code === 'en' ? 'cs' : 'en', $route) ?>" hreflang="<?= $lang->code === 'en' ? 'cs' : 'en' ?>" aria-label="<?= $lang->value('EN – přepnout do angličtiny', 'CZ – switch to Czech') ?>"><?= $lang->code === 'en' ? 'CZ' : 'EN' ?></a>
       <a class="github-chip" href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer" aria-label="<?= $lang->value('GitHub – profil', 'GitHub profile') ?>">GitHub <span aria-hidden="true">↗</span></a>
     </div>

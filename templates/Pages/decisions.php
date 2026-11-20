@@ -78,7 +78,7 @@ foreach ($decisions as $decision) {
       <header><div><span class="eyebrow"><?= Html::escape($decisionStatusLabels[$status] ?? $status) ?></span><h2 id="decision-chapter-<?= Html::escape($status) ?>"><?= Html::escape($chapterTitle) ?></h2><p><?= Html::escape($chapterCopy) ?></p></div><strong><?= count($records) ?><span><?= $lang->value('ZÁZNAMY', 'RECORDS') ?></span></strong></header>
       <div class="decision-grid">
     <?php foreach ($records as $decision): $alternativePreview = $alternatives[$decision->id] ?? null; ?>
-      <details class="decision-card" data-decision data-status="<?= Html::escape($decision->status) ?>" data-project="<?= Html::escape($decision->project) ?>"
+      <details class="decision-card" id="<?= Html::escape($decision->id) ?>" data-decision data-status="<?= Html::escape($decision->status) ?>" data-project="<?= Html::escape($decision->project) ?>"
         data-search-text="<?= Html::escape($decision->project.' '.$decision->title($lang).' '.$decision->context($lang).' '.$decision->choice($lang)) ?>">
         <summary>
           <strong><?= Html::escape($decision->title($lang)) ?></strong>
@@ -96,7 +96,10 @@ foreach ($decisions as $decision) {
           <div><span class="eyebrow">04 / <?= $lang->value('VOLBA ARCHITEKTURY', 'ARCHITECTURE CHOICE') ?></span><p><?= Html::escape($decision->choice($lang)) ?></p></div>
           <div><span class="eyebrow">05 / <?= $lang->value('KOMPROMIS A CENA', 'TRADE-OFF & COST') ?></span><p><?= Html::escape($decision->tradeoff($lang)) ?></p></div>
           <div><span class="eyebrow">06 / <?= $lang->value('VÝSLEDEK NEBO MEZERA', 'RESULT OR GAP') ?></span><p><?= Html::escape($alternativePreview['scope'] ?? $decision->choice($lang)) ?></p></div>
-          <a class="inline-link" href="<?= $lang->path('/projects/'.$decision->project) ?>"><?= $lang->value('Otevřít případovou studii','Read the related case study') ?> ↗</a>
+          <div class="decision-actions">
+            <a class="inline-link" href="<?= $lang->path('/projects/'.$decision->project) ?>"><?= $lang->value('Otevřít případovou studii','Read the related case study') ?> ↗</a>
+            <button type="button" class="btn btn-ghost btn-sm anchor-copy-btn" data-copy-anchor="<?= Html::escape($decision->id) ?>" aria-label="<?= $lang->value('Kopírovat odkaz na rozhodnutí', 'Copy link to decision') ?>"><span class="anchor-icon" aria-hidden="true">#</span> <?= $lang->value('Kopírovat odkaz', 'Copy link') ?></button>
+          </div>
         </div>
       </details>
     <?php endforeach; ?>

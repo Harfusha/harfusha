@@ -89,9 +89,27 @@ final class SystemController extends AppController
             $lastmods['projects/' . $project->slug] = $projectDates[$project->slug] ?? '2026-11-20';
         }
 
+        $imageMap = [
+            '' => [
+                ['loc' => '/assets/img/scale-studio.webp', 'title' => 'Harfusha Lab Scale Studio'],
+            ],
+            'projects/mutaui' => [
+                ['loc' => '/assets/img/mutaui-overview-cs-light.webp', 'title' => 'MutaUI Overview Light'],
+                ['loc' => '/assets/img/mutaui-overview-en-dark.webp', 'title' => 'MutaUI Overview Dark'],
+                ['loc' => '/assets/img/mutaui-forward-cs-dark.webp', 'title' => 'MutaUI Port Forwarding'],
+                ['loc' => '/assets/img/mutaui-sync-en-light.webp', 'title' => 'MutaUI Sync Status'],
+            ],
+            'projects/tiskov' => [
+                ['loc' => '/assets/img/tiskov-bambu-lab-a1.webp', 'title' => 'Tiskov Bambu Lab A1'],
+            ],
+            'projects/woodbound' => [
+                ['loc' => '/assets/img/woodbound-region-development.webp', 'title' => 'Woodbound Region Development'],
+            ],
+        ];
+
         return $this->response->withType('xml')
             ->withHeader('Cache-Control', 'public, max-age=3600, must-revalidate')
-            ->withStringBody(PublicSitemap::render($origin, $pages, $lastmods));
+            ->withStringBody(PublicSitemap::render($origin, $pages, $lastmods, $imageMap));
     }
 
     /**

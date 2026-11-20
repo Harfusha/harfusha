@@ -79,7 +79,10 @@ ksort($journalProjects);
                 <?php endif; ?>
                 <span class="category"><?= Html::escape($category) ?></span>
             </header>
-            <h3><a href="#<?= Html::escape($entryId) ?>"><?= Html::escape((string)$entry['title_' . $lang->code]) ?></a></h3>
+            <div class="journal-title-row">
+                <h3><a href="#<?= Html::escape($entryId) ?>"><?= Html::escape((string)$entry['title_' . $lang->code]) ?></a></h3>
+                <button type="button" class="anchor-copy-btn" data-copy-anchor="<?= Html::escape($entryId) ?>" aria-label="<?= $lang->value('Kopírovat odkaz na zápisek', 'Copy link to entry') ?>" title="<?= $lang->value('Kopírovat odkaz', 'Copy link') ?>"><span class="anchor-icon" aria-hidden="true">#</span></button>
+            </div>
             <p><?= Html::escape((string)$entry['body_' . $lang->code]) ?></p>
             <?php if ($source !== '#'): ?>
                 <?php if (str_starts_with($source, 'http')): ?>

@@ -730,5 +730,59 @@
     renderAuthority();
   }
 
+  // Manual theme switcher (Dark / Light toggle)
+  const themeToggle = $('[data-theme-toggle]');
+  if (themeToggle) {
+    const updateToggleState = (theme) => {
+      const isLight = theme === 'light';
+      themeToggle.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+      const icon = $('.theme-toggle-icon', themeToggle);
+      if (icon) icon.textContent = isLight ? '☼' : '◐';
+    };
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      document.documentElement.dataset.theme = savedTheme;
+      updateToggleState(savedTheme);
+    } else {
+      const systemLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+      updateToggleState(systemLight ? 'light' : 'dark');
+    }
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.dataset.theme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('theme', next); } catch (_) {}
+      updateToggleState(next);
+    });
+  }
+
+  // Anchor copy buttons
+  $$('[data-copy-anchor]').forEach(button => {
+    button.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const targetId = button.dataset.copyAnchor;
+      if (!targetId) return;
+      const url = new URL(window.location.href);
+      url.hash = targetId;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(url.toString());
+        } else {
+          window.location.hash = targetId;
+        }
+        button.classList.add('is-copied');
+        const originalTitle = button.getAttribute('title') || '';
+        button.setAttribute('title', local('Zkopírováno!', 'Copied!'));
+        setTimeout(() => {
+          button.classList.remove('is-copied');
+          button.setAttribute('title', originalTitle);
+        }, 1500);
+      } catch (_) {
+        window.location.hash = targetId;
+      }
+    });
+  });
+
   initPlayground();
 })();
