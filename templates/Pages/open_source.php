@@ -214,7 +214,7 @@ abstract class Association { ... }</code></pre>
             ? $lang->value('Seznam pochází z posledního úspěšného veřejného importu GitHubu.', 'Entries are from the last successful public GitHub import.')
             : ($provenance['source'] === 'unavailable'
                 ? $lang->value('GitHub data jsou dočasně nedostupná. Historické záznamy nezveřejňujeme jako náhradu.', 'GitHub data is temporarily unavailable. Historical records are not republished as a fallback.')
-                : $lang->value('Zobrazený je ručně ověřený historický snímek. Automatický import není potvrzen.', 'This is a hand-reviewed historical snapshot. An automated import is not confirmed.')) ?><?php if ($provenance['last_sync'] !== null): ?><br><time><?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?></time><?php endif; ?></p>
+                : $lang->value('Zobrazený je ověřený kurátorský snímek přehledu příspěvků.', 'This is a verified curated snapshot of upstream contributions.')) ?><?php if ($provenance['last_sync'] !== null): ?><br><time><?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?></time><?php endif; ?></p>
     </div>
 
     <details class="activity-reading">
@@ -297,6 +297,6 @@ abstract class Association { ... }</code></pre>
         <h2 id="activity-dialog-title" data-activity-title></h2>
         <p class="activity-dialog-repo" data-activity-repo></p>
         <p><?= $lang->value('Kompletní diskuse, review kódových změn a kontext řešení jsou dostupné přímo v původním GitHub vláknu.', 'Full code review discussion, commit history, and upstream context are hosted directly on GitHub.') ?></p>
-        <a class="btn btn-primary" data-activity-url target="_blank" rel="noopener noreferrer" href="#"><?= $lang->value('Otevřít na GitHubu', 'Open on GitHub') ?> ↗</a>
+        <a class="btn btn-primary" data-activity-url target="_blank" rel="noopener noreferrer" href="https://github.com/Harfusha"><?= $lang->value('Otevřít na GitHubu', 'Open on GitHub') ?> ↗</a>
     </dialog>
 </section>

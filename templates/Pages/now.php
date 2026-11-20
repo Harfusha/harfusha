@@ -44,7 +44,7 @@ krsort($activityYears, SORT_NUMERIC);
   <div class="page-meta"><?= $githubSynced ? $lang->value('VEŘEJNÝ IMPORT GITHUBU', 'PUBLIC GITHUB IMPORT') : ($githubUnavailable ? $lang->value('DATA NEDOSTUPNÁ', 'DATA UNAVAILABLE') : $lang->value('RUČNĚ OVĚŘENÝ SNÍMEK', 'REVIEWED SNAPSHOT')) ?> <span>·</span>
   <?php if ($provenance['last_sync'] !== null): ?><?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?>
   <?php elseif ($githubUnavailable): ?><?= $lang->value('Starší záznamy při výpadku nezobrazujeme.', 'Historical records stay hidden while the source is unavailable.') ?>
-  <?php else: ?><?= $lang->value('Pravidelný import není potvrzen.', 'A recurring import is not confirmed.') ?><?php endif; ?></div>
+  <?php else: ?><?= $lang->value('Ověřená data z repozitářů.', 'Verified repository records.') ?><?php endif; ?></div>
 </section>
 <nav class="shell case-navigation" aria-label="<?= $lang->value('Obsah časové osy', 'On this timeline') ?>">
     <a href="#now-repositories-title"><?= $lang->value('Repozitáře', 'Repositories') ?></a>
