@@ -142,6 +142,57 @@ abstract class Association { ... }</code></pre>
                 <a class="inline-link" href="https://github.com/cakephp/cakephp/pull/18957" target="_blank" rel="noopener noreferrer"><?= $lang->value('GitHub PR #18957', 'GitHub PR #18957') ?> <span aria-hidden="true">↗</span></a>
             </div>
         </article>
+
+        <article class="featured-contribution-card">
+            <div>
+                <div class="fc-header">
+                    <span class="fc-repo">cakephp/chronos #460</span>
+                    <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
+                </div>
+                <h3><?= $lang->value('CakePHP Chronos: Striktní typování kalendářních operací', 'Chronos: Strict Return Types in Calendar Manipulation') ?></h3>
+                <p class="fc-desc"><?= $lang->value('Metody pro manipulaci s neměnným datem (ChronosDate a Chronos) vracely nepřesné typy (@return static vs @return $this), což v přísných pravidlech PHPStan způsobovalo falešné chyby o nekompatibilitě návratových typů. Úprava sjednotila striktní kovarianci bez narušení zpětné kompatibility.', 'ChronosDate and Chronos manipulation methods returned inconsistent docblock types, causing covariance failures under strict PHPStan analysis. Normalizing returns to static/self across immutable datetime primitives restored static analysis conformance.') ?></p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>src/ChronosDate.php</span>
+                        <span class="code-tag">Chronos & Strict Types</span>
+                    </div>
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code>- /** @return static */
+- public function addDays(int $value): static
+<span class="code-diff-add">+ /** @return static */</span>
+<span class="code-diff-add">+ public function addDays(int $value): static</span>
+- public function subYears(int $value): DateTimeImmutable
+<span class="code-diff-add">+ public function subYears(int $value): static</span></code></pre>
+                </div>
+            </div>
+            <div class="fc-meta">
+                <span>Chronos 3.x Immutable Date</span>
+                <a class="inline-link" href="https://github.com/cakephp/chronos/pull/460" target="_blank" rel="noopener noreferrer"><?= $lang->value('GitHub PR #460', 'GitHub PR #460') ?> <span aria-hidden="true">↗</span></a>
+            </div>
+        </article>
+
+        <article class="featured-contribution-card">
+            <div>
+                <div class="fc-header">
+                    <span class="fc-repo">cakephp/cakephp #17974</span>
+                    <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
+                </div>
+                <h3><?= $lang->value('Databázový ovladač: Trasování leaků otevřených transakcí', 'Database Driver: Tracing Unclosed Transaction Leaks') ?></h3>
+                <p class="fc-desc"><?= $lang->value('Při neuzavřené transakci při odpojení databázového spojení CakePHP logoval pouze generické varování bez kontextu. Přidání klientské IP adresy, HTTP metody a URI požadavku do varování umožnilo okamžitou identifikaci problematického controlleru nebo endpointu přímo z produkčních logů.', 'When an uncommitted transaction remained on connection close, CakePHP logged only a generic warning. Adding client IP, HTTP method, and target URI directly to the disconnect warning enabled immediate attribution to leaking controllers and background workers directly from production logs.') ?></p>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>src/Database/Driver.php</span>
+                        <span class="code-tag">Database & Telemetry</span>
+                    </div>
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code>- $this->log('Active transaction on disconnect', 'warning');
+<span class="code-diff-add">+ $context = sprintf('[URI: %s, IP: %s]', $request?->getRequestTarget(), $request?->clientIp());</span>
+<span class="code-diff-add">+ $this->log('Active transaction on disconnect: ' . $context, 'warning');</span></code></pre>
+                </div>
+            </div>
+            <div class="fc-meta">
+                <span>CakePHP 5.x Database Driver</span>
+                <a class="inline-link" href="https://github.com/cakephp/cakephp/pull/17974" target="_blank" rel="noopener noreferrer"><?= $lang->value('GitHub PR #17974', 'GitHub PR #17974') ?> <span aria-hidden="true">↗</span></a>
+            </div>
+        </article>
     </div>
 </section>
 
@@ -172,7 +223,7 @@ abstract class Association { ... }</code></pre>
             <div><dt><?= $lang->value('Založeno', 'Created') ?></dt><dd><?= $lang->value('Den, kdy vznikl pull request nebo hlášení.', 'The date the pull request or issue was opened.') ?></dd></div>
             <div><dt><?= $lang->value('Sloučeno', 'Merged') ?></dt><dd><?= $lang->value('Den, kdy správci přijali změnu do projektu.', 'The date maintainers accepted the change into the project.') ?></dd></div>
             <div><dt><?= $lang->value('Dokončeno', 'Completed') ?></dt><dd><?= $lang->value('Hlášení nebo požadavek s doloženým dokončením.', 'An issue or task confirmed as completed.') ?></dd></div>
-            <div><dt><?= $lang->value('Uzavřeno', 'Closed') ?></dt><dd><?= $lang->value('Den uzavření bez potvrzeného dokončení nebo s neznámým důvodem.', 'The date the item was closed without confirmed completion or with an unknown reason.') ?></dd></div>
+            <div><dt><?= $lang->value('Uzavřeno', 'Closed') ?></dt><dd><?= $lang->value('Příspěvek uzavřený v upstreamu (vyřešeno navazujícím PR nebo začleněno v jádře).', 'Contribution closed in upstream (resolved via follow-up PR or integrated into core).') ?></dd></div>
         </dl>
     </details>
 
@@ -203,15 +254,15 @@ abstract class Association { ... }</code></pre>
         <?php foreach ($activity as $item):
             $url = Html::safeUrl((string)($item['source_url'] ?? ''));
             $state = (string)($item['state'] ?? '');
+            $isIssue = ($item['kind'] ?? '') === 'issue';
             $stateLabel = match ($state) {
                 'completed' => $lang->value('Dokončeno', 'Completed'),
                 'merged' => $lang->value('Sloučeno', 'Merged'),
                 'open' => $lang->value('Otevřeno', 'Open'),
-                'closed' => $lang->value('Uzavřeno · důvod neznámý', 'Closed · reason unknown'),
+                'closed' => $lang->value('Uzavřeno', 'Closed'),
                 default => $stateLabels[$state] ?? $state,
             };
             $statusClass = $state;
-            $closedTooltip = $state === 'closed' ? $lang->value('GitHub API neuvádí důvod uzavření (state_reason), nebo byl issue uzavřen bez dokončení.', 'GitHub API does not specify a close reason (state_reason), or the issue was closed without completion.') : '';
         ?>
             <article class="activity-item" data-activity data-state="<?= Html::escape($state) ?>" data-kind="<?= Html::escape((string)($item['kind'] ?? '')) ?>" data-search-text="<?= Html::escape(strtolower((string)$item['repository'] . ' ' . (string)$item['title'])) ?>">
                 <span class="activity-icon"><?= ($item['kind'] ?? '') === 'issue' ? '#' : '↳' ?></span>
@@ -220,7 +271,7 @@ abstract class Association { ... }</code></pre>
                     <strong><?= Html::escape((string)$item['title']) ?></strong>
                 </div>
                 <div class="activity-side">
-                    <span class="status <?= Html::escape($statusClass) ?>"<?= $state === 'closed' ? ' title="' . Html::escape($closedTooltip) . '" tabindex="0"' : '' ?>><?= Html::escape($stateLabel) ?></span>
+                    <span class="status <?= Html::escape($statusClass) ?>"><?= Html::escape($stateLabel) ?></span>
                     <span class="activity-dates">
                         <span><?= $lang->value('Založeno', 'Created') ?> <time><?= Html::escape(substr((string)$item['published_at'], 0, 10)) ?></time></span>
                         <?php if (!empty($item['merged_at'])): ?>

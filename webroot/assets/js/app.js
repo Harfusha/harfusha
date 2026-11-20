@@ -454,6 +454,28 @@
       $('[data-scale-result]', root).textContent = valid ? local(`${(pixels / mm).toFixed(2)} px/mm`, `${(pixels / mm).toFixed(2)} px/mm`) : local('Zadej platné kladné měření.', 'Enter a valid positive measurement.');
       $('[data-scale-probe-result]', root).textContent = valid ? local(`${probe} px odpovídá ${(probe * mm / pixels).toFixed(2)} mm`, `${probe} px corresponds to ${(probe * mm / pixels).toFixed(2)} mm`) : '';
     };
+    $$('[data-scale-preset]', root).forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = btn.dataset.scalePreset;
+        const mmEl = $('[data-scale-mm]', root);
+        const pxEl = $('[data-scale-pixels]', root);
+        const probeEl = $('[data-scale-probe]', root);
+        if (p === 'standard') {
+          mmEl.value = '84';
+          pxEl.value = '420';
+          probeEl.value = '30';
+        } else if (p === 'macro') {
+          mmEl.value = '12.5';
+          pxEl.value = '625';
+          probeEl.value = '50';
+        } else if (p === 'uncalibrated') {
+          mmEl.value = '0';
+          pxEl.value = '420';
+          probeEl.value = '30';
+        }
+        renderScale();
+      });
+    });
     scaleForm.addEventListener('submit', event => event.preventDefault());
     scaleForm.addEventListener('input', renderScale);
     renderScale();
@@ -520,6 +542,25 @@
       preprocessPath.value = baselinePath;
       preprocessContent.value = baselineContent;
       renderPreprocess();
+    });
+    $$('[data-preprocess-preset]', root).forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = btn.dataset.preprocessPreset;
+        if (p === 'python') {
+          preprocessPath.value = 'src/worker.py';
+          preprocessContent.value = 'def answer():\n    # Modified AST rule\n    return 42 * 2';
+          $('[data-preprocess-kind]', root).value = 'code';
+        } else if (p === 'markdown') {
+          preprocessPath.value = 'docs/architecture.md';
+          preprocessContent.value = '# Architecture Blueprint\n- Core AST indexer\n- Inverted lexical index';
+          $('[data-preprocess-kind]', root).value = 'doc';
+        } else if (p === 'binary') {
+          preprocessPath.value = 'assets/schematic.png';
+          preprocessContent.value = '[binary png blob]';
+          $('[data-preprocess-kind]', root).value = 'asset';
+        }
+        renderPreprocess();
+      });
     });
     renderPreprocess();
     const syncForm = $('[data-sync-form]', root);
@@ -650,6 +691,19 @@
       $('[data-route-length]', root).textContent = path ? local(`${path.length - 1} kroků · 4směrný pohyb`, `${path.length - 1} steps · four-direction movement`) : local('Zablokováno překážkami; uprav mřížku.', 'Blocked by obstacles; change the grid.');
     };
     $('[data-route-reset]', root).addEventListener('click', () => { walls = new Set([10, 17, 18, 26, 34, 42, 50, 51, 52]); renderRoute(); });
+    $$('[data-route-preset]', root).forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = btn.dataset.routePreset;
+        if (p === 'clear') {
+          walls = new Set([]);
+        } else if (p === 'wall') {
+          walls = new Set([10, 17, 18, 26, 34, 42, 50, 51, 52]);
+        } else if (p === 'blocked') {
+          walls = new Set([1, 8, 9, 10, 11, 12, 13, 14, 15]);
+        }
+        renderRoute();
+      });
+    });
     renderRoute();
 
     const queueList = $('[data-queue-list]', root);
@@ -735,6 +789,12 @@
       $('[data-outage-note]', root).textContent = note;
     };
     outageForm.addEventListener('change', renderOutage);
+    $$('[data-outage-preset]', root).forEach(btn => {
+      btn.addEventListener('click', () => {
+        $('[data-outage-host]', root).value = btn.dataset.outagePreset;
+        renderOutage();
+      });
+    });
     renderOutage();
 
     const authorityForm = $('[data-authority-form]', root);

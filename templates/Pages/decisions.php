@@ -50,7 +50,7 @@ foreach ($decisions as $decision) {
 </section>
 <section class="shell decision-principle" aria-label="<?= $lang->value('Pravidlo pro vlastní projekty', 'Rule for custom projects') ?>">
   <span class="eyebrow"><?= $lang->value('SOUČASNÉ ROZHODOVACÍ PRAVIDLO', 'PRESENT DECISION RULE') ?></span>
-  <p><?= $lang->value('Začínám s hotovým nástrojem. Vlastní řešení stavím jen tehdy, když vím, co mi chybí a co bude stát údržba. Pokud v repozitáři chybí původní zápis motivace, zůstává důvod vzniku označen jako neznámý a hodnotí se pouze popsaný technický problém.', 'I start with the tool that already exists. I build my own only when I can name what is missing and what maintenance will cost. Where repository records lack the original motivation, the origin is labeled unknown and only the documented technical problem is evaluated.') ?></p>
+  <p><?= $lang->value('Když existuje hotový nástroj, začínám u něj. Vlastní architekturu stavím jen tehdy, když existující řešení narážejí na limity, nebo když vlastní implementace přináší měřitelnou spolehlivost, bezpečnost a výkon.', 'When an established tool exists, I start with it. I build custom architecture only when existing solutions hit architectural limits, or when custom implementation delivers measurable reliability, security, and performance.') ?></p>
 </section>
 <section class="shell section" data-decision-browser>
   <div class="filter-bar">

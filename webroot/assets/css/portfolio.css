@@ -180,9 +180,16 @@ body[data-language] .hero-pill span {
 }
 body[data-language] .featured-contributions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
   margin-top: 1.8rem;
+  align-items: stretch;
+}
+@media (max-width: 1024px) {
+  body[data-language] .featured-contributions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
 }
 @media (max-width: 640px) {
   body[data-language] .featured-contributions {
@@ -201,9 +208,18 @@ body[data-language] .featured-contribution-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100%;
   min-width: 0;
   max-width: 100%;
   transition: border-color .2s ease, transform .2s ease;
+}
+body[data-language] .featured-contribution-card > div:first-child {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+body[data-language] .featured-contribution-card .code-block {
+  margin-top: auto;
 }
 body[data-language] .featured-contribution-card:hover {
   border-color: var(--lime);
@@ -283,6 +299,10 @@ body[data-language] .preset-buttons {
 body[data-language] .preset-buttons button {
   font-family: var(--mono);
   font-size: .78rem;
+  white-space: normal;
+  text-align: left;
+  max-width: 100%;
+  word-break: break-word;
 }
 
 .workbench-hero {
@@ -467,6 +487,12 @@ body[data-language] .component-figure figcaption span { color: var(--sub); }
 .component-links { display: grid; gap: .2rem; margin-top: .7rem; padding-top: .55rem; border-top: 1px solid var(--stroke); font-size: .78rem; }
 body[data-language] .component-figure :is(.component-links, .component-links span) { color: var(--sub); }
 .component-links a { color: var(--blue); text-decoration: underline; text-underline-offset: .15em; }
+.pipeline-track { display: flex; align-items: center; flex-wrap: wrap; gap: .55rem; margin: 1rem 0; padding: .75rem 1rem; background: #151d31; border: 1px solid var(--stroke); border-radius: 8px; }
+.pipeline-phase { font-family: var(--mono); font-size: .8rem; font-weight: 700; color: var(--blue); background: rgba(144, 189, 237, 0.12); border: 1px solid rgba(144, 189, 237, 0.3); padding: .3rem .65rem; border-radius: 6px; letter-spacing: .02em; }
+.pipeline-arrow { color: var(--sub); font-size: .85rem; user-select: none; }
+.node-meta-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .45rem; }
+.node-badge { font-family: var(--mono); font-size: .7rem; font-weight: 700; color: var(--lime); background: rgba(60, 222, 179, 0.12); border: 1px solid rgba(60, 222, 179, 0.3); padding: .15rem .45rem; border-radius: 4px; letter-spacing: .04em; }
+.node-runtime { font-family: var(--mono); font-size: .72rem; color: var(--blue); background: rgba(144, 189, 237, 0.1); border: 1px solid rgba(144, 189, 237, 0.25); padding: .15rem .45rem; border-radius: 4px; }
 
 body[data-language] :is(.lab-toolbar,.lab-flow-toolbar,.lab-scenarios,.lab-canvas-wrap) { background: #18223b; color: var(--text); border-color: var(--stroke); }
 body[data-language] .lab-content { min-height: 0; }
@@ -702,9 +728,16 @@ body[data-language] .hero-pill span {
 }
 body[data-language] .featured-contributions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
   margin-top: 1.8rem;
+  align-items: stretch;
+}
+@media (max-width: 1024px) {
+  body[data-language] .featured-contributions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
 }
 @media (max-width: 640px) {
   body[data-language] .featured-contributions {
@@ -723,9 +756,18 @@ body[data-language] .featured-contribution-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100%;
   min-width: 0;
   max-width: 100%;
   transition: border-color .2s ease, transform .2s ease;
+}
+body[data-language] .featured-contribution-card > div:first-child {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+body[data-language] .featured-contribution-card .code-block {
+  margin-top: auto;
 }
 body[data-language] .featured-contribution-card:hover {
   border-color: var(--lime);
@@ -805,6 +847,10 @@ body[data-language] .preset-buttons {
 body[data-language] .preset-buttons button {
   font-family: var(--mono);
   font-size: .78rem;
+  white-space: normal;
+  text-align: left;
+  max-width: 100%;
+  word-break: break-word;
 }
 
 .workbench-hero { gap: 1.6rem; }
@@ -898,9 +944,16 @@ body[data-language] .hero-pill span {
 }
 body[data-language] .featured-contributions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.5rem;
   margin-top: 1.8rem;
+  align-items: stretch;
+}
+@media (max-width: 1024px) {
+  body[data-language] .featured-contributions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
 }
 @media (max-width: 640px) {
   body[data-language] .featured-contributions {
@@ -919,9 +972,18 @@ body[data-language] .featured-contribution-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100%;
   min-width: 0;
   max-width: 100%;
   transition: border-color .2s ease, transform .2s ease;
+}
+body[data-language] .featured-contribution-card > div:first-child {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+body[data-language] .featured-contribution-card .code-block {
+  margin-top: auto;
 }
 body[data-language] .featured-contribution-card:hover {
   border-color: var(--lime);
@@ -1001,6 +1063,10 @@ body[data-language] .preset-buttons {
 body[data-language] .preset-buttons button {
   font-family: var(--mono);
   font-size: .78rem;
+  white-space: normal;
+  text-align: left;
+  max-width: 100%;
+  word-break: break-word;
 }
 
 .workbench-hero { grid-template-columns: minmax(0,1fr); padding-block: 2.7rem 2.3rem; }
@@ -1017,6 +1083,9 @@ body[data-language] .preset-buttons button {
   body[data-language] .now-build-entry { grid-template-columns: minmax(0,1fr); }
   body[data-language] .case-evidence { padding: 1rem; }
   .quick-scale fieldset { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  body[data-language] .playground-station { padding: 1rem .6rem; }
+  body[data-language] :is(.station-controls, .station-output, .scale-output) { padding: .75rem; }
+  body[data-language] .preset-buttons button { padding: 5px 8px; font-size: .74rem; }
   .lab-device-grid { padding: .6rem; gap: .5rem; }
   .lab-device { min-height: 104px; }
 }
@@ -1168,6 +1237,25 @@ body[data-language] .anchor-copy-btn.is-copied {
   }
   :root:not([data-theme="dark"]) body[data-language] .component-links a {
     color: var(--blue);
+  }
+  :root:not([data-theme="dark"]) body[data-language] .pipeline-track {
+    background: #f8fafc;
+    border-color: var(--stroke);
+  }
+  :root:not([data-theme="dark"]) body[data-language] .pipeline-phase {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+  }
+  :root:not([data-theme="dark"]) body[data-language] .node-badge {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: #bbf7d0;
+  }
+  :root:not([data-theme="dark"]) body[data-language] .node-runtime {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
   }
   :root:not([data-theme="dark"]) body[data-language] .case-walkthrough-steps li {
     background: #ffffff;
@@ -1480,6 +1568,25 @@ body[data-language] .anchor-copy-btn.is-copied {
   }
   :root[data-theme="light"] body[data-language] .component-links a {
     color: var(--blue);
+  }
+  :root[data-theme="light"] body[data-language] .pipeline-track {
+    background: #f8fafc;
+    border-color: var(--stroke);
+  }
+  :root[data-theme="light"] body[data-language] .pipeline-phase {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+  }
+  :root[data-theme="light"] body[data-language] .node-badge {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: #bbf7d0;
+  }
+  :root[data-theme="light"] body[data-language] .node-runtime {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
   }
   :root[data-theme="light"] body[data-language] .case-walkthrough-steps li {
     background: #ffffff;

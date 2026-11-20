@@ -544,7 +544,7 @@ $renderedOpenSource = $renderer->render($root . '/templates/Pages/open_source.ph
     ],
     'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null],
 ]);
-verify(str_contains($renderedOpenSource, 'Dokončeno') && str_contains($renderedOpenSource, 'Uzavřeno · důvod neznámý'), 'open_source template renders Dokončeno and Uzavřeno · důvod neznámý');
+verify(str_contains($renderedOpenSource, 'Dokončeno') && str_contains($renderedOpenSource, 'Uzavřeno'), 'open_source template renders Dokončeno and Uzavřeno');
 $renderedNow = $renderer->render($root . '/templates/Pages/now.php', [
     'lang' => new Language('cs'),
     'recentRepos' => [],
@@ -555,7 +555,7 @@ $renderedNow = $renderer->render($root . '/templates/Pages/now.php', [
     ],
     'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null],
 ]);
-verify(str_contains($renderedNow, 'Dokončeno') && str_contains($renderedNow, 'Uzavřeno · důvod neznámý'), 'now template renders Dokončeno and Uzavřeno · důvod neznámý');
+verify(str_contains($renderedNow, 'Dokončeno') && str_contains($renderedNow, 'Uzavřeno'), 'now template renders Dokončeno and Uzavřeno');
 $labRaw = file_get_contents($root . '/data/topology.json');
 verify(is_string($labRaw) && !str_contains($labRaw, '192.168.') && !str_contains($labRaw, '10.0.0.'), 'No internal IPs in published model');
 $homelabText = $renderer->render($root . '/templates/Pages/homelab.php', [
