@@ -28,7 +28,9 @@ class Parse(HTMLParser):
         if tag in ('a','link','script','img'):
             value=a.get('href' if tag in ('a','link') else 'src')
             if value: self.links.append(value)
-        if tag=='img' and not a.get('alt'): self.errors.append('image missing alternative text')
+        if tag=='img':
+            if not a.get('alt'): self.errors.append('image missing alternative text')
+            if not a.get('width') or not a.get('height'): self.errors.append(f"image {a.get('src')} missing width or height")
         if any(k.lower().startswith('on') for k in a): self.errors.append('inline event handler')
 
 subprocess.run(['php',str(ROOT/'scripts/render-public-preview.php')],cwd=ROOT,check=True)
@@ -95,6 +97,42 @@ for locale in ('cs', 'en'):
             errors.append(f'{locale}: RSS permalink lacks a matching journal anchor')
         if guid is None or guid.get('isPermaLink') != 'true' or guid.text != link:
             errors.append(f'{locale}: RSS GUID does not match its permanent article URL')
+
+# Validate that every journal entry has date, project and primary source link
+class JournalEntryChecker(HTMLParser):
+    def __init__(self, loc):
+        super().__init__()
+        self.loc = loc
+        self.in_entry = False
+        self.current = {}
+        self.entries = []
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == 'article' and 'data-journal-entry' in a:
+            self.in_entry = True
+            self.current = {'id': a.get('id'), 'project': a.get('data-project'), 'has_time': False, 'has_source': False}
+        elif self.in_entry:
+            if tag == 'time' and a.get('datetime'):
+                self.current['has_time'] = True
+            if tag == 'a' and ('target' in a or a.get('href', '').startswith(f'/{self.loc}/projects/')):
+                self.current['has_source'] = True
+    def handle_endtag(self, tag):
+        if tag == 'article' and self.in_entry:
+            self.entries.append(self.current)
+            self.in_entry = False
+
+for locale in ('cs', 'en'):
+    checker = JournalEntryChecker(locale)
+    checker.feed((PAGES / locale / 'journal' / 'index.html').read_text(encoding='utf-8'))
+    if len(checker.entries) < 40:
+        errors.append(f'{locale}: too few journal entries ({len(checker.entries)})')
+    for e in checker.entries:
+        if not e['project']:
+            errors.append(f"{locale} journal entry {e['id']}: missing project")
+        if not e['has_time']:
+            errors.append(f"{locale} journal entry {e['id']}: missing date")
+        if not e['has_source']:
+            errors.append(f"{locale} journal entry {e['id']}: missing primary source link")
 
 if errors:
     print('Rendered HTML audit failed:',*errors,sep='\n - ')

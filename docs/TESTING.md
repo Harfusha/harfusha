@@ -148,3 +148,34 @@ responses. The surrounding test transaction is rolled back after each
 database scenario. The suite never uses credentials or sends live GitHub
 requests. A successful CI run validates this controlled integration, not
 live upstream pagination or a staging import on the target host.
+
+## Lokální omezení: 12 integračních testů vyžadujících aktivní MySQL (Known Local Limitations)
+
+Při spuštění `vendor/bin/phpunit` bez běžící izolované testovací MySQL databáze selhává přesně 12 integračních testů v 5 testovacích třídách z důvodu `MissingDatasourceConfigException` / absence `default` či `test` datasource (což vyžaduje `App\Security\TestDatabaseGuard` pro ochranu před nechtěným zápisem do neověřené databáze). Všechny tyto testy jsou plně ověřeny v dedikovaném CI běhu (Docker/GitHub Actions s disposable MySQL 8.4):
+
+1. **`GithubSnapshotFallbackTest::testFailedGithubCacheReadsNeverResurrectHistoricActivity`**
+   - *Důvod:* Vyžaduje live spojení `test` s tabulkami `github_activity` a `github_public_repos` pro ověření chování při výpadku cache.
+2. **`GithubSnapshotFallbackTest::testUnreadableSyncReceiptNeverResurrectsStaticSelection`**
+   - *Důvod:* Ověřuje, že nečitelné potvrzení synchronizace v DB neobnovuje zastaralý statický výběr.
+3. **`GithubSnapshotFallbackTest::testUncommittedGithubCacheRowsAreNotPublished`**
+   - *Důvod:* Testuje transakční izolaci necommitnutých řádků v MySQL cache tabulkách.
+4. **`GithubSnapshotFallbackTest::testCompletedEmptyGithubSyncOverridesStaticFallback`**
+   - *Důvod:* Vyžaduje DB pro ověření přepsání statického fallbacku prázdným syncem.
+5. **`GithubSyncIntegrationTest::testCompleteMockedPublicImportAtomicallyReplacesBothCaches`**
+   - *Důvod:* Testuje atomické nahrazení tabulek `github_activity` a `github_public_repos` v transakci.
+6. **`GithubSyncIntegrationTest::testPrivateRepoResponsePreservesLastGoodCache`**
+   - *Důvod:* Testuje zachování předchozího stavu v DB při neočekávané privátní odpovědi.
+7. **`GithubSyncIntegrationTest::testOversizedResponseFailsBeforeJsonDecoding`**
+   - *Důvod:* Vyžaduje nakonfigurovanou DB pro inicializaci sync procesu před přijetím HTTP odpovědi.
+8. **`OperationsServiceTest::testCompleteMigratedSchemaPassesTheDatabaseProbe`**
+   - *Důvod:* Dotazuje se na stav migrované databáze v ostrém či testovacím prostředí.
+9. **`OperationsServiceTest::testMissingEditorialMigrationIsNotReportedAsReady`**
+   - *Důvod:* Dotazuje se na migrační ledger `cake_migrations` v live testovací databázi.
+10. **`SyncRunRetentionTest::testOldReceiptsArePrunedWithoutAffectingOtherSources`**
+   - *Důvod:* Testuje promazávání starých záznamů v tabulce `sync_runs` přes SQL dotaz.
+11. **`SyncRunRetentionTest::testShortHistoryIsNotDeleted`**
+    - *Důvod:* Testuje zachování krátké historie v tabulce `sync_runs`.
+12. **`JournalDatabaseReadTest::testInvalidPersistedJournalRowDropsTheEntireDatabaseBatch`**
+    - *Důvod:* Vyžaduje tabulku `journal_entries` v testovacím datasource.
+
+Všech 113 čistě jednotkových PHPUnit testů (899 assertions), 166 kontrol v `tests/standalone.php` i 15 klientských JS testů prochází lokálně bez závislosti na MySQL.

@@ -86,7 +86,11 @@ krsort($activityYears, SORT_NUMERIC);
                     <div>
                         <h3><a href="<?= Html::escape($entryUrl) ?>"><?= Html::escape($lang->value((string)$entry['title_cs'], (string)$entry['title_en'])) ?></a></h3>
                         <?php if ($sourceUrl !== '#'): ?>
-                            <a class="inline-link" href="<?= Html::escape($sourceUrl) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Původní podklad', 'Original source') ?> <span aria-hidden="true">↗</span></a>
+                            <?php if (str_starts_with($sourceUrl, 'http')): ?>
+                                <a class="inline-link" href="<?= Html::escape($sourceUrl) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Původní podklad', 'Original source') ?> <span aria-hidden="true">↗</span></a>
+                            <?php else: ?>
+                                <a class="inline-link" href="<?= $lang->path($sourceUrl) ?>"><?= $lang->value('Případová studie a evidence', 'Case study and evidence') ?> <span aria-hidden="true">↗</span></a>
+                            <?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </li>

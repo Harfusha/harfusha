@@ -47,8 +47,8 @@ foreach ($decisions as $decision) {
       'Why does MutaUI keep using the Mutagen CLI? When is Ansible worth the setup for home services? Open a decision to see what I chose and what the alternatives offered.') ?></p>
 </section>
 <section class="shell decision-principle" aria-label="<?= $lang->value('Pravidlo pro vlastní projekty', 'Rule for custom projects') ?>">
-  <span class="eyebrow"><?= $lang->value('MOJE VÝCHOZÍ VOLBA', 'MY DEFAULT') ?></span>
-  <p><?= $lang->value('Začínám s hotovým nástrojem. Vlastní řešení stavím, když vím, co mi chybí a co mě bude stát údržba.', 'I start with the tool that already exists. I build my own when I can name what is missing and what it will take to maintain.') ?></p>
+  <span class="eyebrow"><?= $lang->value('SOUČASNÉ ROZHODOVACÍ PRAVIDLO', 'PRESENT DECISION RULE') ?></span>
+  <p><?= $lang->value('Začínám s hotovým nástrojem. Vlastní řešení stavím jen tehdy, když vím, co mi chybí a co bude stát údržba. Pokud v repozitáři chybí původní zápis motivace, zůstává důvod vzniku označen jako neznámý a hodnotí se pouze popsaný technický problém.', 'I start with the tool that already exists. I build my own only when I can name what is missing and what maintenance will cost. Where repository records lack the original motivation, the origin is labeled unknown and only the documented technical problem is evaluated.') ?></p>
 </section>
 <section class="shell section" data-decision-browser>
   <div class="filter-bar">
@@ -80,12 +80,14 @@ foreach ($decisions as $decision) {
           <span class="decision-more"><?= $lang->value('Kompromis a podklady', 'Trade-offs and evidence') ?> <span aria-hidden="true">+</span></span>
         </summary>
         <div class="decision-detail">
+          <div><span class="eyebrow">01 / <?= $lang->value('PROBLÉM', 'PROBLEM') ?></span><p><?= Html::escape($decision->context($lang)) ?></p></div>
           <?php if ($alternativePreview !== null): $alternative = $alternativePreview; ?>
-          <div class="decision-alternative"><span class="eyebrow"><?= $lang->value('CO UŽ UMÍ JINÉ ŘEŠENÍ', 'WHAT THE ALTERNATIVE ALREADY DOES') ?></span><p><a href="<?= Html::escape($alternative['url']) ?>" target="_blank" rel="noopener noreferrer"><?= Html::escape($alternative['name']) ?> ↗</a></p><p><?= Html::escape($alternative['summary']) ?></p></div>
-          <div><span class="eyebrow"><?= $lang->value('MEZERA, KTEROU ZKOUŠÍM', 'THE GAP I AM TESTING') ?></span><p><?= Html::escape($alternative['scope']) ?></p></div>
-          <?php else: ?><div><span class="eyebrow">02 / <?= $lang->value('VOLBA', 'CHOICE') ?></span><p><?= Html::escape($decision->choice($lang)) ?></p></div><?php endif; ?>
-          <div><span class="eyebrow"><?= $lang->value('KOMPROMIS', 'TRADE-OFF') ?></span><p><?= Html::escape($decision->tradeoff($lang)) ?></p></div>
-          <div><span class="eyebrow"><?= $lang->value('PODKLADY A STAV OVĚŘENÍ', 'EVIDENCE AND VERIFICATION') ?></span><p><?= Html::escape($decision->evidence($lang)) ?></p></div>
+          <div class="decision-alternative"><span class="eyebrow">02 / <?= $lang->value('REÁLNÁ ALTERNATIVA', 'REAL ALTERNATIVE') ?></span><p><a href="<?= Html::escape($alternative['url']) ?>" target="_blank" rel="noopener noreferrer"><?= Html::escape($alternative['name']) ?> ↗</a> · <?= Html::escape($alternative['summary']) ?></p></div>
+          <?php endif; ?>
+          <div><span class="eyebrow">03 / <?= $lang->value('PODKLADY A EVIDENCE', 'EVIDENCE & SOURCES') ?></span><p><?= Html::escape($decision->evidence($lang)) ?></p></div>
+          <div><span class="eyebrow">04 / <?= $lang->value('VOLBA ARCHITEKTURY', 'ARCHITECTURE CHOICE') ?></span><p><?= Html::escape($decision->choice($lang)) ?></p></div>
+          <div><span class="eyebrow">05 / <?= $lang->value('KOMPROMIS A CENA', 'TRADE-OFF & COST') ?></span><p><?= Html::escape($decision->tradeoff($lang)) ?></p></div>
+          <div><span class="eyebrow">06 / <?= $lang->value('VÝSLEDEK NEBO MEZERA', 'RESULT OR GAP') ?></span><p><?= Html::escape($alternativePreview['scope'] ?? $decision->choice($lang)) ?></p></div>
           <a class="inline-link" href="<?= $lang->path('/projects/'.$decision->project) ?>"><?= $lang->value('Otevřít případovou studii','Read the related case study') ?> ↗</a>
         </div>
       </details>

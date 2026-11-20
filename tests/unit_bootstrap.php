@@ -7,4 +7,10 @@ if (!defined('ROOT')) {
 if (!defined('TMP')) {
     define('TMP', ROOT . '/tmp/');
 }
+if (!defined('LOGS')) {
+    define('LOGS', ROOT . '/logs/');
+}
+if (!defined('CACHE')) {
+    define('CACHE', TMP . 'cache/');
+}
 require_once ROOT . '/vendor/autoload.php';

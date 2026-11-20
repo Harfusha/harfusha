@@ -10,7 +10,7 @@ use App\Support\Language;
         <a class="btn btn-primary" href="<?= $lang->path('/playground#station-scale-check') ?>"><?= $lang->value('Vyzkoušet přepočet měřítka', 'Try the scale calculator') ?> <span aria-hidden="true">↗</span></a>
     </div>
     <figure class="maker-visual">
-        <img src="/assets/img/scale-studio.webp" width="1448" height="1086" alt="<?= $lang->value('Ilustrace oranžového dílu a posuvného měřítka', 'Illustration of an orange part and a caliper') ?>">
+        <img src="/assets/img/scale-studio.webp" width="1448" height="1086" loading="lazy" alt="<?= $lang->value('Ilustrace oranžového dílu a posuvného měřítka', 'Illustration of an orange part and a caliper') ?>">
         <figcaption><?= $lang->value('Referenční délka pomáhá odhadnout rozměry ve stejné rovině.', 'A measured reference helps estimate dimensions in the same plane.') ?></figcaption>
     </figure>
 </section>

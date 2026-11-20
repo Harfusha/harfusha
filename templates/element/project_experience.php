@@ -158,10 +158,10 @@ $storyLayouts = [
    <article class="project-alternatives"><span class="eyebrow"><?= Html::escape($lang->value($labels['alternatives'][0], $labels['alternatives'][1])) ?></span><small class="alternative-date"><?= $lang->value('ověřeno 16. 11. 2026', 'checked 16 Nov 2026') ?></small><ul><?php foreach ($story['alternatives'] as [$name, $url, $copy]): ?><li><a href="<?= Html::escape($url) ?>" target="_blank" rel="noopener noreferrer"><?= Html::escape($name) ?> ↗</a><p><?= Html::escape($copy) ?></p></li><?php endforeach; ?></ul></article>
  </div>
  <?php if ($hasInteractiveModel): ?>
- <aside class="project-lab-link">
+ <div class="project-lab-link">
    <span class="eyebrow"><?= $project->slug === 'tiskov' ? $lang->value('NÁVRHOVÁ SIMULACE', 'PROPOSAL SIMULATION') : $lang->value('INTERAKTIVNÍ MODEL', 'INTERACTIVE MODEL') ?></span>
    <p><?= Html::escape($story['interaction']) ?></p>
    <a class="btn btn-primary btn-sm" href="<?= Html::escape($primaryHref) ?>"><?= Html::escape($primaryText) ?> <span aria-hidden="true">↗</span></a>
- </aside>
+ </div>
  <?php endif; ?>
 </section>

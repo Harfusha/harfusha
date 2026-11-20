@@ -215,13 +215,19 @@
         const active = node.id === selected;
         const alive = up(node.id);
         const inPath = view === 'flows' && currentFlow.path.includes(node.id);
-        const related = view === 'dependencies' && (
-          (selectedNode.depends || []).includes(node.id) || (node.depends || []).includes(selected)
-        );
+        const upstream = (selectedNode.depends || []).includes(node.id);
+        const downstream = (node.depends || []).includes(selected);
+        const related = view === 'dependencies' && (upstream || downstream);
         const detail = view === 'services'
           ? countLabel((node.services || []).length, ['služba', 'služby', 'služeb'], 'services')
           : view === 'dependencies'
-            ? countLabel((node.depends || []).length, ['závislost', 'závislosti', 'závislostí'], 'dependencies')
+            ? active
+              ? local('Vybraný uzel', 'Selected node')
+              : upstream
+                ? local('Vyžadováno uzlem', 'Required by node')
+                : downstream
+                  ? local('Závisí na uzlu', 'Depends on node')
+                  : countLabel((node.depends || []).length, ['závislost', 'závislosti', 'závislostí'], 'dependencies')
             : inPath ? local('Na trase', 'On the route') : (node.tech || []).slice(0, 2).join(' · ') || node.kind;
 
         const button = document.createElement('button');
@@ -259,7 +265,84 @@
       description.textContent = (language === 'en' ? node.description_en : node.description_cs) || '';
       index.textContent = String(nodes.indexOf(node)+1).padStart(2,'0');
       tech.replaceChildren(...(node.tech||[]).map(label => { const e=document.createElement('span');e.textContent=label;return e; }));
-      services.replaceChildren(...(node.services||[]).map(label => {const e=document.createElement('li');e.textContent=label;e.className=up(node.id)?'':'down';return e;}));
+      if (view === 'dependencies') {
+        const depItems = [];
+        const upstreamNodes = nodes.filter(n => (node.depends || []).includes(n.id));
+        const downstreamNodes = nodes.filter(n => (n.depends || []).includes(node.id));
+
+        const upHeader = document.createElement('li');
+        upHeader.className = 'dependency-header';
+        upHeader.innerHTML = `<strong>${local('Vyžaduje (upstream):', 'Requires (upstream):')}</strong>`;
+        depItems.push(upHeader);
+
+        if (upstreamNodes.length === 0) {
+          const none = document.createElement('li');
+          none.className = 'dependency-item-muted';
+          none.textContent = local('— žádné další závislosti v modelu', '— no further dependencies in model');
+          depItems.push(none);
+        } else {
+          upstreamNodes.forEach(un => {
+            const li = document.createElement('li');
+            li.className = 'dependency-item';
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'inline-dep-btn';
+            btn.textContent = `→ ${un.name}`;
+            btn.title = local(`Přepnout na ${un.name}`, `Switch to ${un.name}`);
+            btn.addEventListener('click', () => {
+              selected = un.id;
+              render();
+              devices.querySelector(`[data-lab-node-id="${un.id}"]`)?.focus();
+            });
+            li.append(btn);
+            depItems.push(li);
+          });
+        }
+
+        const downHeader = document.createElement('li');
+        downHeader.className = 'dependency-header';
+        downHeader.innerHTML = `<strong>${local('Závislá zařízení (downstream):', 'Depended on by (downstream):')}</strong>`;
+        depItems.push(downHeader);
+
+        if (downstreamNodes.length === 0) {
+          const none = document.createElement('li');
+          none.className = 'dependency-item-muted';
+          none.textContent = local('— žádná závislá zařízení', '— no dependent devices');
+          depItems.push(none);
+        } else {
+          downstreamNodes.forEach(dn => {
+            const li = document.createElement('li');
+            li.className = 'dependency-item';
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'inline-dep-btn';
+            btn.textContent = `← ${dn.name}`;
+            btn.title = local(`Přepnout na ${dn.name}`, `Switch to ${dn.name}`);
+            btn.addEventListener('click', () => {
+              selected = dn.id;
+              render();
+              devices.querySelector(`[data-lab-node-id="${dn.id}"]`)?.focus();
+            });
+            li.append(btn);
+            depItems.push(li);
+          });
+        }
+
+        const srvHeader = document.createElement('li');
+        srvHeader.className = 'dependency-header';
+        srvHeader.innerHTML = `<strong>${local('Běžící služby na uzlu:', 'Hosted services on node:')}</strong>`;
+        depItems.push(srvHeader);
+        (node.services || []).forEach(label => {
+          const e = document.createElement('li');
+          e.textContent = label;
+          e.className = up(node.id) ? '' : 'down';
+          depItems.push(e);
+        });
+
+        services.replaceChildren(...depItems);
+      } else {
+        services.replaceChildren(...(node.services||[]).map(label => {const e=document.createElement('li');e.textContent=label;e.className=up(node.id)?'':'down';return e;}));
+      }
       const failed = nodes.filter(n=>down.has(n.id)).map(n=>n.name);
       note.textContent = failed.length ? local(`Simulace: nedostupné uzly: ${failed.join(', ')}.`, `Simulation: unavailable nodes: ${failed.join(', ')}.`) : local('Všechny modelované uzly jsou dostupné. Zapni simulaci výpadku a klikni na zařízení.', 'All modeled nodes are available. Enable outage simulation and select a device.');
       if (view === 'flows') {
@@ -522,7 +605,6 @@
         const isStart = cell === start;
         const isGoal = cell === goal;
         button.type = 'button';
-        button.setAttribute('role', 'gridcell');
         button.dataset.routeCell = String(cell);
         button.className = [isStart ? 'is-start' : '', isGoal ? 'is-goal' : '', walls.has(cell) ? 'is-wall' : '', path?.includes(cell) ? 'is-route' : ''].filter(Boolean).join(' ');
         button.setAttribute('aria-pressed', String(walls.has(cell)));

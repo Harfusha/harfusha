@@ -185,12 +185,11 @@ final class PublicContentValidator
         $when = self::string($row, 'published_at', $label, 10, 32);
         self::date($when, $label);
         $link = self::string($row, 'source_url', $label, 0, 255);
+        $validPattern = '~^(?:https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+'
+            . '(?:/[A-Za-z0-9_./%-]+)?|/projects/[a-z0-9-]+)$~D';
         if (
             $link !== ''
-            && preg_match(
-                '~^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_./%-]+)?$~D',
-                $link,
-            ) !== 1
+            && preg_match($validPattern, $link) !== 1
         ) {
             throw new InvalidArgumentException('Unsafe journal source: ' . $label);
         }

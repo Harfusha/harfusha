@@ -47,7 +47,7 @@ $projectLimitations = [
             <?php endif; ?>
         </div>
     </div>
-    <aside class="case-evidence" aria-labelledby="case-evidence-title">
+    <div class="case-evidence" aria-labelledby="case-evidence-title">
         <h2 id="case-evidence-title"><?= Html::escape($caseEvidence) ?></h2>
         <p><?= Html::escape($caseEvidenceCopy) ?></p>
         <?php if (isset($projectLimitations[$project->slug])): ?>
@@ -56,7 +56,7 @@ $projectLimitations = [
             <p><?= Html::escape($projectLimitations[$project->slug]) ?></p>
         </div>
         <?php endif; ?>
-    </aside>
+    </div>
 </section>
 <nav class="shell case-navigation" aria-label="<?= $lang->value('Obsah případové studie', 'On this case study') ?>">
     <a href="#project-overview"><?= $lang->value('Přehled', 'Overview') ?></a>
@@ -105,9 +105,9 @@ if ($sourceVisual !== null):
 </section>
 <?php endif; ?>
 <section class="section shell project-case" id="project-overview" aria-label="<?= $lang->value('Přehled studie', 'Case study overview') ?>"><div class="case-main"><div class="case-block"><h2><?= Html::escape($caseProblem) ?></h2><p><?= Html::escape($project->problem($lang)) ?></p></div><div class="case-block"><h2><?= Html::escape($caseApproach) ?></h2><p><?= Html::escape($project->solution($lang)) ?></p></div><div class="case-block"><h2><?= $lang->value('Hlavní funkce','Key features') ?></h2><ul class="feature-list"><?php foreach ($project->localizedFeatures($lang) as $feature): ?><li><?= Html::escape($feature) ?></li><?php endforeach; ?></ul></div>
-</div><aside class="case-sidebar"><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('TECHNOLOGIE', 'TECH STACK') ?></span><div class="stack-list stack-large"><?php foreach ($project->stack as $tech): ?><span><?= Html::escape($tech) ?></span><?php endforeach; ?></div></div><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('DOSTUPNOST', 'VISIBILITY') ?></span><h3><?= $project->private ? $lang->value('Podklady k projektu','Project materials') : $lang->value('Veřejný repozitář na GitHubu', 'Public GitHub Repository') ?></h3><p><?= $project->private ? $lang->value('Tato stránka shrnuje veřejně sdílené podklady k projektu.', 'This page summarizes the project materials available to the public.') : $lang->value('Zdrojový kód, hlášení a historie změn jsou dostupné na GitHubu.', 'Explore the source, issues and change history on GitHub.') ?></p></div><?php if ($related !== []): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('PROPOJENÉ PROJEKTY','RELATED PROJECTS') ?></span><ul class="service-list"><?php foreach ($related as $item): ?><li><a class="inline-link" href="<?= $lang->path('/projects/'.$item['slug']) ?>"><?= Html::escape($item['name']) ?></a><small> · <?= Html::escape(App\Domain\ProjectConnections::label($item['type'], $lang)) ?></small></li><?php endforeach; ?></ul><a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Prozkoumat celou mapu','Explore whole map') ?> ↗</a></div><?php endif; ?><?php if ($decisions !== []): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('ARCHITEKTURA A KOMPROMISY','ARCHITECTURE & TRADE-OFFS') ?></span>
+</div><div class="case-sidebar"><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('TECHNOLOGIE', 'TECH STACK') ?></span><div class="stack-list stack-large"><?php foreach ($project->stack as $tech): ?><span><?= Html::escape($tech) ?></span><?php endforeach; ?></div></div><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('DOSTUPNOST', 'VISIBILITY') ?></span><h3><?= $project->private ? $lang->value('Podklady k projektu','Project materials') : $lang->value('Veřejný repozitář na GitHubu', 'Public GitHub Repository') ?></h3><p><?= $project->private ? $lang->value('Tato stránka shrnuje veřejně sdílené podklady k projektu.', 'This page summarizes the project materials available to the public.') : $lang->value('Zdrojový kód, hlášení a historie změn jsou dostupné na GitHubu.', 'Explore the source, issues and change history on GitHub.') ?></p></div><?php if ($related !== []): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('PROPOJENÉ PROJEKTY','RELATED PROJECTS') ?></span><ul class="service-list"><?php foreach ($related as $item): ?><li><a class="inline-link" href="<?= $lang->path('/projects/'.$item['slug']) ?>"><?= Html::escape($item['name']) ?></a><small> · <?= Html::escape(App\Domain\ProjectConnections::label($item['type'], $lang)) ?></small></li><?php endforeach; ?></ul><a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Prozkoumat celou mapu','Explore whole map') ?> ↗</a></div><?php endif; ?><?php if ($decisions !== []): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('ARCHITEKTURA A KOMPROMISY','ARCHITECTURE & TRADE-OFFS') ?></span>
 <?php foreach ($decisions as $decision): ?><div class="decision-summary"><h3><?= Html::escape($decision->title($lang)) ?></h3><p><?= Html::escape($decision->choice($lang)) ?></p><p><strong><?= $lang->value("Kompromis: ", "Trade-off: ") ?></strong><?= Html::escape($decision->tradeoff($lang)) ?></p><small><?= Html::escape($decision->evidence($lang)) ?></small></div><?php endforeach; ?>
-<a class="inline-link" href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Všechna technická rozhodnutí','All engineering decisions') ?> ↗</a></div><?php endif; ?></aside></section>
+<a class="inline-link" href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Všechna technická rozhodnutí','All engineering decisions') ?> ↗</a></div><?php endif; ?></div></section>
 
 <?php require dirname(__DIR__) . '/element/project_deepdive.php'; ?>
 <?php require dirname(__DIR__) . '/element/project_example.php'; ?>

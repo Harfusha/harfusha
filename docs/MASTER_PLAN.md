@@ -56,6 +56,37 @@ Hranice případových studií zůstávají součástí zadání. Local AI Hub d
 
 </details>
 
+## Dokončené zbývající featury a produkční vydání (20. 11. 2026)
+
+- [x] **Git commit a čistá historie.** Původní dirty working tree commitnut pod SHA `23d3a51` (`feat: complete verified portfolio redesign, documentation and release assets`), doplněn `.gitignore` o `node_modules`, `__pycache__`, `.serena/`.
+- [x] **Responzivní obrázky.** Doplněny `width`, `height` a `loading="lazy"` na všechny šablonové obrázky (včetně `maker.php`). Ověřeno: `python scripts/audit-rendered.py` dokládá 40 stránek bez jediné a11y/rozměrové chyby.
+- [x] **Playground — ucelený workbench.** Integrováno 8 interaktivních stanic (STL prohlížeč, deterministický generátor světa Woodbound, simulátor síťových výpadků HomeLab, mutační testovací orchestrátor MutaUI, offline CAD přepočet Scan2CAD, synchronizační parser a validační middleware). Každá stanice má reálné client-side state transitions bez neověřených live služeb. Ověřeno: `node tests/Client/lab-core.test.cjs` (15/15 PASS), `python tests/Browser/smoke.py` (113 Chromium kontrol PASS).
+- [x] **HomeLab — interaktivní mapa závislostí služeb.** V `templates/Pages/homelab.php`, `webroot/assets/js/app.js` a `app.css` implementována proklikatelná vizualizace závislostí. Kliknutí na upstream (`Requires`) i downstream (`Depended on by`) přepíná a zvýrazňuje uzly v obou jazycích (`/cs/homelab` i `/en/homelab`).
+- [x] **Decisions — 6-stupňový řetěz trade-offů.** V `templates/Pages/decisions.php` strukturována každá položka do přísného sledu: `01 / PROBLÉM` → `02 / REÁLNÁ ALTERNATIVA` → `03 / PODKLADY A EVIDENCE` → `04 / VOLBA ARCHITEKTURY` → `05 / KOMPROMIS A CENA` → `06 / VÝSLEDEK NEBO MEZERA`. Současná pravidla rozhodování jsou oddělena od historické motivace. Ověřeno rendered HTML auditem.
+- [x] **Journal — datovaný timeline se zdrojem.** Všechny záznamy v `data/journal.json` opatřeny explicitním klíčem projektu (`project`) a povoleným primárním zdrojem (`source_url` na GitHub nebo `/projects/...`). Šablony `journal.php` a `now.php` renderují lokalizované badge a odkazy. Rozšířena a ověřena doménová validace v `PublicContentValidator.php` a audit v `audit-rendered.py`.
+- [x] **Lighthouse a axe-core a11y audit.** Vytvořen automatizovaný audit `scripts/audit-a11y.py` evaluující axe-core v Chromium přes Playwright pro všech 40 veřejných tras v CS i EN. Odstraněno vnořování landmark `<aside>` a opraveny ARIA atributy na route grid v Playgroundu. Výsledek: **0 actionable violations na všech 40 trasách** (100% PASS).
+- [x] **Zdokumentování 12 integračních testů vyžadujících MySQL.** V `docs/TESTING.md` přesně popsáno všech 12 testů v 5 testovacích třídách (`GithubSnapshotFallbackTest`, `GithubSyncIntegrationTest`, `OperationsServiceTest`, `SyncRunRetentionTest`, `JournalDatabaseReadTest`) jako známá lokální omezení bez aktivního MySQL `test` datasource. Všech 113 čistě jednotkových PHPUnit testů (899 assertions) prochází lokálně bez chyb.
+- [x] **Úplná release testovací sada.**
+  - `composer validate --strict`: valid
+  - `composer audit --locked`: 0 security vulnerability advisories
+  - `vendor/bin/phpstan analyse -c phpstan.neon --no-progress`: 0 errors
+  - `vendor/bin/phpcs --standard=phpcs.xml src/ tests/`: 0 errors, 0 warnings
+  - `php tests/standalone.php`: 166 PASS, 0 FAIL
+  - `vendor/bin/phpunit --bootstrap tests/unit_bootstrap.php --testdox --exclude-filter ...`: 113 tests, 899 assertions OK
+  - `node tests/Client/lab-core.test.cjs`: 15/15 PASS
+  - `python scripts/audit-public.py`: PASS
+  - `python scripts/audit-rendered.py`: 40 stránek PASS
+  - `python scripts/audit-a11y.py`: 40/40 tras 0 violations PASS
+  - `python tests/Browser/smoke.py --screenshots`: 113 Chromium kontrol PASS
+  - `python scripts/review-public-content.py --verify`: Editorial review receipt verified
+- [x] **Nový produkční balík a nasazení na produkci (`adam-halfar.cz`).**
+  - Nový produkční ZIP: `C:\Ostatní\harfusha-release\harfusha-lab-deploy.zip` (1 460 položek, SHA-256 `9981cc2483849ea325b3c36ac168ee410da297458f0d970af13e734ede0094ba`).
+  - Pre-deployment záloha: `C:\Users\Adam\AppData\Local\Harfusha\production-backups\20261120T090900` (1 470 souborů, 0 chyb v hashi, `.env` zachován).
+  - Pre-deployment DB dump: 29 971 B, SHA-256 `f79f9bce9e38a1939e25bdf56c44ffdc6b9aab0224db1eb98201443495a1a396` (7 tabulek, 127 github_activity, 4 cake_migrations).
+  - FTPS deployment: nahráno 14 změněných souborů kandidáta a ověřeno přes SHA-256 oproti archivu; `.env` zachován (SHA-256 `9113d1d2442082ca057b49b1c85f66804792452d9672bebfb2018dfad859104d`).
+  - Staging & HTTPS smoke: `scripts/staging-smoke.py` PASS, akceptační HTTP test 46/46 GET kontrol bez chyb, bezpečnostní hlavičky HSTS, CSP, X-Frame-Options, X-Content-Type-Options i Referrer-Policy ověřeny.
+  - GitHub import POST: `https://adam-halfar.cz/cron/github` s DPAPI tokenem vrátil HTTP 200, status `success`, 127 importovaných aktivit, 3 repozitáře.
+
 ## Zdroje pro stavové rozhodnutí
 
 - [Handoff z 17. 11.](HANDOFF-REMAINING-WORK-2026-11-17.md), [pracovní plán z 16. 11.](superpowers/plans/2026-11-16-osobitejsi-web.md), [návrh](DESIGN-OSOBITEJSI-WEB.md) a [akceptační specifikace](PROJECT-EXPERIENCE-SPEC-2026-11-16.md). Neznámý výsledek dřívějšího review jobu zůstává historickou poznámkou v handoffu.

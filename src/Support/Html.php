@@ -62,7 +62,15 @@ final class Html
      */
     public static function safeUrl(string $url): string
     {
-        if ($url === '' || preg_match('~^https://(github\.com|www\.github\.com|github\.io)/~i', $url) !== 1) {
+        if ($url === '') {
+            return '#';
+        }
+
+        if (str_starts_with($url, '/') && !str_starts_with($url, '//') && !str_contains($url, '\\')) {
+            return $url;
+        }
+
+        if (preg_match('~^https://(github\.com|www\.github\.com|github\.io)/~i', $url) !== 1) {
             return '#';
         }
 

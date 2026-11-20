@@ -25,7 +25,7 @@ krsort($journalYears, SORT_NUMERIC);
 </section>
 
 <section class="section shell journal-layout" data-journal-filter aria-labelledby="journal-archive-title">
-    <aside class="journal-controls">
+    <div class="journal-controls">
         <h2 id="journal-archive-title"><?= $lang->value('Archiv zápisků', 'Journal archive') ?></h2>
         <label class="journal-search" data-journal-search-control hidden>
             <span><?= $lang->value('Hledat v zápiscích', 'Search entries') ?></span>
@@ -39,7 +39,7 @@ krsort($journalYears, SORT_NUMERIC);
         </div>
         <p class="journal-filter-count" data-journal-count role="status" aria-live="polite" aria-atomic="true"><?= count($journal) ?> <?= $lang->value('zápisků', 'entries') ?></p>
         <a class="inline-link" href="<?= $lang->path('/feed.xml') ?>"><?= $lang->value('Odebírat přes RSS', 'Follow via RSS') ?> <span aria-hidden="true">↗</span></a>
-    </aside>
+    </div>
 
     <div class="journal-timeline">
         <p class="empty-state" data-journal-empty<?= $journal !== [] ? ' hidden' : '' ?>><?= $lang->value('Pro tenhle výběr nejsou žádné zápisky.', 'No entries match this selection.') ?></p>
@@ -48,6 +48,7 @@ krsort($journalYears, SORT_NUMERIC);
             $entryId = JournalFeed::entryId($entry);
             $date = substr((string)($entry['published_at'] ?? ''), 0, 10);
             $category = (string)($entry['category'] ?? '');
+            $projectSlug = (string)($entry['project'] ?? '');
             $category = $lang->code === 'cs' ? match ($category) {
                 'Desktop' => 'Desktopové nástroje',
                 'Games' => 'Hry',
@@ -56,15 +57,22 @@ krsort($journalYears, SORT_NUMERIC);
                 default => $category,
             } : $category;
         ?>
-        <article class="timeline-item" id="<?= Html::escape($entryId) ?>" data-journal-entry data-year="<?= Html::escape(substr($date, 0, 4)) ?>">
+        <article class="timeline-item" id="<?= Html::escape($entryId) ?>" data-journal-entry data-year="<?= Html::escape(substr($date, 0, 4)) ?>" data-project="<?= Html::escape($projectSlug) ?>">
             <header class="journal-entry-meta">
                 <time datetime="<?= Html::escape($date) ?>"><?= Html::escape($date) ?></time>
+                <?php if ($projectSlug !== '' && $projectSlug !== 'open-source'): ?>
+                <a class="journal-project-tag" href="<?= $lang->path('/projects/' . $projectSlug) ?>"><?= Html::escape($projectSlug) ?> ↗</a>
+                <?php endif; ?>
                 <span class="category"><?= Html::escape($category) ?></span>
             </header>
             <h3><a href="#<?= Html::escape($entryId) ?>"><?= Html::escape((string)$entry['title_' . $lang->code]) ?></a></h3>
             <p><?= Html::escape((string)$entry['body_' . $lang->code]) ?></p>
             <?php if ($source !== '#'): ?>
-            <a class="inline-link" href="<?= Html::escape($source) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Původní podklad', 'Original source') ?> <span aria-hidden="true">↗</span></a>
+                <?php if (str_starts_with($source, 'http')): ?>
+                <a class="inline-link" href="<?= Html::escape($source) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Původní podklad', 'Original source') ?> <span aria-hidden="true">↗</span></a>
+                <?php else: ?>
+                <a class="inline-link" href="<?= $lang->path($source) ?>"><?= $lang->value('Doloženo v případové studii', 'Documented in case study') ?> <span aria-hidden="true">↗</span></a>
+                <?php endif; ?>
             <?php endif; ?>
         </article>
         <?php endforeach; ?>
