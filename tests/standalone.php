@@ -102,12 +102,22 @@ try {
 }
 try {
     PublicContentValidator::validate('topology.json', [[
-      'id' => 'a','name' => 'A','kind' => 'compute','description_cs' => 'test',
-      'description_en' => 'test','tech' => [],'services' => [],'depends' => [],
+      'id' => 'a','name' => 'A','name_cs' => 'A','kind' => 'compute','description_cs' => 'test',
+      'description_en' => 'test','tech' => [],'tech_cs' => [],'services' => [],'services_cs' => [],'depends' => [],
     ]]);
     verify(false, 'Missing diagram coordinate validation');
 } catch (InvalidArgumentException) {
     verify(true, 'Missing diagram coordinate validation');
+}
+try {
+    PublicContentValidator::validate('topology.json', [[
+      'id' => 'a','name' => 'A','name_cs' => 'A','kind' => 'compute','x' => 0,'y' => 0,
+      'description_cs' => 'test','description_en' => 'test','tech' => [],'tech_cs' => [],
+      'services' => ['Web'],'services_cs' => [],'depends' => [],
+    ]]);
+    verify(false, 'Topology locale label parity validation');
+} catch (InvalidArgumentException) {
+    verify(true, 'Topology locale label parity validation');
 }
 $sampleHash = password_hash('  test password  ', PASSWORD_DEFAULT);
 verify(AdminCredentials::verify('  test password  ', $sampleHash), 'Admin password retains significant whitespace');
@@ -521,8 +531,7 @@ $fixtures = [
     'decisions' => ['decisions' => $catalog->decisions()],
     'project' => ['project' => $projects[0], 'related' => [], 'decisions' => array_values(array_filter($catalog->decisions(), static fn($item): bool => $item->project === $projects[0]->slug))],
     'homelab' => ['nodes' => $nodes, 'flows' => $catalog->flows()],
-    'maker' => ['items' => $catalog->maker()],
-    'playground' => ['projects' => $projects],
+    'maker' => [],
     'open-source' => ['activity' => $catalog->contributions(),
         'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null]],
     'journal' => ['journal' => $catalog->journal()],

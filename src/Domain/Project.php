@@ -103,7 +103,10 @@ final readonly class Project
     {
         return match ($this->status) {
             'active' => $lang->value('Aktivní', 'Active'),
+            'beta' => $lang->value('Beta', 'Beta'),
             'prototype' => $lang->value('Prototyp', 'Prototype'),
+            'proposal' => $lang->value('Návrh', 'Proposal'),
+            'record' => $lang->value('Provozní záznam', 'Operations record'),
             'maintenance' => $lang->value('Údržba', 'Maintenance'),
             'archived' => $lang->value('Archiv', 'Archived'),
             default => $this->status,

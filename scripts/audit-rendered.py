@@ -10,6 +10,8 @@ from xml.etree import ElementTree
 import subprocess
 import sys
 import os
+import re
+import json
 
 ROOT=Path(__file__).resolve().parents[1]
 PAGES=Path(os.environ.get('HAFRUSHA_PREVIEW_DIR', str(ROOT/'tmp/public-preview')))
@@ -37,13 +39,112 @@ subprocess.run(['php',str(ROOT/'scripts/render-public-preview.php')],cwd=ROOT,ch
 htmls=sorted(PAGES.glob('cs/**/*.html'))+sorted(PAGES.glob('en/**/*.html'))
 errors=[]
 rendered_pages=[]
-if len(htmls)<40: errors.append('Too few generated pages')
+system_controller=(ROOT/'src/Controller/SystemController.php').read_text(encoding='utf-8')
+for stale_sitemap_image in ('/assets/img/scale-studio.webp', '/assets/img/tiskov-bambu-lab-a1.webp'):
+    if stale_sitemap_image in system_controller:
+        errors.append(f'sitemap still advertises a non-evidence image: {stale_sitemap_image}')
+if re.search(r"\$lastmods\[['\"][^'\"]+['\"]\]\s*=\s*['\"]\d{4}-\d{2}-\d{2}['\"]", system_controller):
+    errors.append('sitemap contains a hard-coded last-modified date')
+if len(htmls)<38: errors.append('Too few generated pages')
 for html in htmls:
     parser=Parse()
     content=html.read_text(encoding='utf-8')
     parser.feed(content)
     rendered_pages.append((html,parser))
     rel=html.relative_to(PAGES)
+    if rel in (Path('cs/projects/discord-bot/index.html'), Path('en/projects/discord-bot/index.html')):
+        stale_copy = (
+            'Témata v dostupném popisu', 'Topics in the available description',
+            'Command names and permission rules are unavailable',
+            'Názvy příkazů a pravidla oprávnění nejsou dostupné',
+            'Katalogový záznam o Node.js botovi', 'A catalog record for a Node.js Discord bot',
+            'Co uvádí katalog', 'What the catalog records',
+            'Katalog uvádí aplikační příkazy', 'Catalog lists application commands',
+        )
+        for phrase in stale_copy:
+            if phrase in content:
+                errors.append(f'{rel}: stale source-unavailable filler remains: {phrase}')
+        required_copy = (
+            ('Ansible spravuje samostatný checkout', 'vyhrazeným neprivilegovaným účtem')
+            if rel.parts[0] == 'cs' else
+            ('Ansible manages a separate checkout', 'unprivileged account')
+        )
+        for phrase in required_copy:
+            if phrase not in content:
+                errors.append(f'{rel}: missing verified operations detail: {phrase}')
+    if rel in (Path('cs/projects/scan2cad/index.html'), Path('en/projects/scan2cad/index.html')):
+        repeated_disclaimers = (
+            'not a physical measurement or certification',
+            'fyzické měření ani certifikaci',
+            'validation has not run in this capture',
+            'validace v tomto snímku neproběhla',
+        )
+        for phrase in repeated_disclaimers:
+            if phrase in content:
+                errors.append(f'{rel}: repeated screenshot disclaimer remains: {phrase}')
+    if rel in (Path('cs/homelab/index.html'), Path('en/homelab/index.html')):
+        match=re.search(r'<script[^>]+id="topology-data"[^>]*>(.*?)</script>',content,re.DOTALL)
+        if not match:
+            errors.append(f'{rel}: missing localized topology data')
+        else:
+            try:
+                nodes=json.loads(match.group(1))
+            except json.JSONDecodeError as exc:
+                errors.append(f'{rel}: invalid topology data: {exc}')
+                nodes=[]
+            if rel.parts[0]=='cs':
+                labels={node['name'] for node in nodes}
+                labels.update(label for node in nodes for label in node['tech']+node['services'])
+                required={'MikroTik router','NAS QNAP','Testovací server Proxmox','Tiskový uzel Pi Zero','Lokální zařízení','VPN brána','Směrování','Sdílené soubory','Zálohy','Snímky','Síťový tisk','Vývojářská stanice'}
+                untranslated={'VPN gateway','Routing','File storage','Backups','Test VMs','Network printing','Dev workstation','Snapshots','Proxmox Lab','Pi Zero Print','Local Clients'}
+                if not required <= labels:
+                    errors.append(f'{rel}: missing Czech topology labels {sorted(required-labels)}')
+                if untranslated & labels:
+                    errors.append(f'{rel}: untranslated topology labels {sorted(untranslated & labels)}')
+            else:
+                labels={node['name'] for node in nodes}
+                labels.update(label for node in nodes for label in node['tech']+node['services'])
+                required={'MikroTik Router','QNAP NAS','Proxmox Lab','Pi Zero Print','Local Clients','VPN gateway','Routing','File storage','Backups','Test VMs','Network printing','Dev workstation','Snapshots'}
+                if not required <= labels:
+                    errors.append(f'{rel}: missing English topology labels {sorted(required-labels)}')
+    actual_title = re.search(r'<title>(.*?)</title>', content, re.IGNORECASE | re.DOTALL)
+    if actual_title is None or actual_title.group(1).strip() == 'Harfusha Lab':
+        errors.append(f'{rel}: missing specific page title')
+    meta_description = re.search(r'<meta name="description" content="([^"]*)"', content, re.IGNORECASE)
+    if meta_description is None or meta_description.group(1).strip() == 'Offline view smoke preview':
+        errors.append(f'{rel}: missing page-specific search description')
+    elif len(rel.parts) == 4 and rel.parts[1] == 'projects':
+        project_name = re.search(r'<h1[^>]*>(.*?)</h1>', content, re.IGNORECASE | re.DOTALL)
+        expected_title = f'{project_name.group(1).strip()} | Harfusha Lab' if project_name else ''
+        if actual_title.group(1).strip() != expected_title:
+            errors.append(f'{rel}: expected project title {expected_title!r}')
+    if rel in (Path('cs/index.html'), Path('en/index.html')):
+        if 'home-network-story' in content:
+            errors.append(f'{rel}: redundant home-network callout remains on the homepage')
+        stale_home_headings = ('Programuju backendy v PHP a nástroje pro vývojáře', 'I build PHP backends and tools for developers')
+        for phrase in stale_home_headings:
+            if phrase in content:
+                errors.append(f'{rel}: stale generic homepage headline remains: {phrase}')
+        expected_home_heading = 'Navrhuju backendové systémy, nástroje pro vývojáře a automatizaci.' if rel.parts[0] == 'cs' else 'I build backend systems, developer tools and automation.'
+        if expected_home_heading not in content:
+            errors.append(f'{rel}: missing specific homepage headline: {expected_home_heading}')
+    if rel in (Path('cs/projects/scan2cad/index.html'), Path('en/projects/scan2cad/index.html')) and 'data-project-source-image' in content:
+        errors.append(f'{rel}: unverified Scan2CAD interface mockup remains presented as project evidence')
+    if rel in (Path('cs/projects/tiskov/index.html'), Path('en/projects/tiskov/index.html')):
+        if 'data-project-source-image' in content or 'tiskov-bambu-lab-a1' in content:
+            errors.append(f'{rel}: concept graphic is presented as product evidence')
+        if 'property="og:image"' in content or 'name="twitter:image"' in content:
+            errors.append(f'{rel}: unverified proposal graphic is exposed as a social preview')
+    if rel.parts[1:3] == ('projects', 'scan2cad') and ('class="feature-list"' in content or 'ARCHITECTURE &amp; TRADE-OFFS' in content or 'ARCHITEKTURA A KOMPROMISY' in content):
+        errors.append(f'{rel}: repeated Scan2CAD workflow detail remains on the case-study page')
+    if rel.parts[1:3] == ('projects', 'tiskov') and ('class="feature-list"' in content or 'ARCHITECTURE &amp; TRADE-OFFS' in content or 'ARCHITEKTURA A KOMPROMISY' in content):
+        errors.append(f'{rel}: repeated Tiskov proposal detail remains on the case-study page')
+    if rel in (Path('cs/maker/index.html'), Path('en/maker/index.html')):
+        if '<ol' in content or 'maker-project-grid' not in content:
+            errors.append(f'{rel}: separate 3D projects are still presented as a sequential workflow')
+        expected_title = '3D skeny a příprava tisku | Harfusha' if rel.parts[0] == 'cs' else '3D Scanning and Print Preparation | Harfusha'
+        if actual_title is None or actual_title.group(1).strip() != expected_title:
+            errors.append(f'{rel}: expected maker page title {expected_title!r}')
     if parser.h1!=1: errors.append(f'{rel}: expected one H1, got {parser.h1}')
     if len(set(parser.ids))!=len(parser.ids): errors.append(f'{rel}: duplicated HTML IDs')
     if '<script>alert' in content: errors.append(f'{rel}: unescaped HTML')

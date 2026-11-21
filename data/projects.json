@@ -7,13 +7,13 @@
         "featured": true,
         "private": false,
         "repo": "https://github.com/Harfusha/local-ai-hub",
-        "demo": "ai",
-        "summary_cs": "Architektura lokálního MCP serveru pro vývojové agenty. Poskytuje AST indexaci repozitáře, adaptivní kompresi kontextu a asynchronní token ledger.",
-        "summary_en": "Local MCP server architecture for AI coding agents. Provides AST code indexing, adaptive context compaction, and an asynchronous token ledger.",
-        "problem_cs": "Vývojoví agenti plýtvají tokeny i latencí při opakovaném hledání souborů a symbolů v repozitáři. Procházení velkých kódových bází navíc naráží na limity kontextového okna LLM.",
-        "problem_en": "Coding agents burn excessive tokens and latency performing repetitive scans for files and symbols across large codebases, rapidly exhausting context windows.",
-        "solution_cs": "Hub implementuje protokol MCP s adaptivní AST indexací a token economizerem. Asynchronní SQLite ledger uchovává stav úloh a ověření bez nutnosti opakovaného parsování zdrojového kódu.",
-        "solution_en": "Hub exposes an MCP protocol interface backed by AST symbol indexing and a token economizer. An asynchronous SQLite ledger maintains task states and evidence without re-parsing source trees.",
+        "demo": "",
+        "summary_cs": "MCP server pro vývojové agenty. Nejdřív hledá v indexu repozitáře, pak vrací dohledatelné úseky zdrojového kódu.",
+        "summary_en": "An MCP server for coding agents. It searches repository indexes first, then returns traceable source excerpts.",
+        "problem_cs": "Při otázce ke kódu potřebuje agent najít správný soubor a symbol, ne znovu procházet celý repozitář.",
+        "problem_en": "When answering a code question, an agent needs the relevant file and symbol before scanning the whole repository again.",
+        "solution_cs": "Hub nejdřív hledá v indexu a vrací přesné zdrojové výřezy. Sémantické hledání nebo lokální model použije až tehdy, když je potřeba širší kontext.",
+        "solution_en": "The Hub starts with indexed, deterministic queries. Semantic retrieval and a local model are optional follow-up steps.",
         "stack": [
             "Python",
             "MCP",
@@ -25,14 +25,14 @@
             "Idempotent registration and asynchronous preprocessing",
             "Built-in code index and exact source slices",
             "Deterministic search, with optional Serena and RAG",
-            "Tasks, memory, coordination and verification evidence",
+            "Tasks, memory, coordination and traceable verification records",
             "Local inference is optional and depends on its backend"
         ],
         "features_cs": [
-            "Jednorázová registrace a asynchronní preprocessing",
-            "Vestavěný code index a přesné zdrojové výřezy",
-            "Deterministické hledání, případně Serena a RAG",
-            "Úlohy, paměť, koordinace a ověřovací evidence",
+            "Idempotentní registrace a asynchronní předzpracování",
+            "Index symbolů a dohledatelné zdrojové výřezy",
+            "Deterministické hledání; Serena a RAG jako volitelné cesty",
+            "Úlohy, paměť, koordinace a ověřovací podklady",
             "Lokální inference je volitelná a závisí na backendu"
         ],
         "year": "2026"
@@ -45,13 +45,13 @@
         "featured": true,
         "private": false,
         "repo": "https://github.com/Harfusha/MutaUI",
-        "demo": "sync",
-        "summary_cs": "Desktopový správce synchronizace a přesměrování portů postavený nad Mutagen CLI. Nabízí přehled relací, diagnostiku stavu a bezpečné řešení souběžných konfliktů.",
-        "summary_en": "Desktop session and port-forwarding orchestrator built on top of Mutagen CLI. Real-time session monitoring, diagnostics, and safe concurrent conflict resolution.",
-        "problem_cs": "Správa desítek souběžných synchronizačních relací a SSH port-forwardů v příkazové řádce postrádá vizuální přehled stavu sítě, využití paměti a konfliktů v reálném čase.",
-        "problem_en": "Managing dozens of concurrent sync sessions and SSH tunnels via CLI lacks real-time visibility into network latency, memory usage, and bidirectional sync conflicts.",
-        "solution_cs": "MutaUI v PySide6/Qt orchestruje Mutagen daemon v asynchronním subprocesu. Integrovaný algoritmus detekce konfliktů vizualizuje obousměrné změny před jejich aplikací na disk.",
-        "solution_en": "MutaUI in PySide6/Qt orchestrates the Mutagen daemon through an asynchronous subprocess. Integrated conflict detection visualizes bidirectional file diffs before applying changes to disk.",
+        "demo": "",
+        "summary_cs": "Desktopová aplikace pro správu synchronizace a přesměrování portů přes Mutagen.",
+        "summary_en": "A desktop app for managing Mutagen sync and port-forwarding sessions.",
+        "problem_cs": "Při více relacích se v příkazové řádce hůř pozná, které běží a které vyžadují pozornost.",
+        "problem_en": "With several sessions open, the CLI makes it hard to see which are running and which need attention.",
+        "solution_cs": "MutaUI soustředí stav relací, nastavení a diagnostiku démona do jednoho okna. Přenos dat zajišťuje Mutagen.",
+        "solution_en": "MutaUI brings session status, settings and daemon diagnostics into one window. Mutagen handles data transfer.",
         "stack": [
             "Python",
             "PySide6",
@@ -60,14 +60,14 @@
             "PyInstaller"
         ],
         "features": [
-            "Sync and forwarding session overview",
-            "New-session configuration through Mutagen CLI",
+            "Overview of sync and port-forwarding sessions",
+            "Create and configure sessions through Mutagen CLI",
             "Local daemon status and diagnostics",
             "Multi-platform packages; native support is verified separately"
         ],
         "features_cs": [
-            "Přehled synchronizačních a forwarding relací",
-            "Konfigurace nových relací nad Mutagen CLI",
+            "Přehled synchronizačních relací a přesměrování portů",
+            "Vytváření a nastavení relací přes Mutagen CLI",
             "Diagnostika stavu lokálního démona",
             "Balíčky pro více platforem; nativní podpora se ověřuje zvlášť"
         ],
@@ -82,12 +82,12 @@
         "private": true,
         "repo": "",
         "demo": "homelab",
-        "summary_cs": "Plně automatizovaný GitOps homelab. Síťové služby, WireGuard mesh, zálohování Restic a virtualizace Proxmox spravované přes Ansible playbooky.",
-        "summary_en": "Fully automated GitOps homelab. Network infrastructure, WireGuard mesh, Restic backups, and Proxmox virtualization managed via Ansible playbooks.",
-        "problem_cs": "Manuální správa víceúčelového hardware (RouterOS, Raspberry Pi klastr, QNAP NAS) vede ke konfiguračnímu driftu, nejasným síťovým závislostem a složité obnově po havárii.",
-        "problem_en": "Manual administration across multi-node hardware (RouterOS, Raspberry Pi nodes, QNAP NAS) causes configuration drift and fragile disaster recovery.",
-        "solution_cs": "Veškerá konfigurace je verzována v Gitu a nasazována přes Ansible a Semaphore UI. Síťová segmentace VLAN, DNS filtering přes Unbound a šifrované zálohy do QNAP přes SMB3/Restic.",
-        "solution_en": "All infrastructure configurations are tracked in Git and applied via Ansible and Semaphore UI. Features VLAN network isolation, Unbound DNS filtering, and encrypted Restic backups over SMB3.",
+        "summary_cs": "Přehled zařízení, služeb a jejich závislostí v domácí síti.",
+        "summary_en": "A view of devices, services and dependencies in a home network.",
+        "problem_cs": "Když služba závisí na jiném hostu, jeho výpadek může přerušit její cestu, i když ostatní zařízení dál běží.",
+        "problem_en": "When a service depends on another host, an outage can break its path even while other devices keep running.",
+        "solution_cs": "Ansible spravuje konfiguraci a Semaphore spouští úlohy. Mapa shrnuje vybrané hosty a závislosti jejich služeb.",
+        "solution_en": "Ansible manages configuration and Semaphore runs the jobs. The map summarizes selected hosts and service dependencies.",
         "stack": [
             "Ansible",
             "Python",
@@ -100,15 +100,15 @@
             "Versioned configuration and changes in Git",
             "Ansible jobs run through Semaphore",
             "Pi-hole, Unbound, Jellyfin and BookStack on the primary node",
-            "CUPS print server and NAS backups",
-            "Separate network roles and a Proxmox test host"
+            "CUPS print service and NAS backup storage",
+            "A separate print branch and an on-demand Proxmox test host"
         ],
         "features_cs": [
             "Konfigurace a změny verzované v Gitu",
             "Ansible úlohy spouštěné přes Semaphore",
             "Pi-hole, Unbound, Jellyfin a BookStack na hlavním uzlu",
-            "CUPS tiskový server a NAS zálohy",
-            "Oddělené síťové role a Proxmox testovací host"
+            "Tisková služba CUPS a zálohy na NAS",
+            "Samostatná tisková větev a testovací host Proxmox spouštěný podle potřeby"
         ],
         "year": "2026"
     },
@@ -120,13 +120,13 @@
         "featured": false,
         "private": true,
         "repo": "",
-        "demo": "world",
-        "summary_cs": "Procedurální generování terénu a A* pathfinding nad topologickou mřížkou. Dvacetietapový pipeline v C# pro modelování reliéfu a průchodnosti krajiny.",
-        "summary_en": "Procedural terrain synthesis and A* pathfinding on a topological grid. Twenty-stage C# generation pipeline for terrain modeling and traversability.",
-        "problem_cs": "Náhodné generování herního světa často vytváří neprůchodné překážky, které znemožňují realistické trasování infrastruktury a logistických koridorů.",
-        "problem_en": "Naive procedural world generation often produces impassable terrain anomalies, breaking logistics corridors and realistic infrastructure placement.",
-        "solution_cs": "Generátor využívá 20 deterministických fází s výpočtem hydrografie a sklonu svahů. Algoritmus A* dynamicky penalizuje mokřady a strmá stoupání, což zaručuje sjízdnost vytyčených tras.",
-        "solution_en": "The generator applies 20 deterministic pipeline stages computing watershed networks and slope gradients. An A* solver weights wetlands and slopes to ensure traversable corridors.",
+        "demo": "",
+        "summary_cs": "Prototyp v Unity, který spojuje generování terénu, vody a oblastí s plánováním tras pro lesnickou logistiku.",
+        "summary_en": "A Unity prototype for forestry logistics, combining terrain, waterways, regions and route planning.",
+        "problem_cs": "Terén, voda, průmyslové provozy a trasy musí tvořit svět, kterým lze projet. Samostatné generování vrstev to nezaručí.",
+        "problem_en": "Terrain, water, industrial sites and routes must form a traversable world. Generating each layer separately does not guarantee that.",
+        "solution_cs": "Generovací fáze propojují validátory, které kontrolují návaznost vrstev ve vygenerovaném světě.",
+        "solution_en": "Generation stages are connected by validators that check how the layers fit together in a candidate world.",
         "stack": [
             "C#",
             "Unity",
@@ -141,8 +141,8 @@
         ],
         "features_cs": [
             "Čtyři pojmenované oblasti a říční síť",
-            "Dvacet uspořádaných generovacích modulů",
-            "Výškový, biome a trasovací solver",
+            "Dvacet modulů řazených podle postupu generování",
+            "Výpočet výšky terénu, biomů a tras",
             "Validace pevniny, bodů a prostorových bariér"
         ],
         "year": "2026"
@@ -151,17 +151,17 @@
         "slug": "scan2cad",
         "name": "Scan2CAD Studio",
         "category": "3D & Engineering",
-        "status": "prototype",
+        "status": "beta",
         "featured": false,
         "private": true,
         "repo": "",
-        "demo": "cad",
-        "summary_cs": "Extrakce parametrické CAD geometrie ze 3D skenů a referenčních snímků. Transformace mračna bodů na formáty STEP a DXF s metrologickou kalibrací.",
-        "summary_en": "Parametric CAD geometry reconstruction from 3D scans and reference imagery. Point cloud conversion to STEP and DXF formats with metrology calibration.",
-        "problem_cs": "Surové 3D skeny obsahují šum a postrádají přesné rozměrové měřítko, což brání jejich přímému využití ve strojírenském modelování a výrobě.",
-        "problem_en": "Raw 3D scan meshes contain sensor noise and lack physical dimensional scaling, preventing direct use in precision engineering CAD workflows.",
-        "solution_cs": "Algoritmus kalibruje měřítko podle známé fyzické reference a páruje hrany z referenčních fotografií. Výstupem je parametrický STEP model s vyčíslenou tolerancí odchylky.",
-        "solution_en": "Calibrates spatial scaling against a known physical reference and aligns geometric feature edges from photos, generating valid STEP models with quantified dimensional tolerances.",
+        "demo": "",
+        "summary_cs": "Beta aplikace provází rekonstrukci parametrického CAD modelu z 3D skenu. Před geometrií vyžaduje potvrdit měřítko.",
+        "summary_en": "A beta app guides parametric CAD reconstruction from 3D scans. Scale must be confirmed before geometry work.",
+        "problem_cs": "Sken zachycuje povrch v soustavě snímače. Bez fyzické reference neznáme jeho měřítko a samotná síť trojúhelníků ještě není upravitelný parametrický CAD model.",
+        "problem_en": "A scan captures a surface in the scanner's coordinate frame. Without a physical reference its scale is unknown, and a triangle mesh alone is not an editable parametric CAD model.",
+        "solution_cs": "Studio přijímá PLY, OBJ a STL, vyžaduje potvrdit měřítko a vede rekonstrukci modelu. Exportuje STEP, DXF a JSON; STEP může obsahovat otevřenou nebo triangulovanou geometrii.",
+        "solution_en": "Studio accepts PLY, OBJ and STL, requires scale confirmation and guides CAD reconstruction. It exports STEP, DXF and JSON; a STEP file may contain open or tessellated geometry.",
         "stack": [
             "Python",
             "MCP",
@@ -169,16 +169,14 @@
             "WebGL"
         ],
         "features": [
-            "PLY, OBJ and STL inputs",
-            "Scale confirmation and geometry review",
-            "Photo control points and a user-approved camera estimate",
-            "STEP/DXF candidate, validation report and uncertainty"
+            "Imports PLY, OBJ and STL scans and requires a scale confirmed against a physical reference",
+            "Photo-to-scan projection uses an explicitly reviewed camera estimate",
+            "Produces CAD candidates with STEP, DXF and JSON exports"
         ],
         "features_cs": [
-            "Vstupy PLY, OBJ a STL",
-            "Potvrzení měřítka a kontrola geometrie",
-            "Fotografické referenční body a schvalovaný odhad kamery",
-            "STEP/DXF kandidát, validační zpráva a nejistoty"
+            "Import skenů PLY, OBJ a STL; měřítko se potvrzuje podle fyzické reference",
+            "Promítnutí fotografie na sken vyžaduje výslovnou kontrolu odhadu kamery",
+            "Příprava CAD modelů a export STEP, DXF a JSON"
         ],
         "year": "2026"
     },
@@ -186,32 +184,32 @@
         "slug": "tiskov",
         "name": "Tiskov",
         "category": "Web Applications",
-        "status": "prototype",
+        "status": "proposal",
         "featured": false,
         "private": true,
         "repo": "",
         "demo": "",
-        "summary_cs": "Architektura distribuované fronty pro 3D tisk na Bambu Lab A1. Asynchronní stavový automat oddělující příjem zakázek od výpočetního slicování na workeru.",
-        "summary_en": "Distributed 3D printing queue architecture for Bambu Lab A1. Asynchronous state machine decoupling job intake from worker node slicing.",
-        "problem_cs": "Výpočet geometrie a slicování 3D modelů vytěžuje CPU a blokuje webové rozhraní při souběžném nahrávání zakázek více uživateli.",
-        "problem_en": "Geometric model analysis and slicing saturate CPU cores, causing web request timeouts when multiple users submit 3D models simultaneously.",
-        "solution_cs": "Symfony backend ukládá úlohy do transakční fronty v MySQL. Specializovaný worker na Raspberry Pi asynchronně analyzuje STL geometrii a aktualizuje stavový automat.",
-        "solution_en": "Symfony backend ingests jobs into a transactional MySQL queue. A dedicated Raspberry Pi worker asynchronously parses STL mesh geometry and transitions state machines.",
+        "summary_cs": "Návrh lokální služby, která odděluje příjem poptávky na 3D tisk od jejího zpracování.",
+        "summary_en": "A proposal for a local service that separates 3D-print request intake from processing.",
+        "problem_cs": "Analýza modelu a příprava tisku mohou trvat déle než přijetí poptávky. Formulář proto nemá čekat, až samostatný pracovní proces model zpracuje.",
+        "problem_en": "Model analysis and slicing can take longer than request intake. The form should not have to wait for the worker to finish.",
+        "solution_cs": "Návrh počítá s tím, že se přijaté zakázky uloží do fronty a později je zpracuje samostatný pracovní proces.",
+        "solution_en": "The proposal would queue accepted jobs for processing by a separate worker.",
         "stack": [
             "Symfony",
             "MySQL",
-            "Raspberry Pi Worker",
+            "Raspberry Pi",
             "Bambu Lab API"
         ],
         "features": [
-            "Asynchronous job intake and state machine transitions",
-            "Dedicated Raspberry Pi worker node for mesh slicing",
-            "Automated dimensional verification and print estimation"
+            "Proposed asynchronous intake and job states",
+            "Proposed worker for model slicing",
+            "Planned dimensional checks and print estimates"
         ],
         "features_cs": [
-            "Asynchronní příjem zakázek a přechody stavového automatu",
-            "Samostatný Raspberry Pi worker pro slicování STL modelů",
-            "Automatická rozměrová kontrola a odhad doby tisku"
+            "Navržený asynchronní příjem a stavy zakázky",
+            "Navržený pracovní proces pro slicování modelů",
+            "Plánovaná kontrola rozměrů a odhad tisku"
         ],
         "year": "2026"
     },
@@ -224,12 +222,12 @@
         "private": true,
         "repo": "",
         "demo": "",
-        "summary_cs": "Distribuovaná synchronizace společné hudební fronty s optimistickým zamykáním. Řešení souběžných úprav a oprávnění při ovládání sdíleného přehrávání.",
-        "summary_en": "Distributed playback queue synchronization featuring optimistic concurrency control. Manages simultaneous user submissions and role-based permissions.",
-        "problem_cs": "Při souběžném hlasování a přidávání skladeb více uživateli dochází k race conditions a přepisování fronty v důsledku síťové latence.",
-        "problem_en": "Concurrent voting and playlist reordering by multiple users produce race conditions and state overrides due to variable mobile network latency.",
-        "solution_cs": "Aplikace využívá verzi fronty a idempotenci požadavků pro detekci konfliktů. Při detekci zastaralého stavu systém odmítne přepsání a vynutí rekonciliaci stavu přehrávače.",
-        "solution_en": "Employs queue version increments and idempotency keys to detect concurrent write conflicts, rejecting stale updates and reconciling playback state cleanly.",
+        "summary_cs": "Prototyp sdílené fronty skladeb pro soukromé poslechové místnosti.",
+        "summary_en": "A prototype shared music queue for private listening rooms.",
+        "problem_cs": "Když několik klientů upravuje stejnou frontu, opožděná starší změna může přepsat novější stav.",
+        "problem_en": "When several clients edit one queue, a delayed stale update can overwrite a newer state.",
+        "solution_cs": "Prototyp používá verzi fronty a ID požadavku, aby odmítl zastaralý zápis a rozpoznal opakovaný požadavek.",
+        "solution_en": "The prototype uses a queue version and request ID to reject stale writes and recognise retries.",
         "stack": [
             "PHP",
             "MySQL",
@@ -237,34 +235,32 @@
             "Spotify OAuth"
         ],
         "features": [
-            "Accounts, invitations and membership controls",
-            "Ordered shared queues with duplicate protection",
-            "Personal and room context for recommendations",
-            "Spotify and remote playback still in development"
+            "Prototype scope includes accounts, invitations and membership",
+            "Shared queue model with retry protection",
+            "Room- and member-based recommendations are planned"
         ],
         "features_cs": [
-            "Účty, pozvánky a řízení členství",
-            "Společné fronty s pořadím a ochranou duplicit",
-            "Osobní a místnostní signály pro doporučení",
-            "Spotify a vzdálené přehrávání ve vývoji"
+            "Prototyp zahrnuje účty, pozvánky a členství",
+            "Model sdílené fronty a ochrana před opakováním požadavku",
+            "Doporučení podle místností a členů jsou v plánu"
         ],
         "year": "2026"
     },
     {
         "slug": "softwareinc-multiplayer",
-        "name": "Software Inc Coop Revamped",
+        "name": "Software Inc. Coop Revamped",
         "category": "Games & Simulation",
         "status": "prototype",
         "featured": false,
         "private": true,
         "repo": "",
         "demo": "",
-        "summary_cs": "Modulární kooperativní vrstva v C# oddělující herní logiku od autoritativního hosta. Distribuované transakce a validace společných smluv.",
-        "summary_en": "Modular cooperative architecture in C# decoupling domain game logic from host authority. Distributed transaction validation and consensus.",
-        "problem_cs": "Synchronizace sdílených korporátních dohod v reálném čase vyžaduje autoritativní validaci pravidel bez spoléhání na klientský stav.",
-        "problem_en": "Synchronizing shared corporate contracts and joint ventures in real time requires authoritative host validation to prevent client-side desync.",
-        "solution_cs": "Architektura odděluje doménové jádro od adaptéru herního enginu Unity. Každá transakce prochází fází návrhu, validace hostem a atomického zápisu.",
-        "solution_en": "Decouples the domain rules engine from the Unity game adapter. Every shared venture executes through proposal, host validation, and atomic state commitment.",
+        "summary_cs": "Prototyp módu Software Inc. s odděleným doménovým jádrem pro sdílené dohody.",
+        "summary_en": "A Software Inc. mod prototype with a separate domain core for shared agreements.",
+        "problem_cs": "Sdílená dohoda hráčů nesmí být potvrzena jen proto, že ji klient odeslal. Hostitel musí zkontrolovat oprávnění hráče, jeho členství i verzi stavu.",
+        "problem_en": "A shared player agreement should not be accepted simply because a client sent it. The host needs to check the player’s authority, membership and state version.",
+        "solution_cs": "Návrh odděluje pravidla dohod od herního adaptéru. Hostitel před atomickým zápisem ověří návrh a zaznamená jeho zpracování.",
+        "solution_en": "The design separates agreement rules from the game adapter. The host validates each proposal before an atomic commit and records its processing.",
         "stack": [
             "C#",
             ".NET",
@@ -273,15 +269,13 @@
         ],
         "features": [
             "Domain core separated from the game adapter",
-            "Shared projects, work and business agreements",
-            "Persistence and network security boundaries",
-            "In-game acceptance and multiplayer not yet verified"
+            "Models shared projects, work and business agreements",
+            "Persistence and network security boundaries are part of the design"
         ],
         "features_cs": [
             "Doménové jádro oddělené od herního adaptéru",
-            "Společné projekty, práce a obchodní dohody",
-            "Perzistence a síťové bezpečnostní hranice",
-            "Herní přijetí a multiplayer zatím neověřené"
+            "Model společných projektů, práce a obchodních dohod",
+            "Návrh persistence a síťových bezpečnostních hranic"
         ],
         "year": "2026"
     },
@@ -289,32 +283,28 @@
         "slug": "discord-bot",
         "name": "Discord bot",
         "category": "Bots & Automation",
-        "status": "maintenance",
+        "status": "record",
         "featured": false,
         "private": true,
         "repo": "",
         "demo": "",
-        "summary_cs": "Aplikační bot s modulární architekturou a striktním řízením oprávnění (RBAC). Oddělený údržbový subsystém s auditním logováním operací.",
-        "summary_en": "Application bot architecture with strict Role-Based Access Control (RBAC). Isolated maintenance subsystem with full audit logging.",
-        "problem_cs": "Údržbové a konfigurační příkazy mohou ovlivnit dostupnost celého serveru. Vyžadují striktní kontrolu rolí a ochranu proti eskalaci privilegií.",
-        "problem_en": "Maintenance commands execute stateful operational tasks requiring strict permission verification to guard against privilege escalation.",
-        "solution_cs": "Systém striktně odděluje veřejné aplikační příkazy od administrativního subsystému. Každý zásah vyžaduje ověření role s atomickým záznamem do auditního logu.",
-        "solution_en": "Enforces separation of public command trees from administrative maintenance. Every privileged call requires RBAC validation and atomic audit logging.",
+        "summary_cs": "Soukromý Discord bot nasazený jako samostatná služba systemd. Ansible spravuje jeho oddělený checkout a omezený postup údržby.",
+        "summary_en": "A private Discord bot deployed as a separate systemd service. Ansible manages its isolated checkout and restricted maintenance path.",
+        "problem_cs": "Bot běží na sdíleném hostu. Oddělený účet a omezené administrační wrappery vymezují, co může jeho provoz a údržba ovlivnit.",
+        "problem_en": "The bot runs on a shared host. A dedicated account and restricted maintenance wrappers limit what its runtime and upkeep can affect.",
+        "solution_cs": "Ansible spravuje samostatný checkout pod vyhrazeným neprivilegovaným účtem; údržba používá omezené administrační wrappery. Chování příkazů bota není ověřené.",
+        "solution_en": "Ansible manages a separate checkout under a dedicated unprivileged account; maintenance uses restricted admin wrappers. Bot command behavior has not been verified.",
         "stack": [
             "Node.js",
-            "Discord API",
-            "RBAC Security",
-            "SQLite Audit"
+            "Discord API"
         ],
         "features": [
-            "Role-Based Access Control (RBAC) with role hierarchy",
-            "Isolated maintenance subsystem with audit logging",
-            "Graceful error handling and rate-limit backoff"
+            "Dedicated unprivileged systemd service",
+            "Ansible-managed checkout and restricted maintenance wrappers"
         ],
         "features_cs": [
-            "Řízení přístupu na základě rolí (RBAC) a hierarchie oprávnění",
-            "Izolovaný údržbový subsystém s auditním logováním",
-            "Ošetření chyb a adaptivní backoff při rate-limitech"
+            "Samostatná systemd služba pod neprivilegovaným účtem",
+            "Checkout spravovaný Ansiblem a omezené administrační wrappery"
         ],
         "year": "2026"
     }

@@ -49,7 +49,7 @@ final class SystemController extends AppController
         $origin = $this->origin();
         $pages = [
             '', 'projects', 'connections', 'decisions', 'homelab', 'maker',
-            'playground', 'open-source', 'now', 'journal', 'about',
+            'open-source', 'now', 'journal', 'about',
         ];
         $content = new ContentRepository();
         $projects = $content->projects();
@@ -58,49 +58,26 @@ final class SystemController extends AppController
         }
 
         $lastmods = [];
-        $latestJournalDate = '2026-11-20';
-        $projectDates = [];
+        $latestJournalDate = null;
         foreach ($content->journal() as $entry) {
             $publishedAt = is_string($entry['published_at'] ?? null) ? $entry['published_at'] : '';
             $date = substr($publishedAt, 0, 10);
             if (preg_match('~^\d{4}-\d{2}-\d{2}$~D', $date) === 1) {
-                if ($date > $latestJournalDate) {
+                if ($latestJournalDate === null || $date > $latestJournalDate) {
                     $latestJournalDate = $date;
-                }
-                $p = is_string($entry['project'] ?? null) ? $entry['project'] : '';
-                if ($p !== '' && (!isset($projectDates[$p]) || $date > $projectDates[$p])) {
-                    $projectDates[$p] = $date;
                 }
             }
         }
-        $lastmods['journal'] = $latestJournalDate;
-        $lastmods['now'] = $latestJournalDate;
-        $lastmods[''] = '2026-11-20';
-        $lastmods['projects'] = '2026-11-20';
-        $lastmods['decisions'] = '2026-11-20';
-        $lastmods['homelab'] = '2026-11-20';
-        $lastmods['maker'] = '2026-11-20';
-        $lastmods['playground'] = '2026-11-20';
-        $lastmods['open-source'] = '2026-11-20';
-        $lastmods['about'] = '2026-11-20';
-        $lastmods['connections'] = '2026-11-20';
-
-        foreach ($projects as $project) {
-            $lastmods['projects/' . $project->slug] = $projectDates[$project->slug] ?? '2026-11-20';
+        if ($latestJournalDate !== null) {
+            $lastmods['journal'] = $latestJournalDate;
         }
 
         $imageMap = [
-            '' => [
-                ['loc' => '/assets/img/scale-studio.webp', 'title' => 'Harfusha Lab Scale Studio'],
-            ],
             'projects/mutaui' => [
                 ['loc' => '/assets/img/mutaui-overview-cs-light.webp', 'title' => 'MutaUI Overview Light'],
                 ['loc' => '/assets/img/mutaui-overview-en-dark.webp', 'title' => 'MutaUI Overview Dark'],
                 ['loc' => '/assets/img/mutaui-forward-cs-dark.webp', 'title' => 'MutaUI Port Forwarding'],
                 ['loc' => '/assets/img/mutaui-sync-en-light.webp', 'title' => 'MutaUI Sync Status'],
-            ],
-            'projects/tiskov' => [
-                ['loc' => '/assets/img/tiskov-bambu-lab-a1.webp', 'title' => 'Tiskov Bambu Lab A1'],
             ],
             'projects/woodbound' => [
                 ['loc' => '/assets/img/woodbound-region-development.webp', 'title' => 'Woodbound Region Development'],

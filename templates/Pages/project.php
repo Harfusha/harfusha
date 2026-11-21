@@ -7,25 +7,19 @@ use App\Support\Language;
 /** @var list<array{slug:string,name:string,type:string}> $related */
 /** @var list<App\Domain\EngineeringDecision> $decisions */
 require dirname(__DIR__) . '/element/portfolio_case_reading.php';
-[$caseProblem, $caseApproach, $caseEvidence, $caseEvidenceCopy, $caseNextPath, $caseNext] = $caseReading;
-[$primaryPath, $primaryText] = match ($project->slug) {
-    'scan2cad' => ['/playground#station-scale-check', $lang->value('Přepočítat měřítko skenu', 'Calculate the scan scale')],
-    'discord-bot' => ['#project-deepdive-title', $lang->value('Projít pravidla oprávnění', 'Review the permission rules')],
-    default => [$caseNextPath, $caseNext],
+[$caseProblem, $caseApproach, $caseEvidence, $caseEvidenceCopy] = $caseReading;
+$sourceHref = !$project->private && $project->repo !== '' ? Html::safeUrl($project->repo) : null;
+$networkMapHref = $project->slug === 'home-infrastructure' ? $lang->path('/homelab#network-model') : null;
+$featureHeading = $project->status === 'prototype'
+    ? $lang->value('Oblasti, které prototyp zkoumá', 'Areas explored by the prototype')
+    : $lang->value('Hlavní funkce', 'Key features');
+$showFeatureList = $project->status !== 'record' && !in_array($project->slug, ['scan2cad', 'tiskov'], true);
+$showDecisionSummary = $decisions !== [] && !in_array($project->slug, ['scan2cad', 'tiskov'], true);
+$stackHeading = match ($project->slug) {
+    'tiskov' => $lang->value('NÁVRHOVÁ SKLADBA', 'PROPOSED STACK'),
+    'discord-bot' => $lang->value('TECHNOLOGIE PROVOZU', 'OPERATIONS STACK'),
+    default => $lang->value('TECHNOLOGIE', 'TECH STACK'),
 };
-$hasInteractiveModel = str_starts_with($primaryPath, '/playground#') || str_starts_with($primaryPath, '/homelab');
-$primaryHref = str_starts_with($primaryPath, '#') ? $primaryPath : $lang->path($primaryPath);
-$projectLimitations = [
-    'home-infrastructure' => $lang->value('Infrastruktura jako kód (IaC) spravovaná Ansible playbooky s verzováním v Gitu. Segmentace sítě a WireGuard mesh ověřeny na RouterOS a Debian nodu.', 'Infrastructure as Code (IaC) driven by Ansible playbooks versioned in Git. Network segmentation and WireGuard mesh verified across RouterOS and Debian nodes.'),
-    'woodbound' => $lang->value('Procedurální generování terénu a A* pathfinding nad topologickou mřížkou. Dvacetietapový pipeline v C# ověřen pro eliminaci neprůchodných koridorů.', 'Procedural terrain synthesis and A* pathfinding on a topological grid. Twenty-stage C# generation pipeline verified for corridor navigability.'),
-    'scan2cad' => $lang->value('Fotogrammetrická kalibrace a extrakce hran pro CAD modelování. Přepočet pixelové matice snímače na metrologické rozměry (mm) s fyzickou bází.', 'Photogrammetric calibration and edge extraction for CAD modeling. Sensor pixel matrix conversion to physical metrology dimensions based on calibrated reference base.'),
-    'softwareinc-multiplayer' => $lang->value('Modulární kooperativní vrstva v C# oddělující herní logiku od autoritativního hosta. Validace transakcí a dohoda hráčů přes RPC protokol.', 'Modular cooperative architecture in C# decoupling game logic from host authority. RPC-driven transaction validation and multiplayer contract consensus.'),
-    'shpotify' => $lang->value('Distribuovaná synchronizace hudební fronty s optimistickým zamykáním a verzováním požadavků. Prevence přepsání novějších úprav při souběžném zápisu.', 'Distributed playback queue synchronization with optimistic locking and vector timestamps. Eliminates race conditions during concurrent user submissions.'),
-    'local-ai-hub' => $lang->value('Architektura MCP serveru a AST indexeru ověřena automatickými integračními testy. Indexace velkých stromů používá SQLite WAL s adaptivním token ledgerem.', 'MCP server architecture and AST indexing verified via automated test suite. Large tree indexing uses SQLite WAL mode with adaptive token accounting.'),
-    'mutaui' => $lang->value('Qt/PySide6 rozhraní řídí Mutagen CLI v asynchronním subprocesu s bidirectional event smyčkou. Detekce souběžných konfliktů ověřena scénáři atomického zápisu.', 'Qt/PySide6 UI manages Mutagen CLI asynchronously with bidirectional event looping. Concurrency conflict resolution verified via atomic write scenarios.'),
-    'tiskov' => $lang->value('Architektura tiskové fronty s asynchronním zpracováním a stavovým automatem. Oddělení HTTP příjmu od výpočetního procesu na worker nodu.', 'Print queue architecture featuring asynchronous task processing and state machine transitions. Clean decoupling of HTTP ingress from worker nodes.'),
-    'discord-bot' => $lang->value('Aplikační bot s modulární architekturou a striktním řízením oprávnění (RBAC). Izolovaný údržbový subsystém s auditním logováním všech zásahů.', 'Application bot featuring modular architecture and strict Role-Based Access Control (RBAC). Isolated maintenance subsystem with complete audit logging.'),
-];
 ?>
 <section class="page-hero shell project-detail-hero" data-case-status="<?= Html::escape($project->status) ?>">
     <div class="case-intro">
@@ -38,9 +32,11 @@ $projectLimitations = [
         <h1><?= Html::escape($project->name) ?></h1>
         <p><?= Html::escape($project->summary($lang)) ?></p>
         <div class="detail-links">
-            <a class="btn btn-primary" href="<?= Html::escape($primaryHref) ?>"><?= Html::escape($primaryText) ?> <span aria-hidden="true">↗</span></a>
-            <?php if (!$project->private && $project->repo !== ''): ?>
-                <a class="btn btn-ghost" href="<?= Html::escape(Html::safeUrl($project->repo)) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Zdrojový kód', 'View source') ?> <span aria-hidden="true">↗</span></a>
+            <?php if ($sourceHref !== null): ?>
+                <a class="btn btn-primary" href="<?= Html::escape($sourceHref) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Otevřít zdrojový kód', 'View source code') ?> <span aria-hidden="true">↗</span></a>
+            <?php endif; ?>
+            <?php if ($networkMapHref !== null): ?>
+                <a class="btn btn-primary" href="<?= Html::escape($networkMapHref) ?>"><?= $lang->value('Prozkoumat mapu závislostí', 'Explore the dependency map') ?> <span aria-hidden="true">↓</span></a>
             <?php endif; ?>
             <?php if ($project->slug === 'mutaui'): ?>
                 <a class="inline-link" href="#mutaui-preview-title"><?= $lang->value('Snímky aplikace', 'Application screenshots') ?> <span aria-hidden="true">↓</span></a>
@@ -50,18 +46,11 @@ $projectLimitations = [
     <div class="case-evidence" aria-labelledby="case-evidence-title">
         <h2 id="case-evidence-title"><?= Html::escape($caseEvidence) ?></h2>
         <p><?= Html::escape($caseEvidenceCopy) ?></p>
-        <?php if (isset($projectLimitations[$project->slug])): ?>
-        <div class="case-evidence-limit">
-            <strong><?= $lang->value('Stav ověření', 'Verification status') ?></strong>
-            <p><?= Html::escape($projectLimitations[$project->slug]) ?></p>
-        </div>
-        <?php endif; ?>
     </div>
 </section>
-<nav class="shell case-navigation" aria-label="<?= $lang->value('Obsah případové studie', 'On this case study') ?>">
+<nav class="shell case-navigation" aria-label="<?= $project->status === 'record' ? $lang->value('Obsah záznamu', 'On this record') : $lang->value('Obsah případové studie', 'On this case study') ?>">
     <a href="#project-overview"><?= $lang->value('Přehled', 'Overview') ?></a>
-    <a href="#project-deepdive-title"><?= $lang->value('Technický průchod', 'Technical walkthrough') ?></a>
-    <a href="#project-experience"><?= $lang->value('Alternativy a důvody', 'Alternatives and rationale') ?></a>
+    <a href="#case-evidence-title"><?= $lang->value('Důkazy a omezení', 'Evidence and limits') ?></a>
 </nav>
 <?php if ($project->slug === 'mutaui'): ?>
 <section class="shell project-preview" aria-labelledby="mutaui-preview-title">
@@ -86,18 +75,11 @@ $projectLimitations = [
 <?php endif; ?>
 <?php
 $sourceVisual = match ($project->slug) {
-    'tiskov' => [
-        '/assets/img/tiskov-bambu-lab-a1.png', '/assets/img/tiskov-bambu-lab-a1.webp', 1200, 630,
-        $lang->value('Odhad tisku pro Bambu Lab A1', 'Estimate for Bambu Lab A1 printing'),
-        $lang->value('Grafika pochází z podkladů projektu Tiskov. Popisuje orientační výpočet, ruční kontrolu a absenci online platby; nejde o snímek běžící objednávky.', 'This graphic comes from the Tiskov project assets. It describes an indicative estimate, manual review and no online payment; it is not a screenshot of a live order.'),
-        $lang->value('Projektová grafika; nikoli screenshot aplikace nebo potvrzení konkrétní ceny.', 'Project graphic; not an application screenshot or confirmation of a specific price.'),
-        $lang->value('Grafika Tiskov pro 3D tisk na Bambu Lab A1', 'Tiskov graphic for 3D printing on a Bambu Lab A1'),
-    ],
     'woodbound' => [
         '/assets/img/woodbound-region-development.png', '/assets/img/woodbound-region-development.webp', 1280, 720,
         $lang->value('Pracovní podoba lesní oblasti', 'Development scene: forest region'),
-        $lang->value('Záběr pochází z vývojových podkladů mapy. Ukazuje pracovní scénu, ale nepotvrzuje přijetí ani hratelnost celého světa.', 'This scene comes from world-map development evidence. It shows a work in progress, not acceptance or playability of the complete world.'),
-        $lang->value('Vývojový záběr z 8. 9. 2026; hratelnost celého světa není potvrzena.', 'Development capture from 8 Sep 2026; the complete world is not confirmed playable.'),
+        $lang->value('Záběr z vývoje mapy zachycuje lesní oblast a jednu z tras.', 'This world-map development capture shows a forest region and one of its routes.'),
+        $lang->value('Vývojový záběr z 8. 9. 2026.', 'Development capture from 8 Sep 2026.'),
         $lang->value('Vývojový záběr Woodboundu: lesní krajina a cesta', 'Woodbound development capture: forest landscape and road'),
     ],
     default => null,
@@ -113,21 +95,7 @@ if ($sourceVisual !== null):
  </picture><figcaption><?= Html::escape($visualCaption) ?></figcaption></figure>
 </section>
 <?php endif; ?>
-<section class="section shell project-case" id="project-overview" aria-label="<?= $lang->value('Přehled studie', 'Case study overview') ?>"><div class="case-main"><div class="case-block"><h2><?= Html::escape($caseProblem) ?></h2><p><?= Html::escape($project->problem($lang)) ?></p></div><div class="case-block"><h2><?= Html::escape($caseApproach) ?></h2><p><?= Html::escape($project->solution($lang)) ?></p></div><div class="case-block"><h2><?= $lang->value('Hlavní funkce','Key features') ?></h2><ul class="feature-list"><?php foreach ($project->localizedFeatures($lang) as $feature): ?><li><?= Html::escape($feature) ?></li><?php endforeach; ?></ul></div>
-</div><div class="case-sidebar"><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('TECHNOLOGIE', 'TECH STACK') ?></span><div class="stack-list stack-large"><?php foreach ($project->stack as $tech): ?><span><?= Html::escape($tech) ?></span><?php endforeach; ?></div></div><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('DOSTUPNOST', 'VISIBILITY') ?></span><h3><?= $project->private ? $lang->value('Podklady k projektu','Project materials') : $lang->value('Veřejný repozitář na GitHubu', 'Public GitHub Repository') ?></h3><p><?= $project->private ? $lang->value('Tato stránka shrnuje veřejně sdílené podklady k projektu.', 'This page summarizes the project materials available to the public.') : $lang->value('Zdrojový kód, hlášení a historie změn jsou dostupné na GitHubu.', 'Explore the source, issues and change history on GitHub.') ?></p></div><?php if ($related !== []): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('PROPOJENÉ PROJEKTY','RELATED PROJECTS') ?></span><ul class="service-list"><?php foreach ($related as $item): ?><li><a class="inline-link" href="<?= $lang->path('/projects/'.$item['slug']) ?>"><?= Html::escape($item['name']) ?></a><small> · <?= Html::escape(App\Domain\ProjectConnections::label($item['type'], $lang)) ?></small></li><?php endforeach; ?></ul><a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Prozkoumat celou mapu','Explore whole map') ?> ↗</a></div><?php endif; ?><?php if ($decisions !== []): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('ARCHITEKTURA A KOMPROMISY','ARCHITECTURE & TRADE-OFFS') ?></span>
+<section class="section shell project-case" id="project-overview" aria-label="<?= $project->status === 'record' ? $lang->value('Přehled záznamu', 'Record overview') : $lang->value('Přehled studie', 'Case study overview') ?>"><div class="case-main"><div class="case-block"><h2><?= Html::escape($caseProblem) ?></h2><p><?= Html::escape($project->problem($lang)) ?></p></div><div class="case-block"><h2><?= Html::escape($caseApproach) ?></h2><p><?= Html::escape($project->solution($lang)) ?></p></div><?php if ($showFeatureList): ?><div class="case-block"><h2><?= Html::escape($featureHeading) ?></h2><ul class="feature-list"><?php foreach ($project->localizedFeatures($lang) as $feature): ?><li><?= Html::escape($feature) ?></li><?php endforeach; ?></ul></div><?php endif; ?>
+</div><div class="case-sidebar"><div class="sidebar-panel"><span class="eyebrow"><?= Html::escape($stackHeading) ?></span><div class="stack-list stack-large"><?php foreach ($project->stack as $tech): ?><span><?= Html::escape($tech) ?></span><?php endforeach; ?></div></div><?php if ($related !== []): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('PROPOJENÉ PROJEKTY','RELATED PROJECTS') ?></span><ul class="service-list"><?php foreach ($related as $item): ?><li><a class="inline-link" href="<?= $lang->path('/projects/'.$item['slug']) ?>"><?= Html::escape($item['name']) ?></a><small> · <?= Html::escape(App\Domain\ProjectConnections::label($item['type'], $lang)) ?></small></li><?php endforeach; ?></ul><a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Prohlédnout skupiny projektů','Browse project groups') ?> ↗</a></div><?php endif; ?><?php if ($showDecisionSummary): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('ARCHITEKTURA A KOMPROMISY','ARCHITECTURE & TRADE-OFFS') ?></span>
 <?php foreach ($decisions as $decision): ?><div class="decision-summary"><h3><?= Html::escape($decision->title($lang)) ?></h3><p><?= Html::escape($decision->choice($lang)) ?></p><p><strong><?= $lang->value("Kompromis: ", "Trade-off: ") ?></strong><?= Html::escape($decision->tradeoff($lang)) ?></p><small><?= Html::escape($decision->evidence($lang)) ?></small></div><?php endforeach; ?>
 <a class="inline-link" href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Všechna technická rozhodnutí','All engineering decisions') ?> ↗</a></div><?php endif; ?></div></section>
-
-<?php require dirname(__DIR__) . '/element/project_deepdive.php'; ?>
-<?php require dirname(__DIR__) . '/element/project_example.php'; ?>
-<?php require dirname(__DIR__) . '/element/project_experience.php'; ?>
-
-<section class="shell section case-followup" aria-labelledby="case-next-title">
-    <div>
-        <p class="eyebrow"><?= $lang->value('Další krok', 'Next step') ?></p>
-        <h2 id="case-next-title"><?= Html::escape($caseNext) ?></h2>
-    </div>
-    <a class="btn btn-primary" href="<?= $lang->path($caseNextPath) ?>">
-        <?= $lang->value('Otevřít', 'Open') ?> <span aria-hidden="true">↗</span>
-    </a>
-</section>

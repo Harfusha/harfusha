@@ -21,6 +21,17 @@ final class EditorialInputTest extends TestCase
         self::assertSame('local-ai-hub', $input['slug']);
     }
 
+    public function testProjectInputAcceptsBetaStage(): void
+    {
+        $input = EditorialInput::project([
+            'slug' => 'scan2cad', 'status' => 'beta',
+            'summary_cs' => 'Beta', 'summary_en' => 'Beta',
+            'problem_cs' => '', 'problem_en' => '',
+            'solution_cs' => '', 'solution_en' => '',
+        ]);
+        self::assertSame('beta', $input['status']);
+    }
+
     public function testNestedPayloadFailsClosed(): void
     {
         $this->expectException(InvalidArgumentException::class);

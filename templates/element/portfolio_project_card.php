@@ -19,7 +19,7 @@ $summary = $project->summary($lang);
         <span class="status <?= Html::escape($project->status) ?>"><?= Html::escape($project->statusLabel($lang)) ?></span>
     </div>
     <?php if ($project->featured): ?>
-    <span class="portfolio-card-pick"><?= $lang->value('Vybraná případová studie', 'Selected case study') ?></span>
+    <span class="portfolio-card-pick"><?= $lang->value('Vybraný projekt', 'Featured project') ?></span>
     <?php endif; ?>
     <h2><?= Html::escape($project->name) ?></h2>
     <p><?= Html::escape($summary) ?></p>

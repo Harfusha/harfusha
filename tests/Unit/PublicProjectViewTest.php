@@ -26,7 +26,7 @@ final class PublicProjectViewTest extends TestCase
         self::assertArrayNotHasKey('private', $cs);
     }
 
-    public function testDemoLinksAreLocalAndUseTheRequestedLanguage(): void
+    public function testOnlyTheReviewedNetworkModelIsExposedAsADemo(): void
     {
         $catalog = new ProjectCatalog(dirname(__DIR__, 2) . '/data');
         $ai = $catalog->find('local-ai-hub');
@@ -38,8 +38,8 @@ final class PublicProjectViewTest extends TestCase
         self::assertNotNull($homelab);
         self::assertNotNull($withoutDemo);
 
-        self::assertSame('/en/projects/local-ai-hub#project-experience', (new PublicProjectView($ai))->toArray(new Language('en'))['demo']);
-        self::assertSame('/cs/projects/woodbound#project-experience', (new PublicProjectView($private))->toArray(new Language('cs'))['demo']);
+        self::assertNull((new PublicProjectView($ai))->toArray(new Language('en'))['demo']);
+        self::assertNull((new PublicProjectView($private))->toArray(new Language('cs'))['demo']);
         self::assertSame('/en/homelab', (new PublicProjectView($homelab))->toArray(new Language('en'))['demo']);
         self::assertNull((new PublicProjectView($withoutDemo))->toArray(new Language('en'))['demo']);
     }

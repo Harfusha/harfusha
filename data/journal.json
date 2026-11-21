@@ -1,9 +1,9 @@
 [
   {
-    "title_cs": "MutaUI: přiřazení výsledků testů ke správné revizi",
-    "title_en": "MutaUI: a test result belongs to an exact commit",
-    "body_cs": "U vývojové etapy F3 je teď uvedená přesná revize, kterou ověřila kontrola CI č. 85. Záznam ji odděluje od pozdějších auditních poznámek, aby bylo jasné, ke které verzi se výsledek vztahuje.",
-    "body_en": "The F3 record now identifies the exact commit verified by CI check #85. It keeps later audit notes separate so readers can tell which revision the result covers.",
+    "title_cs": "MutaUI: výsledek testu patří ke konkrétnímu commitu",
+    "title_en": "MutaUI: bind test results to the commit they verify",
+    "body_cs": "Záznam etapy F3 teď odkazuje na konkrétní commit ověřený v CI běhu #85. Pozdější auditní poznámky jsou oddělené, aby bylo jasné, ke které verzi se výsledek vztahuje.",
+    "body_en": "The F3 record now points to the exact commit verified by CI run #85. Later audit notes stay separate, so readers can tell which revision the result covers.",
     "category": "Desktop",
     "published_at": "2026-11-17 04:23:18",
     "source_url": "https://github.com/Harfusha/MutaUI/commit/72cf4782d09020ed669ed76a2ac7bfa807a25a2a",
@@ -30,7 +30,7 @@
     "project": "mutaui"
   },
   {
-    "title_cs": "Plánovač uvolňuje rezervaci GPU po pádu Laya",
+    "title_cs": "Plánovač uvolní rezervaci GPU po pádu procesu Laya",
     "title_en": "A GPU lease should end with the process that owns it",
     "body_cs": "Plánovač před uvolněním rezervace ověří, zda proces Laya ještě běží. Po jeho pádu tak další úloha dostane prostor, zatímco živý proces má dál rezervovanou kapacitu.",
     "body_en": "The scheduler checks whether the Laya process is still running before releasing its GPU reservation. A crashed process leaves room for the next job, while a live process retains its allocation.",
@@ -80,8 +80,8 @@
     "project": "local-ai-hub"
   },
   {
-    "title_cs": "Úklid uvolní rezervaci správné instance procesu",
-    "title_en": "A GPU lease should end with its process",
+    "title_cs": "Úklid uvolní jen rezervaci ukončeného procesu",
+    "title_en": "Release only the exited process's GPU reservation",
     "body_cs": "Po ukončení procesu se úklid dívá na vlastníka i identitu jeho rezervace. Uvolnění se tak týká konkrétní rezervace ukončeného procesu.",
     "body_en": "After a process exits, cleanup checks the owner and the reservation identity. It releases the specific allocation held by the exited process.",
     "category": "Local AI Hub",
@@ -122,7 +122,7 @@
   {
     "title_cs": "Scan2CAD: kontrola trojúhelníků s nulovou plochou",
     "title_en": "Zero-area faces must not increase confidence",
-    "body_cs": "Trojúhelníky s nulovou plochou mohou zkreslit odhad jistoty a přidávat výpočty. Oprava kontroluje plochu a omezuje počet zpracovaných vrcholů.",
+    "body_cs": "Trojúhelníky s nulovou plochou mohou zkreslit odhad jistoty a zbytečně zatěžovat výpočet. Oprava kontroluje plochu a omezuje počet zpracovaných vrcholů.",
     "body_en": "Zero-area triangles can distort confidence estimates and add processing work. The fix checks triangle area and limits the number of vertices processed.",
     "category": "Scan2CAD",
     "published_at": "2026-11-15",
@@ -200,8 +200,8 @@
     "project": "local-ai-hub"
   },
   {
-    "title_cs": "Zkrácená odpověď zachovává odkaz na plán a úkol",
-    "title_en": "Keep plan identity when compacting a response",
+    "title_cs": "Zkrácená odpověď zachová identitu plánu i úkolu",
+    "title_en": "Preserve plan and task identity in compact responses",
     "body_cs": "Verze 5.1.4 zachovává identifikátor plánu, revizi souboru i identifikátor úkolu ve zkrácené odpovědi. Pokud se odpověď nevejde do limitu, dohledatelné zůstane i odmítnutí.",
     "body_en": "Version 5.1.4 keeps the plan ID, file revision and task ID in compact responses. A rejection also remains traceable when the response cannot fit the budget.",
     "category": "AI",
@@ -250,8 +250,8 @@
     "project": "local-ai-hub"
   },
   {
-    "title_cs": "Rychlejší hledání bez ztráty kontroly",
-    "title_en": "Faster search with bounded work",
+    "title_cs": "Omezit náročnost hledání bez ztráty kontroly",
+    "title_en": "Bounded search work and cancellation",
     "body_cs": "Záznam k verzi 5.1 popisuje práci na vyhledávání a výkonu: dávkové čtení a zápis embedding cache, omezený výběr nejlepších výsledků a předávání limitů času i požadavků na zrušení. Uvedené optimalizace jsou tvrzení projektu; bez vlastního měření z nich nevyvozuji konkrétní zrychlení.",
     "body_en": "The 5.1 changelog describes search and performance work: batched embedding-cache access, bounded top-k selection, and propagation of deadlines and cancellation. These are project claims; no speedup is inferred without an independent measurement.",
     "category": "AI",

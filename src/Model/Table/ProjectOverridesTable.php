@@ -30,6 +30,6 @@ final class ProjectOverridesTable extends Table
             ->allowEmptyString('problem_cs')->allowEmptyString('problem_en')
             ->allowEmptyString('solution_cs')
             ->allowEmptyString('solution_en')
-            ->inList('status', ['active', 'prototype', 'maintenance', 'archived']);
+            ->inList('status', ['active', 'beta', 'prototype', 'proposal', 'record', 'maintenance', 'archived']);
     }
 }

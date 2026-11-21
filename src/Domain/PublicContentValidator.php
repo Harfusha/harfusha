@@ -66,7 +66,7 @@ final class PublicContentValidator
         if (preg_match('/^20\d{2}$/D', self::string($row, 'year', $label, 4, 4)) !== 1) {
             throw new InvalidArgumentException('Invalid project year: ' . $label);
         }
-        if (!in_array(self::string($row, 'demo', $label, 0, 30), ['','ai','sync','world','cad','homelab'], true)) {
+        if (!in_array(self::string($row, 'demo', $label, 0, 30), ['','homelab'], true)) {
             throw new InvalidArgumentException('Unknown project demonstration: ' . $label);
         }
         $repo = self::string($row, 'repo', $label, 0, 255);
@@ -102,7 +102,7 @@ final class PublicContentValidator
         ) {
             throw new InvalidArgumentException('Invalid topology identifier or kind: ' . $label);
         }
-        foreach (['name','description_cs','description_en'] as $key) {
+        foreach (['name','name_cs','description_cs','description_en'] as $key) {
             self::string($row, $key, $label, 1, 1000);
         }
         foreach (['x','y'] as $coordinate) {
@@ -112,7 +112,12 @@ final class PublicContentValidator
             }
         }
         self::stringList($row, 'tech', $label, 0, 30, 80);
+        self::stringList($row, 'tech_cs', $label, 0, 30, 80);
         self::stringList($row, 'services', $label, 0, 50, 100);
+        self::stringList($row, 'services_cs', $label, 0, 50, 100);
+        if (count($row['tech']) !== count($row['tech_cs']) || count($row['services']) !== count($row['services_cs'])) {
+            throw new InvalidArgumentException('Topology labels must match across locales: ' . $label);
+        }
         self::stringList($row, 'depends', $label, 0, 30, 32);
 
         return $id;

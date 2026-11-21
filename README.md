@@ -2,9 +2,9 @@
 
 **Backend engineer · PHP / CakePHP · developer tooling · local-first AI**
 
-I spend most of my time in PHP and CakePHP. I care about being able to come back months later and understand why a system is built this way, so I pay attention to types, boundaries, tests and documentation. Outside that work, I build developer tools, try local AI workflows, look after home services and experiment with 3D reconstruction.
+I am a backend engineer focused on PHP and CakePHP. I build developer tools and desktop utilities, work with local AI and home infrastructure, and explore 3D reconstruction. I value code that remains understandable months later, so I pay attention to types, clear boundaries, tests and documentation.
 
-Based in Czechia. My current work ranges from repository tooling and desktop utilities to 3D reconstruction and home infrastructure.
+Based in Czechia.
 
 ## Selected projects
 
@@ -14,37 +14,17 @@ Based in Czechia. My current work ranges from repository tooling and desktop uti
 | [MutaUI](https://github.com/Harfusha/MutaUI) | Desktop control surface for Mutagen sync and forwarding sessions. | Uses separately installed Mutagen CLI and its daemon; not its own sync engine. |
 | Home Infrastructure | Git-backed Ansible automation for Pi-hole/Unbound DNS, Jellyfin, BookStack, CUPS printing, NAS backups, routing and on-demand Proxmox tests. | Private infrastructure, described through a redacted role model rather than live telemetry. |
 | Woodbound | Unity prototype for layered world generation, routes and spatial validation. | A generated candidate is not yet an accepted playable release. |
-| Scan2CAD Studio | Turns reviewed 3D scans and reference photos into editable CAD candidates. | Beta; computed dimensions still need physical and engineering review. |
-| Tiskov | A documented proposal for a local 3D-print request, queue and worker flow. | No source checkout, slicer run or live service is available to verify. The page presents the proposed hand-offs without pretending to submit an order or calculate a price; the original motive is undocumented. |
+| Scan2CAD Studio | Reconstructs CAD candidates from 3D scans and reviewed photo references. | Beta; dimensions need physical review, and a STEP export may not be an editable solid. |
+| Tiskov | A proposal for a local 3D-print request and processing flow. | No source checkout, slicer run or live service is available to verify. |
 | Shpotify | Private music rooms, shared queues and explainable recommendations. | Prototype; end-to-end playback is still being integrated. |
 | Software Inc co-op mod | Separates collaboration rules from the game adapter. | In development; no playable multiplayer release has been accepted. |
-| Discord bot | Portfolio-catalog description of application commands and a maintenance path. | The source checkout is unavailable. The catalog preserves an earlier syntax-error report; exact commands, permissions and live operation are unverified. The original motive is undocumented. |
+| Discord bot | A catalog record mentions application commands and a separate maintenance path. | The source checkout is unavailable; command behavior, permissions and live operation are unverified. |
 
-On the site I explain what each project is trying to solve, which existing tools could already do the job, and what I have or have not verified. For private projects, I describe the roles and design without publishing addresses, credentials or live infrastructure state.
+The portfolio explains each project’s purpose, current stage and evidence. Private infrastructure is described by role, without exposing addresses, credentials or live state.
 
 ## Harfusha Lab
 
-Harfusha Lab is where I try to explain why I kept building each project when an existing tool might already be enough. I show the part I can point to in the code, docs or public history; when I do not know the original reason, I say so. Some projects work, some are still prototypes, and a few are only proposals. Playground examples recalculate a model in the browser; they do not call a real repository, printer or AI service.
-
-### Current captures
-
-These images are fresh captures of this checkout running locally. Diagrams describe the documented design; they are not live system views.
-
-![Harfusha Lab home page](docs/screenshots/readme-home.png)
-
-![Local AI Hub case study: inspect the retrieval path and source boundaries](docs/screenshots/readme-local-ai-hub.png)
-
-![Playground: eight distinct browser-side models for preprocessing, sync, scan scale, routes, shared queues, service outages, multiplayer authority and a clearly labeled Tiskov proposal](docs/screenshots/readme-playground.png)
-
-![Project overview: three thematic groups organize nine projects; searchable cards show input, difficult work and the evidenced result or limit](docs/screenshots/readme-project-map.png)
-
-![Home infrastructure: service-first network topology with the Raspberry Pi host and its documented services selected](docs/screenshots/readme-homelab.png)
-
-![Home infrastructure service catalog: documented roles, dependencies and limits for the configured services](docs/screenshots/readme-homelab-services.png)
-
-![Technical decisions grouped into source-documented choices and prototypes that still need proof, with alternatives and trade-offs in each record](docs/screenshots/readme-decisions.png)
-
-![Local AI Hub walkthrough at a mobile viewport](docs/screenshots/readme-local-ai-hub-mobile.png)
+Harfusha Lab is the CakePHP application behind this portfolio. It presents nine projects with their current stages and evidence. Its only interactive exhibit models documented home-network dependencies; it does not read live infrastructure.
 
 ## How I work
 

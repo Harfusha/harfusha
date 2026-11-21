@@ -70,6 +70,8 @@ final class PublicRoutesTest extends HttpIntegrationTestCase
         $this->assertResponseOk();
         $this->assertResponseContains('<urlset');
         $this->assertResponseContains('/cs/projects/local-ai-hub');
+        $this->assertResponseNotContains('/assets/img/scale-studio.webp');
+        $this->assertResponseNotContains('/assets/img/tiskov-bambu-lab-a1.webp');
 
         $this->get('/cs/feed.xml');
         $this->assertResponseOk();

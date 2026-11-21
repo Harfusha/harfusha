@@ -22,7 +22,7 @@ final class ProjectCatalogTest extends TestCase
             self::assertNotSame('', $project->name);
             self::assertNotSame('', $project->summaryCs);
             self::assertNotSame('', $project->summaryEn);
-            self::assertContains($project->status, ['active','prototype','maintenance','archived']);
+            self::assertContains($project->status, ['active','beta','prototype','proposal','record','maintenance','archived']);
             if ($project->private) {
                 self::assertSame('', $project->repo);
             }

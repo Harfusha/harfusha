@@ -11,42 +11,27 @@ use App\Support\Language;
 <article class="showcase-card">
     <?php if ($project->slug === 'local-ai-hub'): ?>
     <figure class="showcase-visual showcase-source">
-        <figcaption><?= $lang->value('Ukázka MCP architektury a adaptivního indexu repozitáře', 'MCP architecture & adaptive repository indexing') ?></figcaption>
-        <div class="code-block">
-            <div class="code-header">
-                <span>local_ai_repo / adaptive_context</span>
-                <span class="code-tag">Python & MCP</span>
-            </div>
-            <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Ukázka kódu', 'Code snippet') ?>"><code>// Adaptive AST indexing & token economy
-async def resolve_context(repo: Path, query: str):
-    symbols = await ast_indexer.scan(repo, query)
-    ledger  = await token_economizer.compact(symbols)
-    return {"symbols": symbols, "tokens_saved": ledger.delta}</code></pre>
+        <figcaption><?= $lang->value('VEŘEJNÝ ZDROJ · KÓD REPOZITÁŘE', 'PUBLIC SOURCE · REPOSITORY CODE') ?></figcaption>
+        <div class="showcase-evidence">
+            <span class="eyebrow">MCP · AST · SOURCE SLICES</span>
+            <strong><?= $lang->value('Od dotazu k podkladu v repozitáři', 'From a question to repository evidence') ?></strong>
+            <a href="<?= Html::escape(Html::safeUrl($project->repo)) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Prohlédnout zdroj', 'Browse source') ?> <span aria-hidden="true">↗</span></a>
         </div>
     </figure>
     <?php elseif ($project->slug === 'mutaui'): ?>
     <figure class="showcase-visual showcase-desktop">
         <picture>
-            <source type="image/webp" srcset="<?= $lang->value('/assets/img/mutaui-forward-cs-dark.webp', '/assets/img/mutaui-overview-en-dark.webp') ?>">
-            <img src="<?= $lang->value('/assets/img/mutaui-forward-cs-dark.png', '/assets/img/mutaui-overview-en-dark.png') ?>"
+            <source type="image/webp" srcset="<?= $lang->value('/assets/img/mutaui-overview-cs-light.webp', '/assets/img/mutaui-sync-en-light.webp') ?>">
+            <img src="<?= $lang->value('/assets/img/mutaui-overview-cs-light.png', '/assets/img/mutaui-sync-en-light.png') ?>"
                 width="1380" height="900" loading="lazy"
-                alt="<?= $lang->value('Přehled přesměrování portů v MutaUI', 'Session and service overview in MutaUI') ?>">
+                alt="<?= $lang->value('Přehled synchronizačních relací a systémových prostředků v offline demu MutaUI', 'Sync session overview and system resources in MutaUI’s offline demo') ?>">
         </picture>
-        <figcaption><?= $lang->value('Qt/PySide6 desktopový orchestrátor relací Mutagenu', 'Qt/PySide6 desktop session orchestrator for Mutagen') ?></figcaption>
+        <figcaption><?= $lang->value('Offline demo · ukázková data', 'Offline demo · sample data') ?></figcaption>
     </figure>
     <?php elseif ($project->slug === 'home-infrastructure'): ?>
     <figure class="showcase-visual showcase-topology">
-        <figcaption><?= $lang->value('Architektura systémových vrstev a datových cest', 'System layer architecture and data paths') ?></figcaption>
-        <div class="code-block">
-            <div class="code-header">
-                <span>homelab_mesh.yaml</span>
-                <span class="code-tag">Ansible & WireGuard</span>
-            </div>
-            <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Topologie sítě', 'Network topology') ?>"><code>[Gateway]  RouterOS ➔ WireGuard (UDP 51820)
-[Cluster]  Raspberry Pi ➔ Unbound DNS / Semaphore / systemd
-[Compute]  Proxmox VE ➔ Izolované servisní kontejnery
-[Storage]  QNAP NAS ➔ SMB3 / Restic šifrované zálohy</code></pre>
-        </div>
+        <img src="/assets/img/home-network-model.png" width="1280" height="831" loading="lazy" alt="<?= $lang->value('Statický náhled mapy s nedostupným routerem a navazujícími uzly', 'Static map preview with the router and dependent nodes marked unavailable') ?>">
+        <figcaption><?= $lang->value('Model vybraných částí · bez živé telemetrie', 'Selected network model · no live telemetry') ?></figcaption>
     </figure>
     <?php endif; ?>
     <div class="showcase-copy">

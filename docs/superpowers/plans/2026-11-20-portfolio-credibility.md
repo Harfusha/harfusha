@@ -1,0 +1,66 @@
+# Portfolio credibility and presentation polish
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+
+**Goal:** Align adam-halfar.cz with documented project maturity and present a focused, credible backend engineering portfolio.
+
+**Design:** [Portfolio credibility design](../specs/portfolio-credibility-design.md)
+
+**Scope:** Local source only; no deployment.
+
+## Tasks
+
+- [x] Rework the bilingual homepage around PHP/CakePHP, three selected projects, upstream work, scoped demos, and a direct GitHub path.
+- [x] Align visible project pages and group summaries with each project's documented maturity. Remove unverified architecture walkthroughs and speculative marketing copy from project pages.
+- [x] Rename the project map as a grouped index; align navigation, cards, and page links.
+- [x] Replace the detailed homelab port diagram with a bilingual, curated device-role model.
+- [x] Clarify contribution-feed coverage and make interactive counts grammatically stable in Czech.
+- [x] Add concise personal context and a GitHub contact path; improve homepage hierarchy, spacing, contrast, and mobile layout.
+- [x] Keep project evidence images in `docs/screenshots`; they are source documentation, not deployed image weight.
+- [x] Verify PHP syntax, JavaScript syntax, project JSON, diff whitespace, and all 40 sitemap routes locally. Review homepage and a proposal detail page in the browser. No test suite or deployment was run.
+
+## Follow-up: portfolio wow pass · 2026-11-21
+
+Design: [updated editorial direction](../specs/portfolio-credibility-design.md#presentation-direction-update--2026-11-21). Keep the existing checkout and the existing real product evidence. Do not deploy.
+
+- [x] Rewrite weak project copy across all nine records in Czech and English; preserve maturity and evidence limits.
+- [x] Remove the eight low-value browser simulations, navigation and project/maker/sitemap links. Keep `/playground` only as a 301 alias to `/homelab` for old bookmarks.
+- [x] Turn the curated seven-node home-network data into an interactive dependency map using documented positions and relations; make failure and flow states visually legible and keyboard-accessible.
+- [x] Replace the generic home callout with a concrete route to the network map; introduce a warm editorial palette while retaining the real MutaUI screenshot and dark theme.
+- [x] Replace stale project-group copy with the same reviewed summaries, problems and approaches used on project pages; update the API contract and active documentation.
+- [x] Verify all nine project records and routes, 38 localized rendered pages, responsive layouts, map selection/outage/flow behavior, link/assets, PHP/JavaScript/JSON syntax and accessibility. Production remains unchanged and unverified.
+- [x] Correct Scan2CAD from proposal-like copy to its documented beta status; add the real offline UI capture with its unrun-validation caveat.
+- [x] Remove retired Playground screenshots and claims from the repository README and align technical documentation with the reduced client core.
+- [x] Re-run focused unit and browser checks, inspect desktop/mobile renders, and report subjective or external limits without claiming perfection.
+
+**Final local evidence (21 Nov 2026):** 38 localized pages passed HTML/link/asset/ID audit; browser smoke passed 94 viewport and interaction checks; 38 routes in both themes passed accessibility review with zero actionable violations. Node map tests passed 2/2; isolated PHPUnit editorial-input tests passed 7/7. Changed PHP files linted, public-content and whitespace audits passed. CakePHP HTTP confirmed `/cs/playground` returns `301` to `/cs/homelab`. No production deployment or database-backed PHPUnit suite was run; the guarded test bootstrap requires an explicitly confirmed disposable database. “Wow” remains a subjective review, not a test result.
+
+**Independent re-audit (21 Nov 2026):** Direct browser review fetched all 40 current production HTML sitemap URLs (HTTP 200). Production still serves the pre-redesign homepage, eight toy demos, unsupported project claims, mixed Czech strings on English infrastructure pages, and a detailed home-network diagram. This differs from the 38-route local candidate; production has not been updated.
+
+- [x] Fix `/now` page title being overwritten by an activity item; add bilingual title assertions to the rendered-page audit. The new assertion failed in both locales before the template variable was renamed.
+- [x] Refine eight technical-decision headings in both languages; verify all 33 unique external page links with GET (33 successful, including an Asset Store URL whose HEAD response was a false 404).
+- [x] Mark the 19 Nov completion matrix as historical and record the fresh production check in technical documentation; `review-public-content.py --verify` confirms the existing approval no longer matches current public content.
+- [x] Re-run public-content and 38-page rendered audits, PHP lint, 94 browser checks, 2 network-model tests, and accessibility audit across 38 routes × 2 themes (zero actionable violations).
+- [x] Review fresh desktop and mobile captures through local HTTP; all homepage images loaded (HTTP 200), mobile content width matched 390 px.
+
+**Release boundary:** Local candidate is reviewed. Production remains stale. No deployment was performed; publish only after explicit approval of this exact candidate.
+
+**Final verification refresh (21 Nov 2026):** Fixed the remaining Czech-only project name on the English decisions page. The homepage now uses two distinct MutaUI screens; its offline/sample-data caption is explicit and browser smoke asserts the images differ. Fresh `audit-public.py` and `audit-rendered.py` passed (38 pages); the accessibility audit passed 38 routes in both themes with zero actionable violations; `git diff --check` passed. Desktop and 390 px mobile homepage captures were visually inspected. `review-public-content.py --verify` correctly fails because the public content changed since editorial approval; seven private-derived case studies still need a human privacy/content review. No approval receipt was created, and production remains unchanged.
+
+**Map localization pass (21 Nov 2026):** The final visual review found English generic labels inside the Czech network map. Added Czech node names, technologies and services beside the English source labels, with validator checks for equal label counts. The rendered audit now asserts both locales and rejects known English leftovers in Czech; browser smoke checks the localized NAS name in outage/flow results. Fresh results: public-data audit passed; rendered audit passed 38 pages; accessibility passed 38 routes × 2 themes with zero actionable violations; browser smoke passed 94 page/viewport checks plus map interactions; standalone checks passed 164; network model tests passed 2/2; changed PHP files linted; `git diff --check` passed. Fresh desktop map and 390 px mobile homepage captures were inspected. The focused PHPUnit run did not start: the repository bootstrap requires `APP_ENV=testing` and an explicitly confirmed disposable database, which was not configured. No production deployment or editorial approval was performed. The approval receipt remains stale after source changes; seven private-derived cases still need the owner's review. The subjective goal of a "wow" result is not objectively provable.
+
+**Live comparison refresh (21 Nov 2026):** The live sitemap now lists 54 routes; all returned HTTP 200. The public site is still the older release: `/cs/playground` returns 200, and `/cs/homelab` still contains the old English service labels. The local candidate has 38 localized pages and the corrected map. This confirms the two versions differ; this checkout was not deployed.
+
+**Strict visual/content re-audit (21 Nov 2026):** Removed the homepage's redundant network-map callout; the project card and navigation retain the route. Removed the unverified Scan2CAD interface mockup and generic Tiskov concept graphic from public case-study evidence while preserving both local source assets and project records. Removed repeated Scan2CAD feature/decision summaries and the repeated Tiskov decision sidebar from those case-study pages; the decisions remain on the dedicated decisions page. Tiskov no longer advertises its unverified proposal graphic in social metadata. Social images now appear only where the page has a matching reviewed visual: MutaUI, the home-network map and Woodbound. Simplified Tiskov's stack label from `Raspberry Pi Worker` to `Raspberry Pi`, since worker behavior is proposed rather than evidenced. Repaired the offline renderer's page titles to match the controllers and added specific-title assertions. Rendered audit guards against reintroducing these presentation issues.
+
+**Project-group structure pass (21 Nov 2026):** `/maker` no longer shows Scan2CAD and Tiskov as numbered, sequential steps. It now presents them as two separate projects with their actual Beta/Proposal status, separate summaries and direct case-study links. Kept the caliper image only as an explicitly labeled illustration. The offline renderer now uses controller-matched titles and search descriptions; rendered audit rejects generic preview metadata.
+
+**Final verification refresh (21 Nov 2026):** Public-content and 38-page rendered audits passed; offline standalone checks passed 165/165 (one POSIX-only permission check skipped); browser smoke passed 94 page/viewport and interaction checks; accessibility passed 38 routes × 2 themes with zero actionable violations. Changed PHP files and the updated controller test passed syntax lint. Database-backed PHPUnit remains unrun because no disposable test database was configured. `git diff --check` passed with existing line-ending normalization warnings. No deployment or editorial approval was performed; the production site remains a different, older release, and private-derived project material still requires owner review.
+
+**Sitemap evidence correction (21 Nov 2026):** Removed the generic caliper illustration from the homepage image sitemap and the retired Tiskov concept graphic from its project sitemap. Added a rendered-source regression check and controller assertions so those non-evidence images cannot return through sitemap metadata.
+
+**Runtime spot-check (21 Nov 2026):** With a local CakePHP development server and canonical local origin, fetched both homepages, both maker pages, Scan2CAD and Tiskov in both locales, and `/sitemap.xml`; all nine URLs returned HTTP 200. Maker HTML showed its specific localized title, separate project cards and no ordered workflow. Parsed sitemap contained ten current MutaUI/Woodbound image entries and neither retired image.
+
+**Sitemap date correction (21 Nov 2026):** Removed guessed page and project dates. Only the journal now gets `lastmod`, derived from its newest published entry. A fresh CakePHP HTTP fetch returned 38 localized URL rows, ten MutaUI/Woodbound image entries, and only the two journal rows carried `lastmod` (`2026-11-17`, the actual latest journal entry). No removed proposal/illustration image appears.
+
+**Discord project copy correction (21 Nov 2026):** Removed meta-copy describing the catalog and missing source as the project itself. Reframed the page as an operations record using facts already documented on the home-network page: separate systemd service, dedicated unprivileged account, Ansible-managed checkout and restricted maintenance wrappers. Bot commands and current runtime remain explicitly unverified. Added rendered-page regressions for stale filler and the verified operational details. Local AI Hub transport failed before write (`terminal=true`, `retryable=false`) for indexed context and plan lookup; native repository evidence used under the fallback policy.

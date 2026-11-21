@@ -1,6 +1,8 @@
-# Harfusha Lab — stav a zbývající práce
+# Harfusha Lab — historický stav a aktuální vydání
 
-Stav k 19. 11. 2026. `[x]` označuje doložený výsledek v uvedeném rozsahu. `[ ]` označuje chybějící práci nebo ověření.
+Historický stav níže zachycuje kandidáta k 19. 11. 2026. `[x]` označuje výsledek doložený tehdy v uvedeném rozsahu; nepotvrzuje stav pozdějšího kandidáta ani dnešní produkce.
+
+> **Aktuální kontrola · 21. 11. 2026:** Lokální portfolio má 38 lokalizovaných stránek a jednu kurátorovanou síťovou ukázku. Přímá kontrola živé sitemap načetla 40 HTML URL, ale produkce stále zobrazuje starý obsah včetně osmi pokusů, nepodložených tvrzení, českých řetězců na anglických úvodních stránkách a detailního diagramu domácí sítě. Lokální kandidát nebyl nasazen. `python scripts/review-public-content.py --verify` odmítá staré redakční schválení: `Public content changed since editorial approval; review again`. Kandidát proto čeká na nové lidské schválení přesného obsahu a release kontrolu. Aktuální záznam práce: [portfolio credibility plan](superpowers/plans/2026-11-20-portfolio-credibility.md).
 
 - **Produkce z 18. 11.** Schválený balík je doložený zálohou, obnovou, migrací, ověřením souborů a HTTPS kontrolami.
 - **Novější lokální portfolio z 19. 11.** Úpravy a veřejná kontrola jsou doložené. Kandidát čeká na vydání. `master` má HEAD `2f143b2b8ce70a067d0805d1fb798a503b501d86` a další změny v pracovním stromu. Titulka a obsah projektů se liší od vydaného ZIPu. Ten vůbec neobsahuje nové `portfolio.css` ani `portfolio_showcase.php`.

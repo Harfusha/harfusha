@@ -10,16 +10,25 @@ use App\Support\Language;
 $route = $route ?? '/';
 $nav = [
     ['projects', $lang->value('Projekty', 'Projects')],
-    ['playground', $lang->value('Pokusy', 'Experiments')],
-    ['open-source', 'Open source'],
+    ['homelab', $lang->value('Domácí síť', 'Home lab')],
+    ['open-source', $lang->value('Open-source práce', 'Open source work')],
     ['journal', $lang->value('Deník', 'Journal')],
     ['about', $lang->value('O mně', 'About')],
 ];
 $fullUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . $lang->path($route);
-$ogImage = $ogImage ?? '/assets/img/scale-studio.webp';
-$ogImageWidth = $ogImageWidth ?? 1448;
-$ogImageHeight = $ogImageHeight ?? 1086;
-$ogImageAlt = $ogImageAlt ?? $lang->value('Harfusha – inženýrské portfolio a experimentální dílna', 'Harfusha – engineering portfolio and interactive workshop');
+$ogImage = $ogImage ?? null;
+
+if ($route === '/') {
+    $ogImage = '/assets/img/mutaui-overview-en-dark.png';
+    $ogImageWidth = 1380;
+    $ogImageHeight = 900;
+    $ogImageAlt = $lang->value('MutaUI – screenshot desktopové aplikace s ukázkovými daty', 'MutaUI desktop app screenshot with sample data');
+} elseif ($route === '/homelab') {
+    $ogImage = '/assets/img/home-network-model.png';
+    $ogImageWidth = 1280;
+    $ogImageHeight = 831;
+    $ogImageAlt = $lang->value('Statický náhled kurátorované mapy domácí sítě', 'Static preview of the curated home-network map');
+}
 
 if (isset($project) && $project instanceof App\Domain\Project) {
     if ($project->slug === 'mutaui') {
@@ -27,11 +36,6 @@ if (isset($project) && $project instanceof App\Domain\Project) {
         $ogImageWidth = 1380;
         $ogImageHeight = 900;
         $ogImageAlt = $lang->value('MutaUI – synchronizace a přesměrování portů', 'MutaUI – sync and port forwarding');
-    } elseif ($project->slug === 'tiskov') {
-        $ogImage = '/assets/img/tiskov-bambu-lab-a1.png';
-        $ogImageWidth = 1200;
-        $ogImageHeight = 630;
-        $ogImageAlt = $lang->value('Tiskov – 3D tisk na Bambu Lab A1', 'Tiskov – 3D printing on Bambu Lab A1');
     } elseif ($project->slug === 'woodbound') {
         $ogImage = '/assets/img/woodbound-region-development.png';
         $ogImageWidth = 1280;
@@ -40,7 +44,7 @@ if (isset($project) && $project instanceof App\Domain\Project) {
     }
 }
 
-$fullOgImageUrl = str_starts_with((string)$ogImage, 'http') ? (string)$ogImage : rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . (string)$ogImage;
+$fullOgImageUrl = $ogImage === null ? null : (str_starts_with($ogImage, 'http') ? $ogImage : rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . $ogImage);
 
 $baseUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/');
 $jsonLdGraph = [
@@ -106,27 +110,31 @@ $jsonLd = json_encode([
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="dark">
-  <script>(function(){try{var t=localStorage.getItem('theme');if(t==='light'||t==='dark'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+  <meta name="color-scheme" content="light dark">
+  <script>(function(){var t='light';try{var s=localStorage.getItem('theme');if(s==='light'||s==='dark')t=s;}catch(e){}document.documentElement.dataset.theme=t;})();</script>
   <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#0d1019">
+  <meta name="theme-color" content="#f4f0e6">
   <meta name="description" content="<?= Html::escape($description) ?>">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Harfusha Lab">
   <meta property="og:title" content="<?= Html::escape($title) ?>">
   <meta property="og:description" content="<?= Html::escape($description) ?>">
   <meta property="og:url" content="<?= Html::escape($fullUrl) ?>">
+  <?php if ($fullOgImageUrl !== null): ?>
   <meta property="og:image" content="<?= Html::escape($fullOgImageUrl) ?>">
   <meta property="og:image:width" content="<?= Html::escape((string)$ogImageWidth) ?>">
   <meta property="og:image:height" content="<?= Html::escape((string)$ogImageHeight) ?>">
-  <meta property="og:image:alt" content="<?= Html::escape($ogImageAlt) ?>">
+  <meta property="og:image:alt" content="<?= Html::escape((string)$ogImageAlt) ?>">
+  <?php endif; ?>
   <meta property="og:locale" content="<?= $lang->code === 'cs' ? 'cs_CZ' : 'en_US' ?>">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:card" content="<?= $fullOgImageUrl === null ? 'summary' : 'summary_large_image' ?>">
   <meta name="twitter:title" content="<?= Html::escape($title) ?>">
   <meta name="twitter:description" content="<?= Html::escape($description) ?>">
+  <?php if ($fullOgImageUrl !== null): ?>
   <meta name="twitter:image" content="<?= Html::escape($fullOgImageUrl) ?>">
-  <meta name="twitter:image:alt" content="<?= Html::escape($ogImageAlt) ?>">
+  <meta name="twitter:image:alt" content="<?= Html::escape((string)$ogImageAlt) ?>">
+  <?php endif; ?>
   <link rel="canonical" href="<?= Html::escape($fullUrl) ?>">
   <link rel="alternate" type="application/rss+xml" title="Harfusha Lab Journal" href="<?= $lang->path('/feed.xml') ?>">
   <link rel="alternate" hreflang="cs" href="<?= Html::escape(rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . Html::path('cs',$route)) ?>">
@@ -167,8 +175,8 @@ $jsonLd = json_encode([
 <main id="main"><?= $this->fetch('content') ?></main>
 <footer class="site-footer"><div class="shell footer-grid">
   <div><a class="brand" href="<?= $lang->path() ?>">Adam Halfar</a><p><?= $lang->value('Backendový vývoj a vývojářské nástroje', 'Backend development and developer tools') ?></p></div>
-  <div><span class="eyebrow"><?= $lang->value('PRÁCE', 'WORK') ?></span><a href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projekty', 'All projects') ?></a><a href="<?= $lang->path('/connections') ?>"><?= $lang->value('Přehled výsledků', 'Project results') ?></a><a href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Technická rozhodnutí', 'Engineering decisions') ?></a><a href="<?= $lang->path('/homelab') ?>"><?= $lang->value('Mapa domácí sítě', 'Home network map') ?></a><a href="<?= $lang->path('/maker') ?>"><?= $lang->value('3D skenování a tisk', '3D scanning and printing') ?></a></div>
-  <div><span class="eyebrow"><?= $lang->value('AKTIVITA', 'ACTIVITY') ?></span><a href="<?= $lang->path('/journal') ?>"><?= $lang->value('Vývojový deník', 'Development journal') ?></a><a href="<?= $lang->path('/now') ?>"><?= $lang->value('Časová osa', 'Work timeline') ?></a><a href="<?= $lang->path('/open-source') ?>">Open source</a><a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></div>
+  <div><span class="eyebrow"><?= $lang->value('PRÁCE', 'WORK') ?></span><a href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projekty', 'All projects') ?></a><a href="<?= $lang->path('/connections') ?>"><?= $lang->value('Projektové skupiny', 'Project groups') ?></a><a href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Technická rozhodnutí', 'Engineering decisions') ?></a><a href="<?= $lang->path('/homelab') ?>"><?= $lang->value('Model domácí sítě', 'Home network model') ?></a><a href="<?= $lang->path('/maker') ?>"><?= $lang->value('3D skenování a tisk', '3D scanning and printing') ?></a></div>
+  <div><span class="eyebrow"><?= $lang->value('AKTIVITA', 'ACTIVITY') ?></span><a href="<?= $lang->path('/journal') ?>"><?= $lang->value('Vývojový deník', 'Development journal') ?></a><a href="<?= $lang->path('/now') ?>"><?= $lang->value('Časová osa', 'Work timeline') ?></a><a href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Open-source práce', 'Open source work') ?></a><a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></div>
   <div class="footer-aside">© <?= date('Y') ?> Adam Halfar</div>
 </div></footer>
 </body></html>

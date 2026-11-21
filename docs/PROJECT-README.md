@@ -2,56 +2,29 @@
 
 **PHP 8.5.12+ · CakePHP 5.4 · MySQL · PHPStan max + CakeDC + strict rules + ShipMonk**
 
-This site is an interactive engineering workshop, not just a self-promotion page. It shows real projects and upstream contributions, a privacy-reviewed model of a home network, and **clearly labelled simulations** visitors can explore themselves. Its own source demonstrates CakePHP MVC/ORM, typed domain objects, migrations, security controls, careful browser code and reproducible validation scripts.
+This repository contains Adam Halfar’s bilingual engineering portfolio. It presents project work and upstream contributions with explicit maturity and evidence limits. The only public interactive model is a curated home-network map; it does not monitor live devices. The site itself uses CakePHP MVC/ORM, typed domain objects, migrations, security controls and reproducible validation scripts.
 
 > **Live site-content snapshot, 16 Nov 2026:** Commit `f05adfe` passed all three jobs in [manual GitHub Actions run #43950641423](https://github.com/Harfusha/harfusha/actions/runs/43950641423). Its verified production archive contains 1,449 packaged files (SHA-256 `6868d237f8cb61d44addd5394b7c9ae59ffeca9bceaca1e74c64e1f45b2f9635`). Post-deploy HTTPS smoke passed; all 40 sitemap URLs and 10 referenced assets returned successfully. The current Tiskov and Discord copy distinguishes catalog/design claims from verified source. No separate staging hostname or production PHP-FPM version check was available.
 
-## Current project-story direction (19 Nov 2026)
+> **Local portfolio revision, 21 Nov 2026:** The eight low-value browser simulations were removed. The nine case studies now use stage-specific bilingual copy; Scan2CAD is labeled as a beta app and shows its offline preview. The curated Home Infrastructure map remains the only public interactive model. These changes are local and have not been deployed; the production snapshot above does not describe the current source.
 
-The catalogue contains **nine** projects. Each detail now follows a concrete input through the components that act on it, then states what remains a prototype, simulation or unverified runtime claim. The source-aligned architecture map is explanatory; it is not telemetry.
+> **Live recheck, 21 Nov 2026:** All 40 HTML URLs in the production sitemap returned HTTP 200, but their content is still the pre-redesign version. The new local candidate has not been deployed. Its previous content-approval receipt is stale: `python scripts/review-public-content.py --verify` reports that public content changed and needs another human review. See the [current portfolio audit and plan](superpowers/plans/2026-11-20-portfolio-credibility.md).
 
-Local AI Hub is described as a repository lifecycle: one idempotent registration, asynchronous preprocessing (inventory, hashes, code index, deterministic cards, optional Serena/RAG and project maps), then exact indexed retrieval and narrow source slices. Exact questions use indexed facts and narrow source slices; broader tasks can compose adaptive context from multiple sources, with RAG and model synthesis after cheaper indexed routes. Models are optional advisers; tests run in the host environment.
+## Current presentation direction (21 Nov 2026)
 
-The Playground uses one method across eight browser-only cases: input → system trace → evidence. The Hub case branches between first-use preprocessing, a warm index and an unavailable local model. Simulations do not invoke the actual Hub, Mutagen, Unity generator, CAD repair or CakePHP server.
-
-Fresh browser captures for the current source snapshot:
-
-![Current Harfusha Lab home](screenshots/readme-home.png)
-
-![Local AI Hub preprocessing map](screenshots/readme-local-ai-hub.png)
-
-![Workbench preprocessing walkthrough](screenshots/readme-playground.png)
-
-![Mobile Local AI Hub walkthrough](screenshots/readme-local-ai-hub-mobile.png)
-
-## Project story captures
-
-| Local AI Hub | Home infrastructure | MutaUI |
-|---|---|---|
-| ![Local AI Hub project story](screenshots/project-story-local-ai-hub.png) | ![Home infrastructure project story](screenshots/project-story-home-infrastructure.png) | ![MutaUI project story](screenshots/project-story-mutaui.png) |
-
-| Scan2CAD | Shpotify | Software Inc multiplayer |
-|---|---|---|
-| ![Scan2CAD project story](screenshots/project-story-scan2cad.png) | ![Shpotify project story](screenshots/project-story-shpotify.png) | ![Software Inc multiplayer project story](screenshots/project-story-softwareinc-multiplayer.png) |
-
-| Tiskov | Woodbound | Discord bot |
-|---|---|---|
-| ![Tiskov project story](screenshots/project-story-tiskov.png) | ![Woodbound project story](screenshots/project-story-woodbound.png) | ![Discord bot project story](screenshots/project-story-discord-bot.png) |
+The catalogue retains nine projects and labels each project’s stage. Project cards and detail pages use the reviewed bilingual project records for summaries, problems, approaches and limits; a project with no source is identified as a record, not presented as verified implementation. Home infrastructure is the one interactive exhibit. Its seven nodes, connections, failure states and request paths use curated data, not live telemetry.
 
 ## Explore the site
 
 | Public URL (both `/cs` and `/en`) | Behavior |
 |---|---|
-| `/` | Project-first homepage with interactive areas and recent *public* repository snapshot |
+| `/` | Project-first homepage with one curated network model and a recent *public* repository snapshot |
 | `/projects` and `/projects/{slug}` | Filterable catalogue and 9 curated case studies, with private project *descriptions* only |
 | `/connections` | Searchable map of three thematic work groups; the groups do not imply technical dependencies between repositories |
 | `/decisions` | Seven explainable architectural choices with context, trade-offs and documented limitations |
-| `/homelab` | Network topology, node inspection, failure simulation and four bilingual conceptual data paths |
-| `/maker` | Physical prototypes, design notes, FDM experiments and links to related software |
-| `/playground#ai` | Branching preprocessing, indexed retrieval and model-offline scenarios; deterministic illustration only |
-| `/playground#sync` | Deterministic synchronization / conflict simulation; **not real Mutagen** |
-| `/playground#world` | Seeded 2D terrain generator; **not the Unity game engine** |
-| `/playground#cad` | Client-only STL inspection with file/coordinate limits; **not CAD repair** |
+| `/homelab` | Curated network graph, service details, simulated outages and four illustrative data paths; no live status |
+| `/maker` | Two separate Scan2CAD beta and Tiskov proposal cards, with an explicitly labeled illustration |
+| `/playground` | Retired route; redirects to the home-network model |
 | `/open-source` | Real external PR/issues, filterable and linked to upstream sources |
 | `/journal` | Engineering log, newest first; unlisted notes can be drafts in MySQL |
 | `/about` | Engineering profile and values |
@@ -62,8 +35,8 @@ Additional endpoints: `/healthz` (simple public liveness, not DB health), `/site
 
 - **CakePHP MVC and Cake ORM** with typed `Project` values, status enum, type-annotated Entities, typed TableLocator FQCNs and curated-content boundary validator. Domain and validation logic can run independently of the web framework.
 - **MySQL** stores editorial overrides, public journal entries/drafts, cached GitHub activity, sync-run receipts and append-only editorial fingerprints. Static reviewed JSON remains readable with no DB.
-- **No Node service, background daemon, WebSocket or third-party browser CDN** on hosting. SSR templates use vanilla JS/CSS; heavy demos run locally in the browser and import **zero** secret configuration.
-- **Local deterministic JS core** (`lab-core.js`) provides network outage propagation, curated route validation/tracing, synchronization resolution, terrain noise and bounded STL parsing. The same functions are exercised by Node tests and JSDoc/TypeScript strict checking.
+- **No Node service, background daemon, WebSocket or third-party browser CDN** on hosting. SSR templates use vanilla JS/CSS; the network map uses public curated data and makes no server requests.
+- **Local deterministic JS core** (`lab-core.js`) models dependency failure propagation and validates/traces the curated network paths. Focused Node tests cover those functions.
 - **Bilingual** route scopes, accessible navigation and interactive SVG elements with keyboard activation.
 - **No live homelab access:** the graph is a manually approved abstraction, not a scan of machines or credentials. Any real telemetry would require a separate redaction and consent design.
 
@@ -140,7 +113,7 @@ Unlike the source ZIP, the production builder **runs** Composer quality, static 
 ## Earlier implementation notes (15 Nov 2026)
 
 - GitHub profile `README.md` is English-only; bilingual web pages remain available at `/cs/` and `/en/`.
-- API `demo` fields now contain localized first-party routes, not rejected external URLs. Conditional `If-None-Match` honors weak validators, multiple tags and `*`.
+- API `demo` is a localized `/homelab` route only for the home-infrastructure record; other projects return `null`. Conditional `If-None-Match` honors weak validators, multiple tags and `*`.
 - Project/PR counters reflect current records; successfully imported empty GitHub activity no longer resurrects outdated curated fallback entries.
 - CSS and JS URLs are content-fingerprinted to invalidate stale browser caches without manual release timestamps.
 - Browser STL visualization samples up to 6,000 triangles for drawing, batches pointer-driven renders with `requestAnimationFrame` and ignores stale asynchronous file reads. This is a viewer, not an STL repair service.

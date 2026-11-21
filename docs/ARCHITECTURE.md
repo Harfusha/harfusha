@@ -2,7 +2,7 @@
 
 ## Goals
 
-Harfusha Lab is a *digital workshop*, not a marketing microsite. It should work on ordinary Apache/PHP/MySQL shared hosting, with fast SSR page loads, real project provenance, meaningful browser-only demos and no access from the public site to private infrastructure.
+This is Adam Halfar’s engineering portfolio, built on ordinary Apache/PHP/MySQL hosting. Public pages use server-rendered content, link to evidence where available, state project maturity plainly and never connect to private infrastructure.
 
 ## Request lifecycle
 
@@ -42,14 +42,14 @@ MySQL project overrides / journal / GitHub public cache (Cake ORM + prepared SQL
                                                         |
 Scheduled PHP CLI ---> GithubSyncService ---> PUBLIC GitHub API (unauthenticated)
 
-Browser --> self-hosted JS --> SVG home lab + Canvas world/3D + AI/sync demos (purely local)
+Browser --> self-hosted JS --> curated home-network map and outage model
 ```
 
 ## Why PHP+CakePHP instead of SPA/server-side JS
 
 - CakePHP 5.4 demonstrates real production-oriented PHP skill: ORM, commands, migrations, controllers, middleware and security.
 - Rendered content does not depend on JavaScript and avoids hydration overhead.
-- Browser simulations are lazy triggered by their own page DOM and require no server requests.
+- The home-network model is the only public interactive simulation; it uses curated topology data and makes no server requests.
 - MySQL only stores editable metadata and cached public activity, not remote private data.
 - No daemons and no server-side frontend build process. All assets are committed in their deployable form.
 
@@ -84,7 +84,7 @@ Browser --> self-hosted JS --> SVG home lab + Canvas world/3D + AI/sync demos (p
 - Eight curated JSON datasets are validated by `PublicContentValidator` at the trust boundary. `data/maker.json` contains physical projects with planned/prototype/in-use status and a cross-link to a software case study.
 - CakePHP `ProjectOverrides` now supports optional problem/solution overrides without destroying checked-in baseline content; `JournalEntries` supports reversible visibility changes. The second migration adds nullable columns for backward compatibility.
 - `lab-core.js` is a pure browser and Node compatible simulation module. The DOM/UI layer in `app.js` delegates outage/sync/world/STL calculations to tested pure functions.
-- SSR is statically smoke-rendered for every locale and project, and the 48-page offline output is audited for broken internal paths and RSS article permalinks. This complements real CakePHP integration tests, but never replaces them.
+- SSR is statically smoke-rendered for every locale and project, and the 38-page offline output is audited for broken internal paths and RSS article permalinks. This complements real CakePHP integration tests, but never replaces them.
 
 ## Engineering rationale dataset
 
@@ -97,7 +97,6 @@ Třetí migrace zavádí `editorial_audit` s časem, typem, identifikátorem a S
 ## Public API v1 and request-lifecycle teaching model (2026-11-13)
 
 - `src/Controller/ApiController.php` provides a **read-only** CakePHP GET endpoint at `/api/v1/projects[/{slug}]`. It delegates to the existing `ContentRepository`, creates typed `PublicProjectView` DTOs and serializes only allowlisted fields. Links to private repositories are not serialized. Validated language selection, Content-Type, body-hashed ETag and conditional 304 improve predictability and cache performance. See `docs/API.md`.
-- The fifth Playground tab, **CakePHP Request Lab**, simulates request routing, HostGuard, CSRF, session authorization, `EditorialInput` typed validation and a transactional write as an *illustrative diagram*. It never makes HTTP calls, modifies admin content or pretends that a failed browser-only check protects the real backend. Pure `requestTrace` logic is regression-tested alongside the existing four demos.
-- Accessibility: the SVG graph explorers re-focus the selected recreated node after redraw; ARIA tabs accept ArrowLeft/ArrowRight/Home/End. These specific interactions are covered in Chromium browser smoke.
-- The STL ASCII parser uses bounded scan passes rather than materializing an unbounded `matchAll` result array. The viewer accepts up to 8 MB and samples at most 6,000 triangles for interactive rendering, batching redraws per animation frame. The demonstrator is not a metrology or mesh-repair tool.
+- Accessibility: the home-network map exposes devices as keyboard-operable buttons, marks selection state and reports simulated availability to assistive technology. The SVG dependency lines are decorative; equivalent device and service details remain in text.
+- The network graph positions come from `data/topology.json`; curated flows in `data/flows.json` are validated against those dependency edges. The map is a model, not live monitoring.
 - `PublicSitemap` is a typed, standalone-testable multilingual sitemap builder with `xhtml:link` for Czech, English and x-default. A route injection or duplicated path fails closed.

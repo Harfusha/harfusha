@@ -6,21 +6,22 @@ use App\Support\Language;
 /** @var Language $lang */
 ?>
 <section class="page-hero shell about-hero">
+    <span class="eyebrow">PHP · CAKEPHP · DEVELOPER TOOLING</span>
     <h1>Adam Halfar</h1>
-    <p><?= $lang->value('V PHP a CakePHP stavím backendy a přispívám do knihoven, které sám používám. Vyvíjím taky nástroje pro práci s kódem a spravuju vlastní domácí síť.', 'I build backends in PHP and CakePHP and contribute to the libraries I use. I also build developer tools and run a home network.') ?></p>
+    <p><?= $lang->value('Jsem backendový vývojář z Česka. Většinu času pracuji v PHP a CakePHP. Záleží mi na tom, aby šlo i po měsících dohledat, proč systém funguje právě takhle.', 'I’m a backend engineer based in Czechia. Most of my work is in PHP and CakePHP. I care about being able to understand months later why a system works the way it does.') ?></p>
 </section>
 
 <section class="section shell about-grid">
     <div>
-        <h2><?= $lang->value('Jak pracuju', 'How I work') ?></h2>
-        <p><?= $lang->value('Při návrhu backendu začínám u rozhraní a dat. Jasné kontrakty usnadňují změny a testy pomáhají ověřit, že systém funguje i po úpravách. Důležitá rozhodnutí dokumentuji, aby byla srozumitelná i po delší době.', 'I start backend design with interfaces and data. Clear contracts make changes easier, and tests help verify that the system still works after an update. I document important decisions so they remain understandable over time.') ?></p>
-        <p><?= $lang->value('V Local AI Hubu jde výsledek hledání dohledat v kódu. U domácí sítě zase z dokumentace zjistím, které služby sdílejí jeden stroj a co obnovit jako první.', 'In Local AI Hub, lookup results point back to the code. My home network documentation shows which services share a machine and what needs to be restored first.') ?></p>
-        <a class="btn btn-ghost" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Moje open-source příspěvky', 'My open-source contributions') ?> <span aria-hidden="true">↗</span></a>
+        <h2><?= $lang->value('Co mě zajímá', 'What I work on') ?></h2>
+        <p><?= $lang->value('V backendu se soustředím na datová rozhraní, jasné hranice a chování při chybě. Mimo práci v PHP stavím nástroje pro vývojáře, zkouším lokální AI workflow a spravuju domácí služby.', 'In backend work, I focus on data contracts, clear boundaries and failure behavior. Outside PHP, I build developer tools, explore local AI workflows and maintain home services.') ?></p>
+        <p><?= $lang->value('Do veřejných knihoven přispívám změnami, které sám potřebuji. Vybrané příklady a jejich původ najdeš v přehledu open source.', 'I contribute fixes and features I need to the libraries I use. Selected examples and their upstream records are in the open-source section.') ?></p>
+        <a class="btn btn-ghost" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Vybrané upstream změny', 'Selected upstream changes') ?></a>
     </div>
     <aside class="portfolio-profile" aria-labelledby="profile-links-title">
         <h2 id="profile-links-title"><?= $lang->value('Můj profil', 'My profile') ?></h2>
         <a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">
-            <strong>GitHub</strong><span>@Harfusha ↗</span>
+            <strong><?= $lang->value('GitHub · profil a kontakt', 'GitHub · profile and contact') ?></strong><span>@Harfusha ↗</span>
         </a>
         <a href="<?= $lang->path('/projects') ?>">
             <strong><?= $lang->value('Projekty', 'Projects') ?></strong><span aria-hidden="true">↗</span>

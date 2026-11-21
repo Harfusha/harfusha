@@ -36,13 +36,13 @@ Invalid languages return 400. Mutation methods are not registered. There is no C
       "features": ["..."],
       "year": "2026",
       "repository": "https://github.com/Harfusha/local-ai-hub",
-      "demo": "/en/playground#ai"
+      "demo": null
     }
   ]
 }
 ```
 
-The sample record above shows **shape only**, not a guaranteed current project status or a full sample record. The `repository` field is `null` for non-public projects. The `demo` field is a **same-origin, locale-aware path** to one of the explicitly curated interactive simulations (for example `/en/playground#ai` or `/cs/homelab`), or `null` when none is available. These are not live demos of private infrastructure and never disclose internal addresses or external service endpoints. Internal hostnames, IP addresses, authentication, unpublished notes, service endpoints and server telemetry are never serialized.
+The sample record above shows **shape only**, not a guaranteed current project status or a full sample record. The `repository` field is `null` for non-public projects. The `demo` field is a same-origin, locale-aware path to the curated home-network model (`/cs/homelab` or `/en/homelab`) for that project, or `null` when no public interactive model exists. The map is based on reviewed topology data; it does not read live infrastructure. Internal addresses, authentication, unpublished notes, service endpoints and server telemetry are never serialized.
 
 ### Cache semantics
 

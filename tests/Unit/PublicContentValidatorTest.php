@@ -106,12 +106,25 @@ final class PublicContentValidatorTest extends TestCase
         return $rows;
     }
 
+
+    public function testTopologyTranslationsMatchEveryLabel(): void
+    {
+        $row = [
+            'id' => 'server','name' => 'Host','name_cs' => 'Server','kind' => 'compute',
+            'description_cs' => 'Popis','description_en' => 'Description',
+            'tech' => ['Linux'],'tech_cs' => [],'services' => ['Web'],'services_cs' => ['Web'],
+            'depends' => [],'x' => 1,'y' => 1,
+        ];
+        $this->expectException(InvalidArgumentException::class);
+        PublicContentValidator::validate('topology.json', [$row]);
+    }
+
     public function testMissingTopologyCoordinatesAreRejected(): void
     {
         $row = [
-            'id' => 'server','name' => 'Host','kind' => 'compute',
+            'id' => 'server','name' => 'Host','name_cs' => 'Server','kind' => 'compute',
             'description_cs' => 'Popis','description_en' => 'Description',
-            'tech' => ['Linux'],'services' => [],'depends' => [],
+            'tech' => ['Linux'],'tech_cs' => ['Linux'],'services' => [],'services_cs' => [],'depends' => [],
         ];
         $this->expectException(InvalidArgumentException::class);
         PublicContentValidator::validate('topology.json', [$row]);

@@ -98,11 +98,10 @@ final class PagesController extends AppController
 
         return $this->show(
             'home',
-            'Harfusha | Pokusy a projekty Adama Halfara',
-            'Harfusha | Adam Halfar’s experiments and projects',
-            'Projekty Adama Halfara. Zkus si synchronizaci souborů, výpadek zařízení nebo '
-            . 'přepočet měřítka přímo v prohlížeči.',
-            'Adam Halfar’s projects. Try file sync, a device outage or scan calibration directly in the browser.',
+            'Adam Halfar | PHP a vývojářské nástroje',
+            'Adam Halfar | PHP and developer tools',
+            'Portfolio Adama Halfara: projekty v PHP a CakePHP, příspěvky do open-source knihoven a nástroje pro vývoj i provoz.',
+            'Adam Halfar’s portfolio: PHP and CakePHP projects, open-source contributions, and tools for development and operations.',
             '/',
             [
                 'projects' => array_slice($featured, 0, 4),
@@ -167,10 +166,10 @@ final class PagesController extends AppController
     {
         return $this->show(
             'connections',
-            'Co je ověřené | Harfusha',
-            'What’s Been Verified | Harfusha',
-            'Samostatné projekty, jejich fáze a případové studie.',
-            'Independent projects, their stages and case studies.',
+            'Skupiny projektů | Harfusha',
+            'Project groups | Harfusha',
+            'Tematický přehled projektů a jejich současné fáze.',
+            'A thematic index of projects and their current stages.',
             '/connections',
             ['projects' => $this->content()->projects()],
         );
@@ -183,28 +182,22 @@ final class PagesController extends AppController
     {
         return $this->show(
             'homelab',
-            'Mapa domácí sítě | Harfusha Lab',
-            'Home Network Map | Harfusha Lab',
-            'Prozkoumej síť, služby a simulaci výpadků.',
-            'Explore the network, services and failure simulations.',
+            'Mapa závislostí domácí sítě | Harfusha',
+            'Home network dependency map | Harfusha',
+            'Prozkoumej dokumentovaná zařízení, služby a dopady výpadků.',
+            'Explore documented devices, services and outage impacts.',
             '/homelab',
             ['nodes' => $this->content()->topology(), 'flows' => $this->content()->flows()],
         );
     }
 
     /**
-     * Render the browser-side engineering demonstrations.
+     * Keep old playground links useful by redirecting to the maintained network map.
      */
     public function playground(): Response
     {
-        return $this->show(
-            'playground',
-            'Interaktivní pokusy | Harfusha',
-            'Browser experiments | Harfusha',
-            'Modely synchronizace, 3D rekonstrukce a dalších projektů přímo v prohlížeči.',
-            'Browser-based models of file sync, 3D reconstruction and other projects.',
-            '/playground',
-        );
+        $lang = (string)$this->request->getParam('lang', 'cs');
+        return $this->redirect('/' . ($lang === 'en' ? 'en' : 'cs') . '/homelab', 301) ?? $this->response;
     }
 
     /**
@@ -224,18 +217,18 @@ final class PagesController extends AppController
     }
 
     /**
-     * Render the documented physical engineering projects.
+     * Render the independent 3D scanning and print-preparation projects.
      */
     public function maker(): Response
     {
         return $this->show(
             'maker',
-            'Od skenu k tisku | Harfusha',
-            'From Scan to Print | Harfusha',
-            'Projekty Scan2CAD Studio a Tiskov.',
-            'The Scan2CAD Studio and Tiskov projects.',
+            '3D skeny a příprava tisku | Harfusha',
+            '3D Scanning and Print Preparation | Harfusha',
+            'Dva samostatné projekty: rekonstrukce CAD modelu ze skenu a návrh služby pro poptávky 3D tisku.',
+            'Two separate projects: CAD reconstruction from a scan and a proposed service for 3D-print requests.',
             '/maker',
-            ['items' => $this->content()->maker()],
+            [],
         );
     }
 

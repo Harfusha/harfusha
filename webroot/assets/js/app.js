@@ -27,7 +27,7 @@
         item.classList.toggle('hidden', !matched);
         if (matched) visible++;
       }
-      if (count) count.textContent = `${visible} ${local(visible === 1 ? 'záznam' : visible >= 2 && visible <= 4 ? 'záznamy' : 'záznamů', visible === 1 ? 'result' : 'results')}`;
+      if (count) count.textContent = `${local('Počet záznamů:', 'Results:')} ${visible}`;
       empty?.classList.toggle('hidden', visible > 0);
       groups.forEach(group => { group.hidden = !$$(`${itemSelector}:not(.hidden)`, group).length; });
     };
@@ -50,22 +50,6 @@
   initFilter($('[data-project-browser]'), '[data-project]', [['[data-filter]', 'category']]);
   initFilter($('[data-activity-browser]'), '[data-activity]', [['[data-year]', 'year'], ['[data-state]', 'state'], ['[data-kind]', 'kind']]);
   initFilter($('[data-decision-browser]'), '[data-decision]', [['[data-decision-status]', 'status'], ['[data-decision-project]', 'project']]);
-  const contributionDialog = $('[data-activity-dialog]');
-  if (contributionDialog) {
-    $$('[data-activity-inspect]').forEach(button => button.addEventListener('click', () => {
-      $('[data-activity-title]', contributionDialog).textContent = button.dataset.inspectTitle || '';
-      $('[data-activity-repo]', contributionDialog).textContent = `${button.dataset.inspectRepo || ''} · ${button.dataset.inspectState || ''}`;
-      const anchor = $('[data-activity-url]', contributionDialog);
-      anchor.href = button.dataset.inspectUrl || '#';
-      if (typeof contributionDialog.showModal === 'function') contributionDialog.showModal();
-      else anchor.click();
-    }));
-    contributionDialog.addEventListener('click', e => {
-      if (e.target === contributionDialog) contributionDialog.close();
-    });
-  }
-
-
   function initAdmin() {
     const root = $('[data-admin-editor]');
     if (!root) return;
@@ -109,7 +93,7 @@
         if (matches) visible++;
       });
       domains.forEach(domain => { domain.hidden = !$$('[data-map-project]', domain).some(card => !card.hidden); });
-      if (status) status.textContent = `${visible} ${status.dataset.label || ''}`.trim();
+      if (status) status.textContent = `${status.dataset.label || ''} ${visible}`.trim();
       if (empty) empty.hidden = visible !== 0;
     };
     search?.addEventListener('input', filter);
@@ -151,7 +135,7 @@
         button.setAttribute('aria-pressed', String(active));
       });
       if (empty) empty.hidden = visible !== 0;
-      if (count) count.textContent = `${visible} ${local(visible === 1 ? 'zápisek' : visible >= 2 && visible <= 4 ? 'zápisky' : 'zápisků', visible === 1 ? 'entry' : 'entries')}`;
+      if (count) count.textContent = `${local('Počet zápisů:', 'Entries:')} ${visible}`;
     };
     buttons.forEach(button => button.addEventListener('click', () => {
       year = button.dataset.journalYear || 'all';
@@ -207,6 +191,23 @@
     let selected = 'pi', view = 'services';
     const knockedOut = new Set();
     const nodeMap = new Map(nodes.map(n => [n.id, n]));
+    const edgeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    edgeSvg.classList.add('lab-topology-edges');
+    edgeSvg.setAttribute('viewBox', '0 0 1000 600');
+    edgeSvg.setAttribute('preserveAspectRatio', 'none');
+    edgeSvg.setAttribute('aria-hidden', 'true');
+    const edges = [];
+    nodes.forEach(node => (node.depends || []).forEach(parentId => {
+      const parent = nodeMap.get(parentId);
+      if (!parent) return;
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', parent.x);
+      line.setAttribute('y1', parent.y);
+      line.setAttribute('x2', node.x);
+      line.setAttribute('y2', node.y);
+      edgeSvg.append(line);
+      edges.push({ line, parentId, nodeId: node.id });
+    }));
     const countLabel = (count, cs, en) => language === 'en'
       ? `${count} ${en}`
       : `${count} ${count === 1 ? cs[0] : count < 5 && count > 1 ? cs[1] : cs[2]}`;
@@ -216,9 +217,15 @@
       const up = id => !down.has(id);
       const flowStatus = core.traceFlow(nodes, currentFlow, [...knockedOut]);
       const selectedNode = nodeMap.get(selected);
+      edges.forEach(({line, parentId, nodeId}) => {
+        const onFlow = view === 'flows' && currentFlow.path.includes(parentId) && currentFlow.path.includes(nodeId);
+        const related = view === 'dependencies' && (selected === parentId || selected === nodeId);
+        line.classList.toggle('is-in-path', onFlow || related);
+        line.classList.toggle('is-down', !up(parentId) || !up(nodeId));
+      });
       flowToolbar.classList.toggle('hidden', view !== 'flows');
       flowInspector.classList.toggle('hidden', view !== 'flows');
-      devices.replaceChildren(...nodes.map(node => {
+      devices.replaceChildren(edgeSvg, ...nodes.map(node => {
         const active = node.id === selected;
         const alive = up(node.id);
         const inPath = view === 'flows' && currentFlow.path.includes(node.id);
@@ -240,6 +247,8 @@
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'lab-device';
+        button.style.left = `${node.x / 10}%`;
+        button.style.top = `${node.y / 6}%`;
         button.classList.toggle('is-selected', active);
         button.classList.toggle('is-in-path', inPath || related);
         button.classList.toggle('is-down', !alive);
@@ -439,438 +448,6 @@
     }
   };
 
-  function initScale(root) {
-    if (!root) return;
-    const scaleForm = $('[data-scale-form]', root);
-    if (!scaleForm) return;
-    const quickControls = $('[data-quick-scale-controls]', scaleForm);
-    if (quickControls) quickControls.disabled = false;
-    const renderScale = () => {
-      const mm = Number($('[data-scale-mm]', root).value);
-      const pixels = Number($('[data-scale-pixels]', root).value);
-      const probeInput = $('[data-scale-probe]', root).value;
-      const probe = Number(probeInput);
-      const valid = probeInput !== '' && Number.isFinite(mm) && mm > 0 && Number.isFinite(pixels) && pixels > 0 && Number.isFinite(probe) && probe >= 0;
-      $('[data-scale-result]', root).textContent = valid ? local(`${(pixels / mm).toFixed(2)} px/mm`, `${(pixels / mm).toFixed(2)} px/mm`) : local('Zadej platné kladné měření.', 'Enter a valid positive measurement.');
-      $('[data-scale-probe-result]', root).textContent = valid ? local(`${probe} px odpovídá ${(probe * mm / pixels).toFixed(2)} mm`, `${probe} px corresponds to ${(probe * mm / pixels).toFixed(2)} mm`) : '';
-    };
-    $$('[data-scale-preset]', root).forEach(btn => {
-      btn.addEventListener('click', () => {
-        const p = btn.dataset.scalePreset;
-        const mmEl = $('[data-scale-mm]', root);
-        const pxEl = $('[data-scale-pixels]', root);
-        const probeEl = $('[data-scale-probe]', root);
-        if (p === 'standard') {
-          mmEl.value = '84';
-          pxEl.value = '420';
-          probeEl.value = '30';
-        } else if (p === 'macro') {
-          mmEl.value = '12.5';
-          pxEl.value = '625';
-          probeEl.value = '50';
-        } else if (p === 'uncalibrated') {
-          mmEl.value = '0';
-          pxEl.value = '420';
-          probeEl.value = '30';
-        }
-        renderScale();
-      });
-    });
-    scaleForm.addEventListener('submit', event => event.preventDefault());
-    scaleForm.addEventListener('input', renderScale);
-    renderScale();
-  }
-  initScale($('[data-quick-scale]'));
-
-  function initPlayground() {
-    const root = $('[data-playground]');
-    if (!root) return;
-    const preprocessForm = $('[data-preprocess-form]', root);
-    const preprocessPath = $('[data-preprocess-path]', root);
-    const preprocessContent = $('[data-preprocess-content]', root);
-    const baselinePath = preprocessPath.value;
-    const baselineContent = preprocessContent.value;
-    const digest = async value => {
-      const bytes = new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value)));
-      return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
-    };
-    const renderPreprocess = async () => {
-      const path = preprocessPath.value.trim().replaceAll('\\', '/').replace(/^\.\//, '');
-      const kind = $('[data-preprocess-kind]', root).value;
-      const title = $('[data-preprocess-title]', root);
-      const hash = $('[data-preprocess-hash]', root);
-      const list = $('[data-preprocess-steps]', root);
-      const note = $('[data-preprocess-note]', root);
-      hash.textContent = '';
-      if (!path) {
-        title.textContent = local('Doplň cestu k souboru.', 'Enter a file path.');
-        list.replaceChildren();
-        note.textContent = '';
-        return;
-      }
-      const excluded = path.split('/').some(part => part === '.git' || part === 'node_modules');
-      if (excluded) {
-        title.textContent = local('Cesta je vyloučená před čtením obsahu.', 'The path is excluded before its content is read.');
-        list.replaceChildren(...[local(`Vyřazovací pravidlo odpovídá části cesty „${path}“.`, `The exclusion rule matches “${path}”.`), local('Soubor se nehashuje a žádný navazující index se kvůli němu neobnovuje.', 'The file is not hashed and no downstream index is rebuilt for it.')].map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
-        note.textContent = local('Jde o demonstrační pravidlo této stránky.', 'This is the page’s demonstration rule.');
-        return;
-      }
-      let currentHash = null;
-      let baselineHash = null;
-      try {
-        if (crypto.subtle) [currentHash, baselineHash] = await Promise.all([digest(preprocessContent.value), digest(baselineContent)]);
-      } catch { /* Offline previews may not provide Web Crypto; exact text comparison still models change detection. */ }
-      const unchanged = currentHash === null ? preprocessContent.value === baselineContent : currentHash === baselineHash;
-      hash.textContent = currentHash ?? local('SHA-256 vyžaduje HTTPS', 'SHA-256 requires HTTPS');
-      if (unchanged) {
-        title.textContent = local('Obsah beze změny — použijí se připravené podklady.', 'Content unchanged — reuse prepared evidence.');
-        list.replaceChildren(...[local('Fingerprint odpovídá uloženému základu.', 'The fingerprint matches the stored baseline.'), local('Code index, textové hledání i další odvozené podklady zůstávají použitelné.', 'The code index, text search and other derived evidence remain reusable.')].map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
-        note.textContent = local('Uprav obsah a přepočítej fingerprint; data neopustí tento prohlížeč.', 'Edit the content and recalculate; no data leaves this browser.');
-        return;
-      }
-      const downstream = kind === 'code'
-        ? [local('Obnovit code index, strukturu a lexikální hledání.', 'Refresh the code index, structure and lexical search.'), local('Volitelné RAG a další analýzy znovu použít jen podle potřeby.', 'Reuse optional RAG and other analysis only where needed.')]
-        : kind === 'doc'
-          ? [local('Obnovit textový index dokumentace.', 'Refresh the documentation text index.')]
-          : [local('Zachovat inventární metadata; obsah předat jen povolenému specializovanému zpracování.', 'Keep inventory metadata; send content only to an enabled specialized processor.')];
-      title.textContent = local('Obsah se změnil — navazující podklady je třeba obnovit.', 'Content changed — dependent evidence needs refreshing.');
-      list.replaceChildren(...[local('SHA-256 se liší od uloženého základu.', 'SHA-256 differs from the stored baseline.'), ...downstream].map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
-      note.textContent = local('V reálném Hubu se změna zapisuje do obnovitelné dávky. Tady se pouze počítá otisk ukázkového textu.', 'The real Hub checkpoints changes in resumable batches. Here we only fingerprint sample text.');
-    };
-    $('[data-preprocess-run]', root).addEventListener('click', renderPreprocess);
-    $('[data-preprocess-reset]', root).addEventListener('click', () => {
-      preprocessPath.value = baselinePath;
-      preprocessContent.value = baselineContent;
-      renderPreprocess();
-    });
-    $$('[data-preprocess-preset]', root).forEach(btn => {
-      btn.addEventListener('click', () => {
-        const p = btn.dataset.preprocessPreset;
-        if (p === 'python') {
-          preprocessPath.value = 'src/worker.py';
-          preprocessContent.value = 'def answer():\n    # Modified AST rule\n    return 42 * 2';
-          $('[data-preprocess-kind]', root).value = 'code';
-        } else if (p === 'markdown') {
-          preprocessPath.value = 'docs/architecture.md';
-          preprocessContent.value = '# Architecture Blueprint\n- Core AST indexer\n- Inverted lexical index';
-          $('[data-preprocess-kind]', root).value = 'doc';
-        } else if (p === 'binary') {
-          preprocessPath.value = 'assets/schematic.png';
-          preprocessContent.value = '[binary png blob]';
-          $('[data-preprocess-kind]', root).value = 'asset';
-        }
-        renderPreprocess();
-      });
-    });
-    renderPreprocess();
-    const syncForm = $('[data-sync-form]', root);
-    const parseManifest = selector => {
-      const manifest = new Map();
-      for (const line of $(selector, root).value.split(/\r?\n/).map(value => value.trim()).filter(Boolean)) {
-        const divider = line.indexOf('|');
-        const path = line.slice(0, divider).trim();
-        const revision = line.slice(divider + 1).trim();
-        if (divider < 1 || !revision || manifest.has(path)) throw new Error('manifest');
-        manifest.set(path, revision);
-      }
-      return manifest;
-    };
-    const renderSync = () => {
-      const title = $('[data-sync-title]', root);
-      const summary = $('[data-sync-summary]', root);
-      const operations = [];
-      const conflicts = [];
-      try {
-        const base = parseManifest('[data-sync-base]');
-        const localCopy = parseManifest('[data-sync-local]');
-        const remoteCopy = parseManifest('[data-sync-remote]');
-        const mode = $('[data-sync-mode]', root).value;
-        for (const path of new Set([...base.keys(), ...localCopy.keys(), ...remoteCopy.keys()])) {
-          const before = base.get(path);
-          const localRevision = localCopy.get(path);
-          const remoteRevision = remoteCopy.get(path);
-          if (mode === 'one-way') {
-            if (localRevision !== remoteRevision) operations.push(localRevision === undefined
-              ? local(`Odstranit ${path} z druhé kopie.`, `Remove ${path} from the other copy.`)
-              : local(`Kopírovat ${path}: druhá kopie → moje (${remoteRevision ?? 'nový soubor'} → ${localRevision}).`, `Copy ${path}: other copy → mine (${remoteRevision ?? 'new file'} → ${localRevision}).`));
-            continue;
-          }
-          const localChanged = localRevision !== before;
-          const remoteChanged = remoteRevision !== before;
-          if (localChanged && remoteChanged && localRevision !== remoteRevision) conflicts.push(path);
-          else if (localChanged && localRevision !== remoteRevision) operations.push(localRevision === undefined
-            ? local(`Odstranit ${path} z druhé kopie.`, `Remove ${path} from the other copy.`)
-            : local(`Poslat ${path}: moje kopie → druhá kopie (${localRevision}).`, `Send ${path}: my copy → other copy (${localRevision}).`));
-          else if (remoteChanged && localRevision !== remoteRevision) operations.push(remoteRevision === undefined
-            ? local(`Odstranit ${path} z mojí kopie.`, `Remove ${path} from my copy.`)
-            : local(`Přijmout ${path}: druhá kopie → moje (${remoteRevision}).`, `Receive ${path}: other copy → mine (${remoteRevision}).`));
-        }
-        title.textContent = conflicts.length
-          ? local(`${conflicts.length} konflikt${conflicts.length === 1 ? '' : 'y'} — rozhodni před synchronizací.`, `${conflicts.length} conflict${conflicts.length === 1 ? '' : 's'} — decide before syncing.`)
-          : local(`${operations.length} změn v plánu.`, `${operations.length} change${operations.length === 1 ? '' : 's'} in the plan.`);
-        summary.textContent = local(`${operations.length} přenosů · ${conflicts.length} konfliktů · beze zápisu na disk`, `${operations.length} transfers · ${conflicts.length} conflicts · no disk writes`);
-      } catch {
-        title.textContent = local('Manifest musí mít na každém řádku cestu|revizi.', 'Each manifest line must contain path|revision.');
-        summary.textContent = local('Prázdné řádky jsou povolené; duplicitní cesty nebo prázdné revize ne.', 'Blank lines are allowed; duplicate paths and empty revisions are not.');
-      }
-      $('[data-sync-operations]', root).replaceChildren(...operations.map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
-      $('[data-sync-conflicts]', root).replaceChildren(...conflicts.map(path => { const li = document.createElement('li'); li.textContent = local(`${path}: obě kopie se změnily od společného základu.`, `${path}: both copies changed since the common base.`); return li; }));
-    };
-    $('[data-sync-preview]', syncForm).addEventListener('click', renderSync);
-    $$('[data-sync-scenario]', syncForm).forEach(btn => {
-      btn.addEventListener('click', () => {
-        const scenario = btn.dataset.syncScenario;
-        const baseEl = $('[data-sync-base]', syncForm);
-        const localEl = $('[data-sync-local]', syncForm);
-        const remoteEl = $('[data-sync-remote]', syncForm);
-        const modeEl = $('[data-sync-mode]', syncForm);
-        if (scenario === 'conflict') {
-          baseEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v1';
-          localEl.value = 'config.yml|v2\nREADME.md|v1\ntheme.css|v1\nnotes.md|v1';
-          remoteEl.value = 'config.yml|v3\nREADME.md|v1\ntheme.css|v2';
-          modeEl.value = 'two-way';
-        } else if (scenario === 'clean') {
-          baseEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v1';
-          localEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v1\nnotes.md|v1';
-          remoteEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v2';
-          modeEl.value = 'two-way';
-        } else if (scenario === 'authoritative') {
-          baseEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v1';
-          localEl.value = 'config.yml|v2\nREADME.md|v2\ntheme.css|v1';
-          remoteEl.value = 'config.yml|v1\nREADME.md|v1\ntheme.css|v2';
-          modeEl.value = 'one-way';
-        }
-        renderSync();
-      });
-    });
-    renderSync();
-
-    initScale(root);
-
-    const grid = $('[data-route-grid]', root);
-    const gridSize = 8;
-    const start = 0;
-    const goal = gridSize * gridSize - 1;
-    let walls = new Set([10, 17, 18, 26, 34, 42, 50, 51, 52]);
-    const findRoute = blocked => {
-      const previous = Array(gridSize * gridSize).fill(-1);
-      const queue = [start];
-      previous[start] = start;
-      for (let head = 0; head < queue.length && previous[goal] === -1; head++) {
-        const current = queue[head];
-        for (const next of [current - gridSize, current + gridSize, current % gridSize ? current - 1 : -1, current % gridSize < gridSize - 1 ? current + 1 : -1]) {
-          if (next < 0 || next >= previous.length || blocked.has(next) || previous[next] !== -1) continue;
-          previous[next] = current;
-          queue.push(next);
-        }
-      }
-      if (previous[goal] === -1) return null;
-      const path = [];
-      for (let cell = goal; cell !== start; cell = previous[cell]) path.push(cell);
-      path.push(start);
-      return path.reverse();
-    };
-    if (findRoute(new Set()).length !== gridSize * 2 - 1) throw new Error('Route finder self-check failed');
-    const renderRoute = () => {
-      const path = findRoute(walls);
-      grid.replaceChildren();
-      for (let cell = 0; cell < gridSize * gridSize; cell++) {
-        const button = document.createElement('button');
-        const isStart = cell === start;
-        const isGoal = cell === goal;
-        button.type = 'button';
-        button.dataset.routeCell = String(cell);
-        button.className = [isStart ? 'is-start' : '', isGoal ? 'is-goal' : '', walls.has(cell) ? 'is-wall' : '', path?.includes(cell) ? 'is-route' : ''].filter(Boolean).join(' ');
-        button.setAttribute('aria-pressed', String(walls.has(cell)));
-        button.setAttribute('aria-label', isStart ? local('Start', 'Start') : isGoal ? local('Cíl', 'Goal') : walls.has(cell) ? local('Překážka; kliknutím odstranit', 'Obstacle; activate to remove') : local('Volná buňka; kliknutím přidat překážku', 'Open cell; activate to add obstacle'));
-        button.textContent = isStart ? 'S' : isGoal ? 'C' : walls.has(cell) ? '×' : path?.includes(cell) ? '·' : '';
-        if (!isStart && !isGoal) button.addEventListener('click', () => { walls.has(cell) ? walls.delete(cell) : walls.add(cell); renderRoute(); });
-        grid.append(button);
-      }
-      $('[data-route-status]', root).textContent = path ? local('Trasa existuje', 'Route found') : local('Bez průchodu', 'No route');
-      $('[data-route-length]', root).textContent = path ? local(`${path.length - 1} kroků · 4směrný pohyb`, `${path.length - 1} steps · four-direction movement`) : local('Zablokováno překážkami; uprav mřížku.', 'Blocked by obstacles; change the grid.');
-    };
-    $('[data-route-reset]', root).addEventListener('click', () => { walls = new Set([10, 17, 18, 26, 34, 42, 50, 51, 52]); renderRoute(); });
-    $$('[data-route-preset]', root).forEach(btn => {
-      btn.addEventListener('click', () => {
-        const p = btn.dataset.routePreset;
-        if (p === 'clear') {
-          walls = new Set([]);
-        } else if (p === 'wall') {
-          walls = new Set([10, 17, 18, 26, 34, 42, 50, 51, 52]);
-        } else if (p === 'blocked') {
-          walls = new Set([1, 8, 9, 10, 11, 12, 13, 14, 15]);
-        }
-        renderRoute();
-      });
-    });
-    renderRoute();
-
-    const queueList = $('[data-queue-list]', root);
-    const queueVersion = $('[data-queue-version]', root);
-    const queueResult = $('[data-queue-result]', root);
-    let version = 12;
-    let queueItems = ['Night Drive', 'Quiet Signal'];
-    const renderQueue = () => {
-      queueVersion.textContent = String(version);
-      queueList.replaceChildren(...queueItems.map(title => { const li = document.createElement('li'); li.textContent = title; return li; }));
-    };
-    $$('[data-queue-add]', root).forEach(button => button.addEventListener('click', () => {
-      const client = button.dataset.queueAdd;
-      if (version !== 12) {
-        queueResult.textContent = local(`Klient ${client.toUpperCase()} poslal verzi 12, aktuální je ${version}; změna odmítnuta.`, `Client ${client.toUpperCase()} sent version 12, current is ${version}; edit rejected.`);
-        return;
-      }
-      queueItems = [...queueItems, client === 'a' ? 'Client A · Blue Hour' : 'Client B · Slow Motion'];
-      version++;
-      queueResult.textContent = local(`Klient ${client.toUpperCase()} uložil změnu jako verzi ${version}. Druhý klient má zastaralou verzi.`, `Client ${client.toUpperCase()} saved as version ${version}. The other client is stale.`);
-      renderQueue();
-    }));
-    $('[data-queue-reset]', root).addEventListener('click', () => {
-      version = 12;
-      queueItems = ['Night Drive', 'Quiet Signal'];
-      queueResult.textContent = '';
-      renderQueue();
-    });
-    $$('[data-queue-preset]', root).forEach(btn => btn.addEventListener('click', () => {
-      const p = btn.dataset.queuePreset;
-      if (p === 'conflict') {
-        version = 12;
-        queueItems = ['Night Drive', 'Quiet Signal', 'Client A · Track 01'];
-        version = 13;
-        queueResult.textContent = local('Klient B poslal zastaralou verzi 12, aktuální je 13; nastal konflikt verzí a požadavek byl zamítnut.', 'Client B sent stale version 12, current is 13; conflict detected and edit rejected.');
-        renderQueue();
-      } else if (p === 'dedup') {
-        version = 12;
-        queueItems = ['Night Drive', 'Quiet Signal', 'Client A · Track 01'];
-        version = 13;
-        queueResult.textContent = local('Klient A poslal identickou skladbu znovu; deduplikační filtr zachoval konzistentní frontu.', 'Client A sent identical track again; deduplication preserved consistent queue.');
-        renderQueue();
-      } else if (p === 'reset') {
-        version = 12;
-        queueItems = ['Night Drive', 'Quiet Signal'];
-        queueResult.textContent = '';
-        renderQueue();
-      }
-    }));
-    renderQueue();
-
-    const tiskovForm = $('[data-tiskov-form]', root);
-    if (tiskovForm) {
-      const jobsInput = $('[data-tiskov-jobs]', tiskovForm);
-      const workersInput = $('[data-tiskov-workers]', tiskovForm);
-      const minutesInput = $('[data-tiskov-minutes]', tiskovForm);
-      const queue = $('[data-tiskov-queue]', root);
-      const summary = $('[data-tiskov-summary]', root);
-      const renderTiskov = () => {
-        const jobs = jobsInput.valueAsNumber;
-        const workers = workersInput.valueAsNumber;
-        const minutes = minutesInput.valueAsNumber;
-        const batches = Math.ceil(jobs / workers);
-        const queued = Math.max(0, jobs - workers);
-        const lastStart = (batches - 1) * minutes;
-        const finish = batches * minutes;
-        $('[data-tiskov-jobs-value]', tiskovForm).textContent = String(jobs);
-        $('[data-tiskov-workers-value]', tiskovForm).textContent = String(workers);
-        $('[data-tiskov-minutes-value]', tiskovForm).textContent = `${minutes} min`;
-        summary.textContent = local(
-          `${jobs} poptávek se uloží hned; ${queued} čeká na volného workera. Poslední začne asi za ${lastStart} min a celý model doběhne za ${finish} min.`,
-          `${jobs} requests are stored immediately; ${queued} wait for a free worker. The final request starts in about ${lastStart} min and the batch finishes in ${finish} min.`
-        );
-        queue.replaceChildren(...Array.from({length: jobs}, (_, index) => {
-          const item = document.createElement('li');
-          item.className = 'tiskov-job';
-          item.dataset.jobState = index < workers ? 'running' : 'waiting';
-          const number = document.createElement('span');
-          number.className = 'tiskov-job-number';
-          number.textContent = String(index + 1).padStart(2, '0');
-          const detail = document.createElement('span');
-          detail.textContent = index < workers ? local('Zahájeno ihned', 'Starts now') : local('Čeká ve frontě', 'Waiting in queue');
-          item.append(number, detail);
-          return item;
-        }));
-      };
-      [jobsInput, workersInput, minutesInput].forEach(input => input.addEventListener('input', renderTiskov));
-      $$('[data-tiskov-preset]', root).forEach(btn => btn.addEventListener('click', () => {
-        const p = btn.dataset.tiskovPreset;
-        if (p === 'bottleneck') {
-          jobsInput.value = 8;
-          workersInput.value = 1;
-          minutesInput.value = 45;
-        } else if (p === 'parallel') {
-          jobsInput.value = 6;
-          workersInput.value = 3;
-          minutesInput.value = 30;
-        } else if (p === 'express') {
-          jobsInput.value = 3;
-          workersInput.value = 2;
-          minutesInput.value = 15;
-        }
-        renderTiskov();
-      }));
-      renderTiskov();
-    }
-
-    const outageForm = $('[data-outage-form]', root);
-    const renderOutage = () => {
-      const host = $('[data-outage-host]', root).value;
-      const cases = {
-        'main-pi': [local('Hlavní Raspberry Pi je společný bod několika služeb.', 'The main Raspberry Pi is shared by several services.'), [local('Pi-hole a Unbound: lokální DNS filtr a resolver.', 'Pi-hole and Unbound: local DNS filtering and resolution.'), 'Nginx + PHP dashboard, Semaphore, Jellyfin, Transmission, BookStack + MariaDB.', local('systemd spravuje také nasazení Discord bota; jeho aplikace a chování zde ověřené nejsou.', 'systemd also manages the Discord bot deployment; its application and behavior are not verified here.'), local('Přístup k připojeným úložištím může ovlivnit média a soubory.', 'Access to mounted storage can affect media and files.')], local('Router má v konfiguraci veřejné DNS fallbacky; dopad na jmenné dotazy proto nemusí znamenat úplný výpadek internetu.', 'The router has public DNS fallbacks configured, so name resolution may degrade without implying a total internet outage.')],
-        router: [local('Bez brány selže přístup mezi domácí sítí, internetem a VPN.', 'Without the gateway, access between the home network, internet and VPN is affected.'), [local('RouterOS zajišťuje směrování, DHCP, firewall a WireGuard.', 'RouterOS provides routing, DHCP, firewall and WireGuard.'), local('Interní aplikace mohou dál běžet na hostech, ale cesta k nim se přeruší.', 'Internal applications may still run on their hosts, but the route to them is interrupted.')], local('Model odděluje běžící službu od dostupnosti cesty k ní.', 'The model separates a running service from whether there is a route to it.')],
-        nas: [local('Výpadek QNAPu se týká úložiště a cíle záloh.', 'A QNAP outage affects storage and the backup target.'), ['SMB3 sdílení a připojené datové cesty.', local('Restic nemůže zapsat novou zálohu do nedostupného cíle.', 'Restic cannot write a new backup to an unavailable target.'), local('Jellyfin může ztratit média uložená na tomto úložišti.', 'Jellyfin may lose access to media stored on that volume.')], local('Konfigurace budí NAS v plánovaném okně; živý stav a poslední záloha se zde nekontrolují.', 'Configuration wakes the NAS on a schedule; live state and the latest backup are not checked here.')],
-        'print-pi': [local('Samostatná tisková větev se oddělí od hlavního serveru.', 'The separate print branch is isolated from the main server.'), ['CUPS fronta na Raspberry Pi Zero.', local('Tiskárna není dostupná přes tuto síťovou frontu.', 'The printer is unavailable through this network queue.')], local('Ostatní služby hlavního Pi ani NAS tímto modelem přímo zasažené nejsou.', 'Other main Pi and NAS services are not directly affected in this model.')],
-        proxmox: [local('Testovací prostředí je vypnuté.', 'The test environment is offline.'), [local('Proxmox a jeho testovací virtuální stroje nejsou dostupné.', 'Proxmox and its test virtual machines are unavailable.'), local('Běžné domácí služby jsou oddělené od tohoto hostu.', 'Everyday home services are separate from this host.')], local('Proxmox je podle podkladů zapínán podle potřeby, ne provozován jako stálá služba.', 'Sources describe Proxmox as on-demand, not an always-on service.')]
-      };
-      const [title, effects, note] = cases[host];
-      $('[data-outage-title]', root).textContent = title;
-      $('[data-outage-effects]', root).replaceChildren(...effects.map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
-      $('[data-outage-note]', root).textContent = note;
-    };
-    outageForm.addEventListener('change', renderOutage);
-    $$('[data-outage-preset]', root).forEach(btn => {
-      btn.addEventListener('click', () => {
-        $('[data-outage-host]', root).value = btn.dataset.outagePreset;
-        renderOutage();
-      });
-    });
-    renderOutage();
-
-    const authorityForm = $('[data-authority-form]', root);
-    const renderAuthority = () => {
-      const role = $('[data-authority-role]', root).value;
-      const stale = $('[data-authority-version]', root).value === 'stale';
-      const roster = $('[data-authority-roster]', root).checked;
-      const result = !roster
-        ? [local('Zamítnout: hráč není v aktuální sestavě.', 'Reject: player is not in the current roster.'), local('Kontrola rosteru selže dřív, než se dohoda změní.', 'Roster validation fails before the agreement can change.')]
-        : stale
-          ? [local('Zamítnout: základní verze už není aktuální.', 'Reject: the base version is stale.'), local('Klient musí načíst aktuální stav místo přepsání novější dohody.', 'The client must reload current state instead of overwriting a newer agreement.')]
-          : role === 'guest'
-            ? [local('Předat hostiteli k ověření.', 'Send to the host for validation.'), local('Zpráva hráče sama o sobě neukládá změnu do stavu relace.', 'A player message does not save a change into session state by itself.')]
-            : [local('Host může po validaci změnu potvrdit.', 'The host may commit the change after validation.'), local('Hostitel vlastní relaci a save; přijetí zprávy samo neprokazuje platnost všech herních pravidel.', 'The host owns the session and save; receiving a message does not prove every game rule is valid.')];
-      $('[data-authority-title]', root).textContent = result[0];
-      $('[data-authority-detail]', root).textContent = result[1];
-    };
-    authorityForm.addEventListener('change', renderAuthority);
-    $$('[data-authority-preset]', root).forEach(btn => btn.addEventListener('click', () => {
-      const p = btn.dataset.authorityPreset;
-      if (p === 'host') {
-        $('[data-authority-role]', root).value = 'host';
-        $('[data-authority-version]', root).value = 'current';
-        $('[data-authority-roster]', root).checked = true;
-      } else if (p === 'guest') {
-        $('[data-authority-role]', root).value = 'guest';
-        $('[data-authority-version]', root).value = 'current';
-        $('[data-authority-roster]', root).checked = false;
-      } else if (p === 'stale') {
-        $('[data-authority-role]', root).value = 'guest';
-        $('[data-authority-version]', root).value = 'stale';
-        $('[data-authority-roster]', root).checked = true;
-      }
-      renderAuthority();
-    }));
-    renderAuthority();
-  }
-
   // Manual theme switcher (Dark / Light toggle)
   const themeToggle = $('[data-theme-toggle]');
   if (themeToggle) {
@@ -880,20 +457,27 @@
       const icon = $('.theme-toggle-icon', themeToggle);
       if (icon) icon.textContent = isLight ? '☼' : '◐';
     };
-    const savedTheme = localStorage.getItem('theme');
+    let savedTheme = null;
+    try { savedTheme = localStorage.getItem('theme'); } catch (_) {}
     if (savedTheme === 'light' || savedTheme === 'dark') {
       document.documentElement.dataset.theme = savedTheme;
       updateToggleState(savedTheme);
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      if (themeColor) themeColor.content = savedTheme === 'light' ? '#f4f0e6' : '#0d1019';
     } else {
-      const systemLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-      updateToggleState(systemLight ? 'light' : 'dark');
+      document.documentElement.dataset.theme = 'light';
+      updateToggleState('light');
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      if (themeColor) themeColor.content = '#f4f0e6';
     }
     themeToggle.addEventListener('click', () => {
-      const current = document.documentElement.dataset.theme || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      const current = document.documentElement.dataset.theme || 'light';
       const next = current === 'light' ? 'dark' : 'light';
       document.documentElement.dataset.theme = next;
       try { localStorage.setItem('theme', next); } catch (_) {}
       updateToggleState(next);
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      if (themeColor) themeColor.content = next === 'light' ? '#f4f0e6' : '#0d1019';
     });
   }
 
@@ -925,55 +509,4 @@
     });
   });
 
-  // Architecture pipeline ribbon & diagram interaction
-  function initArchitecturePipeline() {
-    const figure = $('[data-project-architecture]');
-    if (!figure) return;
-    const phases = $$('.pipeline-phase', figure);
-    const nodes = $$('[data-architecture-node]', figure);
-    if (!phases.length || !nodes.length) return;
-
-    phases.forEach((phase, stageIdx) => {
-      const activate = () => {
-        phases.forEach(p => p.classList.toggle('is-active', p === phase));
-        nodes.forEach(node => {
-          const match = node.dataset.nodeStage === String(stageIdx);
-          node.classList.toggle('is-highlighted', match);
-        });
-      };
-      phase.addEventListener('mouseenter', activate);
-      phase.addEventListener('focus', activate);
-      phase.addEventListener('click', () => {
-        activate();
-        const targetNode = $(`[data-node-stage="${stageIdx}"]`, figure);
-        if (targetNode) {
-          targetNode.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          targetNode.classList.remove('is-target');
-          void targetNode.offsetWidth;
-          targetNode.classList.add('is-target');
-        }
-      });
-    });
-
-    figure.addEventListener('mouseleave', () => {
-      phases.forEach(p => p.classList.remove('is-active'));
-      nodes.forEach(node => node.classList.remove('is-highlighted'));
-    });
-
-    $$('[data-architecture-edge]', figure).forEach(link => {
-      link.addEventListener('click', () => {
-        const targetId = link.getAttribute('href')?.replace('#', '');
-        if (!targetId) return;
-        const targetNode = document.getElementById(targetId);
-        if (targetNode) {
-          targetNode.classList.remove('is-target');
-          void targetNode.offsetWidth;
-          targetNode.classList.add('is-target');
-        }
-      });
-    });
-  }
-
-  initArchitecturePipeline();
-  initPlayground();
 })();

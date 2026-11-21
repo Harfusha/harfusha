@@ -11,7 +11,12 @@
       "WAN"
     ],
     "services": [],
-    "depends": []
+    "depends": [],
+    "name_cs": "Internet",
+    "tech_cs": [
+      "WAN"
+    ],
+    "services_cs": []
   },
   {
     "id": "router",
@@ -32,6 +37,16 @@
     ],
     "depends": [
       "internet"
+    ],
+    "name_cs": "MikroTik router",
+    "tech_cs": [
+      "RouterOS",
+      "WireGuard"
+    ],
+    "services_cs": [
+      "VPN brána",
+      "Směrování",
+      "Filtrace provozu"
     ]
   },
   {
@@ -59,6 +74,22 @@
     ],
     "depends": [
       "router"
+    ],
+    "name_cs": "Raspberry Pi 5",
+    "tech_cs": [
+      "Debian",
+      "Ansible",
+      "systemd"
+    ],
+    "services_cs": [
+      "Jellyfin",
+      "Pi-hole",
+      "Unbound",
+      "Semaphore",
+      "BookStack + MariaDB",
+      "Nginx + PHP přehled",
+      "Transmission",
+      "Bot pro Discord"
     ]
   },
   {
@@ -80,6 +111,16 @@
     ],
     "depends": [
       "router"
+    ],
+    "name_cs": "NAS QNAP",
+    "tech_cs": [
+      "QTS",
+      "RAID",
+      "Snímky"
+    ],
+    "services_cs": [
+      "Sdílené soubory",
+      "Zálohy"
     ]
   },
   {
@@ -99,6 +140,14 @@
     ],
     "depends": [
       "router"
+    ],
+    "name_cs": "Testovací server Proxmox",
+    "tech_cs": [
+      "Proxmox VE",
+      "Virtuální stroje"
+    ],
+    "services_cs": [
+      "Testovací virtuální stroje"
     ]
   },
   {
@@ -118,6 +167,14 @@
     ],
     "depends": [
       "router"
+    ],
+    "name_cs": "Tiskový uzel Pi Zero",
+    "tech_cs": [
+      "CUPS",
+      "overlayroot"
+    ],
+    "services_cs": [
+      "Síťový tisk"
     ]
   },
   {
@@ -137,6 +194,14 @@
     ],
     "depends": [
       "router"
+    ],
+    "name_cs": "Lokální zařízení",
+    "tech_cs": [
+      "Windows",
+      "LAN"
+    ],
+    "services_cs": [
+      "Vývojářská stanice"
     ]
   }
 ]

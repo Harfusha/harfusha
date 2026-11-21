@@ -21,17 +21,17 @@ $stateLabels = [
 ];
 ?>
 <section class="page-hero shell">
-    <span class="eyebrow"><?= $lang->value('UPSTREAM & CORE FRAMEWORKS', 'UPSTREAM & CORE FRAMEWORKS') ?></span>
-    <h1><?= $lang->value('Open source & jádra frameworků', 'Open Source & Framework Cores') ?></h1>
-    <p><?= $lang->value('Více než 60 sloučených pull requestů v CakePHP, Rectoru a ekosystému PHP. Hloubková typová inference, statická analýza PHPStan na úrovni MAX, paměťová optimalizace SQLite a úpravy AST pravidel v produkčním kódu.', 'Over 60 merged pull requests across CakePHP, Rector and the PHP ecosystem. Deep type inference, PHPStan level MAX static analysis, SQLite memory optimization, and production AST transformations.') ?></p>
+    <span class="eyebrow"><?= $lang->value('PŘÍSPĚVKY DO OPEN-SOURCE PROJEKTŮ', 'OPEN-SOURCE CONTRIBUTIONS') ?></span>
+    <h1><?= $lang->value('Open‑source práce', 'Open‑source contributions') ?></h1>
+    <p><?= $lang->value('Konkrétní změny v CakePHP, DebugKitu, Chronosu a Rectoru. U každé ukázky je odkaz na sloučený pull request.', 'Specific changes to CakePHP, DebugKit, Chronos and Rector, each linked to its merged pull request.') ?></p>
 </section>
 
 <section class="shell section" aria-labelledby="featured-contributions-title">
     <div class="section-heading">
         <div>
-            <span class="eyebrow"><?= $lang->value('ARCHITEKTONICKÉ ZÁSAHY', 'ARCHITECTURAL CONTRIBUTIONS') ?></span>
-            <h2 id="featured-contributions-title"><?= $lang->value('Vlajkové upstream příspěvky', 'Featured Upstream Contributions') ?></h2>
-            <p><?= $lang->value('Výběr zásadních úprav v jádrech frameworků – řešení statické typovosti, úspora paměti a eliminace regresí.', 'Selected core framework modifications – static typing systems, memory optimization, and regression prevention.') ?></p>
+            <span class="eyebrow"><?= $lang->value('VÝBĚR ZMĚN', 'SELECTED CHANGES') ?></span>
+            <h2 id="featured-contributions-title"><?= $lang->value('Vybrané příspěvky', 'Selected contributions') ?></h2>
+            <p><?= $lang->value('Vybrané změny a jejich konkrétní dopad na kód.', 'Selected changes and their specific effect on the code.') ?></p>
         </div>
     </div>
 
@@ -43,21 +43,15 @@ $stateLabels = [
                     <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
                 </div>
                 <h3><?= $lang->value('ORM asociace: PHPStan generika a @mixin podpora', 'ORM Associations: Generic Templates & @mixin for PHPStan') ?></h3>
-                <p class="fc-desc"><?= $lang->value('CakePHP ORM asociace postrádaly typové šablony (Association&lt;TTable&gt;) a @mixin anotace. PHPStan na úrovni MAX hlásil falešné chyby při řetězení dotazů na asociované tabulky. Doplnění generik a @mixin T umožnilo frameworku odvodit přesný typ cílové tabulky bez manuálního přetypování.', 'CakePHP ORM associations lacked generic templates (Association&lt;TTable&gt;) and @mixin annotations. PHPStan MAX threw false positives on chained queries. Adding generics and @mixin T enabled the framework to infer the exact table type automatically without manual casting.') ?></p>
+                <p class="fc-desc"><?= $lang->value('Do tříd BelongsTo a BelongsToMany přibyly šablona T a anotace @mixin T. Statické nástroje tak mohou při práci s asociací vidět API cílové tabulky.', 'The BelongsTo and BelongsToMany classes gained a T template and an @mixin T annotation. Static analysis tools can then see the target table API through the association.') ?></p>
                 <div class="code-block">
                     <div class="code-header">
-                        <span>src/ORM/Association.php</span>
+                        <span>src/ORM/Association/BelongsTo.php</span>
                         <span class="code-tag">PHPStan & Generics</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- /**</span>
-<span class="code-diff-del">-  * @property string $name</span>
-<span class="code-diff-del">-  */</span>
-<span class="code-diff-add">+ /**</span>
-<span class="code-diff-add">+  * @template T of \Cake\ORM\Table</span>
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+  * @template T of \Cake\ORM\Table</span>
 <span class="code-diff-add">+  * @mixin T</span>
-<span class="code-diff-add">+  * @property string $name</span>
-<span class="code-diff-add">+  */</span>
-abstract class Association { ... }</code></pre>
+class BelongsTo extends Association</code></pre>
                 </div>
             </div>
             <div class="fc-meta">
@@ -72,8 +66,8 @@ abstract class Association { ... }</code></pre>
                     <span class="fc-repo">cakephp/debug_kit #1022</span>
                     <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
                 </div>
-                <h3><?= $lang->value('DebugKit: Komprese panelů a optimalizace SQLite I/O', 'DebugKit: Panel Compression & SQLite I/O Optimization') ?></h3>
-                <p class="fc-desc"><?= $lang->value('DebugKit ukládal surová serializovaná data profilovaných požadavků do lokální SQLite databáze. Při zátěžových testech docházelo k nafukování databáze na stovky MB a zamykání SQLite při paralelních požadavcích. Implementace gzdeflate komprese snížila diskovou stopu o 70 % a zrychlila zápisy.', 'DebugKit stored raw serialized panel payloads into local SQLite storage, causing database bloat and write lock contention during high-volume test requests. Implementing gzdeflate compression cut database storage by 70% and slashed write latency.') ?></p>
+                <h3><?= $lang->value('DebugKit: komprese dat panelů', 'DebugKit: Compressing panel data') ?></h3>
+                <p class="fc-desc"><?= $lang->value('Příspěvek komprimuje serializovaná data panelů při uložení a rozbaluje je při čtení. Součástí jsou také změny garbage collection, VACUUM a PRAGMA nastavení SQLite; měřený dopad na velikost ani rychlost není doložen.', 'The change compresses serialized panel data when storing it and inflates it when reading. It also changes garbage collection, VACUUM and SQLite PRAGMA settings; no measured impact on size or speed is documented.') ?></p>
                 <div class="code-block">
                     <div class="code-header">
                         <span>src/Model/Table/RequestsTable.php</span>
@@ -97,16 +91,15 @@ abstract class Association { ... }</code></pre>
                     <span class="fc-repo">rectorphp/rector-src #6201</span>
                     <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
                 </div>
-                <h3><?= $lang->value('Rector: Ochrana čitelnosti a ladění v Code Quality', 'Rector: Preserving Readability & Debugging in Code Quality') ?></h3>
-                <p class="fc-desc"><?= $lang->value('Pravidlo SimplifyUselessVariableRector agresivně likvidovalo mezilehlé proměnné před návratem z funkce. To zhoršovalo čitelnost samovysvětlujícího kódu a znemožňovalo efektivní breakpointy při krokovacím ladění (Xdebug). Vyřazením z výchozí sady se zachovala ergonomie vývoje bez degradace refaktoringu.', 'SimplifyUselessVariableRector aggressively purged intermediate return variables, harming self-documenting code and hindering step debugging via Xdebug. Removing the rule from default SetList::CODE_QUALITY protected developer ergonomics while maintaining AST transformations.') ?></p>
+                <h3><?= $lang->value('Rector: odebrání pravidla z výchozí sady', 'Rector: Removing a rule from the default set') ?></h3>
+                <p class="fc-desc"><?= $lang->value('Pull request odebral SimplifyUselessVariableRector z výchozí sady Code Quality. Zachovává tak při jejím použití mezilehlé proměnné; samostatně lze pravidlo dál zapnout.', 'The pull request removed SimplifyUselessVariableRector from the default Code Quality set. Intermediate variables therefore remain when using that set; the rule can still be enabled separately.') ?></p>
                 <div class="code-block">
                     <div class="code-header">
-                        <span>config/set/code-quality.php</span>
+                        <span>src/Config/Level/CodeQualityLevel.php</span>
                         <span class="code-tag">Rector & AST</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- $rectorConfig->rule(SimplifyUselessVariableRector::class);</span>
-<span class="code-diff-add">+ // Preserves intermediate variables for step debugging (Xdebug)</span>
-<span class="code-diff-add">+ // and expressive domain naming before return statements</span></code></pre>
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;</span>
+<span class="code-diff-del">- SimplifyUselessVariableRector::class,</span></code></pre>
                 </div>
             </div>
             <div class="fc-meta">
@@ -121,20 +114,16 @@ abstract class Association { ... }</code></pre>
                     <span class="fc-repo">cakephp/cakephp #18957</span>
                     <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
                 </div>
-                <h3><?= $lang->value('TableLocator: Typově bezpečný výběr přes FQCN class-string', 'TableLocator: Strict Resolution via FQCN Class-String') ?></h3>
-                <p class="fc-desc"><?= $lang->value('TableLocator::get(\'Users\') spoléhal výhradně na magický textový řetězec, který neumožňoval statickým analyzátorům ověřit existenci třídy ani napovídat specifické metody repositáře. Rozšíření signatury o FQCN class-string (UsersTable::class) zajistilo plnou statickou typovost.', 'TableLocator::get(\'Users\') relied purely on magic strings, preventing static analysis from validating class existence or inferring table repository types. Expanding the API to accept FQCN class-strings (UsersTable::class) unlocked full static type safety.') ?></p>
+                <h3><?= $lang->value('CakePHP ORM: typ tabulky podle FQCN', 'CakePHP ORM: Table type from an FQCN') ?></h3>
+                <p class="fc-desc"><?= $lang->value('Příspěvek zpřesnil PHPDoc metody fetchTable(): pro class-string vrací odpovídající typ tabulky, pro běžný alias obecný Table.', 'The contribution refined fetchTable() PHPDoc: a class-string resolves to its table type, while a regular alias returns the general Table type.') ?></p>
                 <div class="code-block">
                     <div class="code-header">
-                        <span>src/ORM/Locator/TableLocator.php</span>
+                        <span>src/ORM/Locator/LocatorAwareTrait.php</span>
                         <span class="code-tag">Type Safety & ORM</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- public function get(string $alias, array $options = []): Table</span>
-<span class="code-diff-add">+ /**</span>
-<span class="code-diff-add">+  * @template T of Table</span>
-<span class="code-diff-add">+  * @param class-string&lt;T&gt;|string $alias</span>
-<span class="code-diff-add">+  * @return T|Table</span>
-<span class="code-diff-add">+  */</span>
-<span class="code-diff-add">+ public function get(string $alias, array $options = []): Table</span></code></pre>
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+ @template T of \Cake\ORM\Table</span>
+<span class="code-diff-add">+ @param class-string&lt;T&gt;|string|null $alias</span>
+<span class="code-diff-add">+ @return ($alias is class-string&lt;T&gt; ? T : \Cake\ORM\Table)</span></code></pre>
                 </div>
             </div>
             <div class="fc-meta">
@@ -149,19 +138,16 @@ abstract class Association { ... }</code></pre>
                     <span class="fc-repo">cakephp/chronos #460</span>
                     <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
                 </div>
-                <h3><?= $lang->value('CakePHP Chronos: Striktní typování kalendářních operací', 'Chronos: Strict Return Types in Calendar Manipulation') ?></h3>
-                <p class="fc-desc"><?= $lang->value('Metody pro manipulaci s neměnným datem (ChronosDate a Chronos) vracely nepřesné typy (@return static vs @return $this), což v přísných pravidlech PHPStan způsobovalo falešné chyby o nekompatibilitě návratových typů. Úprava sjednotila striktní kovarianci bez narušení zpětné kompatibility.', 'ChronosDate and Chronos manipulation methods returned inconsistent docblock types, causing covariance failures under strict PHPStan analysis. Normalizing returns to static/self across immutable datetime primitives restored static analysis conformance.') ?></p>
+                <h3><?= $lang->value('Chronos: přesné návratové typy metod pro hledání data', 'Chronos: Correct return types for date-finding methods') ?></h3>
+                <p class="fc-desc"><?= $lang->value('Metody jako next(), previous() a firstOfMonth() deklarovaly mixed. Pull request zpřesnil jejich PHPDoc na static a u nthOfMonth() na static|false.', 'Methods such as next(), previous() and firstOfMonth() declared mixed. The pull request refined their PHPDoc to static and nthOfMonth() to static|false.') ?></p>
                 <div class="code-block">
                     <div class="code-header">
-                        <span>src/ChronosDate.php</span>
-                        <span class="code-tag">Chronos & Strict Types</span>
+                        <span>src/ChronosInterface.php</span>
+                        <span class="code-tag">Chronos & PHPDoc</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- /** @return static */</span>
-<span class="code-diff-del">- public function addDays(int $value): static</span>
-<span class="code-diff-add">+ /** @return static */</span>
-<span class="code-diff-add">+ public function addDays(int $value): static</span>
-<span class="code-diff-del">- public function subYears(int $value): DateTimeImmutable</span>
-<span class="code-diff-add">+ public function subYears(int $value): static</span></code></pre>
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">-      * @return mixed</span>
+<span class="code-diff-add">+      * @return static</span>
+     public function next(?int $dayOfWeek = null);</code></pre>
                 </div>
             </div>
             <div class="fc-meta">
@@ -176,16 +162,17 @@ abstract class Association { ... }</code></pre>
                     <span class="fc-repo">cakephp/cakephp #17974</span>
                     <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
                 </div>
-                <h3><?= $lang->value('Databázový ovladač: Trasování leaků otevřených transakcí', 'Database Driver: Tracing Unclosed Transaction Leaks') ?></h3>
-                <p class="fc-desc"><?= $lang->value('Při neuzavřené transakci při odpojení databázového spojení CakePHP logoval pouze generické varování bez kontextu. Přidání klientské IP adresy, HTTP metody a URI požadavku do varování umožnilo okamžitou identifikaci problematického controlleru nebo endpointu přímo z produkčních logů.', 'When an uncommitted transaction remained on connection close, CakePHP logged only a generic warning. Adding client IP, HTTP method, and target URI directly to the disconnect warning enabled immediate attribution to leaking controllers and background workers directly from production logs.') ?></p>
+                <h3><?= $lang->value('CakePHP: kontext požadavku při odpojení s transakcí', 'CakePHP: Request context on disconnect with a transaction') ?></h3>
+                <p class="fc-desc"><?= $lang->value('Pokud se spojení zavírá s aktivní transakcí, varování nově může obsahovat URI požadavku a klientskou IP. Přidává kontext k logu; samo o sobě neurčuje příčinu neuzavřené transakce.', 'When a connection closes with an active transaction, the warning can include the request URI and client IP. This adds context to the log; it does not identify the cause of the unclosed transaction by itself.') ?></p>
                 <div class="code-block">
                     <div class="code-header">
-                        <span>src/Database/Driver.php</span>
-                        <span class="code-tag">Database & Telemetry</span>
+                        <span>src/Database/Connection.php</span>
+                        <span class="code-tag">Database & Logging</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- $this->log('Active transaction on disconnect', 'warning');</span>
-<span class="code-diff-add">+ $context = sprintf('[URI: %s, IP: %s]', $request?->getRequestTarget(), $request?->clientIp());</span>
-<span class="code-diff-add">+ $this->log('Active transaction on disconnect: ' . $context, 'warning');</span></code></pre>
+                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+ $requestUrl = $_SERVER['REQUEST_URI'] ?? '';</span>
+<span class="code-diff-add">+ if ($requestUrl) { $message .= "\nRequest URL: " . $requestUrl; }</span>
+<span class="code-diff-add">+ $clientIp = $_SERVER['REMOTE_ADDR'] ?? '';</span>
+<span class="code-diff-add">+ if ($clientIp) { $message .= "\nClient IP: " . $clientIp; }</span></code></pre>
                 </div>
             </div>
             <div class="fc-meta">
@@ -199,9 +186,9 @@ abstract class Association { ... }</code></pre>
 <section class="shell section" aria-labelledby="activity-history-title">
     <div class="section-heading">
         <div>
-            <span class="eyebrow"><?= $lang->value('KOMPLETNÍ HISTORIE AKTIVIT', 'COMPLETE ACTIVITY HISTORY') ?></span>
-            <h2 id="activity-history-title"><?= $lang->value('Všechny open-source příspěvky', 'All Open-Source Contributions') ?></h2>
-            <p><?= $lang->value('Kompletní auditní stopa pull requestů, issue hlášení a diskusí ve veřejných repozitářích.', 'Complete audit trail of pull requests, issue reports and discussions across public repositories.') ?></p>
+            <span class="eyebrow"><?= $lang->value('PŘEHLED PŘÍSPĚVKŮ', 'CONTRIBUTION SNAPSHOT') ?></span>
+            <h2 id="activity-history-title"><?= $lang->value('Přehled open-source aktivit', 'Open-source activity snapshot') ?></h2>
+            <p><?= $lang->value('Přehled veřejných pull requestů a issue. Původní záznam obsahuje diskusi, komentáře i úplný kontext.', 'An index of public pull requests and issues. The upstream record contains the discussion, comments and full context.') ?></p>
         </div>
     </div>
 
@@ -214,7 +201,7 @@ abstract class Association { ... }</code></pre>
             ? $lang->value('Seznam pochází z posledního úspěšného veřejného importu GitHubu.', 'Entries are from the last successful public GitHub import.')
             : ($provenance['source'] === 'unavailable'
                 ? $lang->value('GitHub data jsou dočasně nedostupná. Historické záznamy nezveřejňujeme jako náhradu.', 'GitHub data is temporarily unavailable. Historical records are not republished as a fallback.')
-                : $lang->value('Zobrazený je ověřený kurátorský snímek přehledu příspěvků.', 'This is a verified curated snapshot of upstream contributions.')) ?><?php if ($provenance['last_sync'] !== null): ?><br><time><?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?></time><?php endif; ?></p>
+                : $lang->value('Jde o výběrový přehled veřejných aktivit, ne o úplnou historii GitHubu.', 'This is a selected view of public activity, not a complete GitHub history.')) ?><?php if ($provenance['last_sync'] !== null): ?><br><time><?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?></time><?php endif; ?></p>
     </div>
 
     <details class="activity-reading">
@@ -282,21 +269,11 @@ abstract class Association { ... }</code></pre>
                     </span>
                 </div>
                 <div class="activity-actions">
-                    <button class="mini-button" type="button" data-activity-inspect data-inspect-title="<?= Html::escape((string)$item['title']) ?>" data-inspect-repo="<?= Html::escape((string)$item['repository']) ?>" data-inspect-state="<?= Html::escape($stateLabel) ?>" data-inspect-url="<?= Html::escape($url) ?>"><?= $lang->value('Detail', 'Inspect') ?></button>
-                    <a class="activity-arrow" href="<?= Html::escape($url) ?>" aria-label="<?= $lang->value('Otevřít na GitHubu', 'Open on GitHub') ?>" target="_blank" rel="noopener noreferrer">↗</a>
+                    <a class="inline-link" href="<?= Html::escape($url) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Otevřít záznam', 'Open upstream') ?></a>
                 </div>
             </article>
         <?php endforeach; ?>
         </div>
         <p class="empty-state hidden" data-empty><?= $lang->value('Nic nebylo nalezeno.', 'No matching activity.') ?></p>
     </div>
-
-    <dialog class="activity-dialog" data-activity-dialog aria-labelledby="activity-dialog-title">
-        <form method="dialog"><button class="mini-button dialog-close" aria-label="<?= $lang->value('Zavřít', 'Close') ?>">✕</button></form>
-        <span class="eyebrow"><?= $lang->value('PŘÍSPĚVEK / ZDROJ', 'UPSTREAM CHANGE / SOURCE RECORD') ?></span>
-        <h2 id="activity-dialog-title" data-activity-title></h2>
-        <p class="activity-dialog-repo" data-activity-repo></p>
-        <p><?= $lang->value('Kompletní diskuse, review kódových změn a kontext řešení jsou dostupné přímo v původním GitHub vláknu.', 'Full code review discussion, commit history, and upstream context are hosted directly on GitHub.') ?></p>
-        <a class="btn btn-primary" data-activity-url target="_blank" rel="noopener noreferrer" href="https://github.com/Harfusha"><?= $lang->value('Otevřít na GitHubu', 'Open on GitHub') ?> ↗</a>
-    </dialog>
 </section>

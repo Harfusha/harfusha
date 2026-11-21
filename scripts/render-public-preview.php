@@ -100,8 +100,7 @@ namespace {
         'connections' => ['projects' => $projects, 'edges' => $catalog->connections()],
         'decisions' => ['decisions' => $catalog->decisions()],
         'homelab' => ['nodes' => $catalog->topology(), 'flows' => $catalog->flows()],
-        'maker' => ['items' => $catalog->maker()],
-        'playground' => ['projects' => $projects],
+        'maker' => [],
         'open-source' => ['activity' => $catalog->contributions(),
         'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null]],
         'journal' => ['journal' => $catalog->journal()],
@@ -109,6 +108,18 @@ namespace {
         'about' => [],
     ];
     $count = 0;
+    $metadata = [
+        'home' => [['Adam Halfar | PHP a vývojářské nástroje', 'Adam Halfar | PHP and developer tools'], ['Portfolio Adama Halfara: projekty v PHP a CakePHP, příspěvky do open-source knihoven a nástroje pro vývoj i provoz.', 'Adam Halfar’s portfolio: PHP and CakePHP projects, open-source contributions, and tools for development and operations.']],
+        'projects' => [['Projekty | Harfusha', 'Projects | Harfusha'], ['Případové studie vývojářských nástrojů, infrastruktury a technických prototypů.', 'Case studies in developer tools, infrastructure and engineering prototypes.']],
+        'connections' => [['Skupiny projektů | Harfusha', 'Project groups | Harfusha'], ['Tematický přehled projektů a jejich současné fáze.', 'A thematic index of projects and their current stages.']],
+        'homelab' => [['Mapa závislostí domácí sítě | Harfusha', 'Home network dependency map | Harfusha'], ['Prozkoumej dokumentovaná zařízení, služby a dopady výpadků.', 'Explore documented devices, services and outage impacts.']],
+        'decisions' => [['Technická rozhodnutí | Harfusha Lab', 'Engineering decisions | Harfusha Lab'], ['Důvody, kompromisy a ověřitelné limity návrhu skutečných projektů.', 'Rationale, trade-offs and stated limitations behind real projects.']],
+        'maker' => [['3D skeny a příprava tisku | Harfusha', '3D Scanning and Print Preparation | Harfusha'], ['Dva samostatné projekty: rekonstrukce CAD modelu ze skenu a návrh služby pro poptávky 3D tisku.', 'Two separate projects: CAD reconstruction from a scan and a proposed service for 3D-print requests.']],
+        'open-source' => [['Open-source příspěvky | Harfusha Lab', 'Open Source | Harfusha Lab'], ['Vybrané pull requesty a hlášení chyb do open-source projektů.', 'Selected pull requests and bug reports in open-source projects.']],
+        'journal' => [['Vývojový deník | Harfusha Lab', 'Development Journal | Harfusha Lab'], ['Poznámky k opravám, novým funkcím a technickým rozhodnutím.', 'Notes on fixes, new features and engineering decisions.']],
+        'now' => [['Co se změnilo | Harfusha', 'What’s Changed | Harfusha'], ['Přehled posledních zaznamenaných změn veřejných repozitářů.', 'A view of the latest recorded changes in public repositories.']],
+        'about' => [['O mně | Harfusha Lab', 'About | Harfusha Lab'], ['Adam Halfar, backendový vývojář se zaměřením na PHP a CakePHP.', 'Adam Halfar, a backend developer focused on PHP and CakePHP.']],
+    ];
     foreach (['cs', 'en'] as $code) {
         $language = new Language($code);
         foreach ($fixtures as $template => $data) {
@@ -118,8 +129,9 @@ namespace {
                 throw new \RuntimeException('Cannot create preview directory');
             }
             $html = (new OfflineView())->build($root . '/templates/Pages/' . ($template === 'open-source' ? 'open_source' : $template) . '.php', [
-                'lang' => $language, 'route' => $route, 'title' => 'Harfusha Lab',
-                'description' => 'Offline view smoke preview', ...$data,
+                'lang' => $language, 'route' => $route,
+                'title' => $language->value(...$metadata[$template][0]),
+                'description' => $language->value(...$metadata[$template][1]), ...$data,
             ]);
             file_put_contents($dir . '/index.html', $html);
             $count++;
@@ -143,7 +155,7 @@ namespace {
             }
             $html = (new OfflineView())->build($root . '/templates/Pages/project.php', [
                 'lang' => $language, 'route' => '/projects/' . $project->slug,
-                'title' => $project->name, 'description' => $project->summary($language),
+                'title' => $project->name . ' | Harfusha Lab', 'description' => $project->summary($language),
                 'project' => $project, 'related' => $relations,
                 'decisions' => array_values(array_filter($catalog->decisions(),
                     static fn (\App\Domain\EngineeringDecision $entry): bool => $entry->project === $project->slug)),
