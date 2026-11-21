@@ -18,7 +18,7 @@ $states = [
     'beta' => $lang->value('Beta', 'Beta'),
     'prototype' => $lang->value('Prototyp', 'Prototype'),
     'proposal' => $lang->value('Návrh', 'Proposal'),
-    'record' => $lang->value('Záznam bez zdrojového kódu', 'Record without source code'),
+    'record' => $lang->value('Provozní záznam', 'Operations record'),
 ];
 ?>
 <section class="page-hero shell project-map-hero">

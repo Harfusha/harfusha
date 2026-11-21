@@ -72,6 +72,11 @@ for html in htmls:
         for phrase in required_copy:
             if phrase not in content:
                 errors.append(f'{rel}: missing verified operations detail: {phrase}')
+    if rel in (Path('cs/connections/index.html'), Path('en/connections/index.html'), Path('cs/projects/index.html'), Path('en/projects/index.html')):
+        stale_status_labels = ('Záznam bez zdrojového kódu', 'Record without source code', 'záznam bez kódu', 'record without source')
+        for phrase in stale_status_labels:
+            if phrase in content:
+                errors.append(f'{rel}: stale record filler remains: {phrase}')
     if rel in (Path('cs/projects/scan2cad/index.html'), Path('en/projects/scan2cad/index.html')):
         repeated_disclaimers = (
             'not a physical measurement or certification',

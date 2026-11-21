@@ -44,7 +44,7 @@ $categories = array_unique(array_map(static fn (Project $project): string => $pr
 <section class="shell section reading-footer" aria-labelledby="catalog-next-title">
     <div>
         <h2 id="catalog-next-title"><?= $lang->value('Jak číst stav projektů', 'How to read project status') ?></h2>
-        <p><?= $lang->value('Veřejný zdroj, beta, prototyp, návrh a záznam bez kódu nejsou stejná úroveň důkazu. Rozsah i omezení uvádí stránka každého projektu.', 'Public source, beta, prototype, proposal and record without source are different levels of evidence. Each project page states its scope and limits.') ?></p>
+        <p><?= $lang->value('Veřejný zdroj, beta, prototyp, návrh a provozní záznam nejsou stejná úroveň důkazu. Rozsah i omezení uvádí stránka každého projektu.', 'Public source, beta, prototype, proposal and operations record are different levels of evidence. Each project page states its scope and limits.') ?></p>
     </div>
     <a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Prohlédnout tematické skupiny', 'Browse topic groups') ?> <span aria-hidden="true">↗</span></a>
 </section>
