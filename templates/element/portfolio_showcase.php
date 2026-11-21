@@ -10,13 +10,14 @@ use App\Support\Language;
 ?>
 <article class="showcase-card">
     <?php if ($project->slug === 'local-ai-hub'): ?>
-    <figure class="showcase-visual showcase-source">
-        <figcaption><?= $lang->value('VEŘEJNÝ ZDROJ · KÓD REPOZITÁŘE', 'PUBLIC SOURCE · REPOSITORY CODE') ?></figcaption>
-        <div class="showcase-evidence">
-            <span class="eyebrow">MCP · AST · SOURCE SLICES</span>
-            <strong><?= $lang->value('Od dotazu k podkladu v repozitáři', 'From a question to repository evidence') ?></strong>
-            <a href="<?= Html::escape(Html::safeUrl($project->repo)) ?>" target="_blank" rel="noopener noreferrer"><?= $lang->value('Prohlédnout zdroj', 'Browse source') ?> <span aria-hidden="true">↗</span></a>
-        </div>
+    <figure class="showcase-visual showcase-architecture">
+        <picture>
+            <source type="image/webp" srcset="/assets/img/local-ai-hub-architecture.webp">
+            <img src="/assets/img/local-ai-hub-architecture.png"
+                width="1380" height="900" loading="lazy"
+                alt="<?= $lang->value('Architektonický diagram Local AI Hub: MCP protokol, indexace AST symbolů a koordinace úloh', 'Local AI Hub architectural blueprint: MCP protocol, AST symbol indexing, and task coordination') ?>">
+        </picture>
+        <figcaption><?= $lang->value('Architektura MCP serveru · AST index a koordinace', 'MCP server architecture · AST index and coordination') ?></figcaption>
     </figure>
     <?php elseif ($project->slug === 'mutaui'): ?>
     <figure class="showcase-visual showcase-desktop">
@@ -24,14 +25,14 @@ use App\Support\Language;
             <source type="image/webp" srcset="<?= $lang->value('/assets/img/mutaui-overview-cs-light.webp', '/assets/img/mutaui-sync-en-light.webp') ?>">
             <img src="<?= $lang->value('/assets/img/mutaui-overview-cs-light.png', '/assets/img/mutaui-sync-en-light.png') ?>"
                 width="1380" height="900" loading="lazy"
-                alt="<?= $lang->value('Přehled synchronizačních relací a systémových prostředků v offline demu MutaUI', 'Sync session overview and system resources in MutaUI’s offline demo') ?>">
+                alt="<?= $lang->value('Přehled synchronizačních relací a systémových prostředků v rozhraní MutaUI', 'Sync session overview and system resources in the MutaUI interface') ?>">
         </picture>
-        <figcaption><?= $lang->value('Offline demo · ukázková data', 'Offline demo · sample data') ?></figcaption>
+        <figcaption><?= $lang->value('Desktopové rozhraní · profily synchronizace Mutagen', 'Desktop interface · Mutagen sync profiles') ?></figcaption>
     </figure>
     <?php elseif ($project->slug === 'home-infrastructure'): ?>
     <figure class="showcase-visual showcase-topology">
-        <img src="/assets/img/home-network-model.png" width="1280" height="831" loading="lazy" alt="<?= $lang->value('Statický náhled mapy s nedostupným routerem a navazujícími uzly', 'Static map preview with the router and dependent nodes marked unavailable') ?>">
-        <figcaption><?= $lang->value('Model vybraných částí · bez živé telemetrie', 'Selected network model · no live telemetry') ?></figcaption>
+        <img src="/assets/img/home-network-model.png" width="1280" height="831" loading="lazy" alt="<?= $lang->value('Topologický model domácí sítě s rolemi uzlů a závislostmi služeb', 'Home network topology model with node roles and service dependencies') ?>">
+        <figcaption><?= $lang->value('Topologický model · závislosti služeb a uzlů', 'Topology model · service and node dependencies') ?></figcaption>
     </figure>
     <?php endif; ?>
     <div class="showcase-copy">

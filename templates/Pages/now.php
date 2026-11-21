@@ -40,7 +40,7 @@ krsort($activityYears, SORT_NUMERIC);
 ?>
 <section class="page-hero shell">
   <h1><?= $lang->value('Co se změnilo', 'What’s changed') ?></h1>
-  <p><?= $lang->value('Kde se naposledy měnil kód, co přibylo v deníku a jak dopadly příspěvky do cizích projektů.', 'See where code last changed, what’s new in the journal and how contributions to other projects turned out.') ?></p>
+  <p><?= $lang->value('Přehled nedávné práce: aktivní commity v repozitářích, technické poznámky v inženýrském deníku a sloučené pull requesty do open-source projektů.', 'Recent engineering activity: repository pushes, technical notes from the engineering journal, and merged pull requests across open-source tools.') ?></p>
   <div class="page-meta"><?= $githubSynced ? $lang->value('VEŘEJNÝ IMPORT GITHUBU', 'PUBLIC GITHUB IMPORT') : ($githubUnavailable ? $lang->value('DATA NEDOSTUPNÁ', 'DATA UNAVAILABLE') : $lang->value('RUČNĚ OVĚŘENÝ SNÍMEK', 'REVIEWED SNAPSHOT')) ?> <span>·</span>
   <?php if ($provenance['last_sync'] !== null): ?><?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?>
   <?php elseif ($githubUnavailable): ?><?= $lang->value('Starší záznamy při výpadku nezobrazujeme.', 'Historical records stay hidden while the source is unavailable.') ?>
@@ -63,7 +63,7 @@ krsort($activityYears, SORT_NUMERIC);
     <div class="section-heading">
         <div>
             <h2 id="now-build-title"><?= $lang->value('Nové zápisky', 'Recent notes') ?></h2>
-            <p><?= $lang->value('Co se změnilo a kde si o tom přečíst víc.', 'What changed and where to read more.') ?></p>
+            <p><?= $lang->value('Vybrané záznamy z inženýrského deníku s odkazy na technický kontext a podklady.', 'Selected notes from the engineering journal with direct links to technical context and evidence.') ?></p>
         </div>
         <a class="inline-link" href="<?= $lang->path('/journal') ?>"><?= $lang->value('Celý deník', 'All journal entries') ?> <span aria-hidden="true">↗</span></a>
     </div>

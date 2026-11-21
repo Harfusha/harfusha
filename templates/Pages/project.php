@@ -38,8 +38,23 @@ $stackHeading = match ($project->slug) {
             <?php if ($networkMapHref !== null): ?>
                 <a class="btn btn-primary" href="<?= Html::escape($networkMapHref) ?>"><?= $lang->value('Prozkoumat mapu závislostí', 'Explore the dependency map') ?> <span aria-hidden="true">↓</span></a>
             <?php endif; ?>
+            <?php if ($project->slug === 'discord-bot'): ?>
+                <a class="btn btn-primary" href="<?= $lang->path('/homelab#network-model') ?>"><?= $lang->value('Zobrazit v mapě sítě', 'View on network map') ?> <span aria-hidden="true">→</span></a>
+            <?php endif; ?>
+            <?php if (in_array($project->slug, ['scan2cad', 'tiskov'], true)): ?>
+                <a class="btn btn-primary" href="<?= $lang->path('/maker') ?>"><?= $lang->value('Přehled 3D projektů', '3D projects overview') ?> <span aria-hidden="true">→</span></a>
+            <?php endif; ?>
+            <?php if (in_array($project->slug, ['woodbound', 'shpotify', 'softwareinc-multiplayer'], true)): ?>
+                <a class="btn btn-primary" href="<?= $lang->path('/connections#map-project-' . $project->slug) ?>"><?= $lang->value('Zobrazit v tematické skupině', 'View in project group') ?> <span aria-hidden="true">→</span></a>
+            <?php endif; ?>
+            <?php if ($project->slug === 'local-ai-hub'): ?>
+                <a class="inline-link" href="#hub-preview-title"><?= $lang->value('Diagram architektury', 'Architecture diagram') ?> <span aria-hidden="true">↓</span></a>
+            <?php endif; ?>
             <?php if ($project->slug === 'mutaui'): ?>
                 <a class="inline-link" href="#mutaui-preview-title"><?= $lang->value('Snímky aplikace', 'Application screenshots') ?> <span aria-hidden="true">↓</span></a>
+            <?php endif; ?>
+            <?php if ($project->slug === 'woodbound'): ?>
+                <a class="inline-link" href="#project-source-visual-title"><?= $lang->value('Vývojový záběr', 'Development capture') ?> <span aria-hidden="true">↓</span></a>
             <?php endif; ?>
         </div>
     </div>
@@ -52,6 +67,20 @@ $stackHeading = match ($project->slug) {
     <a href="#project-overview"><?= $lang->value('Přehled', 'Overview') ?></a>
     <a href="#case-evidence-title"><?= $lang->value('Důkazy a omezení', 'Evidence and limits') ?></a>
 </nav>
+<?php if ($project->slug === 'local-ai-hub'): ?>
+<section class="shell project-preview" aria-labelledby="hub-preview-title">
+ <div class="project-preview-copy">
+  <span class="eyebrow"><?= $lang->value('ARCHITEKTURA SYSTÉMU', 'SYSTEM ARCHITECTURE') ?></span>
+  <h2 id="hub-preview-title"><?= $lang->value('Architektura a pipeline Local AI Hubu', 'Local AI Hub Architecture & Pipeline') ?></h2>
+  <p><?= $lang->value('Deterministický pipeline pro kódovací agenty: od indexace AST symbolů přes správu tokenového rozpočtu až po koordinaci úloh v SQLite WAL a volitelnou lokální inferenci.', 'A deterministic pipeline for coding agents: from AST symbol indexing to token budget management, SQLite WAL task coordination, and optional local inference.') ?></p>
+  <a class="inline-link" href="https://github.com/Harfusha/local-ai-hub" target="_blank" rel="noopener noreferrer"><?= $lang->value('Repozitář a dokumentace na GitHubu', 'Repository and documentation on GitHub') ?> ↗</a>
+ </div>
+ <figure><picture>
+  <source type="image/webp" srcset="/assets/img/local-ai-hub-architecture.webp">
+  <img src="/assets/img/local-ai-hub-architecture.png" width="1380" height="900" loading="lazy" alt="<?= $lang->value('Architektonický diagram Local AI Hubu: agenti, MCP protokol, jádro a repozitář', 'Local AI Hub architectural blueprint: agents, MCP protocol, core engine, and repository') ?>">
+ </picture><figcaption><?= $lang->value('Local AI Hub / architektura pipeline / MCP server', 'Local AI Hub / pipeline architecture / MCP server') ?></figcaption></figure>
+</section>
+<?php endif; ?>
 <?php if ($project->slug === 'mutaui'): ?>
 <section class="shell project-preview" aria-labelledby="mutaui-preview-title">
  <div class="project-preview-copy">
@@ -98,4 +127,23 @@ if ($sourceVisual !== null):
 <section class="section shell project-case" id="project-overview" aria-label="<?= $project->status === 'record' ? $lang->value('Přehled záznamu', 'Record overview') : $lang->value('Přehled studie', 'Case study overview') ?>"><div class="case-main"><div class="case-block"><h2><?= Html::escape($caseProblem) ?></h2><p><?= Html::escape($project->problem($lang)) ?></p></div><div class="case-block"><h2><?= Html::escape($caseApproach) ?></h2><p><?= Html::escape($project->solution($lang)) ?></p></div><?php if ($showFeatureList): ?><div class="case-block"><h2><?= Html::escape($featureHeading) ?></h2><ul class="feature-list"><?php foreach ($project->localizedFeatures($lang) as $feature): ?><li><?= Html::escape($feature) ?></li><?php endforeach; ?></ul></div><?php endif; ?>
 </div><div class="case-sidebar"><div class="sidebar-panel"><span class="eyebrow"><?= Html::escape($stackHeading) ?></span><div class="stack-list stack-large"><?php foreach ($project->stack as $tech): ?><span><?= Html::escape($tech) ?></span><?php endforeach; ?></div></div><?php if ($related !== []): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('PROPOJENÉ PROJEKTY','RELATED PROJECTS') ?></span><ul class="service-list"><?php foreach ($related as $item): ?><li><a class="inline-link" href="<?= $lang->path('/projects/'.$item['slug']) ?>"><?= Html::escape($item['name']) ?></a><small> · <?= Html::escape(App\Domain\ProjectConnections::label($item['type'], $lang)) ?></small></li><?php endforeach; ?></ul><a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Prohlédnout skupiny projektů','Browse project groups') ?> ↗</a></div><?php endif; ?><?php if ($showDecisionSummary): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('ARCHITEKTURA A KOMPROMISY','ARCHITECTURE & TRADE-OFFS') ?></span>
 <?php foreach ($decisions as $decision): ?><div class="decision-summary"><h3><?= Html::escape($decision->title($lang)) ?></h3><p><?= Html::escape($decision->choice($lang)) ?></p><p><strong><?= $lang->value("Kompromis: ", "Trade-off: ") ?></strong><?= Html::escape($decision->tradeoff($lang)) ?></p><small><?= Html::escape($decision->evidence($lang)) ?></small></div><?php endforeach; ?>
-<a class="inline-link" href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Všechna technická rozhodnutí','All engineering decisions') ?> ↗</a></div><?php endif; ?></div></section>
+<a class="inline-link" href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Všechna technická rozhodnutí','All engineering decisions') ?> ↗</a></div><?php endif; ?>
+<?php if (in_array($project->slug, ['scan2cad', 'tiskov'], true)): ?>
+<div class="sidebar-panel">
+    <span class="eyebrow"><?= $lang->value('KONTEXT PROJEKTU', 'PROJECT CONTEXT') ?></span>
+    <p><?= $lang->value('Projekt je součástí tematického okruhu digitálního modelování a přípravy 3D tisku.', 'This project is part of the digital modeling and 3D printing preparation theme.') ?></p>
+    <a class="inline-link" href="<?= $lang->path('/maker') ?>"><?= $lang->value('Přehled 3D projektů', '3D projects overview') ?> ↗</a>
+    <br>
+    <a class="inline-link" href="<?= $lang->path('/decisions#' . ($project->slug === 'scan2cad' ? 'scan-to-cad-boundary' : 'slicing-worker')) ?>"><?= $lang->value('Technické rozhodnutí', 'Engineering decision') ?> ↗</a>
+</div>
+<?php endif; ?>
+<?php if ($project->slug === 'discord-bot'): ?>
+<div class="sidebar-panel">
+    <span class="eyebrow"><?= $lang->value('HOSTITELSKÁ INFRASTRUKTURA', 'HOST INFRASTRUCTURE') ?></span>
+    <p><?= $lang->value('Služba běží jako izolovaná systemd jednotka na primárním uzlu sítě pod vyhrazeným systémovým účtem.', 'The service runs as an isolated systemd unit on the primary network node under a dedicated system user.') ?></p>
+    <a class="inline-link" href="<?= $lang->path('/projects/home-infrastructure') ?>"><?= $lang->value('Projekt Home Infrastructure', 'Home Infrastructure project') ?> ↗</a>
+    <br>
+    <a class="inline-link" href="<?= $lang->path('/homelab#network-model') ?>"><?= $lang->value('Zobrazit v mapě sítě', 'View on network map') ?> ↗</a>
+</div>
+<?php endif; ?>
+</div></section>

@@ -111,11 +111,11 @@ final class PublicContentValidator
                 throw new InvalidArgumentException('Invalid diagram coordinate: ' . $label);
             }
         }
-        self::stringList($row, 'tech', $label, 0, 30, 80);
-        self::stringList($row, 'tech_cs', $label, 0, 30, 80);
-        self::stringList($row, 'services', $label, 0, 50, 100);
-        self::stringList($row, 'services_cs', $label, 0, 50, 100);
-        if (count($row['tech']) !== count($row['tech_cs']) || count($row['services']) !== count($row['services_cs'])) {
+        $tech = self::stringList($row, 'tech', $label, 0, 30, 80);
+        $techCs = self::stringList($row, 'tech_cs', $label, 0, 30, 80);
+        $services = self::stringList($row, 'services', $label, 0, 50, 100);
+        $servicesCs = self::stringList($row, 'services_cs', $label, 0, 50, 100);
+        if (count($tech) !== count($techCs) || count($services) !== count($servicesCs)) {
             throw new InvalidArgumentException('Topology labels must match across locales: ' . $label);
         }
         self::stringList($row, 'depends', $label, 0, 30, 32);

@@ -19,10 +19,10 @@ $fullUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://e
 $ogImage = $ogImage ?? null;
 
 if ($route === '/') {
-    $ogImage = '/assets/img/mutaui-overview-en-dark.png';
+    $ogImage = '/assets/img/developer-workbench.png';
     $ogImageWidth = 1380;
     $ogImageHeight = 900;
-    $ogImageAlt = $lang->value('MutaUI – screenshot desktopové aplikace s ukázkovými daty', 'MutaUI desktop app screenshot with sample data');
+    $ogImageAlt = $lang->value('Adam Halfar – inženýrský workbench, backendové systémy a nástroje', 'Adam Halfar – engineering workbench, backend systems and tools');
 } elseif ($route === '/homelab') {
     $ogImage = '/assets/img/home-network-model.png';
     $ogImageWidth = 1280;
@@ -31,7 +31,12 @@ if ($route === '/') {
 }
 
 if (isset($project) && $project instanceof App\Domain\Project) {
-    if ($project->slug === 'mutaui') {
+    if ($project->slug === 'local-ai-hub') {
+        $ogImage = '/assets/img/local-ai-hub-architecture.png';
+        $ogImageWidth = 1380;
+        $ogImageHeight = 900;
+        $ogImageAlt = $lang->value('Local AI Hub – architektura MCP serveru a AST indexu', 'Local AI Hub – MCP server architecture and AST indexing');
+    } elseif ($project->slug === 'mutaui') {
         $ogImage = '/assets/img/mutaui-overview-en-dark.png';
         $ogImageWidth = 1380;
         $ogImageHeight = 900;

@@ -106,7 +106,6 @@ final class PublicContentValidatorTest extends TestCase
         return $rows;
     }
 
-
     public function testTopologyTranslationsMatchEveryLabel(): void
     {
         $row = [

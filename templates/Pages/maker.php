@@ -31,3 +31,10 @@ use App\Support\Language;
         </article>
     </div>
 </section>
+<section class="shell section reading-footer" aria-labelledby="maker-decisions-title">
+    <div>
+        <h2 id="maker-decisions-title"><?= $lang->value('Technická rozhodnutí v 3D projektech', 'Engineering decisions in 3D projects') ?></h2>
+        <p><?= $lang->value('Proč polygonová síť není parametrický CAD model a proč má být příprava tisku oddělena od webového serveru.', 'Why a polygon mesh is not a parametric CAD model and why print slicing belongs off the web tier.') ?></p>
+    </div>
+    <a class="inline-link" href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Prohlédnout technická rozhodnutí', 'Browse engineering decisions') ?> <span aria-hidden="true">↗</span></a>
+</section>

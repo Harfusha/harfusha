@@ -17,20 +17,20 @@ use App\Support\Language;
     <div class="workbench-intro">
         <p class="workbench-author">Adam Halfar <span aria-hidden="true">/</span> Harfusha</p>
         <h1 id="workbench-title"><?= $lang->value('Navrhuju backendové systémy, nástroje pro vývojáře a automatizaci.', 'I build backend systems, developer tools and automation.') ?></h1>
-        <p><?= $lang->value('Jsem Adam, backendový vývojář z Česka. Pracuju hlavně s PHP a CakePHP, přispívám do knihoven, které používám, a píšu nástroje pro vývoj i provoz.', 'I’m Adam, a backend engineer based in Czechia. I work mostly in PHP and CakePHP, contribute to libraries I use, and build tools for development and operations.') ?></p>
+        <p><?= $lang->value('Zaměřuju se na čistou doménovou architekturu v PHP a CakePHP, deterministické kódovací nástroje a infrastrukturu jako kód. Stavím systémy, kde má každá komponenta jasné hranice a doložitelná technická rozhodnutí.', 'I focus on clean domain architecture in PHP and CakePHP, deterministic developer tooling, and infrastructure as code. Building reliable backend systems with explicit boundaries and verifiable architectural decisions.') ?></p>
         <div class="hero-buttons">
             <a class="btn btn-primary" href="#selected-work"><?= $lang->value('Vybrané projekty', 'Selected work') ?></a>
             <a class="btn btn-ghost" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Open-source práce', 'Open source work') ?></a>
         </div>
         <a class="workbench-text-link" href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer"><?= $lang->value('Profil a kontaktní možnosti na GitHubu', 'GitHub profile and contact options') ?> <span aria-hidden="true">↗</span></a>
     </div>
-    <a class="workbench-cover" href="<?= $lang->path('/projects/mutaui') ?>">
+    <a class="workbench-cover" href="<?= $lang->path('/projects') ?>">
         <figure>
             <picture>
-                <source type="image/webp" srcset="<?= $lang->value('/assets/img/mutaui-forward-cs-dark.webp', '/assets/img/mutaui-overview-en-dark.webp') ?>">
-                <img src="<?= $lang->value('/assets/img/mutaui-forward-cs-dark.png', '/assets/img/mutaui-overview-en-dark.png') ?>" width="1380" height="900" fetchpriority="high" alt="<?= $lang->value('MutaUI s ukázkovými relacemi v offline demu', 'MutaUI with sample sessions in an offline demo') ?>">
+                <source type="image/webp" srcset="/assets/img/developer-workbench.webp">
+                <img src="/assets/img/developer-workbench.png" width="1380" height="900" fetchpriority="high" alt="<?= $lang->value('Přehled inženýrského workbench prostředí, backendové architektury v CakePHP a nástrojů', 'Overview of the engineering workbench, CakePHP backend architecture, and tools') ?>">
             </picture>
-            <figcaption><span>MutaUI · <?= $lang->value('offline demo, ukázková data', 'offline demo, sample data') ?></span></figcaption>
+            <figcaption><span><?= $lang->value('Ekosystém projektů · backend, automatizace a vývojářské nástroje', 'Project ecosystem · backend, automation and developer tools') ?></span></figcaption>
         </figure>
     </a>
 </section>
@@ -40,7 +40,7 @@ use App\Support\Language;
         <div>
             <p class="eyebrow"><?= $lang->value('PHP · CAKEPHP · VÝVOJÁŘSKÉ NÁSTROJE', 'PHP · CAKEPHP · DEVELOPER TOOLS') ?></p>
             <h2 id="selected-work-title"><?= $lang->value('Vybraná práce', 'Selected work') ?></h2>
-            <p><?= $lang->value('Nástroje pro vývoj, aplikace a služby, které spravuju.', 'Developer tools, applications and services I maintain.') ?></p>
+            <p><?= $lang->value('Architektura kódovacích agentů, desktopové synchronizace a správy infrastruktury.', 'Architecture of coding agent tooling, desktop synchronization, and infrastructure operations.') ?></p>
         </div>
         <a class="inline-link" href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všech devět projektů', 'All nine projects') ?></a>
     </div>

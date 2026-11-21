@@ -73,6 +73,12 @@ final class SystemController extends AppController
         }
 
         $imageMap = [
+            'projects/local-ai-hub' => [
+                [
+                    'loc' => '/assets/img/local-ai-hub-architecture.webp',
+                    'title' => 'Local AI Hub Architecture Blueprint',
+                ],
+            ],
             'projects/mutaui' => [
                 ['loc' => '/assets/img/mutaui-overview-cs-light.webp', 'title' => 'MutaUI Overview Light'],
                 ['loc' => '/assets/img/mutaui-overview-en-dark.webp', 'title' => 'MutaUI Overview Dark'],

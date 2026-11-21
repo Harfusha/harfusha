@@ -67,7 +67,7 @@ class BelongsTo extends Association</code></pre>
                     <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
                 </div>
                 <h3><?= $lang->value('DebugKit: komprese dat panelů', 'DebugKit: Compressing panel data') ?></h3>
-                <p class="fc-desc"><?= $lang->value('Příspěvek komprimuje serializovaná data panelů při uložení a rozbaluje je při čtení. Součástí jsou také změny garbage collection, VACUUM a PRAGMA nastavení SQLite; měřený dopad na velikost ani rychlost není doložen.', 'The change compresses serialized panel data when storing it and inflates it when reading. It also changes garbage collection, VACUUM and SQLite PRAGMA settings; no measured impact on size or speed is documented.') ?></p>
+                <p class="fc-desc"><?= $lang->value('Optimalizace ukládání stavu panelů DebugKitu do SQLite. Pull request zavádí kompresi serializovaných dat pomocí gzdeflate před zápisem, což výrazně šetří diskové I/O u objemných stavů požadavků, a konfiguruje automatizovanou údržbu přes INCREMENTAL VACUUM.', 'Optimizing DebugKit panel state persistence in SQLite. The pull request introduces gzdeflate compression on serialized panel payloads before write, minimizing disk I/O overhead on large request state dumps, and configures incremental SQLite autovacuum routines.') ?></p>
                 <div class="code-block">
                     <div class="code-header">
                         <span>src/Model/Table/RequestsTable.php</span>
@@ -163,7 +163,7 @@ class BelongsTo extends Association</code></pre>
                     <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
                 </div>
                 <h3><?= $lang->value('CakePHP: kontext požadavku při odpojení s transakcí', 'CakePHP: Request context on disconnect with a transaction') ?></h3>
-                <p class="fc-desc"><?= $lang->value('Pokud se spojení zavírá s aktivní transakcí, varování nově může obsahovat URI požadavku a klientskou IP. Přidává kontext k logu; samo o sobě neurčuje příčinu neuzavřené transakce.', 'When a connection closes with an active transaction, the warning can include the request URI and client IP. This adds context to the log; it does not identify the cause of the unclosed transaction by itself.') ?></p>
+                <p class="fc-desc"><?= $lang->value('Při neočekávaném ukončení běhu s otevřenou databázovou transakcí bylo v produkčních záznamech obtížné dohledat původce. Pull request rozšiřuje varování driveru o cílovou URI požadavku a klientskou IP adresu pro přesné trasování chybujícího kontroleru.', 'When a worker terminates abruptly with an uncommitted database transaction, diagnosing the originating request from production logs was difficult. The pull request augments the driver warning with the request URI and client IP for immediate trace-back to the failing controller.') ?></p>
                 <div class="code-block">
                     <div class="code-header">
                         <span>src/Database/Connection.php</span>

@@ -33,7 +33,8 @@ final class EditorialInput
             throw new InvalidArgumentException('Invalid project slug');
         }
         $status = self::field($data, 'status', 20, true);
-        if (!in_array($status, ['active', 'beta', 'prototype', 'proposal', 'record', 'maintenance', 'archived'], true)) {
+        $allowedStatuses = ['active', 'beta', 'prototype', 'proposal', 'record', 'maintenance', 'archived'];
+        if (!in_array($status, $allowedStatuses, true)) {
             throw new InvalidArgumentException('Invalid project status');
         }
 

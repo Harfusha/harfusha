@@ -100,8 +100,10 @@ final class PagesController extends AppController
             'home',
             'Adam Halfar | PHP a vývojářské nástroje',
             'Adam Halfar | PHP and developer tools',
-            'Portfolio Adama Halfara: projekty v PHP a CakePHP, příspěvky do open-source knihoven a nástroje pro vývoj i provoz.',
-            'Adam Halfar’s portfolio: PHP and CakePHP projects, open-source contributions, and tools for development and operations.',
+            'Portfolio Adama Halfara: projekty v PHP a CakePHP, příspěvky do open-source ' .
+            'knihoven a nástroje pro vývoj i provoz.',
+            'Adam Halfar’s portfolio: PHP and CakePHP projects, open-source contributions, ' .
+            'and tools for development and operations.',
             '/',
             [
                 'projects' => array_slice($featured, 0, 4),
@@ -196,8 +198,10 @@ final class PagesController extends AppController
      */
     public function playground(): Response
     {
-        $lang = (string)$this->request->getParam('lang', 'cs');
-        return $this->redirect('/' . ($lang === 'en' ? 'en' : 'cs') . '/homelab', 301) ?? $this->response;
+        $code = $this->request->getParam('lang');
+        $lang = is_string($code) && $code === 'en' ? 'en' : 'cs';
+
+        return $this->redirect('/' . $lang . '/homelab', 301) ?? $this->response;
     }
 
     /**

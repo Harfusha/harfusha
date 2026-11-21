@@ -8,14 +8,15 @@ use App\Support\Language;
 <section class="page-hero shell about-hero">
     <span class="eyebrow">PHP · CAKEPHP · DEVELOPER TOOLING</span>
     <h1>Adam Halfar</h1>
-    <p><?= $lang->value('Jsem backendový vývojář z Česka. Většinu času pracuji v PHP a CakePHP. Záleží mi na tom, aby šlo i po měsících dohledat, proč systém funguje právě takhle.', 'I’m a backend engineer based in Czechia. Most of my work is in PHP and CakePHP. I care about being able to understand months later why a system works the way it does.') ?></p>
+    <p><?= $lang->value('Navrhuju backendové systémy, nástroje pro vývojáře a infrastrukturu. Specializuju se na PHP a CakePHP s důrazem na doménovou integritu, typovou bezpečnost a architekturu podloženou doložitelnými fakty.', 'I architect backend systems, developer tooling, and infrastructure. Specializing in PHP and CakePHP with a focus on domain integrity, type safety, and verifiable engineering decisions.') ?></p>
 </section>
 
 <section class="section shell about-grid">
     <div>
-        <h2><?= $lang->value('Co mě zajímá', 'What I work on') ?></h2>
-        <p><?= $lang->value('V backendu se soustředím na datová rozhraní, jasné hranice a chování při chybě. Mimo práci v PHP stavím nástroje pro vývojáře, zkouším lokální AI workflow a spravuju domácí služby.', 'In backend work, I focus on data contracts, clear boundaries and failure behavior. Outside PHP, I build developer tools, explore local AI workflows and maintain home services.') ?></p>
-        <p><?= $lang->value('Do veřejných knihoven přispívám změnami, které sám potřebuji. Vybrané příklady a jejich původ najdeš v přehledu open source.', 'I contribute fixes and features I need to the libraries I use. Selected examples and their upstream records are in the open-source section.') ?></p>
+        <h2><?= $lang->value('Inženýrský přístup a priority', 'Engineering focus and principles') ?></h2>
+        <p><?= $lang->value('V backendovém vývoji stavím na přísných datových kontraktech, izolovaných aplikačních vrstvách a předvídatelném chování při selhání. Nenechávám architekturu náhodě: každá služba má jasné hranice a definované způsoby obnovy.', 'In backend engineering, I prioritize strict data contracts, decoupled application layers, and predictable failure behavior. Architecture is never accidental: every service features explicit boundaries and defined recovery paths.') ?></p>
+        <p><?= $lang->value('V nástrojích jako Local AI Hub prosazuju determinismus: nejdřív rychlý AST index a přesné výřezy kódu, modely až na syntézu. V infrastruktuře spoléhám na verzované Ansible playbooky a minimální práva služeb.', 'In developer tools like Local AI Hub, I emphasize determinism: fast AST indexing and exact code slicing come first, models only for synthesis. In infrastructure, I rely on versioned Ansible playbooks and least-privilege service design.') ?></p>
+        <p><?= $lang->value('Do open-source knihoven přispívám opravami a vylepšeními, která sám potřebuji v produkčním nasazení. Změny a jejich upstream původ mapuje přehled open-source.', 'I contribute bug fixes and performance enhancements directly to the upstream libraries I rely on in production. All contributions and their pull request records are tracked in the open-source feed.') ?></p>
         <a class="btn btn-ghost" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Vybrané upstream změny', 'Selected upstream changes') ?></a>
     </div>
     <aside class="portfolio-profile" aria-labelledby="profile-links-title">
@@ -37,17 +38,17 @@ use App\Support\Language;
     <div class="profile-work-list">
         <article>
             <h3><?= $lang->value('Backend a datová rozhraní', 'Backends and data contracts') ?></h3>
-            <p><?= $lang->value('Ve veřejném katalogu odděluji data pro návštěvníky od interní správy. JSON rozhraní dává stejný přehled i klientům mimo web.', 'The public catalog separates visitor-facing data from administration. Its JSON endpoint gives non-web clients the same project overview.') ?></p>
+            <p><?= $lang->value('V CakePHP a PHP 8.4 striktně odděluji doménové modely od prezentační vrstvy. Repozitáře poskytují typově bezpečná data a veřejný JSON koncový bod nabízí stejnou konzistenci externím klientům i offline renderu.', 'In CakePHP and PHP 8.4, I strictly decouple domain models from presentation layers. Repositories provide type-safe data structures, with public JSON endpoints ensuring consistency for external clients and offline SSR.') ?></p>
             <a class="inline-link" href="/api/v1/projects?lang=<?= $lang->code ?>"><?= $lang->value('Otevřít JSON katalog', 'Open the JSON catalog') ?> <span aria-hidden="true">↗</span></a>
         </article>
         <article>
             <h3><?= $lang->value('Nástroje pro vývojáře', 'Developer tools') ?></h3>
-            <p><?= $lang->value('U Local AI Hubu je důležitý návrat ke zdroji. Agent může dohledat soubor a konkrétní řádek, ze kterého odpověď vychází.', 'Local AI Hub makes it possible to trace a result back to the repository. An agent can find the file and line behind an answer.') ?></p>
+            <p><?= $lang->value('U Local AI Hubu je klíčová dohledatelnost ke zdroji. Agenti nedostávají halucinované odpovědi, ale přesné výřezy kódu podložené immutable identifikátory důkazů a SQLite WAL ledgerem.', 'With Local AI Hub, traceability is paramount. Coding agents receive verifiable code slices backed by immutable evidence IDs and SQLite WAL task ledgers instead of hallucinated answers.') ?></p>
             <a class="inline-link" href="<?= $lang->path('/projects/local-ai-hub') ?>"><?= $lang->value('Případová studie Local AI Hub', 'Local AI Hub case study') ?> <span aria-hidden="true">↗</span></a>
         </article>
         <article>
             <h3><?= $lang->value('Provoz a obnova', 'Operations and recovery') ?></h3>
-            <p><?= $lang->value('U domácích služeb dokumentuji role zařízení a jejich závislosti. Mapa umožňuje projít cestu dat a nasimulovat výpadek.', 'I document device roles and dependencies for home services. The map lets you follow data paths and simulate an outage.') ?></p>
+            <p><?= $lang->value('Domácí infrastrukturu řídím deklarativně v Ansible. Deterministický model sítě mapuje závislosti služeb, což umožňuje simulovat výpadky uzlů a plánovat řízenou obnovu.', 'I manage home infrastructure declaratively in Ansible. A deterministic network topology models service dependencies, enabling outage simulations and structured recovery planning.') ?></p>
             <a class="inline-link" href="<?= $lang->path('/homelab#network-model') ?>"><?= $lang->value('Mapa domácí sítě', 'Home network map') ?> <span aria-hidden="true">↗</span></a>
         </article>
     </div>
