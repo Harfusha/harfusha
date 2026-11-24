@@ -35,4 +35,20 @@ final class OperationsServiceTest extends TestCase
             $connection->execute('DROP TEMPORARY TABLE IF EXISTS editorial_audit');
         }
     }
+
+    public function testMissingFourthMigrationWithMissingEventTimesIsNotReportedAsReady(): void
+    {
+        $connection = ConnectionManager::get('default');
+        if (!$connection instanceof Connection) {
+            throw new RuntimeException('Expected disposable CakePHP MySQL test database');
+        }
+        $connection->execute('CREATE TEMPORARY TABLE github_activity (id BIGINT NOT NULL, repository VARCHAR(255) NOT NULL)');
+        try {
+            $report = (new OperationsService())->report();
+            self::assertSame('schema-incomplete', $report['database']);
+            self::assertFalse($report['ready']);
+        } finally {
+            $connection->execute('DROP TEMPORARY TABLE IF EXISTS github_activity');
+        }
+    }
 }

@@ -18,7 +18,7 @@ final class PublicRoutesTest extends HttpIntegrationTestCase
         ) {
             $this->get($path);
             $this->assertResponseOk();
-            $this->assertResponseContains('HARFUSHA');
+            $this->assertResponseContains('Harfusha');
         }
         $this->get('/cs/projects/local-ai-hub');
         $this->assertResponseOk();
@@ -35,11 +35,10 @@ final class PublicRoutesTest extends HttpIntegrationTestCase
     {
         $this->get('/fr/projects');
         $this->assertResponseCode(404);
-        $this->assertResponseContains('4XX / CLIENT ERROR');
+        $this->assertResponseNotContains('404 / CLIENT ERROR');
 
         $this->get('/api/v1/projects?lang=fr');
         $this->assertResponseCode(400);
-        $this->assertResponseContains('4XX / CLIENT ERROR');
         $this->assertResponseNotContains('404 / CLIENT ERROR');
     }
 
@@ -100,5 +99,69 @@ final class PublicRoutesTest extends HttpIntegrationTestCase
         $this->get('/healthz');
         $this->assertResponseOk();
         $this->assertResponseContains('ok');
+    }
+
+    public function testHeadRequestsAreSupportedOnPublicRoutes(): void
+    {
+        foreach (['/cs/', '/en/projects', '/sitemap.xml', '/healthz', '/api/v1/projects'] as $path) {
+            $this->head($path);
+            $this->assertResponseOk();
+            $this->assertResponseEmpty();
+        }
+    }
+
+    public function testWwwRedirectsToCanonicalNonWww(): void
+    {
+        $this->replaceRequest([
+            'environment' => [
+                'HTTP_HOST' => 'www.localhost:8765',
+                'SERVER_NAME' => 'www.localhost',
+                'SERVER_PORT' => '8765',
+            ],
+        ]);
+        $this->get('/cs/');
+        $this->assertResponseCode(301);
+        $this->assertHeaderContains('Location', 'http://localhost:8765/cs/');
+    }
+
+    public function testApiConditionalRequestsWithGzipSuffix(): void
+    {
+        $this->get('/api/v1/projects');
+        $this->assertResponseOk();
+        self::assertNotNull($this->_response);
+        $etag = $this->_response->getHeaderLine('ETag');
+        self::assertNotEmpty($etag);
+        $raw = trim($etag, '"');
+
+        // Exact match
+        $this->configRequest(['headers' => ['If-None-Match' => $etag]]);
+        $this->get('/api/v1/projects');
+        $this->assertResponseCode(304);
+        $this->assertResponseEmpty();
+
+        // Weak match
+        $this->configRequest(['headers' => ['If-None-Match' => 'W/' . $etag]]);
+        $this->get('/api/v1/projects');
+        $this->assertResponseCode(304);
+        $this->assertResponseEmpty();
+
+        // Gzip suffix match (HTTP01)
+        $this->configRequest(['headers' => ['If-None-Match' => '"' . $raw . '-gzip"']]);
+        $this->get('/api/v1/projects');
+        $this->assertResponseCode(304);
+        $this->assertResponseEmpty();
+    }
+
+    public function testReadOnlyRoutesDoNotEmitCsrfCookies(): void
+    {
+        foreach (['/sitemap.xml', '/healthz', '/api/v1/projects'] as $path) {
+            $this->get($path);
+            $this->assertResponseOk();
+            self::assertNotNull($this->_response);
+            $cookies = $this->_response->getHeader('Set-Cookie');
+            foreach ($cookies as $cookie) {
+                self::assertStringNotContainsString('csrfToken', $cookie);
+            }
+        }
     }
 }

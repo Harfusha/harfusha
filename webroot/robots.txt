@@ -2,3 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /admin
 Disallow: /cron/
+
+Sitemap: https://adam-halfar.cz/sitemap.xml
+

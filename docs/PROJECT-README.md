@@ -4,11 +4,11 @@
 
 This repository contains Adam Halfar’s bilingual engineering portfolio. It presents project work and upstream contributions with explicit maturity and evidence limits. The only public interactive model is a curated home-network map; it does not monitor live devices. The site itself uses CakePHP MVC/ORM, typed domain objects, migrations, security controls and reproducible validation scripts.
 
-> **Live site-content snapshot, 16 Nov 2026:** Commit `f05adfe` passed all three jobs in [manual GitHub Actions run #43950641423](https://github.com/Harfusha/harfusha/actions/runs/43950641423). Its verified production archive contains 1,449 packaged files (SHA-256 `6868d237f8cb61d44addd5394b7c9ae59ffeca9bceaca1e74c64e1f45b2f9635`). Post-deploy HTTPS smoke passed; all 40 sitemap URLs and 10 referenced assets returned successfully. The current Tiskov and Discord copy distinguishes catalog/design claims from verified source. No separate staging hostname or production PHP-FPM version check was available.
+> **Live site-content snapshot, 16 Nov 2026 (Historical):** Commit `f05adfe` passed all three jobs in [manual GitHub Actions run #43950641423](https://github.com/Harfusha/harfusha/actions/runs/43950641423). Its verified production archive contains 1,449 packaged files (SHA-256 `6868d237f8cb61d44addd5394b7c9ae59ffeca9bceaca1e74c64e1f45b2f9635`). Post-deploy HTTPS smoke passed; all 38 sitemap URLs and 10 referenced assets returned successfully. The current Tiskov and Discord copy distinguishes catalog/design claims from verified source. No separate staging hostname or production PHP-FPM version check was available.
 
 > **Local portfolio revision, 21 Nov 2026:** The eight low-value browser simulations were removed. The nine case studies now use stage-specific bilingual copy; Scan2CAD is labeled as a beta app and shows its offline preview. The curated Home Infrastructure map remains the only public interactive model. These changes are local and have not been deployed; the production snapshot above does not describe the current source.
 
-> **Live recheck, 21 Nov 2026:** All 40 HTML URLs in the production sitemap returned HTTP 200, but their content is still the pre-redesign version. The new local candidate has not been deployed. Its previous content-approval receipt is stale: `python scripts/review-public-content.py --verify` reports that public content changed and needs another human review. See the [current portfolio audit and plan](superpowers/plans/2026-11-20-portfolio-credibility.md).
+> **Audit status & current inventory, 24 Nov 2026:** The portfolio consists of 38 public HTML routes across Czech and English (plus sitemap, robots, healthz, feeds, and JSON API), backed by 4 database migrations (`20261112000100`, `20261112000200`, `20261113000100`, and `20261117000100`). All 38 HTML URLs in the sitemap return HTTP 200. See [AUDIT-PORTFOLIA-KOMPLETNI-2026-11-24.md](AUDIT-PORTFOLIA-KOMPLETNI-2026-11-24.md) and [REALIZACE-AUDITU-PORTFOLIA.md](REALIZACE-AUDITU-PORTFOLIA.md).
 
 ## Current presentation direction (21 Nov 2026)
 
@@ -87,7 +87,7 @@ composer stan                # PHPStan level max + strict + CakeDC + ShipMonk
 composer test                # PHPUnit + CakePHP integration tests (explicit disposable DB only)
 composer cs-check            # CakePHP coding standard
 python3 scripts/audit-public.py
-python3 scripts/audit-rendered.py   # renders 40 pages and checks internal links/IDs/assets
+python3 scripts/audit-rendered.py   # renders 38 pages and checks internal links/IDs/assets
 node --check webroot/assets/js/app.js
 node --check webroot/assets/js/lab-core.js
 node --test tests/Client/*.test.cjs
@@ -95,7 +95,7 @@ node --test tests/Client/*.test.cjs
 npx --no-install tsc --noEmit --allowJs --checkJs --strict --target ES2022 --lib ES2022,DOM webroot/assets/js/lab-core.js
 ```
 
-The GitHub Actions workflow provisions PHP 8.5 and MySQL 8.4, requires the committed Composer lockfile, runs all three migrations and checks CakePHP HTTP routes plus standalone, static and JS tests. The deployed site-content snapshot `f05adfe` passed all three jobs in [run #43950641423](https://github.com/Harfusha/harfusha/actions/runs/43950641423); its approved production archive was deployed and passed post-deploy HTTPS checks. Every later release still requires CI and approval of its exact public-content snapshot.
+The GitHub Actions workflow provisions PHP 8.5 and MySQL 8.4, requires the committed Composer lockfile, runs all four migrations and checks CakePHP HTTP routes plus standalone, static and JS tests. The deployed site-content snapshot `f05adfe` passed all three jobs in [run #43950641423](https://github.com/Harfusha/harfusha/actions/runs/43950641423); its approved production archive was deployed and passed post-deploy HTTPS checks. Every later release still requires CI and approval of its exact public-content snapshot.
 
 ## Deploying on shared hosting
 

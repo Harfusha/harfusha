@@ -14,6 +14,7 @@ final class GithubSyncFailureTest extends TestCase
 {
     public function testSafeFailureCodes(): void
     {
+        self::assertSame('upstream-rate-limited', GithubSyncFailure::describe(new RuntimeException('GitHub rate limit exceeded until 1732450000')));
         self::assertSame('upstream-http-403', GithubSyncFailure::describe(new RuntimeException('GitHub request failed with HTTP 403')));
         self::assertSame('network-curl-60', GithubSyncFailure::describe(new NetworkException('cURL Error (60) sensitive details', new Request('https://example.com'))));
         self::assertSame('database-not-configured', GithubSyncFailure::describe(new RuntimeException('Database is not configured')));

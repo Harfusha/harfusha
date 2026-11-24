@@ -42,14 +42,14 @@ $stateLabels = [
                     <span class="fc-repo">cakephp/cakephp #17827</span>
                     <span class="fc-badge"><?= $lang->value('Sloučeno do jádra', 'Merged in core') ?></span>
                 </div>
-                <h3><?= $lang->value('ORM asociace: PHPStan generika a @mixin podpora', 'ORM Associations: Generic Templates & @mixin for PHPStan') ?></h3>
-                <p class="fc-desc"><?= $lang->value('Do tříd BelongsTo a BelongsToMany přibyly šablona T a anotace @mixin T. Statické nástroje tak mohou při práci s asociací vidět API cílové tabulky.', 'The BelongsTo and BelongsToMany classes gained a T template and an @mixin T annotation. Static analysis tools can then see the target table API through the association.') ?></p>
+                <h3><?= $lang->value('PHPStan teď pozná typ tabulky z asociace', 'PHPStan now recognizes target table types from associations') ?></h3>
+                <p class="fc-desc"><?= $lang->value('Do tříd BelongsTo a BelongsToMany přibyla generická šablona a anotace @mixin. Vývojář tak získá okamžité napovídání metod a statickou typovou kontrolu cílové tabulky bez ručních anotací.', 'Generic templates and @mixin annotations were added to BelongsTo and BelongsToMany. Developers get immediate IDE autocompletion and static type safety on the target table without manual docblocks.') ?></p>
                 <div class="code-block">
                     <div class="code-header">
                         <span>src/ORM/Association/BelongsTo.php</span>
                         <span class="code-tag">PHPStan & Generics</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+  * @template T of \Cake\ORM\Table</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+  * @template T of \Cake\ORM\Table</span>
 <span class="code-diff-add">+  * @mixin T</span>
 class BelongsTo extends Association</code></pre>
                 </div>
@@ -73,7 +73,7 @@ class BelongsTo extends Association</code></pre>
                         <span>src/Model/Table/RequestsTable.php</span>
                         <span class="code-tag">SQLite & Compression</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- $content = serialize($panel->data());</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- $content = serialize($panel->data());</span>
 <span class="code-diff-del">- $statement->bindValue(':content', $content, PDO::PARAM_STR);</span>
 <span class="code-diff-add">+ $content = gzdeflate(serialize($panel->data()), 6);</span>
 <span class="code-diff-add">+ $statement->bindValue(':content', $content, PDO::PARAM_LOB);</span></code></pre>
@@ -98,7 +98,7 @@ class BelongsTo extends Association</code></pre>
                         <span>src/Config/Level/CodeQualityLevel.php</span>
                         <span class="code-tag">Rector & AST</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;</span>
 <span class="code-diff-del">- SimplifyUselessVariableRector::class,</span></code></pre>
                 </div>
             </div>
@@ -121,7 +121,7 @@ class BelongsTo extends Association</code></pre>
                         <span>src/ORM/Locator/LocatorAwareTrait.php</span>
                         <span class="code-tag">Type Safety & ORM</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+ @template T of \Cake\ORM\Table</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+ @template T of \Cake\ORM\Table</span>
 <span class="code-diff-add">+ @param class-string&lt;T&gt;|string|null $alias</span>
 <span class="code-diff-add">+ @return ($alias is class-string&lt;T&gt; ? T : \Cake\ORM\Table)</span></code></pre>
                 </div>
@@ -145,7 +145,7 @@ class BelongsTo extends Association</code></pre>
                         <span>src/ChronosInterface.php</span>
                         <span class="code-tag">Chronos & PHPDoc</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">-      * @return mixed</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">-      * @return mixed</span>
 <span class="code-diff-add">+      * @return static</span>
      public function next(?int $dayOfWeek = null);</code></pre>
                 </div>
@@ -169,7 +169,7 @@ class BelongsTo extends Association</code></pre>
                         <span>src/Database/Connection.php</span>
                         <span class="code-tag">Database & Logging</span>
                     </div>
-                    <pre class="code-content" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+ $requestUrl = $_SERVER['REQUEST_URI'] ?? '';</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+ $requestUrl = $_SERVER['REQUEST_URI'] ?? '';</span>
 <span class="code-diff-add">+ if ($requestUrl) { $message .= "\nRequest URL: " . $requestUrl; }</span>
 <span class="code-diff-add">+ $clientIp = $_SERVER['REMOTE_ADDR'] ?? '';</span>
 <span class="code-diff-add">+ if ($clientIp) { $message .= "\nClient IP: " . $clientIp; }</span></code></pre>

@@ -10,10 +10,10 @@ use App\Support\Language;
 $route = $route ?? '/';
 $nav = [
     ['projects', $lang->value('Projekty', 'Projects')],
-    ['homelab', $lang->value('Domácí síť', 'Home lab')],
-    ['open-source', $lang->value('Open-source práce', 'Open source work')],
-    ['journal', $lang->value('Deník', 'Journal')],
-    ['about', $lang->value('O mně', 'About')],
+    ['homelab', $lang->value('Domácí síť', 'Homelab')],
+    ['open-source', $lang->value('Open-source příspěvky', 'Open source contributions')],
+    ['journal', $lang->value('Vývojový deník', 'Development journal')],
+    ['about', $lang->value('O mně', 'About me')],
 ];
 $fullUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . $lang->path($route);
 $ogImage = $ogImage ?? null;
@@ -28,6 +28,11 @@ if ($route === '/') {
     $ogImageWidth = 1280;
     $ogImageHeight = 831;
     $ogImageAlt = $lang->value('Statický náhled kurátorované mapy domácí sítě', 'Static preview of the curated home-network map');
+} elseif ($route === '/maker') {
+    $ogImage = '/assets/img/scan2cad-studio.png';
+    $ogImageWidth = 1380;
+    $ogImageHeight = 900;
+    $ogImageAlt = $lang->value('Maker – Scan2CAD a příprava 3D tisku', 'Maker – Scan2CAD and 3D print preparation');
 }
 
 if (isset($project) && $project instanceof App\Domain\Project) {
@@ -37,7 +42,7 @@ if (isset($project) && $project instanceof App\Domain\Project) {
         $ogImageHeight = 900;
         $ogImageAlt = $lang->value('Local AI Hub – architektura MCP serveru a AST indexu', 'Local AI Hub – MCP server architecture and AST indexing');
     } elseif ($project->slug === 'mutaui') {
-        $ogImage = '/assets/img/mutaui-overview-en-dark.png';
+        $ogImage = $lang->code === 'cs' ? '/assets/img/mutaui-overview-cs-light.png' : '/assets/img/mutaui-overview-en-dark.png';
         $ogImageWidth = 1380;
         $ogImageHeight = 900;
         $ogImageAlt = $lang->value('MutaUI – synchronizace a přesměrování portů', 'MutaUI – sync and port forwarding');
@@ -46,10 +51,39 @@ if (isset($project) && $project instanceof App\Domain\Project) {
         $ogImageWidth = 1280;
         $ogImageHeight = 720;
         $ogImageAlt = $lang->value('Woodbound – vývojový záběr lesní krajiny', 'Woodbound – development capture');
+    } elseif ($project->slug === 'scan2cad') {
+        $ogImage = '/assets/img/scan2cad-studio.png';
+        $ogImageWidth = 1380;
+        $ogImageHeight = 900;
+        $ogImageAlt = $lang->value('Scan2CAD Studio – rekonstrukce parametrických modelů ze skenu', 'Scan2CAD Studio – parametric CAD reconstruction from scan');
+    } elseif ($project->slug === 'tiskov') {
+        $ogImage = null;
+        $ogImageWidth = null;
+        $ogImageHeight = null;
+        $ogImageAlt = null;
+    } elseif (in_array($project->slug, ['home-infrastructure', 'discord-bot'], true)) {
+        $ogImage = '/assets/img/home-network-model.png';
+        $ogImageWidth = 1280;
+        $ogImageHeight = 831;
+        $ogImageAlt = $lang->value('Domácí infrastruktura a mapování služeb', 'Home infrastructure and service topology');
+    } else {
+        $ogImage = '/assets/img/developer-workbench.png';
+        $ogImageWidth = 1380;
+        $ogImageHeight = 900;
+        $ogImageAlt = $project->name . ' – ' . $lang->value('inženýrský projekt Adama Halfara', 'engineering project by Adam Halfar');
     }
 }
 
-$fullOgImageUrl = $ogImage === null ? null : (str_starts_with($ogImage, 'http') ? $ogImage : rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . $ogImage);
+$suppressOgImage = isset($project) && $project instanceof App\Domain\Project && $project->slug === 'tiskov';
+
+if ($ogImage === null && !$suppressOgImage) {
+    $ogImage = '/assets/img/developer-workbench.png';
+    $ogImageWidth = 1380;
+    $ogImageHeight = 900;
+    $ogImageAlt = $lang->value('Adam Halfar – inženýrské portfolio a backendové systémy', 'Adam Halfar – engineering portfolio and backend systems');
+}
+
+$fullOgImageUrl = ($ogImage === null || $suppressOgImage) ? null : (str_starts_with($ogImage, 'http') ? $ogImage : rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/') . $ogImage);
 
 $baseUrl = rtrim((string)Cake\Core\Configure::read('App.fullBaseUrl', 'https://example.com'), '/');
 $jsonLdGraph = [
@@ -87,20 +121,27 @@ $jsonLdGraph = [
 ];
 
 if (isset($project) && $project instanceof App\Domain\Project) {
+    $hasPublicRepo = !$project->private && $project->repo !== '';
+    $type = $hasPublicRepo ? 'SoftwareSourceCode' : (in_array($project->slug, ['tiskov', 'home-infrastructure'], true) ? 'CreativeWork' : 'SoftwareApplication');
     /** @var array<string,mixed> $softwareData */
     $softwareData = [
-        '@type' => 'SoftwareSourceCode',
+        '@type' => $type,
         'name' => $project->name,
         'description' => $project->summary($lang),
         'author' => [
             '@id' => $baseUrl . '/#person',
         ],
     ];
-    if (!$project->private && $project->repo !== '') {
+    if ($hasPublicRepo) {
         $softwareData['codeRepository'] = Html::safeUrl($project->repo);
     }
     if ($project->stack !== []) {
-        $softwareData['programmingLanguage'] = implode(', ', $project->stack);
+        $realLangs = ['PHP', 'Python', 'C#', '.NET', 'TypeScript', 'JavaScript', 'Go', 'C++', 'SQL', 'Bash', 'Shell'];
+        $filtered = array_values(array_filter($project->stack, static fn(string $s): bool => in_array($s, $realLangs, true)));
+        if ($filtered !== []) {
+            $softwareData['programmingLanguage'] = implode(', ', $filtered);
+        }
+        $softwareData['keywords'] = implode(', ', $project->stack);
     }
     $jsonLdGraph[] = $softwareData;
 }
@@ -116,7 +157,7 @@ $jsonLd = json_encode([
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <script>(function(){var t='light';try{var s=localStorage.getItem('theme');if(s==='light'||s==='dark')t=s;}catch(e){}document.documentElement.dataset.theme=t;})();</script>
+  <script src="/assets/js/theme-init.js"></script>
   <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#f4f0e6">
@@ -179,9 +220,10 @@ $jsonLd = json_encode([
 </header>
 <main id="main"><?= $this->fetch('content') ?></main>
 <footer class="site-footer"><div class="shell footer-grid">
-  <div><a class="brand" href="<?= $lang->path() ?>">Adam Halfar</a><p><?= $lang->value('Backendový vývoj a vývojářské nástroje', 'Backend development and developer tools') ?></p></div>
-  <div><span class="eyebrow"><?= $lang->value('PRÁCE', 'WORK') ?></span><a href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projekty', 'All projects') ?></a><a href="<?= $lang->path('/connections') ?>"><?= $lang->value('Projektové skupiny', 'Project groups') ?></a><a href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Technická rozhodnutí', 'Engineering decisions') ?></a><a href="<?= $lang->path('/homelab') ?>"><?= $lang->value('Model domácí sítě', 'Home network model') ?></a><a href="<?= $lang->path('/maker') ?>"><?= $lang->value('3D skenování a tisk', '3D scanning and printing') ?></a></div>
-  <div><span class="eyebrow"><?= $lang->value('AKTIVITA', 'ACTIVITY') ?></span><a href="<?= $lang->path('/journal') ?>"><?= $lang->value('Vývojový deník', 'Development journal') ?></a><a href="<?= $lang->path('/now') ?>"><?= $lang->value('Časová osa', 'Work timeline') ?></a><a href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Open-source práce', 'Open source work') ?></a><a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a></div>
+  <div><a class="brand" href="<?= $lang->path() ?>">Adam Halfar</a><p><?= $lang->value('Backendový vývoj v PHP a nástroje pro vývojáře', 'PHP backend development and developer tools') ?></p></div>
+  <div><span class="eyebrow"><?= $lang->value('PROJEKTY A ARCHITEKTURA', 'PROJECTS & ARCHITECTURE') ?></span><a href="<?= $lang->path('/projects') ?>"><?= $lang->value('Katalog projektů', 'Project catalog') ?></a><a href="<?= $lang->path('/connections') ?>"><?= $lang->value('Projektové skupiny', 'Project groups') ?></a><a href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Technická rozhodnutí', 'Engineering decisions') ?></a><a href="<?= $lang->path('/homelab') ?>"><?= $lang->value('Model domácí sítě', 'Home network model') ?></a><a href="<?= $lang->path('/maker') ?>"><?= $lang->value('3D skenování a tisk', '3D scanning and printing') ?></a></div>
+  <div><span class="eyebrow"><?= $lang->value('VÝVOJ A AKTIVITA', 'DEVELOPMENT & ACTIVITY') ?></span><a href="<?= $lang->path('/journal') ?>"><?= $lang->value('Vývojový deník', 'Development journal') ?></a><a href="<?= $lang->path('/now') ?>"><?= $lang->value('Poslední změny', 'Recent changes') ?></a><a href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Open-source příspěvky', 'Open source contributions') ?></a></div>
+  <div><span class="eyebrow"><?= $lang->value('AUTOR A KONTAKT', 'AUTHOR & CONTACT') ?></span><a href="<?= $lang->path('/about') ?>"><?= $lang->value('O mně', 'About me') ?></a><a href="mailto:adam.halfar@seznam.cz">adam.halfar@seznam.cz</a><a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub @Harfusha <span aria-hidden="true">↗</span></a></div>
   <div class="footer-aside">© <?= date('Y') ?> Adam Halfar</div>
 </div></footer>
 </body></html>

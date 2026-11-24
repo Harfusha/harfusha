@@ -39,12 +39,17 @@ foreach ($activity as $item) {
 krsort($activityYears, SORT_NUMERIC);
 ?>
 <section class="page-hero shell">
-  <h1><?= $lang->value('Co se změnilo', 'What’s changed') ?></h1>
-  <p><?= $lang->value('Přehled nedávné práce: aktivní commity v repozitářích, technické poznámky v inženýrském deníku a sloučené pull requesty do open-source projektů.', 'Recent engineering activity: repository pushes, technical notes from the engineering journal, and merged pull requests across open-source tools.') ?></p>
-  <div class="page-meta"><?= $githubSynced ? $lang->value('VEŘEJNÝ IMPORT GITHUBU', 'PUBLIC GITHUB IMPORT') : ($githubUnavailable ? $lang->value('DATA NEDOSTUPNÁ', 'DATA UNAVAILABLE') : $lang->value('RUČNĚ OVĚŘENÝ SNÍMEK', 'REVIEWED SNAPSHOT')) ?> <span>·</span>
-  <?php if ($provenance['last_sync'] !== null): ?><?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?>
+  <h1><?= $lang->value('Poslední změny', 'Recent changes') ?></h1>
+  <p><?= $lang->value('Stručný přehled posledních zaznamenaných kroků ve vývoji repozitářů, deníku a upstream příspěvcích.', 'A concise overview of recent milestones across repositories, the engineering journal, and upstream contributions.') ?></p>
+  <div class="page-meta"><?= $githubSynced ? (!empty($provenance['is_stale']) ? $lang->value('ZASTARALÝ IMPORT GITHUBU', 'STALE GITHUB IMPORT') : $lang->value('VEŘEJNÝ IMPORT GITHUBU', 'PUBLIC GITHUB IMPORT')) : ($githubUnavailable ? $lang->value('DATA NEDOSTUPNÁ', 'DATA UNAVAILABLE') : $lang->value('RUČNĚ OVĚŘENÝ SNÍMEK', 'REVIEWED SNAPSHOT')) ?> <span>·</span>
+  <?php if ($provenance['last_sync'] !== null): ?>
+    <?php if (!empty($provenance['is_stale'])): ?>
+      <?= $lang->value('Importovaný snímek: ', 'Imported snapshot: ') ?><?= Html::escape($provenance['last_sync']) ?> (<?= $lang->value('před ' . (int)($provenance['age_hours'] ?? 0) . ' h · zastaralé', (int)($provenance['age_hours'] ?? 0) . 'h ago · stale') ?>)
+    <?php else: ?>
+      <?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?> (<?= $lang->value('před ' . (int)($provenance['age_hours'] ?? 0) . ' h · čerstvé', (int)($provenance['age_hours'] ?? 0) . 'h ago · fresh') ?>)
+    <?php endif; ?>
   <?php elseif ($githubUnavailable): ?><?= $lang->value('Starší záznamy při výpadku nezobrazujeme.', 'Historical records stay hidden while the source is unavailable.') ?>
-  <?php else: ?><?= $lang->value('Ověřená data z repozitářů.', 'Verified repository records.') ?><?php endif; ?></div>
+  <?php else: ?><?= $lang->value('Ověřená data z repozitářů (snímek).', 'Verified repository snapshot.') ?><?php endif; ?></div>
 </section>
 <nav class="shell case-navigation" aria-label="<?= $lang->value('Obsah časové osy', 'On this timeline') ?>">
     <a href="#now-repositories-title"><?= $lang->value('Repozitáře', 'Repositories') ?></a>
@@ -53,7 +58,7 @@ krsort($activityYears, SORT_NUMERIC);
 </nav>
 <div class="shell now-overview">
 <section class="section" aria-labelledby="now-repositories-title">
-  <div class="section-heading"><div><h2 id="now-repositories-title"><?= $lang->value('Poslední změny v repozitářích', 'Latest repository updates') ?></h2><p><?= $lang->value('Záznamy o posledním odeslání změn na GitHub.', 'The timestamp reflects the last recorded push to GitHub.') ?></p></div><a class="inline-link" href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div>
+  <div class="section-heading"><div><h2 id="now-repositories-title"><?= !empty($provenance['is_stale']) ? $lang->value('Změny v repozitářích (snímek)', 'Repository updates (snapshot)') : $lang->value('Poslední změny v repozitářích', 'Latest repository updates') ?></h2><p><?= $lang->value('Záznamy o posledním odeslání změn na GitHub.', 'The timestamp reflects the last recorded push to GitHub.') ?></p></div><a class="inline-link" href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div>
   <?php if ($recentRepos !== []): ?><div class="activity-list">
   <?php foreach ($recentRepos as $repo): ?><article class="activity-item"><span class="activity-icon" aria-hidden="true">↳</span><div class="activity-body"><div class="activity-repo"><a href="<?= Html::escape(Html::safeUrl($repo['repo_url'])) ?>" target="_blank" rel="noopener noreferrer"><?= Html::escape($repo['repository']) ?> <span aria-hidden="true">↗</span></a></div><?php if ($repo['description'] !== '' && $repo['description'] !== $repo['repository'] && !preg_match('/^GitHub snapshot \d{4}-\d{2}-\d{2}$/D', $repo['description'])): ?><strong><?= Html::escape($repo['description']) ?></strong><?php endif; ?></div><div class="activity-side"><time><?= Html::escape(substr($repo['pushed_at'],0,16)) ?> UTC</time></div></article><?php endforeach; ?>
   </div><?php else: ?><p class="empty-state"><?= $lang->value('Čerstvé push údaje teď nejsou dostupné.', 'Fresh push data is not available right now.') ?></p><?php endif; ?>

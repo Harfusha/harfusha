@@ -17,12 +17,12 @@ use App\Support\Language;
     <div class="workbench-intro">
         <p class="workbench-author">Adam Halfar <span aria-hidden="true">/</span> Harfusha</p>
         <h1 id="workbench-title"><?= $lang->value('Navrhuju backendové systémy, nástroje pro vývojáře a automatizaci.', 'I build backend systems, developer tools and automation.') ?></h1>
-        <p><?= $lang->value('Zaměřuju se na čistou doménovou architekturu v PHP a CakePHP, deterministické kódovací nástroje a infrastrukturu jako kód. Stavím systémy, kde má každá komponenta jasné hranice a doložitelná technická rozhodnutí.', 'I focus on clean domain architecture in PHP and CakePHP, deterministic developer tooling, and infrastructure as code. Building reliable backend systems with explicit boundaries and verifiable architectural decisions.') ?></p>
+        <p><?= $lang->value('Zaměřuju se na čistou doménovou architekturu v CakePHP, deterministické vývojářské nástroje a infrastrukturu jako kód.', 'Focusing on clean domain architecture in CakePHP, deterministic developer tooling, and infrastructure as code.') ?></p>
         <div class="hero-buttons">
             <a class="btn btn-primary" href="#selected-work"><?= $lang->value('Vybrané projekty', 'Selected work') ?></a>
-            <a class="btn btn-ghost" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Open-source práce', 'Open source work') ?></a>
+            <a class="btn btn-ghost" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Open-source příspěvky', 'Open source contributions') ?></a>
         </div>
-        <a class="workbench-text-link" href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer"><?= $lang->value('Profil a kontaktní možnosti na GitHubu', 'GitHub profile and contact options') ?> <span aria-hidden="true">↗</span></a>
+        <a class="workbench-text-link" href="mailto:adam.halfar@seznam.cz"><?= $lang->value('Přímý kontakt: adam.halfar@seznam.cz', 'Direct contact: adam.halfar@seznam.cz') ?></a>
     </div>
     <a class="workbench-cover" href="<?= $lang->path('/projects') ?>">
         <figure>

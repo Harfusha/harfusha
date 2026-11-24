@@ -45,7 +45,7 @@ def good_response(base: str, path: str):
                '<guid isPermaLink="true">' + link + '</guid></item></channel></rss>')
         return 200, xml.encode(), MUTABLE
     if path in ('/cs/', '/en/'):
-        return 200, b'HARFUSHA', MUTABLE
+        return 200, b'Harfusha', MUTABLE
     if path in ('/cs/projects', '/en/projects'):
         return 200, b'Local AI Hub', MUTABLE
     raise AssertionError('Unexpected request ' + path)

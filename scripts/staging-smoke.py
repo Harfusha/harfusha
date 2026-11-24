@@ -37,13 +37,13 @@ def fetch(base: str, path: str) -> tuple[int, bytes, dict[str, str]]:
             return (
                 response.status,
                 response.read(MAX_BODY + 1),
-                {key.lower(): val for key, val in response.headers.items()},
+                {key.lower(): ', '.join(response.headers.get_all(key)) for key in response.headers.keys()},
             )
     except HTTPError as error:
         return (
             error.code,
             error.read(MAX_BODY + 1),
-            {key.lower(): val for key, val in error.headers.items()},
+            {key.lower(): ', '.join(error.headers.get_all(key)) for key in error.headers.keys()},
         )
 
 

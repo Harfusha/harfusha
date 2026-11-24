@@ -45,7 +45,7 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->assertResponseNotContains('<strong>62</strong><span>merged external PRs');
     }
 
-    public function testJournalPreviewIsDistinctFromCurrentStatusPage(): void
+    public function testNowPageIncludesRecentJournalEntries(): void
     {
         $entries = (new ProjectCatalog(ROOT . '/data'))->journal();
         self::assertNotEmpty($entries);
@@ -55,14 +55,13 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->assertResponseContains('/en/journal#' . $id);
         $this->get('/en/now');
         $this->assertResponseOk();
-        $this->assertResponseNotContains('/en/journal#' . $id);
-        $this->assertResponseNotContains('Traceable development notes');
+        $this->assertResponseContains('/en/journal#' . $id);
         $this->get('/en/journal');
         $this->assertResponseOk();
         $this->assertResponseContains('id="' . $id . '"');
         $this->get('/cs/now');
         $this->assertResponseOk();
-        $this->assertResponseNotContains('/cs/journal#' . $id);
+        $this->assertResponseContains('/cs/journal#' . $id);
         $this->get('/cs/journal');
         $this->assertResponseOk();
         $this->assertResponseContains('id="' . $id . '"');
@@ -78,18 +77,18 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         }
     }
 
-    public function testClosedIssuesArePresentedAsCompletedWork(): void
+    public function testMergedContributionsArePresentedAsMergedWork(): void
     {
         $this->get('/cs/open-source');
         $this->assertResponseOk();
         $this->assertResponseContains('Dokončeno');
-        $this->assertResponseContains('class="status completed"');
-        $this->assertResponseNotContains('Uzavřeno');
+        $this->assertResponseContains('class="status merged"');
+        $this->assertResponseContains('Uzavřeno');
 
         $this->get('/en/open-source');
         $this->assertResponseOk();
         $this->assertResponseContains('Completed');
-        $this->assertResponseNotContains('Closed');
+        $this->assertResponseContains('Closed');
     }
 
     public function testNowPageIncludesAHistoryOfPublicWork(): void
@@ -127,7 +126,7 @@ final class PagesControllerTest extends HttpIntegrationTestCase
     {
         $this->get('/cs/connections');
         $this->assertResponseOk();
-        $this->assertResponseContains('Devět projektů. Tři technické okruhy.');
+        $this->assertResponseContains('Tři technické okruhy');
         $this->assertResponseContains('data-map-category');
         $this->assertResponseContains('data-map-state');
         $this->assertResponseContains('data-map-project');
@@ -147,14 +146,14 @@ final class PagesControllerTest extends HttpIntegrationTestCase
     {
         $this->get('/cs/projects/local-ai-hub');
         $this->assertResponseOk();
-        $this->assertResponseContains('Veřejný zdroj');
+        $this->assertResponseContains('Otevřít zdrojový kód');
         $this->assertResponseNotContains('/playground');
         $this->assertResponseNotContains('data-hub-run');
 
         $this->get('/cs/projects/scan2cad');
         $this->assertResponseOk();
-        $this->assertResponseContains('Beta aplikace provází rekonstrukci parametrického CAD modelu');
-        $this->assertResponseContains('Co zatím není ověřeno');
+        $this->assertResponseContains('Inženýrský asistent, který vede od importované sítě skenu');
+        $this->assertResponseContains('Důkazy a omezení');
         $this->assertResponseNotContains('/playground');
         $this->assertResponseNotContains('data-scan-scale');
 
@@ -165,7 +164,7 @@ final class PagesControllerTest extends HttpIntegrationTestCase
 
         $this->get('/cs/projects/discord-bot');
         $this->assertResponseOk();
-        $this->assertResponseContains('Ověřený provozní rozsah');
+        $this->assertResponseContains('Služba běží jako izolovaná systemd jednotka');
         $this->assertResponseContains('Spravovat službu přes Ansible a systemd');
         $this->assertResponseNotContains('data-discord-role');
     }
@@ -174,7 +173,7 @@ final class PagesControllerTest extends HttpIntegrationTestCase
     {
         $this->get('/cs/');
         $this->assertResponseOk();
-        $this->assertResponseContains('HARFUSHA');
+        $this->assertResponseContains('Harfusha');
     }
 
     public function testHomeLabContainsSafeSerializedModel(): void
@@ -199,7 +198,7 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->assertResponseNotContains('192.168.');
         $this->get('/en/connections');
         $this->assertResponseOk();
-        $this->assertResponseContains('Nine projects. Three engineering themes.');
+        $this->assertResponseContains('Three engineering themes');
         $this->assertResponseContains('data-map-project');
         $this->assertResponseNotContains('maker-lab');
     }

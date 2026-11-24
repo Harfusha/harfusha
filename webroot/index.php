@@ -18,6 +18,7 @@ if (PHP_SAPI === 'cli-server') {
         $publicTypes = [
             'css', 'js', 'map', 'svg', 'png', 'jpg', 'jpeg', 'webp',
             'gif', 'ico', 'woff', 'woff2', 'ttf', 'txt', 'xml',
+            'webmanifest', 'json',
         ];
         if (!$hidden && in_array($extension, $publicTypes, true) && is_file(__DIR__ . $path)) {
             return false;

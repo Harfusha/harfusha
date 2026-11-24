@@ -52,7 +52,7 @@ Zdrojový i produkční balíčkovač sdílí kontrolu `scripts/client_gates.py`
 - **Browser core:** deterministické seed, sync konflikty, STL ASCII/binary/invalid, výpadek a transitivní závislosti.
 - **Browser DOM:** 320px, 390px, 768px, 1365px a 1920px, galerie, homepage, katalog, projektový graf, homelab, Maker, Now, Open Source; keyboard role/aktivace, žádné overflow/JS errors.
 - **Cake HTTP:** CSRF, admin login/lockout, cookies, no-store, security headers, sitemap, RSS, 404 a neautorizované POSTy.
-- **DB:** izolované schéma, všechny tři migrace, kompatibilita SQL fallback, měření dotazů, převzetí dat po restartu a zálohování.
+- **DB:** izolované schéma, všechny čtyři migrace, kompatibilita SQL fallback, měření dotazů, převzetí dat po restartu a zálohování.
 - **Release:** vendor-inclusive build na PHP8.5, leak scan, staging smoke, DNS/SSL, rollback a návrat z DB zálohy.
 
 ## Význam výsledků

@@ -1,9 +1,17 @@
 Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # Enforce canonical HTTPS for domain access (adam-halfar.cz & www.adam-halfar.cz)
+    RewriteCond %{HTTP_HOST} ^(www\.)?adam-halfar\.cz$ [NC]
+    RewriteCond %{HTTPS} !=on [OR]
+    RewriteCond %{HTTP_HOST} ^www\. [NC]
+    RewriteRule ^ https://adam-halfar.cz%{REQUEST_URI} [R=301,L,QSA]
+
     RewriteRule ^webroot/ - [L]
     RewriteRule ^assets/(.+)$ /webroot/assets/$1 [END]
     RewriteRule ^robots\.txt$ /webroot/robots.txt [END]
+    RewriteRule ^manifest\.webmanifest$ /webroot/manifest.webmanifest [END]
     RewriteRule ^$ /webroot/index.php [PT,L]
 
     RewriteCond %{DOCUMENT_ROOT}/webroot%{REQUEST_URI} -f

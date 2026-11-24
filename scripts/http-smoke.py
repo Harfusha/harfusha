@@ -124,14 +124,14 @@ def main() -> int:
         return 1
 
     cases = [
-        ('/', 302, None), ('/cs/', 200, b'HARFUSHA'),
-        ('/en/', 200, b'HARFUSHA'), ('/cs/projects', 200, b'Local AI Hub'),
+        ('/', 302, None), ('/cs/', 200, b'Harfusha'),
+        ('/en/', 200, b'Harfusha'), ('/cs/projects', 200, b'Local AI Hub'),
         ('/cs/decisions', 200, 'Technická rozhodnutí'.encode('utf-8')),
-        ('/en/homelab', 200, 'If a host goes down, what stops working?'.encode('utf-8')),
+        ('/en/homelab', 200, 'What stops when one device goes down?'.encode('utf-8')),
         ('/cs/projects/missing-project', 404, None),
         ('/sitemap.xml', 200, b'<urlset'),
         ('/cs/feed.xml', 200, b'<rss'),
-        ('/admin', 200, b'HARFUSHA'),
+        ('/admin', 200, b'Harfusha'),
         ('/api/v1/projects?lang=en', 200, b'"projects"'),
     ]
     for path, expected, contains in cases:
@@ -190,8 +190,11 @@ def main() -> int:
     if 'no-store' not in not_modified_headers.get('Cache-Control', ''):
         print('FAIL cached API 304 response',file=sys.stderr)
         return 1
+    raw_etag = etag.strip('"')
     for condition, wanted in (
         ('W/' + etag, 304),
+        ('"' + raw_etag + '-gzip"', 304),
+        ('W/"' + raw_etag + '-gzip"', 304),
         ('"not-a-match", W/' + etag, 304),
         ('*', 304),
         ('"definitely-not-current"', 200),
@@ -208,6 +211,13 @@ def main() -> int:
     if fetch('/api/v1/projects?lang=fr')[0] != 400 or fetch('/api/v1/projects/does-not-exist')[0] != 404:
         print('FAIL API input bounds',file=sys.stderr)
         return 1
+
+    # NET03 HEAD checks: public routes return 200 and empty body
+    for head_path in ('/cs/', '/sitemap.xml', '/healthz', '/api/v1/projects'):
+        head_code, head_body, _ = fetch(head_path, method='HEAD')
+        if head_code != 200 or len(head_body) != 0:
+            print(f'FAIL HEAD {head_path}: expected 200 and empty body, got {head_code} len={len(head_body)}', file=sys.stderr)
+            return 1
 
     # PHP's development server does not enforce Apache FilesMatch directives.
     dotfile_status, dotfile_body, _ = fetch('/.htaccess')

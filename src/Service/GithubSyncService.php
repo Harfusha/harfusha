@@ -149,8 +149,19 @@ final class GithubSyncService
         // Intentionally unauthenticated: an authorized search may include private
         // activity. A public-only API view is required for a public portfolio.
         $response = $this->http->get($url, [], ['headers' => $headers, 'timeout' => 15, 'redirect' => 0]);
-        if ($response->getStatusCode() !== 200) {
-            throw new RuntimeException('GitHub request failed with HTTP ' . $response->getStatusCode());
+        $status = $response->getStatusCode();
+        $isRateLimit = $status === 429 || (
+            $status === 403 && (
+                $response->getHeaderLine('x-ratelimit-remaining') === '0' ||
+                str_contains($response->getStringBody(), 'rate limit')
+            )
+        );
+        if ($isRateLimit) {
+            $reset = $response->getHeaderLine('x-ratelimit-reset');
+            throw new RuntimeException('GitHub rate limit exceeded' . ($reset !== '' ? ' until ' . $reset : ''));
+        }
+        if ($status !== 200) {
+            throw new RuntimeException('GitHub request failed with HTTP ' . $status);
         }
         // CakePHP buffers HTTP responses. Bound JSON decoding memory even when
         // a malicious or unexpectedly oversized upstream body returns 200.

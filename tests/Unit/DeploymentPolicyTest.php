@@ -12,6 +12,14 @@ final class DeploymentPolicyTest extends TestCase
 {
     private const GOOD_SALT = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        if (PHP_VERSION_ID < 80512 || PHP_VERSION_ID >= 80600) {
+            self::markTestSkipped('DeploymentPolicy tests require patched PHP 8.5.12+ (run in Docker staging)');
+        }
+    }
+
     public function testValidProductionOriginAndSaltAreAccepted(): void
     {
         $this->expectNotToPerformAssertions();

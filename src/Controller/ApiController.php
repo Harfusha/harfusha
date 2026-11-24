@@ -83,11 +83,21 @@ final class ApiController extends AppController
             ->withHeader('Vary', 'Accept-Encoding');
         // If-None-Match uses weak comparison for GET (RFC 9110).
         // Accept a list of validators, weak validators, or the wildcard.
+        // Normalize Apache mod_deflate -gzip suffix if present (HTTP01).
+        $rawEtag = trim($etag, '"');
         $validators = explode(',', $this->request->getHeaderLine('If-None-Match'));
         foreach ($validators as $validator) {
             $candidate = trim($validator);
-            if ($candidate === '*' || $candidate === $etag || $candidate === 'W/' . $etag) {
-                return $response->withStatus(304);
+            if ($candidate === '*') {
+                return $response->withStatus(304)->withStringBody('');
+            }
+            $normalized = str_starts_with($candidate, 'W/') ? substr($candidate, 2) : $candidate;
+            $unquoted = trim($normalized, '"');
+            if (str_ends_with($unquoted, '-gzip')) {
+                $unquoted = substr($unquoted, 0, -5);
+            }
+            if ($unquoted === $rawEtag) {
+                return $response->withStatus(304)->withStringBody('');
             }
         }
 

@@ -8,16 +8,16 @@
   "tasks": {
     "task_live_deploy": {
       "acceptance_criteria": [
-        "Veřejné požadavky obsluhuje pouze webroot přes ověřené root rewrite; citlivé kořenové cesty vrací 403/404.",
-        "Privátní .env je mimo webroot, FTP oprávnění 600 a HTTPS test odmítá jeho veřejné vydání.",
-        "Serverový PHP preflight a read-only databázové SELECT 1 projdou; před nasazením byly ověřeny všechny tři migrace jako up.",
-        "HTTPS smoke projde routy, bezpečnostní hlavičky, RSS/sitemap/API i citlivé cesty.",
-        "Ověřený release ZIP je zachován lokálně pro obnovu; předchozí cílový adresář byl prázdný a uživatel požadoval smazat jeho původní obsah."
+        "Veřejný obsah měl před buildem platný approval receipt.",
+        "Produkční ZIP prošel verify_archive.py; manifest a SHA-256 jsou platné.",
+        "Změněné a chybějící cílové soubory byly přes FTPS nahrány a jejich vzdálené SHA-256 odpovídá kandidátovi.",
+        "Rollback souborová záloha existuje a prošla lokální hash kontrolou; .env ani produkční databáze nebyly součástí nahrání.",
+        "Po nasazení prošel neinvazivní HTTPS smoke včetně citlivých cest."
       ],
       "blocker": null,
       "clarifications": [],
       "depends_on": [],
-      "description": "adam-halfar.cz nasazen přes FTPS do prázdného cílového adresáře. Kořenové .htaccess bezpečně přepisuje do webroot; citlivé cesty vrací 403/404. .env zůstává mimo webroot, chmod 600. Uživatel výslovně povolil dříve testovací DB pro live web.",
+      "description": "Na adam-halfar.cz nasazeno přes FTPS/TLS; self-signed certifikát povolen dle pokynu uživatele. Nahráno 34 změněných a 7 chybějících souborů, každý ověřen SHA-256. Produkční .env zůstal beze změny; DB nebyla měněna. Rollback ZIP je uložen lokálně.",
       "kind": "operation",
       "next_action": "",
       "title": "Nasadit a ověřit adam-halfar.cz",

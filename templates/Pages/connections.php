@@ -22,8 +22,8 @@ $states = [
 ];
 ?>
 <section class="page-hero shell project-map-hero">
-  <h1><?= $lang->value('Devět projektů. Tři technické okruhy.', 'Nine projects. Three engineering themes.') ?></h1>
-  <p><?= $lang->value('Projekty jsou v různých fázích. Rozbal problém a přístup; rozsah i omezení každého z nich jsou uvedené na jeho vlastní stránce.', 'The projects are at different stages. Open a card for its problem and approach; each project page states its scope and limits.') ?></p>
+  <h1><?= $lang->value('Tři technické okruhy a společné inženýrské problémy', 'Three engineering themes and shared technical challenges') ?></h1>
+  <p><?= $lang->value('Každá skupina řeší odlišný typ spolehlivosti: od dohledání zdrojového kódu přes synchronizaci a simulaci výpadků sítě až po fyzický 3D tisk.', 'Each group tackles a different aspect of reliability: from source code traceability and daemon sync to network failure simulation and physical 3D manufacturing.') ?></p>
 </section>
 <section class="section shell project-map" data-project-map-filter aria-label="<?= $lang->value('Tematické skupiny projektů', 'Project groups') ?>">
   <div class="project-map-catalog">
@@ -48,7 +48,7 @@ $states = [
             <p class="project-map-hard project-map-problem"><span><?= $lang->value('Problém', 'Problem') ?></span><?= Html::escape($project->problem($lang)) ?></p>
             <p class="project-map-hard project-map-solution"><span><?= $lang->value('Přístup', 'Approach') ?></span><?= Html::escape($project->solution($lang)) ?></p>
           </details>
-          <a class="inline-link" href="<?= $lang->path('/projects/' . $project->slug) ?>"><?= $lang->value('Přejít na rozsah a důkazy', 'View scope and evidence') ?> →</a>
+          <a class="inline-link" href="<?= $lang->path('/projects/' . $project->slug) ?>"><?= sprintf($lang->value('Případová studie %s', 'Case study: %s'), Html::escape($project->name)) ?> →</a>
         </article>
       <?php endforeach; ?>
       </div>

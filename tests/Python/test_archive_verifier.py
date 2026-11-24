@@ -111,6 +111,16 @@ class ArchiveVerifierTests(unittest.TestCase):
         with self.assertRaisesRegex(ArchiveVerificationError, 'vendor'):
             verify_archive(self.archive, variant='source')
 
+    def test_rollback_allows_pinned_mysql_ca_and_requires_vendor(self) -> None:
+        files = {**self.files, 'vendor/autoload.php': b'<?php', 'composer.lock': b'{}',
+                 'scripts/preflight.php': b'<?php', 'mysql-ca-pinned.pem': b'-----BEGIN CERTIFICATE-----'}
+        self.make(files=files)
+        # Production rejects mysql-ca-pinned.pem
+        with self.assertRaises(ArchiveVerificationError):
+            verify_archive(self.archive, variant='production')
+        # Rollback explicitly permits mysql-ca-pinned.pem
+        self.assertEqual(verify_archive(self.archive, variant='rollback'), 8)
+
 
 if __name__ == '__main__':
     unittest.main()

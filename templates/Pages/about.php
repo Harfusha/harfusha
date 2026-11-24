@@ -8,7 +8,7 @@ use App\Support\Language;
 <section class="page-hero shell about-hero">
     <span class="eyebrow">PHP · CAKEPHP · DEVELOPER TOOLING</span>
     <h1>Adam Halfar</h1>
-    <p><?= $lang->value('Navrhuju backendové systémy, nástroje pro vývojáře a infrastrukturu. Specializuju se na PHP a CakePHP s důrazem na doménovou integritu, typovou bezpečnost a architekturu podloženou doložitelnými fakty.', 'I architect backend systems, developer tooling, and infrastructure. Specializing in PHP and CakePHP with a focus on domain integrity, type safety, and verifiable engineering decisions.') ?></p>
+    <p><?= $lang->value('Navrhuju, jak aplikace ukládá a ověřuje data. U vývojářských nástrojů dbám na to, aby se každý výsledek dal dohledat ve zdroji a podložit testy.', 'I design how applications store and validate data. For developer tools, I ensure every result is traceable to source code and backed by verifiable tests.') ?></p>
 </section>
 
 <section class="section shell about-grid">
@@ -20,9 +20,12 @@ use App\Support\Language;
         <a class="btn btn-ghost" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Vybrané upstream změny', 'Selected upstream changes') ?></a>
     </div>
     <aside class="portfolio-profile" aria-labelledby="profile-links-title">
-        <h2 id="profile-links-title"><?= $lang->value('Můj profil', 'My profile') ?></h2>
+        <h2 id="profile-links-title"><?= $lang->value('Můj profil a kontakt', 'Profile & Contact') ?></h2>
+        <a href="mailto:adam.halfar@seznam.cz">
+            <strong><?= $lang->value('E-mail', 'Email') ?></strong><span>adam.halfar@seznam.cz</span>
+        </a>
         <a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">
-            <strong><?= $lang->value('GitHub · profil a kontakt', 'GitHub · profile and contact') ?></strong><span>@Harfusha ↗</span>
+            <strong><?= $lang->value('GitHub', 'GitHub') ?></strong><span>@Harfusha ↗</span>
         </a>
         <a href="<?= $lang->path('/projects') ?>">
             <strong><?= $lang->value('Projekty', 'Projects') ?></strong><span aria-hidden="true">↗</span>
@@ -43,7 +46,7 @@ use App\Support\Language;
         </article>
         <article>
             <h3><?= $lang->value('Nástroje pro vývojáře', 'Developer tools') ?></h3>
-            <p><?= $lang->value('U Local AI Hubu je klíčová dohledatelnost ke zdroji. Agenti nedostávají halucinované odpovědi, ale přesné výřezy kódu podložené immutable identifikátory důkazů a SQLite WAL ledgerem.', 'With Local AI Hub, traceability is paramount. Coding agents receive verifiable code slices backed by immutable evidence IDs and SQLite WAL task ledgers instead of hallucinated answers.') ?></p>
+            <p><?= $lang->value('U Local AI Hubu je klíčová dohledatelnost ke zdroji. Deterministická část Hubu vrací dohledatelné výřezy zdrojového kódu. Při využití jazykového modelu lze odpověď porovnat s podklady a ověřit v SQLite WAL ledgeru.', 'With Local AI Hub, traceability is paramount. The deterministic part of the Hub retrieves traceable source code slices. When a language model is used, its output can be verified against the source and inspected in the SQLite WAL ledger.') ?></p>
             <a class="inline-link" href="<?= $lang->path('/projects/local-ai-hub') ?>"><?= $lang->value('Případová studie Local AI Hub', 'Local AI Hub case study') ?> <span aria-hidden="true">↗</span></a>
         </article>
         <article>

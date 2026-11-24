@@ -26,7 +26,7 @@ ksort($journalProjects);
     <h1><?= $lang->value('Vývojový deník', 'Development journal') ?></h1>
     <p><?= $lang->value('Co jsem změnil, proč a jak jsem výsledek ověřil. Zápisky můžeš filtrovat podle roku nebo vyhledat podle projektu.', 'What I changed, why it mattered and how I checked the result. Browse by year or search for a project.') ?></p>
     <div class="page-hero-links">
-        <a class="inline-link" href="<?= $lang->path('/now') ?>"><?= $lang->value('Související změny na GitHubu', 'Related changes on GitHub') ?> <span aria-hidden="true">↗</span></a>
+        <a class="inline-link" href="<?= $lang->path('/now') ?>"><?= $lang->value('Poslední změny', 'Recent changes') ?> <span aria-hidden="true">↗</span></a>
     </div>
 </section>
 

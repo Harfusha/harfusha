@@ -90,9 +90,26 @@ final class SystemController extends AppController
             ],
         ];
 
-        return $this->response->withType('xml')
-            ->withHeader('Cache-Control', 'public, max-age=3600, must-revalidate')
-            ->withStringBody(PublicSitemap::render($origin, $pages, $lastmods, $imageMap));
+        $body = PublicSitemap::render($origin, $pages, $lastmods, $imageMap);
+        $etag = '"' . hash('sha256', $body) . '"';
+        $response = $this->response->withType('xml')
+            ->withHeader('ETag', $etag)
+            ->withHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+
+        $ifNoneMatch = trim($this->request->getHeaderLine('If-None-Match'));
+        if ($ifNoneMatch !== '') {
+            $rawEtag = trim($etag, '"');
+            $normalized = str_starts_with($ifNoneMatch, 'W/') ? substr($ifNoneMatch, 2) : $ifNoneMatch;
+            $unquoted = trim($normalized, '"');
+            if (str_ends_with($unquoted, '-gzip')) {
+                $unquoted = substr($unquoted, 0, -5);
+            }
+            if ($ifNoneMatch === '*' || $unquoted === $rawEtag) {
+                return $response->withStatus(304)->withStringBody('');
+            }
+        }
+
+        return $response->withStringBody($body);
     }
 
     /**

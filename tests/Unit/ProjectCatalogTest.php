@@ -41,7 +41,7 @@ final class ProjectCatalogTest extends TestCase
         }
         $mutaui = (new ProjectCatalog(ROOT . '/data'))->find('mutaui');
         self::assertNotNull($mutaui);
-        self::assertContains('Přehled synchronizačních a forwarding relací', $mutaui->localizedFeatures($cs));
+        self::assertContains('Přehled synchronizačních profilů a přesměrování portů v reálném čase', $mutaui->localizedFeatures($cs));
     }
 
     public function testJournalIsOrderedNewestFirst(): void
@@ -78,5 +78,30 @@ final class ProjectCatalogTest extends TestCase
     public function testUnknownProjectDoesNotExist(): void
     {
         self::assertNull((new ProjectCatalog(ROOT . '/data'))->find('not-a-project'));
+    }
+
+    public function testRepresentationConsistencyAcrossCatalogAndPublicView(): void
+    {
+        $catalog = new ProjectCatalog(ROOT . '/data');
+        $projects = $catalog->projects();
+        self::assertCount(9, $projects);
+
+        foreach (['cs', 'en'] as $langCode) {
+            $lang = new Language($langCode);
+            foreach ($projects as $project) {
+                $view = (new PublicProjectView($project))->toArray($lang);
+                self::assertSame($project->slug, $view['slug']);
+                self::assertSame($project->name, $view['name']);
+                self::assertSame($project->status, $view['status']);
+                self::assertSame($project->category, $view['category']);
+                self::assertSame($project->stack, $view['stack']);
+                self::assertSame($project->year, $view['year']);
+                if ($project->private) {
+                    self::assertNull($view['repository']);
+                } else {
+                    self::assertSame($project->repo, $view['repository']);
+                }
+            }
+        }
     }
 }

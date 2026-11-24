@@ -1516,6 +1516,33 @@ body[data-language] .anchor-copy-btn.is-copied {
     background: #ffffff;
     border-color: var(--stroke);
   }
+  :root:not([data-theme="dark"]) body[data-language] .decision-card[open] .decision-more,
+  :root[data-theme="light"] body[data-language] .decision-card[open] .decision-more {
+    color: #1d4ed8;
+    font-weight: 600;
+  }
+  :root:not([data-theme="dark"]) body[data-language] .decision-context,
+  :root:not([data-theme="dark"]) body[data-language] .decision-detail p,
+  :root[data-theme="light"] body[data-language] .decision-context,
+  :root[data-theme="light"] body[data-language] .decision-detail p {
+    color: #1e293b;
+  }
+  :root:not([data-theme="dark"]) body[data-language] .decision-alternative a,
+  :root[data-theme="light"] body[data-language] .decision-alternative a {
+    color: #1d4ed8;
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  :root:not([data-theme="dark"]) body[data-language] .back-link,
+  :root[data-theme="light"] body[data-language] .back-link {
+    color: #1e293b;
+    font-weight: 650;
+  }
+  :root:not([data-theme="dark"]) body[data-language] :is(.category, .eyebrow, .card-index, .page-meta),
+  :root[data-theme="light"] body[data-language] :is(.category, .eyebrow, .card-index, .page-meta) {
+    color: #334155;
+    font-weight: 650;
+  }
   :root:not([data-theme="dark"]) body[data-language] .status {
     border-color: #cbd5e1;
     background: #f1f5f9;
@@ -2139,12 +2166,26 @@ body[data-language] .home-model-callout p { max-width: 68ch; margin: .5rem 0 0; 
 .lab-topology-edges line.is-in-path { stroke: var(--lime); stroke-width: 4; stroke-dasharray: none; opacity: 1; }
 .lab-topology-edges line.is-down { stroke: var(--red); opacity: 1; }
 .lab-device { position: absolute; z-index: 1; width: min(22%, 220px); min-height: 112px; transform: translate(-50%,-50%); }
-.lab-device.is-in-path { border-color: var(--lime); }
+.lab-device.is-in-path {
+  background: #1e2e4a;
+  border-color: #60a5fa;
+  color: #f8fafc;
+}
+.lab-device.is-in-path strong { color: #ffffff; }
+.lab-device.is-in-path span { color: #cbd5e1; }
+.lab-device.is-in-path .lab-device-state { color: #93c5fd; }
 :root[data-theme="light"] body[data-language] .lab-device-grid { height: clamp(460px, 54vw, 600px); }
 :root[data-theme="light"] body[data-language] .lab-topology-edges line { stroke: #96a394; }
 :root[data-theme="light"] body[data-language] .lab-device { border-radius: 3px; background: var(--surface); box-shadow: 0 8px 22px #20272012; }
 :root[data-theme="light"] body[data-language] .lab-device.is-selected { border-color: var(--lime); box-shadow: 0 0 0 2px var(--lime), 0 8px 22px #20272018; }
-:root[data-theme="light"] body[data-language] .lab-device.is-in-path { background: #e4ede4; border-color: var(--lime); }
+:root[data-theme="light"] body[data-language] .lab-device.is-in-path {
+  background: #e0f2fe;
+  border-color: #0284c7;
+  color: #0f172a;
+}
+:root[data-theme="light"] body[data-language] .lab-device.is-in-path strong { color: #0369a1; }
+:root[data-theme="light"] body[data-language] .lab-device.is-in-path span { color: #0c4a6e; }
+:root[data-theme="light"] body[data-language] .lab-device.is-in-path .lab-device-state { color: #0369a1; }
 :root[data-theme="light"] body[data-language] .lab-device.is-down { background: #f4e3dd; border-color: var(--red); }
 :root[data-theme="light"] body[data-language] .lab-device .lab-device-state { color: var(--lime); }
 :root[data-theme="light"] body[data-language] .lab-device.is-down .lab-device-state { color: var(--red); }
@@ -2172,4 +2213,39 @@ body[data-language] .home-model-callout p { max-width: 68ch; margin: .5rem 0 0; 
 }
 @media (prefers-reduced-motion: reduce) {
   .lab-topology-edges line { transition: none; }
+}
+
+:root:not(.js) .requires-js,
+:root:not(.js) .filter-bar,
+:root:not(.js) .project-map-choices,
+:root:not(.js) .project-map-status {
+  display: none !important;
+}
+
+@media print {
+  .site-header, .site-footer, .filter-bar, .requires-js, .theme-toggle, .lang-toggle, .back-link, .btn, .lab-toolbar, .lab-flow-toolbar {
+    display: none !important;
+  }
+  details {
+    display: block !important;
+  }
+  details[open] summary, details summary {
+    font-weight: 700;
+  }
+  details > *:not(summary) {
+    display: block !important;
+  }
+  .decision-card, .project-card, .featured-contribution-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    margin-bottom: 1.5rem !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
 }

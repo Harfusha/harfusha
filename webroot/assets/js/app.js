@@ -1,10 +1,11 @@
 (() => {
   'use strict';
+  document.documentElement.classList.add('js');
   const $ = (selector, parent = document) => parent.querySelector(selector);
-  const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
+  const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
   const language = document.body.dataset.language === 'en' ? 'en' : 'cs';
   const local = (cs, en) => language === 'en' ? en : cs;
-  const core = window.HarfushaLabCore;
+  const core = /** @type {any} */ (window).HarfushaLabCore;
   // Match Czech and English text even when visitors omit accents.
   const normalizeSearch = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase();
 
@@ -75,7 +76,10 @@
   function initProjectMap() {
     const root = $('[data-project-map-filter]');
     if (!root) return;
-    const cards = $$('[data-map-project]', root);
+    const cards = $$('[data-map-project]', root).map(card => ({
+      card,
+      text: normalizeSearch(card.dataset.search || card.textContent || ''),
+    }));
     const domains = $$('[data-map-domain]', root);
     const search = $('[data-map-search]', root);
     const theme = $('[data-map-category]', root);
@@ -83,10 +87,10 @@
     const status = $('[data-map-status]', root);
     const empty = $('[data-map-empty]', root);
     const filter = () => {
-      const query = (search?.value || '').trim().toLocaleLowerCase();
+      const query = normalizeSearch(search?.value || '').trim();
       let visible = 0;
-      cards.forEach(card => {
-        const matches = (!query || card.dataset.search?.toLocaleLowerCase().includes(query))
+      cards.forEach(({card, text}) => {
+        const matches = (!query || text.includes(query))
           && (!theme || theme.value === 'all' || card.dataset.theme === theme.value)
           && (!state || state.value === 'all' || card.dataset.state === state.value);
         card.hidden = !matches;
@@ -191,6 +195,17 @@
     let selected = 'pi', view = 'services';
     const knockedOut = new Set();
     const nodeMap = new Map(nodes.map(n => [n.id, n]));
+    const initialLabHash = window.location.hash.replace(/^#node-/, '').replace(/^#/, '');
+    if (initialLabHash && nodeMap.has(initialLabHash)) {
+      selected = initialLabHash;
+    }
+    window.addEventListener('hashchange', () => {
+      const h = window.location.hash.replace(/^#node-/, '').replace(/^#/, '');
+      if (h && nodeMap.has(h) && selected !== h) {
+        selected = h;
+        render();
+      }
+    });
     const edgeSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     edgeSvg.classList.add('lab-topology-edges');
     edgeSvg.setAttribute('viewBox', '0 0 1000 600');
@@ -247,6 +262,7 @@
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'lab-device';
+        button.id = 'node-' + node.id;
         button.style.left = `${node.x / 10}%`;
         button.style.top = `${node.y / 6}%`;
         button.classList.toggle('is-selected', active);
@@ -270,6 +286,9 @@
           if (failureMode.checked && node.id !== 'internet') {
             if (knockedOut.has(node.id)) knockedOut.delete(node.id);
             else knockedOut.add(node.id);
+          }
+          if (window.location.hash !== '#node-' + node.id) {
+            window.history.replaceState(null, '', '#node-' + node.id);
           }
           render();
           [...devices.children].find(candidate => candidate.dataset.labNodeId === selected)?.focus();
@@ -401,7 +420,16 @@
         flowResult.focus();
       }));
     }
-    $('[data-lab-reset]',root)?.addEventListener('click',()=>{knockedOut.clear();failureMode.checked=false;render();});
+    $('[data-lab-reset]', root)?.addEventListener('click', () => {
+      knockedOut.clear();
+      failureMode.checked = false;
+      try {
+        if (window.location.hash) {
+          window.history.replaceState(null, '', '#');
+        }
+      } catch {}
+      render();
+    });
     failureMode.addEventListener('change',render);
     render();
   }
@@ -457,27 +485,26 @@
       const icon = $('.theme-toggle-icon', themeToggle);
       if (icon) icon.textContent = isLight ? '☼' : '◐';
     };
-    let savedTheme = null;
-    try { savedTheme = localStorage.getItem('theme'); } catch (_) {}
-    if (savedTheme === 'light' || savedTheme === 'dark') {
-      document.documentElement.dataset.theme = savedTheme;
-      updateToggleState(savedTheme);
-      const themeColor = document.querySelector('meta[name="theme-color"]');
-      if (themeColor) themeColor.content = savedTheme === 'light' ? '#f4f0e6' : '#0d1019';
-    } else {
-      document.documentElement.dataset.theme = 'light';
-      updateToggleState('light');
-      const themeColor = document.querySelector('meta[name="theme-color"]');
-      if (themeColor) themeColor.content = '#f4f0e6';
+    let currentTheme = document.documentElement.dataset.theme;
+    if (currentTheme !== 'light' && currentTheme !== 'dark') {
+      try { currentTheme = localStorage.getItem('theme'); } catch (_) {}
+      if (currentTheme !== 'light' && currentTheme !== 'dark') {
+        currentTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      }
+      document.documentElement.dataset.theme = currentTheme;
     }
+    updateToggleState(currentTheme);
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    if (themeColor) themeColor.setAttribute('content', currentTheme === 'light' ? '#f4f0e6' : '#0d1019');
+
     themeToggle.addEventListener('click', () => {
       const current = document.documentElement.dataset.theme || 'light';
       const next = current === 'light' ? 'dark' : 'light';
       document.documentElement.dataset.theme = next;
       try { localStorage.setItem('theme', next); } catch (_) {}
       updateToggleState(next);
-      const themeColor = document.querySelector('meta[name="theme-color"]');
-      if (themeColor) themeColor.content = next === 'light' ? '#f4f0e6' : '#0d1019';
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', next === 'light' ? '#f4f0e6' : '#0d1019');
     });
   }
 
@@ -508,5 +535,57 @@
       }
     });
   });
+
+  function initMobileMenu() {
+    const menu = document.querySelector('details.mobile-menu');
+    if (!menu) return;
+    const summary = menu.querySelector('summary');
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.hasAttribute('open')) {
+        menu.removeAttribute('open');
+        summary?.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (menu.hasAttribute('open') && e.target instanceof Node && !menu.contains(e.target)) {
+        menu.removeAttribute('open');
+      }
+    });
+  }
+  initMobileMenu();
+
+  function initLangToggle() {
+    const toggle = document.querySelector('.lang-toggle');
+    if (!toggle) return;
+    const syncHash = () => {
+      if (window.location.hash) {
+        const base = toggle.getAttribute('href')?.split('#')[0] || '';
+        toggle.setAttribute('href', base + window.location.hash);
+      }
+    };
+    syncHash();
+    window.addEventListener('hashchange', syncHash);
+    toggle.addEventListener('click', syncHash);
+  }
+  initLangToggle();
+
+  function initAnchorTargetAutoOpen() {
+    const openTarget = () => {
+      const hash = window.location.hash.slice(1);
+      if (!hash) return;
+      const target = document.getElementById(hash);
+      if (!target) return;
+      if (target instanceof HTMLDetailsElement) {
+        target.open = true;
+      }
+      const parentDetails = target.closest('details');
+      if (parentDetails instanceof HTMLDetailsElement) {
+        parentDetails.open = true;
+      }
+    };
+    openTarget();
+    window.addEventListener('hashchange', openTarget);
+  }
+  initAnchorTargetAutoOpen();
 
 })();

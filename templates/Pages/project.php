@@ -39,10 +39,14 @@ $stackHeading = match ($project->slug) {
                 <a class="btn btn-primary" href="<?= Html::escape($networkMapHref) ?>"><?= $lang->value('Prozkoumat mapu závislostí', 'Explore the dependency map') ?> <span aria-hidden="true">↓</span></a>
             <?php endif; ?>
             <?php if ($project->slug === 'discord-bot'): ?>
-                <a class="btn btn-primary" href="<?= $lang->path('/homelab#network-model') ?>"><?= $lang->value('Zobrazit v mapě sítě', 'View on network map') ?> <span aria-hidden="true">→</span></a>
+                <a class="btn btn-primary" href="<?= $lang->path('/homelab#node-pi') ?>"><?= $lang->value('Zobrazit Raspberry Pi v mapě sítě', 'View Raspberry Pi on network map') ?> <span aria-hidden="true">→</span></a>
             <?php endif; ?>
-            <?php if (in_array($project->slug, ['scan2cad', 'tiskov'], true)): ?>
-                <a class="btn btn-primary" href="<?= $lang->path('/maker') ?>"><?= $lang->value('Přehled 3D projektů', '3D projects overview') ?> <span aria-hidden="true">→</span></a>
+            <?php if ($project->slug === 'scan2cad'): ?>
+                <a class="btn btn-primary" href="<?= $lang->path('/decisions#scan-to-cad-boundary') ?>"><?= $lang->value('Technické rozhodnutí: Mesh vs CAD', 'Engineering decision: Mesh vs CAD') ?> <span aria-hidden="true">→</span></a>
+                <a class="btn btn-ghost" href="<?= $lang->path('/maker') ?>"><?= $lang->value('Přehled 3D projektů', '3D projects overview') ?></a>
+            <?php elseif ($project->slug === 'tiskov'): ?>
+                <a class="btn btn-primary" href="<?= $lang->path('/decisions#slicing-worker') ?>"><?= $lang->value('Technické rozhodnutí: Asynchronní slicing', 'Engineering decision: Async slicing') ?> <span aria-hidden="true">→</span></a>
+                <a class="btn btn-ghost" href="<?= $lang->path('/maker') ?>"><?= $lang->value('Přehled 3D projektů', '3D projects overview') ?></a>
             <?php endif; ?>
             <?php if (in_array($project->slug, ['woodbound', 'shpotify', 'softwareinc-multiplayer'], true)): ?>
                 <a class="btn btn-primary" href="<?= $lang->path('/connections#map-project-' . $project->slug) ?>"><?= $lang->value('Zobrazit v tematické skupině', 'View in project group') ?> <span aria-hidden="true">→</span></a>
@@ -58,10 +62,10 @@ $stackHeading = match ($project->slug) {
             <?php endif; ?>
         </div>
     </div>
-    <div class="case-evidence" aria-labelledby="case-evidence-title">
+    <section class="case-evidence" aria-labelledby="case-evidence-title">
         <h2 id="case-evidence-title"><?= Html::escape($caseEvidence) ?></h2>
         <p><?= Html::escape($caseEvidenceCopy) ?></p>
-    </div>
+    </section>
 </section>
 <nav class="shell case-navigation" aria-label="<?= $project->status === 'record' ? $lang->value('Obsah záznamu', 'On this record') : $lang->value('Obsah případové studie', 'On this case study') ?>">
     <a href="#project-overview"><?= $lang->value('Přehled', 'Overview') ?></a>
@@ -143,7 +147,7 @@ if ($sourceVisual !== null):
     <p><?= $lang->value('Služba běží jako izolovaná systemd jednotka na primárním uzlu sítě pod vyhrazeným systémovým účtem.', 'The service runs as an isolated systemd unit on the primary network node under a dedicated system user.') ?></p>
     <a class="inline-link" href="<?= $lang->path('/projects/home-infrastructure') ?>"><?= $lang->value('Projekt Home Infrastructure', 'Home Infrastructure project') ?> ↗</a>
     <br>
-    <a class="inline-link" href="<?= $lang->path('/homelab#network-model') ?>"><?= $lang->value('Zobrazit v mapě sítě', 'View on network map') ?> ↗</a>
+    <a class="inline-link" href="<?= $lang->path('/homelab#node-pi') ?>"><?= $lang->value('Zobrazit Raspberry Pi v mapě sítě', 'View Raspberry Pi on network map') ?> ↗</a>
 </div>
 <?php endif; ?>
 </div></section>

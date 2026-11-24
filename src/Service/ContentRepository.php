@@ -242,7 +242,7 @@ final class ContentRepository
     /**
      * Publication provenance, not an invented real-time server status.
      *
-     * @return array{source:string,last_sync:?string}
+     * @return array{source:string,last_sync:?string,age_hours:?int,is_stale:bool}
      */
     public function githubProvenance(): array
     {
@@ -252,22 +252,32 @@ final class ContentRepository
                     ->find()->where(['source' => 'github'])->orderByDesc('completed_at')->first();
                 if ($run !== null) {
                     $time = $run->get('completed_at');
+                    $lastSync = $time instanceof DateTimeInterface
+                        ? $time->format('Y-m-d H:i:s') . ' UTC'
+                        : null;
+                    $ageHours = null;
+                    $isStale = false;
+                    if ($time instanceof DateTimeInterface) {
+                        $ageSeconds = time() - $time->getTimestamp();
+                        $ageHours = max(0, intdiv($ageSeconds, 3600));
+                        $isStale = $ageSeconds > 48 * 3600;
+                    }
 
                     return [
                         'source' => 'github-public-api',
-                        'last_sync' => $time instanceof DateTimeInterface
-                            ? $time->format('Y-m-d H:i:s') . ' UTC'
-                            : null,
+                        'last_sync' => $lastSync,
+                        'age_hours' => $ageHours,
+                        'is_stale' => $isStale,
                     ];
                 }
             } catch (Throwable $error) {
                 error_log('Sync provenance unavailable: ' . get_class($error));
 
-                return ['source' => 'unavailable', 'last_sync' => null];
+                return ['source' => 'unavailable', 'last_sync' => null, 'age_hours' => null, 'is_stale' => true];
             }
         }
 
-        return ['source' => 'reviewed-snapshot', 'last_sync' => null];
+        return ['source' => 'reviewed-snapshot', 'last_sync' => null, 'age_hours' => null, 'is_stale' => false];
     }
 
     /** @return list<array{repository:string,description:string,repo_url:string,pushed_at:string}> */

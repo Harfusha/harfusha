@@ -15,6 +15,9 @@ use Cake\Http\MiddlewareQueue;
 use Cake\Http\ServerRequest;
 use Cake\Routing\Middleware\AssetMiddleware;
 use Cake\Routing\Middleware\RoutingMiddleware;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 
 final class Application extends BaseApplication
@@ -47,6 +50,24 @@ final class Application extends BaseApplication
         $csrf->skipCheckCallback(
             static fn(ServerRequest $request): bool => $request->getUri()->getPath() === '/cron/github',
         );
+        $csrfWrapper = static function (
+            ServerRequestInterface $request,
+            RequestHandlerInterface $handler,
+        ) use ($csrf): ResponseInterface {
+            $path = $request->getUri()->getPath();
+            if (
+                $path === '/sitemap.xml' ||
+                $path === '/healthz' ||
+                $path === '/robots.txt' ||
+                $path === '/manifest.webmanifest' ||
+                str_starts_with($path, '/api/') ||
+                str_ends_with($path, '/feed.xml')
+            ) {
+                return $handler->handle($request);
+            }
+
+            return $csrf->process($request, $handler);
+        };
 
         return $middlewareQueue
             ->add(new SecurityHeadersMiddleware())
@@ -55,7 +76,7 @@ final class Application extends BaseApplication
             ->add(new AssetMiddleware(['cacheTime' => Configure::read('Asset.cacheTime')]))
             ->add(new RoutingMiddleware($this))
             ->add(new BodyParserMiddleware())
-            ->add($csrf);
+            ->add($csrfWrapper);
     }
 
     /**

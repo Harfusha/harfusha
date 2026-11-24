@@ -14,7 +14,7 @@ $categories = array_unique(array_map(static fn (Project $project): string => $pr
     <p><?= $lang->value('Výběr nástrojů, beta aplikace, prototypů i návrhů. U každého projektu je uvedený jeho současný stav a doložený rozsah.', 'A selection of tools, a beta app, prototypes and proposals. Each project states its current status and documented scope.') ?></p>
     <div class="page-hero-links">
         <a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Skupiny projektů', 'Project groups') ?> <span aria-hidden="true">↗</span></a>
-        <a class="inline-link" href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Proč jsem zvolil tento postup', 'Why I chose these approaches') ?> <span aria-hidden="true">↗</span></a>
+        <a class="inline-link" href="<?= $lang->path('/decisions') ?>"><?= $lang->value('Technická rozhodnutí k projektům', 'Engineering decisions behind projects') ?> <span aria-hidden="true">↗</span></a>
     </div>
 </section>
 

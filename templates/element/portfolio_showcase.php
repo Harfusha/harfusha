@@ -38,6 +38,13 @@ use App\Support\Language;
     <div class="showcase-copy">
         <span class="category"><?= Html::escape(Project::categoryLabel($project->category, $lang)) ?></span>
         <h3><a href="<?= $lang->path('/projects/' . $project->slug) ?>"><?= Html::escape($project->name) ?> <span aria-hidden="true">↗</span></a></h3>
-        <p><?= Html::escape($project->summary($lang)) ?></p>
+        <p class="showcase-summary"><?= Html::escape($project->summary($lang)) ?></p>
+        <?php if ($project->slug === 'local-ai-hub'): ?>
+        <p class="showcase-proof"><strong><?= $lang->value('Ověřený výsledek:', 'Verified outcome:') ?></strong> <?= $lang->value('Deterministický AST index vrací přesné výřezy kódu s tokenovým rozpočtem bez nutnosti volat model.', 'Deterministic AST indexing returns exact code slices within token budget without calling models.') ?></p>
+        <?php elseif ($project->slug === 'mutaui'): ?>
+        <p class="showcase-proof"><strong><?= $lang->value('Ověřený výsledek:', 'Verified outcome:') ?></strong> <?= $lang->value('Synchronizace souborů přes Mutagen s dohledem nad stavem démona a izolovaným offline demem.', 'Mutagen file synchronization with daemon supervision and an isolated offline demo.') ?></p>
+        <?php elseif ($project->slug === 'home-infrastructure'): ?>
+        <p class="showcase-proof"><strong><?= $lang->value('Ověřený výsledek:', 'Verified outcome:') ?></strong> <?= $lang->value('Interaktivní simulace výpadku uzlů ukazuje kaskádový dopad na DNS, proxy a úložiště.', 'Interactive node outage simulation demonstrates cascading impacts on DNS, proxy and storage.') ?></p>
+        <?php endif; ?>
     </div>
 </article>

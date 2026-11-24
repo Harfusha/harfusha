@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use Cake\Core\Configure;
+use Cake\Http\CallbackStream;
+use Cake\Http\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -38,6 +40,14 @@ final class SecurityHeadersMiddleware implements MiddlewareInterface
             $response = $response
                 ->withHeader('Cache-Control', 'no-store, private')
                 ->withHeader('X-Robots-Tag', 'noindex, nofollow, noarchive');
+        }
+
+        if ($request->getMethod() === 'HEAD') {
+            if ($response instanceof Response) {
+                $response = $response->withStringBody('');
+            } else {
+                $response = $response->withBody(new CallbackStream(static fn(): string => ''));
+            }
         }
 
         return $response;
