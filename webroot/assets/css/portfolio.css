@@ -2910,4 +2910,151 @@ body[data-language] .home-model-callout p { max-width: 68ch; margin: .5rem 0 0; 
   -webkit-overflow-scrolling: touch;
 }
 
+/* AI Context Playground & Mesh to CAD Explorer */
+.context-lab-shell,
+.mesh2cad-lab-shell {
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.context-display-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.context-strategy-card {
+  border: 1px solid var(--stroke);
+  border-radius: 6px;
+  background: var(--surface2);
+  padding: 1rem;
+}
+
+.context-strategy-card.card-featured {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue);
+}
+
+.strategy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--stroke);
+  padding-bottom: 0.5rem;
+}
+
+.strategy-header h3 {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 0.35rem;
+}
+
+.strategy-desc {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--sub);
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+body[data-language] .context-provenance-box {
+  margin-top: 1.5rem;
+  border: 1px solid var(--stroke);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #090b10;
+}
+
+body[data-language] .provenance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #0e111a;
+  border-bottom: 1px solid #1e2433;
+}
+
+:root:not([data-theme="dark"]) body[data-language] .provenance-header .eyebrow,
+:root[data-theme="light"] body[data-language] .provenance-header .eyebrow,
+body[data-language] .provenance-header .eyebrow {
+  color: #38bdf8;
+}
+
+body[data-language] .provenance-path {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #38bdf8;
+}
+
+body[data-language] .context-provenance-box .code-content {
+  background: #090b10;
+  color: #e2e8f0;
+  margin: 0;
+  padding: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  overflow-x: auto;
+}
+
+.cad-stage-visual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  align-items: center;
+}
+
+.cad-preview-container {
+  border: 1px solid var(--stroke);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface2);
+}
+
+.cad-schematic-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cad-stage-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--stroke);
+}
+
+.cad-stage-desc {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--sub);
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .context-display-grid,
+  .cad-stage-visual {
+    grid-template-columns: 1fr;
+  }
+}
+
 

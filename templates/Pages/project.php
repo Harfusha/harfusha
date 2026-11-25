@@ -54,6 +54,10 @@ $stackHeading = match ($project->slug) {
             <?php endif; ?>
             <?php if ($project->slug === 'local-ai-hub'): ?>
                 <a class="inline-link" href="#hub-preview-title"><?= $lang->value('Diagram architektury', 'Architecture diagram') ?> <span aria-hidden="true">↓</span></a>
+                <a class="inline-link" href="#ai-context-playground"><?= $lang->value('Context Playground', 'Context Playground') ?> <span aria-hidden="true">↓</span></a>
+            <?php endif; ?>
+            <?php if ($project->slug === 'scan2cad'): ?>
+                <a class="inline-link" href="#mesh-to-cad-explorer"><?= $lang->value('Mesh to CAD Explorer', 'Mesh to CAD Explorer') ?> <span aria-hidden="true">↓</span></a>
             <?php endif; ?>
             <?php if ($project->slug === 'harfusha-lab'): ?>
                 <a class="inline-link" href="#harfusha-lab-preview-title"><?= $lang->value('Diagram architektury', 'Architecture diagram') ?> <span aria-hidden="true">↓</span></a>
@@ -120,6 +124,12 @@ $stackHeading = match ($project->slug) {
 <nav class="shell case-navigation" aria-label="<?= $project->status === 'record' ? $lang->value('Obsah záznamu', 'On this record') : $lang->value('Obsah případové studie', 'On this case study') ?>">
     <a href="#project-overview"><?= $lang->value('Přehled', 'Overview') ?></a>
     <a href="#case-evidence-title"><?= $lang->value('Důkazy a omezení', 'Evidence and limits') ?></a>
+    <?php if ($project->slug === 'local-ai-hub'): ?>
+    <a href="#ai-context-playground"><?= $lang->value('Context Playground', 'Context Playground') ?></a>
+    <?php endif; ?>
+    <?php if ($project->slug === 'scan2cad'): ?>
+    <a href="#mesh-to-cad-explorer"><?= $lang->value('CAD Explorer', 'CAD Explorer') ?></a>
+    <?php endif; ?>
     <?php if ($project->slug === 'harfusha-lab'): ?>
     <a href="#request-lifecycle-lab"><?= $lang->value('Lifecycle Lab', 'Lifecycle Lab') ?></a>
     <a href="#database-concurrency-lab"><?= $lang->value('Concurrency Lab', 'Concurrency Lab') ?></a>
@@ -138,6 +148,7 @@ $stackHeading = match ($project->slug) {
   <img src="/assets/img/local-ai-hub-architecture.png" width="1380" height="900" loading="lazy" alt="<?= $lang->value('Architektonický diagram Local AI Hubu: agenti, MCP protokol, jádro a repozitář', 'Local AI Hub architectural blueprint: agents, MCP protocol, core engine, and repository') ?>">
  </picture><figcaption><?= $lang->value('Local AI Hub / architektura pipeline / MCP server', 'Local AI Hub / pipeline architecture / MCP server') ?></figcaption></figure>
 </section>
+<?php require dirname(__DIR__) . '/element/lab_context.php'; ?>
 <?php endif; ?>
 <?php if ($project->slug === 'harfusha-lab'): ?>
 <section class="shell project-preview" aria-labelledby="harfusha-lab-preview-title">
@@ -197,6 +208,9 @@ if ($sourceVisual !== null):
   <img src="<?= Html::escape($visualSrc) ?>" width="<?= $visualWidth ?>" height="<?= $visualHeight ?>" loading="lazy" alt="<?= Html::escape($visualAlt) ?>">
  </picture><figcaption><?= Html::escape($visualCaption) ?></figcaption></figure>
 </section>
+<?php endif; ?>
+<?php if ($project->slug === 'scan2cad'): ?>
+<?php require dirname(__DIR__) . '/element/lab_mesh2cad.php'; ?>
 <?php endif; ?>
 <section class="section shell project-case" id="project-overview" aria-label="<?= $project->status === 'record' ? $lang->value('Přehled záznamu', 'Record overview') : $lang->value('Přehled studie', 'Case study overview') ?>"><div class="case-main"><div class="case-block"><h2><?= Html::escape($caseProblem) ?></h2><p><?= Html::escape($project->problem($lang)) ?></p></div><div class="case-block"><h2><?= Html::escape($caseApproach) ?></h2><p><?= Html::escape($project->solution($lang)) ?></p></div><?php if ($showFeatureList): ?><div class="case-block"><h2><?= Html::escape($featureHeading) ?></h2><ul class="feature-list"><?php foreach ($project->localizedFeatures($lang) as $feature): ?><li><?= Html::escape($feature) ?></li><?php endforeach; ?></ul></div><?php endif; ?>
 </div><div class="case-sidebar"><div class="sidebar-panel"><span class="eyebrow"><?= Html::escape($stackHeading) ?></span><div class="stack-list stack-large"><?php foreach ($project->stack as $tech): ?><span><?= Html::escape($tech) ?></span><?php endforeach; ?></div></div><?php if ($related !== []): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('PROPOJENÉ PROJEKTY','RELATED PROJECTS') ?></span><ul class="service-list"><?php foreach ($related as $item): ?><li><a class="inline-link" href="<?= $lang->path('/projects/'.$item['slug']) ?>"><?= Html::escape($item['name']) ?></a><small> · <?= Html::escape(App\Domain\ProjectConnections::label($item['type'], $lang)) ?></small></li><?php endforeach; ?></ul><a class="inline-link" href="<?= $lang->path('/connections') ?>"><?= $lang->value('Prohlédnout skupiny projektů','Browse project groups') ?> ↗</a></div><?php endif; ?><?php if ($showDecisionSummary): ?><div class="sidebar-panel"><span class="eyebrow"><?= $lang->value('ARCHITEKTURA A KOMPROMISY','ARCHITECTURE & TRADE-OFFS') ?></span>

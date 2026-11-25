@@ -746,6 +746,145 @@
   }
   initLangToggle();
 
+  function initContextLab() {
+    const root = $('[data-context-lab]');
+    if (!root) return;
+    const scenarios = {
+      'symbol-def': {
+        whole: { tokens: '45,200', latency: '1,850 ms', accuracy: '45% (Noise hallucinations)' },
+        lexical: { tokens: '3,400', latency: '42 ms', accuracy: '72% (Includes comments & strings)' },
+        ast: { tokens: '340', latency: '8 ms', accuracy: '99% (Exact AST slice)' },
+        path: 'src/Security/LoginLimiter.php:13-340',
+        code: 'final readonly class LoginLimiter\n{\n    public function consume(string $address): bool { ... }\n    public function clear(string $address): bool { ... }\n}',
+      },
+      'multi-ref': {
+        whole: { tokens: '45,200', latency: '1,850 ms', accuracy: '40% (Loss of caller context)' },
+        lexical: { tokens: '1,850', latency: '35 ms', accuracy: '68% (Unresolved string tokens)' },
+        ast: { tokens: '420', latency: '11 ms', accuracy: '98% (Callsites in HostGuard & Admin)' },
+        path: 'src/Security/TrustedProxy.php:21-78',
+        code: 'public function clientIp(ServerRequestInterface $request): string\n{\n    // Resolves through configured CIDR proxy boundary\n    return $this->resolveDirectOrForwarded($request);\n}',
+      },
+      'ambiguous': {
+        whole: { tokens: '45,200', latency: '1,900 ms', accuracy: '15% (Fabricates missing classes)' },
+        lexical: { tokens: '0', latency: '18 ms', accuracy: '0% (No substring matches)' },
+        ast: { tokens: '95', latency: '4 ms', accuracy: '100% (Suggests ConnectionManager)' },
+        path: 'src/Domain/EvidenceRegistry.php:Fallback',
+        code: '// Symbol not found in AST index\n// Suggested close symbol:\nuse Cake\\Datasource\\ConnectionManager;',
+      },
+    };
+
+    const tabs = $$('[data-context-scenario]', root);
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const scenarioKey = tab.dataset.contextScenario;
+        const data = scenarios[scenarioKey];
+        if (!data) return;
+
+        tabs.forEach(t => {
+          const active = t.dataset.contextScenario === scenarioKey;
+          t.classList.toggle('active', active);
+          t.setAttribute('aria-pressed', String(active));
+        });
+
+        const wholeCard = $('[data-strategy="whole-repo"]', root);
+        const lexicalCard = $('[data-strategy="lexical"]', root);
+        const astCard = $('[data-strategy="ast-index"]', root);
+
+        if (wholeCard) {
+          const t = $('[data-metric-tokens]', wholeCard);
+          const l = $('[data-metric-latency]', wholeCard);
+          const a = $('[data-metric-accuracy]', wholeCard);
+          if (t) t.textContent = data.whole.tokens;
+          if (l) l.textContent = data.whole.latency;
+          if (a) a.textContent = data.whole.accuracy;
+        }
+        if (lexicalCard) {
+          const t = $('[data-metric-tokens]', lexicalCard);
+          const l = $('[data-metric-latency]', lexicalCard);
+          const a = $('[data-metric-accuracy]', lexicalCard);
+          if (t) t.textContent = data.lexical.tokens;
+          if (l) l.textContent = data.lexical.latency;
+          if (a) a.textContent = data.lexical.accuracy;
+        }
+        if (astCard) {
+          const t = $('[data-metric-tokens]', astCard);
+          const l = $('[data-metric-latency]', astCard);
+          const a = $('[data-metric-accuracy]', astCard);
+          if (t) t.textContent = data.ast.tokens;
+          if (l) l.textContent = data.ast.latency;
+          if (a) a.textContent = data.ast.accuracy;
+        }
+
+        const pathEl = $('[data-provenance-path]', root);
+        const codeEl = $('[data-provenance-code]', root);
+        if (pathEl) pathEl.textContent = data.path;
+        if (codeEl) codeEl.textContent = data.code;
+      });
+    });
+  }
+  initContextLab();
+
+  function initMesh2CadLab() {
+    const root = $('[data-mesh2cad-lab]');
+    if (!root) return;
+    const stages = {
+      'raw-scan': {
+        format: 'STL / OBJ (Mesh)',
+        entities: '42,800 triangles',
+        accuracy: '±0.42 mm (Optical scan noise)',
+        editability: 'Non-editable (raw triangles only)',
+        desc: 'Raw scanner output consists of thousands of triangulated facets. Wall thicknesses, hole diameters, and chamfers cannot be parametrically edited or exported as manufacturing STEP solids.',
+      },
+      'segmented': {
+        format: 'Segmented Mesh (RANSAC)',
+        entities: '14 planar + 4 cylindrical regions',
+        accuracy: '±0.15 mm (Filtered point cloud)',
+        editability: 'Region-tagged (feature boundary detection)',
+        desc: 'Algorithms detect geometric primitives (planes, cylinders, cones) by segmenting surface normals and clustering point cloud clusters.',
+      },
+      'analytical-cad': {
+        format: 'STEP / IGES B-Rep (CAD Solid)',
+        entities: '6 analytical faces, 2 hole features',
+        accuracy: '≤ 0.04 mm (Analytical B-Rep deviation)',
+        editability: 'Fully parametric (SolidWorks/FreeCAD ready)',
+        desc: 'Fitted parametric solids with exact mathematical definitions. Directly exportable to CNC toolpaths and parametric 3D CAD modeling.',
+      },
+    };
+
+    const tabs = $$('[data-cad-stage]', root);
+    const layers = $$('[data-layer]', root);
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const stageKey = tab.dataset.cadStage;
+        const data = stages[stageKey];
+        if (!data) return;
+
+        tabs.forEach(t => {
+          const active = t.dataset.cadStage === stageKey;
+          t.classList.toggle('active', active);
+          t.setAttribute('aria-pressed', String(active));
+        });
+
+        layers.forEach(layer => {
+          layer.classList.toggle('hidden', layer.dataset.layer !== stageKey);
+        });
+
+        const formatEl = $('[data-cad-format]', root);
+        const entitiesEl = $('[data-cad-entities]', root);
+        const accuracyEl = $('[data-cad-accuracy]', root);
+        const editabilityEl = $('[data-cad-editability]', root);
+        const descEl = $('[data-cad-desc]', root);
+
+        if (formatEl) formatEl.textContent = data.format;
+        if (entitiesEl) entitiesEl.textContent = data.entities;
+        if (accuracyEl) accuracyEl.textContent = data.accuracy;
+        if (editabilityEl) editabilityEl.textContent = data.editability;
+        if (descEl) descEl.textContent = data.desc;
+      });
+    });
+  }
+  initMesh2CadLab();
+
   function initAnchorTargetAutoOpen() {
     const openTarget = () => {
       const hash = window.location.hash.slice(1);
