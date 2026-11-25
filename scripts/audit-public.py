@@ -23,7 +23,7 @@ for folder in PUBLIC:
         content=f.read_text(encoding='utf-8')
         for label,pat in PATTERNS.items():
             if pat.search(content): failures.append(f'{f.relative_to(ROOT)}: {label}')
-for name in ('projects','topology','connections','contributions','journal','maker','decisions','flows'):
+for name in ('projects','topology','connections','contributions','journal','maker','decisions','flows','evidence'):
     p=ROOT/'data'/f'{name}.json'
     try:
         data=json.loads(p.read_text(encoding='utf-8'))

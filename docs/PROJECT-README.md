@@ -8,26 +8,32 @@ This repository contains Adam Halfar’s bilingual engineering portfolio. It pre
 
 > **Local portfolio revision, 21 Nov 2026:** The eight low-value browser simulations were removed. The nine case studies now use stage-specific bilingual copy; Scan2CAD is labeled as a beta app and shows its offline preview. The curated Home Infrastructure map remains the only public interactive model. These changes are local and have not been deployed; the production snapshot above does not describe the current source.
 
-> **Audit status & current inventory, 24 Nov 2026:** The portfolio consists of 38 public HTML routes across Czech and English (plus sitemap, robots, healthz, feeds, and JSON API), backed by 4 database migrations (`20261112000100`, `20261112000200`, `20261113000100`, and `20261117000100`). All 38 HTML URLs in the sitemap return HTTP 200. See [AUDIT-PORTFOLIA-KOMPLETNI-2026-11-24.md](AUDIT-PORTFOLIA-KOMPLETNI-2026-11-24.md) and [REALIZACE-AUDITU-PORTFOLIA.md](REALIZACE-AUDITU-PORTFOLIA.md).
+> **Audit status & current inventory, 25 Nov 2026 (Verified Complete):** The portfolio consists of 40 public HTML routes across Czech and English (plus sitemap, robots, healthz, feeds, and JSON API), backed by 4 database migrations (`20261112000100`, `20261112000200`, `20261113000100`, and `20261117000100`). All 40 HTML URLs return HTTP 200 with 0 axe-core accessibility violations. The catalog contains 10 projects, including the full CakePHP 5 SSR case study for Harfusha Lab and four interactive engineering labs (PHP Request Lifecycle Lab, Database Concurrency Lab, Infrastructure Failure Lab, and Type Safety Lab). See [IMPLEMENTATION-AND-VERIFICATION.md](IMPLEMENTATION-AND-VERIFICATION.md).
 
-## Current presentation direction (21 Nov 2026)
+## Current presentation direction (25 Nov 2026)
 
-The catalogue retains nine projects and labels each project’s stage. Project cards and detail pages use the reviewed bilingual project records for summaries, problems, approaches and limits; a project with no source is identified as a record, not presented as verified implementation. Home infrastructure is the one interactive exhibit. Its seven nodes, connections, failure states and request paths use curated data, not live telemetry.
+The catalogue presents ten projects with explicit stage labels, verified engineering claims, and evidence links (`data/evidence.json`). Project cards and detail pages use reviewed bilingual project records for summaries, problems, approaches and limits; projects without source checkout are explicitly marked as records.
+
+Interactive engineering labs:
+- **PHP Request Lifecycle Lab** (`/cs/projects/harfusha-lab#request-lifecycle-lab`): Interactive trace of CakePHP 5 request execution from reverse proxy defense through security middleware and strict routing to domain DTOs, SSR View, and RFC 9110 ETag responses.
+- **Database Concurrency Lab** (`/cs/projects/harfusha-lab#database-concurrency-lab`): Step-by-step simulator explaining lost updates, optimistic locking with `revision_token` conflict retries, InnoDB atomic row locks, and request idempotency.
+- **Infrastructure Failure Lab** (`/cs/homelab`): Curated dependency graph modeling multi-node outage propagation, redundant upstream fallbacks, and impact matrix.
+- **Type Safety Lab** (`/cs/open-source#type-safety-lab`): Interactive before/after demonstration of CakePHP ORM generic templates (`@template T`) from upstream pull request `cakephp/cakephp#18957`.
 
 ## Explore the site
 
 | Public URL (both `/cs` and `/en`) | Behavior |
 |---|---|
-| `/` | Project-first homepage with one curated network model and a recent *public* repository snapshot |
-| `/projects` and `/projects/{slug}` | Filterable catalogue and 9 curated case studies, with private project *descriptions* only |
-| `/connections` | Searchable map of three thematic work groups; the groups do not imply technical dependencies between repositories |
-| `/decisions` | Seven explainable architectural choices with context, trade-offs and documented limitations |
-| `/homelab` | Curated network graph, service details, simulated outages and four illustrative data paths; no live status |
-| `/maker` | Two separate Scan2CAD beta and Tiskov proposal cards, with an explicitly labeled illustration |
-| `/playground` | Retired route; redirects to the home-network model |
-| `/open-source` | Real external PR/issues, filterable and linked to upstream sources |
-| `/journal` | Engineering log, newest first; unlisted notes can be drafts in MySQL |
-| `/about` | Engineering profile and values |
+| `/` | Project-first homepage with engineering workbench, verifiable evidence ledger, and recent *public* repository snapshot |
+| `/projects` and `/projects/{slug}` | Filterable catalogue and 10 curated case studies with structured evidence cards and architectural decisions |
+| `/connections` | Searchable map of three thematic work groups (Design, Operate, Automate) |
+| `/decisions` | Architectural choices with context, trade-offs, and documented limitations |
+| `/homelab` | Curated network graph, service catalog, outage simulation, and impact & redundancy matrix |
+| `/maker` | Scan2CAD beta and Tiskov proposal cards with explicitly labeled illustrations |
+| `/playground` | Retired route; redirects 301 to `/homelab` |
+| `/open-source` | Real external PR/issues, filterable and linked to upstream sources, plus the Type Safety Lab |
+| `/journal` | Engineering log with filterable tags, RSS feed, and deep links |
+| `/about` | Engineering profile, principles, and contact |
 
 Additional endpoints: `/healthz` (simple public liveness, not DB health), `/sitemap.xml`, `/admin` (editor), `/cron/github` (authenticated POST endpoint, not scheduled). **No cron or scheduled task is configured** in the current deployment. No publicly routable CRUD fallback actions.
 

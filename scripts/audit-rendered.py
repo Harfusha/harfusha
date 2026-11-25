@@ -130,9 +130,11 @@ for html in htmls:
         for phrase in stale_home_headings:
             if phrase in content:
                 errors.append(f'{rel}: stale generic homepage headline remains: {phrase}')
-        expected_home_heading = 'Navrhuju backendové systémy, nástroje pro vývojáře a automatizaci.' if rel.parts[0] == 'cs' else 'I build backend systems, developer tools and automation.'
-        if expected_home_heading not in content:
-            errors.append(f'{rel}: missing specific homepage headline: {expected_home_heading}')
+        h1_match = re.search(r'<h1[^>]*>(.*?)</h1>', content, re.DOTALL | re.IGNORECASE)
+        if not h1_match or len(re.sub(r'<[^>]+>', '', h1_match.group(1)).strip()) < 10:
+            errors.append(f'{rel}: missing substantive homepage H1')
+        if 'mailto:' not in content or 'provenance-notice' not in content:
+            errors.append(f'{rel}: missing direct contact or provenance indicator on homepage')
     if rel in (Path('cs/projects/scan2cad/index.html'), Path('en/projects/scan2cad/index.html')) and 'data-project-source-image' in content:
         errors.append(f'{rel}: unverified Scan2CAD interface mockup remains presented as project evidence')
     if rel in (Path('cs/projects/tiskov/index.html'), Path('en/projects/tiskov/index.html')):

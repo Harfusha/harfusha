@@ -87,24 +87,54 @@ namespace {
         static fn (array $entry): bool => ($entry['kind'] ?? null) === 'pr'
             && ($entry['state'] ?? null) === 'merged',
     ));
+    $snapshotProvenance = [
+        'source' => 'reviewed-snapshot',
+        'last_sync' => null,
+        'age_hours' => null,
+        'is_stale' => false,
+        'snapshot_date' => '2026-11-12',
+        'is_expired' => false,
+    ];
     $fixtures = [
         'home' => [
             'projects' => array_slice($featured, 0, 4),
             'projectCount' => count($projects),
             'mergedPrCount' => $mergedPrCount,
-            'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null],
-            'journal' => $catalog->journal(), 'recentRepos' => [
-            ['repository'=>'Harfusha/MutaUI','description'=>'Static snapshot','repo_url'=>'https://github.com/Harfusha/MutaUI','pushed_at'=>'2026-11-12 18:53:55'],
-        ]],
-        'projects' => ['projects' => $projects],
+            'provenance' => $snapshotProvenance,
+            'evidenceRegistry' => $catalog->evidence(),
+            'journal' => $catalog->journal(),
+            'recentRepos' => [
+                [
+                    'repository' => 'Harfusha/MutaUI',
+                    'description' => 'Reviewed static snapshot (2026-11-12)',
+                    'repo_url' => 'https://github.com/Harfusha/MutaUI',
+                    'pushed_at' => '2026-11-12 18:53:55',
+                ],
+            ],
+        ],
+        'projects' => ['projects' => $projects, 'evidenceRegistry' => $catalog->evidence()],
         'connections' => ['projects' => $projects, 'edges' => $catalog->connections()],
         'decisions' => ['decisions' => $catalog->decisions()],
         'homelab' => ['nodes' => $catalog->topology(), 'flows' => $catalog->flows()],
         'maker' => [],
-        'open-source' => ['activity' => $catalog->contributions(),
-        'provenance' => ['source' => 'reviewed-snapshot', 'last_sync' => null]],
+        'open-source' => [
+            'activity' => $catalog->contributions(),
+            'provenance' => $snapshotProvenance,
+        ],
         'journal' => ['journal' => $catalog->journal()],
-        'now' => ['recentRepos' => [['repository'=>'Harfusha/MutaUI','description'=>'','repo_url'=>'https://github.com/Harfusha/MutaUI','pushed_at'=>'2026-11-12 18:53:55']], 'journalEntries' => $catalog->journal(), 'activity' => $catalog->contributions(), 'provenance'=>['source'=>'reviewed-snapshot','last_sync'=>null]],
+        'now' => [
+            'recentRepos' => [
+                [
+                    'repository' => 'Harfusha/MutaUI',
+                    'description' => 'Reviewed static snapshot (2026-11-12)',
+                    'repo_url' => 'https://github.com/Harfusha/MutaUI',
+                    'pushed_at' => '2026-11-12 18:53:55',
+                ],
+            ],
+            'journalEntries' => $catalog->journal(),
+            'activity' => $catalog->contributions(),
+            'provenance' => $snapshotProvenance,
+        ],
         'about' => [],
     ];
     $count = 0;
@@ -159,6 +189,7 @@ namespace {
                 'project' => $project, 'related' => $relations,
                 'decisions' => array_values(array_filter($catalog->decisions(),
                     static fn (\App\Domain\EngineeringDecision $entry): bool => $entry->project === $project->slug)),
+                'evidence' => $catalog->evidence()->forProject($project->slug),
             ]);
             file_put_contents($dir . '/index.html', $html);
             $count++;

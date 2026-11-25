@@ -56,7 +56,7 @@ class EditorialReviewTest(unittest.TestCase):
         module.create(self.root, 'Reviewer', confirmed=True)
         module.check(self.root)
         receipt = json.loads((self.root / module.RECEIPT).read_text())
-        self.assertEqual(len(receipt['files']), 8)
+        self.assertEqual(len(receipt['files']), len(module.REQUIRED))
 
     def test_mutating_public_data_invalidates_approval(self):
         module.create(self.root, 'Reviewer', confirmed=True)

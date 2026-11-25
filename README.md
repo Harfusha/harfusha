@@ -4,12 +4,15 @@
 
 I am a backend engineer focused on PHP and CakePHP. I build developer tools and desktop utilities, work with local AI and home infrastructure, and explore 3D reconstruction. I value code that remains understandable months later, so I pay attention to types, clear boundaries, tests and documentation.
 
-Based in Czechia.
+- **Web / Engineering Portfolio:** [adam-halfar.cz](https://adam-halfar.cz) · [English Edition](https://adam-halfar.cz/en/)
+- **Contact:** [adam.halfar@gmail.com](mailto:adam.halfar@gmail.com) · [GitHub Profile](https://github.com/Harfusha)
+- **Based in:** Czechia (Central Europe)
 
 ## Selected projects
 
 | Project | What it does | Status and boundary |
 | --- | --- | --- |
+| [Harfusha Lab](https://github.com/Harfusha/harfusha) | Server-side rendered engineering portfolio and interactive systems lab in CakePHP 5, PHP 8.5, and MariaDB. | Release v5.2.0; 0 errors under PHPStan max; interactive Request Lifecycle, Database Concurrency, and Infrastructure Failure labs. |
 | [Local AI Hub](https://github.com/Harfusha/local-ai-hub) | Registers repositories, preprocesses and indexes them, then gives coding agents deterministic search, context, coordination and optional local models. | Version 6.1.0 source is a release candidate; model and optional backend availability depend on runtime configuration. |
 | [MutaUI](https://github.com/Harfusha/MutaUI) | Desktop control surface for Mutagen sync and forwarding sessions. | Uses separately installed Mutagen CLI and its daemon; not its own sync engine. |
 | Home Infrastructure | Git-backed Ansible automation for Pi-hole/Unbound DNS, Jellyfin, BookStack, CUPS printing, NAS backups, routing and on-demand Proxmox tests. | Private infrastructure, described through a redacted role model rather than live telemetry. |
@@ -24,7 +27,11 @@ The portfolio explains each project’s purpose, current stage and evidence. Pri
 
 ## Harfusha Lab
 
-Harfusha Lab is the CakePHP application behind this portfolio. It presents nine projects with their current stages and evidence. Its only interactive exhibit models documented home-network dependencies; it does not read live infrastructure.
+Harfusha Lab is the CakePHP 5 application behind this portfolio ([adam-halfar.cz](https://adam-halfar.cz)). It documents ten projects with their current stages, technical trade-offs, and verifiable engineering evidence. It features interactive engineering demonstrations:
+- **PHP Request Lifecycle Lab:** Trace CakePHP 5 requests from reverse proxy and security headers through strict routing to domain DTOs and conditional RFC 9110 ETag responses.
+- **Database Concurrency Lab:** Step-by-step simulator explaining lost updates, optimistic version locking (`revision_token`), InnoDB atomic row locks, and request idempotency.
+- **Infrastructure Failure Lab:** Dependency graph and multi-node failure simulator modeling home infrastructure topology and service redundancy.
+- **Type Safety Lab:** Demonstrates compile-time generics and conditional return types from upstream core PR `cakephp/cakephp#18957`.
 
 ## How I work
 

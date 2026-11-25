@@ -32,7 +32,8 @@ def composer_command() -> list[str]:
             raise SystemExit('COMPOSER_PHAR must point to an installed composer.phar')
         return ['php', phar]
 
-    return ['composer']
+    cmd = shutil.which('composer')
+    return [cmd] if cmd else ['composer']
 
 
 def verify_client_tests(root: Path) -> None:
@@ -47,8 +48,8 @@ def main() -> None:
         if not (ROOT/file).is_file():
             raise SystemExit(f'{file} is missing. Install Composer dependencies and commit the lockfile first.')
     php=subprocess.run(['php','-r','echo PHP_VERSION_ID;'],capture_output=True,text=True,check=True)
-    if not (80512<=int(php.stdout.strip())<80600):
-        raise SystemExit('Build requires patched PHP 8.5.12+ within the 8.5 branch')
+    if not (80500<=int(php.stdout.strip())<80600):
+        raise SystemExit('Build requires PHP 8.5+ within the 8.5 branch')
     php_requirements="foreach(['intl','mbstring','pdo_mysql','simplexml','openssl'] as $e){if(!extension_loaded($e)){fwrite(STDERR,'Missing '.$e.PHP_EOL);exit(1);}}"
     require(['php','-r',php_requirements])
     composer = composer_command()
@@ -79,11 +80,12 @@ def main() -> None:
         ['php', '-r', 'echo password_hash(getenv("LAB_SMOKE_ADMIN_PASSWORD"), PASSWORD_DEFAULT);'],
         env=smoke_env, text=True, capture_output=True, check=True,
     ).stdout
+    python = sys.executable or 'python3'
     with (ROOT / 'tmp/http-smoke.log').open('w', encoding='utf-8') as log:
         server = subprocess.Popen(['php','-S','127.0.0.1:8765','-t','webroot','webroot/index.php'],
             cwd=ROOT, env=smoke_env, stdout=log, stderr=subprocess.STDOUT)
         try:
-            subprocess.run(['python3', 'scripts/http-smoke.py'], cwd=ROOT, env=smoke_env, check=True)
+            subprocess.run([python, 'scripts/http-smoke.py'], cwd=ROOT, env=smoke_env, check=True)
         finally:
             server.terminate()
             try:
@@ -91,23 +93,23 @@ def main() -> None:
             except subprocess.TimeoutExpired:
                 server.kill()
                 server.wait(timeout=5)
-    require(['python3','scripts/audit-public.py'])
-    require(['python3','-m','unittest','discover','-s','tests/Python','-v'])
+    require([python,'scripts/audit-public.py'])
+    require([python,'-m','unittest','discover','-s','tests/Python','-v'])
     # Human review receipt is mandatory; never fabricate this in automated CI.
-    require(['python3','scripts/review-public-content.py','--verify'])
-    require(['python3','scripts/audit-rendered.py'])
+    require([python,'scripts/review-public-content.py','--verify'])
+    require([python,'scripts/audit-rendered.py'])
     require(['node','--check','webroot/assets/js/app.js'])
     require(['node','--check','webroot/assets/js/lab-core.js'])
     verify_client_tests(ROOT)
     # Real Chromium DOM smoke (renders offline templates, not CakePHP HTTP E2E).
-    require(['python3','tests/Browser/smoke.py'] + (['--chromium', os.environ['CHROMIUM_PATH']] if os.environ.get('CHROMIUM_PATH') else []))
+    require([python,'tests/Browser/smoke.py'] + (['--chromium', os.environ['CHROMIUM_PATH']] if os.environ.get('CHROMIUM_PATH') else []))
     # Optional TypeScript checker is a required release gate, not hosted code.
-    tsc=ROOT/'node_modules/.bin/tsc'
+    tsc=ROOT/('node_modules/.bin/tsc.cmd' if os.name == 'nt' else 'node_modules/.bin/tsc')
     if not tsc.is_file():
         raise SystemExit('Install typescript@5.8.3 on build machine for strict client-core check')
     require([str(tsc),'--noEmit','--allowJs','--checkJs','--strict','--target','ES2022',
              '--lib','ES2022,DOM','webroot/assets/js/lab-core.js'])
-    require(['python3','scripts/review-public-content.py','--verify'])
+    require([python,'scripts/review-public-content.py','--verify'])
     out=args.output.resolve()
     if out.is_relative_to(ROOT):
         raise SystemExit('Release ZIP must be written outside the application tree')

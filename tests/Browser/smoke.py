@@ -95,7 +95,7 @@ def main() -> None:
 
                     if site.endswith('/connections'):
                         cards = page.locator('[data-map-project]')
-                        assert cards.count() == 9, (site, 'expected nine project records')
+                        assert cards.count() == 10, (site, 'expected ten project records')
                         assert {card.get_attribute('data-theme') for card in cards.all()} == {'operate', 'candidate', 'coordinate'}
                         detail = page.locator('.project-map-reason').first
                         detail.locator('summary').click()
@@ -127,7 +127,7 @@ def main() -> None:
                             assert available in page.locator('[data-lab-node-id="nas"]').inner_text()
                             page.locator('[data-lab-view="flows"]').click()
                             page.locator('[data-flow-select]').select_option('media')
-                            page.locator('[data-lab-scenario="media"]').click()
+                            page.locator('[data-lab-scenario="media"]').first.click()
                             expected_failure = f'Path interrupted: {nas_label}' if site.startswith('en/') else f'Cesta přerušena: {nas_label}'
                             assert expected_failure in page.locator('[data-flow-result]').inner_text()
                         if width <= 390:

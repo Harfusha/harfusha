@@ -16,7 +16,7 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-REQUIRED = ('connections', 'contributions', 'decisions', 'flows', 'journal', 'maker', 'projects', 'topology')
+REQUIRED = ('connections', 'contributions', 'decisions', 'evidence', 'flows', 'journal', 'maker', 'projects', 'topology')
 RECEIPT = '.lab-content-approval.json'
 APPROVAL_PHRASE = 'APPROVE PUBLIC CONTENT'
 

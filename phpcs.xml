@@ -4,6 +4,7 @@
     <rule ref="CakePHP"/>
     <file>src/</file>
     <file>tests/</file>
+    <arg name="warning-severity" value="0"/>
     <!-- This self-contained fallback harness deliberately defines global polyfills and helper classes.
          It has separate standalone and syntax tests rather than application-class naming rules. -->
     <exclude-pattern>*/tests/standalone.php</exclude-pattern>

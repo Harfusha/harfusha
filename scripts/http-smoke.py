@@ -166,7 +166,7 @@ def main() -> int:
         return 1
     import json
     payload=json.loads(api_body)
-    if payload.get('count') != 9 or any('private' in item for item in payload['projects']):
+    if payload.get('count') != 10 or any('private' in item for item in payload['projects']):
         print('FAIL API data or redaction',file=sys.stderr)
         return 1
     etag=api_headers.get('ETag','')

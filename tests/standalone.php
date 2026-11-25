@@ -317,7 +317,7 @@ try {
 $catalog = new ProjectCatalog($root . '/data');
 $projects = $catalog->projects();
 $nodes = $catalog->topology();
-verify(count($projects) === 9 && $catalog->find('maker-lab') === null, 'Project catalogue excludes unverified Maker Lab');
+verify(count($projects) === 10 && $catalog->find('maker-lab') === null, 'Project catalogue excludes unverified Maker Lab');
 verify(count($nodes) >= 7, 'Safe topology populated');
 $flows = $catalog->flows();
 verify(count($flows) >= 4, 'Curated data paths are present');

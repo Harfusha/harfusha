@@ -1,10 +1,10 @@
 {
   "name": "harfusha/lab",
-  "description": "Interactive engineering lab — CakePHP 5.4, PHP 8.5, typed domain and secure browser demos",
+  "description": "Interactive engineering lab \u2014 CakePHP 5.4, PHP 8.5, typed domain and secure browser demos",
   "type": "project",
   "license": "MIT",
   "require": {
-    "php": "~8.5.12",
+    "php": "^8.5",
     "ext-mbstring": "*",
     "ext-intl": "*",
     "ext-pdo": "*",
