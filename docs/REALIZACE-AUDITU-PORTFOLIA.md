@@ -123,10 +123,10 @@
 - **Stav:** OVĚŘENO
 - **Výchozí problém:** Potvrzeno. Hlavní formulace směřuje na profil GitHubu. Na 38 veřejných trasách audit nenašel přímo odkazovaný e-mail, telefon ani LinkedIn. Vybrat a schválit jednu funkční profesní cestu. Nejjednodušší je veřejná e-mailová adresa nebo ověřený profesní profil. Pokud vznikne formulář, bude potřebovat potvrzení doručení, řešení chyb, provozního vlastníka a odpovídající informaci o zpracování údajů. Ověřit kontakt v anonymní relaci a na mobilu. Reálné doručení otestovat kontrolovaným testem až po schválení kanálu.
 - **Přímá P1 akceptační podmínka:** Návštěvník z úvodu, profilu a patičky najde konkrétní autorem schválený kontakt. Kliknutí vede na zamýšlený kanál i v anonymní relaci.
-- **Skutečná změna:** Do templates/Pages/home.php, templates/Pages/about.php i templates/layout/default.php doplněn přímý profesní kontakt adam.halfar@seznam.cz a odkaz na GitHub @Harfusha.
+- **Skutečná změna:** Do templates/Pages/home.php, templates/Pages/about.php i templates/layout/default.php doplněn přímý profesní kontakt portfolio@adam-halfar.cz a odkaz na GitHub @Harfusha.
 - **Kandidát:** HEAD `3b70ce7eaa7f1884a1542280934c981c697ea0ef` + pracovní sada
 - **Prostředí a vzorek:** Veřejné šablony, anonymní HTTP průchod, mobilní zobrazení.
-- **Výsledek ověření:** PASS (Přímý mailto:adam.halfar@seznam.cz a GitHub přítomny na všech 3 klíčových místech v CS i EN).
+- **Výsledek ověření:** PASS (Přímý mailto:portfolio@adam-halfar.cz a GitHub přítomny na všech 3 klíčových místech v CS i EN).
 - **Hranice a další krok:** Příjem zpráv na reálné e-mailové schránce.
 
 ### [ABOUT02] Uvést přesné technologické tvrzení

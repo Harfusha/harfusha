@@ -20,7 +20,7 @@ use App\Support\Language;
         <p><?= $lang->value('Typově bezpečné aplikace v CakePHP, deterministické nástroje pro kódovací agenty a infrastruktura jako kód.', 'Type-safe PHP applications in CakePHP, deterministic tooling for coding agents, and infrastructure as code.') ?></p>
         <div class="hero-buttons">
             <a class="btn btn-primary" href="#selected-work"><?= $lang->value('Vybrané projekty', 'Selected work') ?></a>
-            <a class="btn btn-ghost" href="mailto:adam.halfar@seznam.cz"><?= $lang->value('Kontakt', 'Contact') ?></a>
+            <a class="btn btn-ghost" href="mailto:portfolio@adam-halfar.cz"><?= $lang->value('Kontakt', 'Contact') ?></a>
         </div>
         <a class="workbench-text-link" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Open-source příspěvky →', 'Open-source contributions →') ?></a>
     </div>

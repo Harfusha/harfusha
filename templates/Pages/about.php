@@ -21,8 +21,8 @@ use App\Support\Language;
     </div>
     <aside class="portfolio-profile" aria-labelledby="profile-links-title">
         <h2 id="profile-links-title"><?= $lang->value('Můj profil a kontakt', 'Profile & Contact') ?></h2>
-        <a href="mailto:adam.halfar@seznam.cz">
-            <strong><?= $lang->value('E-mail', 'Email') ?></strong><span>adam.halfar@seznam.cz</span>
+        <a href="mailto:portfolio@adam-halfar.cz">
+            <strong><?= $lang->value('E-mail', 'Email') ?></strong><span>portfolio@adam-halfar.cz</span>
         </a>
         <a href="https://github.com/Harfusha" target="_blank" rel="noopener noreferrer">
             <strong><?= $lang->value('GitHub', 'GitHub') ?></strong><span>@Harfusha ↗</span>
