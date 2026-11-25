@@ -27,4 +27,17 @@ final class AdminCredentials
 
         return password_verify($submitted, $storedHash);
     }
+
+    /**
+     * Compute a session-bound credential digest so rotating ADMIN_PASSWORD_HASH
+     * immediately invalidates any previously authenticated admin session.
+     */
+    public static function sessionDigest(mixed $storedHash): string
+    {
+        if (!is_string($storedHash) || $storedHash === '') {
+            return '';
+        }
+
+        return hash('sha256', $storedHash);
+    }
 }

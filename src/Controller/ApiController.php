@@ -7,6 +7,7 @@ use App\Domain\Project;
 use App\Domain\PublicProjectView;
 use App\Service\ContentRepository;
 use App\Support\Html;
+use App\Support\HttpConditionalResponder;
 use App\Support\Language;
 use Cake\Http\Exception\BadRequestException;
 use Cake\Http\Exception\NotFoundException;
@@ -14,19 +15,19 @@ use Cake\Http\Response;
 
 /**
  * Public, read-only, allowlisted API; no entity serialization or private URLs.
- * GET only. No cookies or credentials are required by API consumers.
+ * GET/HEAD only. No cookies or credentials are required by API consumers.
  */
 final class ApiController extends AppController
 {
     /**
      * List publicly visible projects.
      */
-    public function projects(): Response
+    public function projects(ContentRepository $content): Response
     {
         $language = $this->language();
         $records = array_map(
             static fn(Project $project): array => (new PublicProjectView($project))->toArray($language),
-            (new ContentRepository())->projects(),
+            $content->projects(),
         );
 
         return $this->json([
@@ -38,15 +39,15 @@ final class ApiController extends AppController
     }
 
     /**
-     * Display a public project or apply a validated editorial update.
+     * Return a single allowlisted public project representation.
      */
-    public function project(): Response
+    public function project(ContentRepository $content): Response
     {
         $slug = $this->request->getParam('slug');
         if (!is_string($slug)) {
             throw new NotFoundException();
         }
-        $project = (new ContentRepository())->findProject($slug);
+        $project = $content->findProject($slug);
         if ($project === null) {
             throw new NotFoundException();
         }
@@ -56,6 +57,29 @@ final class ApiController extends AppController
             'version' => '1',
             'language' => $language->code,
             'project' => (new PublicProjectView($project))->toArray($language),
+        ]);
+    }
+
+    /**
+     * Return published engineering evidence claims (N-EVD-01).
+     */
+    public function evidence(ContentRepository $content): Response
+    {
+        $projectSlug = $this->request->getQuery('project');
+        $registry = $content->evidence();
+        $claims = is_string($projectSlug) && $projectSlug !== ''
+            ? $registry->forProject($projectSlug)
+            : $registry->all();
+
+        $records = [];
+        foreach ($claims as $claim) {
+            $records[] = $claim->toArray();
+        }
+
+        return $this->json([
+            'version' => '1',
+            'count' => count($records),
+            'evidence' => $records,
         ]);
     }
 
@@ -75,32 +99,12 @@ final class ApiController extends AppController
     /** @param array<string,mixed> $body */
     private function json(array $body): Response
     {
-        $json = Html::json($body);
-        $etag = '"' . hash('sha256', $json) . '"';
-        $response = $this->response->withType('json')
-            ->withHeader('ETag', $etag)
-            ->withHeader('Cache-Control', 'no-store')
-            ->withHeader('Vary', 'Accept-Encoding');
-        // If-None-Match uses weak comparison for GET (RFC 9110).
-        // Accept a list of validators, weak validators, or the wildcard.
-        // Normalize Apache mod_deflate -gzip suffix if present (HTTP01).
-        $rawEtag = trim($etag, '"');
-        $validators = explode(',', $this->request->getHeaderLine('If-None-Match'));
-        foreach ($validators as $validator) {
-            $candidate = trim($validator);
-            if ($candidate === '*') {
-                return $response->withStatus(304)->withStringBody('');
-            }
-            $normalized = str_starts_with($candidate, 'W/') ? substr($candidate, 2) : $candidate;
-            $unquoted = trim($normalized, '"');
-            if (str_ends_with($unquoted, '-gzip')) {
-                $unquoted = substr($unquoted, 0, -5);
-            }
-            if ($unquoted === $rawEtag) {
-                return $response->withStatus(304)->withStringBody('');
-            }
-        }
-
-        return $response->withStringBody($json);
+        return HttpConditionalResponder::respond(
+            $this->request,
+            $this->response,
+            Html::json($body),
+            'application/json; charset=UTF-8',
+            'no-store',
+        );
     }
 }

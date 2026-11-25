@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Test\Support;
 
+use App\Security\AdminCredentials;
+use App\Support\Environment;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 
@@ -26,5 +28,25 @@ abstract class HttpIntegrationTestCase extends TestCase
                 'SERVER_PORT' => '8765',
             ],
         ]);
+    }
+
+    /**
+     * Seed a valid authenticated admin session matching N-SEC-04 session contract.
+     *
+     * @param array<string, mixed> $extra
+     */
+    protected function actingAsAdmin(array $extra = []): void
+    {
+        $now = time();
+        $session = [
+            'lab.admin' => true,
+            'lab.admin_login_at' => $now,
+            'lab.admin_last_seen_at' => $now,
+        ];
+        $hash = Environment::get('ADMIN_PASSWORD_HASH');
+        if (is_string($hash) && $hash !== '') {
+            $session['lab.admin_cred_digest'] = AdminCredentials::sessionDigest($hash);
+        }
+        $this->session($session + $extra);
     }
 }

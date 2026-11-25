@@ -13,14 +13,11 @@ use Throwable;
 // each suppressed operation is explicitly checked and denied on failure.
 
 /**
- * Bounded, fail-closed login throttle for shared hosting without Redis.
+ * Crash-safe, bounded, fail-closed login throttle for shared hosting without Redis.
  *
- * There are at most 32 shard files, each containing at most 512 active IP
- * identities. One lock covers both checking and recording a login attempt,
- * so concurrent requests cannot all pass the old check-then-record race.
- *
- * Exhausted/corrupt/unwritable storage denies access; it never silently
- * disables the protection. Only opaque SHA-256 address digests are persisted.
+ * Uses a dedicated lock file per shard (`login-<shard>.lock`) and atomic temp-file
+ * replacement (`rename`) so a process crash during write never leaves a zero-byte
+ * shard that resets active lockouts. Existing zero-byte or corrupt shards fail closed.
  */
 final readonly class LoginLimiter
 {
@@ -42,6 +39,7 @@ final readonly class LoginLimiter
         private string $directory,
         ?Closure $clock = null,
         private int $maxIdentitiesPerShard = self::DEFAULT_MAX_IDENTITIES,
+        private ?string $hmacKey = null,
     ) {
         if ($maxIdentitiesPerShard < 1 || $maxIdentitiesPerShard > self::DEFAULT_MAX_IDENTITIES) {
             throw new InvalidArgumentException('Invalid per-shard identity limit');
@@ -69,6 +67,18 @@ final readonly class LoginLimiter
     }
 
     /**
+     * Compute the pseudonymized identity digest stored in the shard.
+     */
+    private function identityDigest(string $address): string
+    {
+        if (is_string($this->hmacKey) && $this->hmacKey !== '') {
+            return hash_hmac('sha256', $address, $this->hmacKey);
+        }
+
+        return hash('sha256', $address);
+    }
+
+    /**
      * Atomically update the bounded on-disk login throttle.
      */
     private function mutate(string $address, bool $clear): bool
@@ -79,51 +89,31 @@ final readonly class LoginLimiter
         if (!$this->ensurePrivateDirectory()) {
             return false;
         }
-        $identity = hash('sha256', $address);
+        $identity = $this->identityDigest($address);
         $shard = (int)hexdec(substr($identity, 0, 2)) % self::SHARD_COUNT;
-        $path = rtrim($this->directory, '/\\') . '/login-' . $shard . '.json';
+        $baseDir = rtrim($this->directory, '/\\');
+        $lockPath = $baseDir . '/login-' . $shard . '.lock';
+        $dataPath = $baseDir . '/login-' . $shard . '.json';
 
-        // A symlink is never a valid limiter database. Store TMP outside webroot.
-        if (self::pathIsLink($path)) {
+        if (self::pathIsLink($lockPath) || self::pathIsLink($dataPath)) {
             return false;
         }
-        $handle = @fopen($path, 'c+b');
-        if ($handle === false) {
+
+        $lockHandle = @fopen($lockPath, 'c+b');
+        if ($lockHandle === false) {
             return false;
         }
+
         try {
-            if (!@flock($handle, LOCK_EX)) {
+            if (!@flock($lockHandle, LOCK_EX)) {
                 return false;
             }
-            // Check the open descriptor still points to this actual path, not
-            // a symlink or a replacement racing the advisory file lock.
-            clearstatcache(true, $path);
-            $pathname = @lstat($path);
-            $descriptor = @fstat($handle);
-            if (
-                !is_array($pathname) || !is_array($descriptor) ||
-                $pathname['ino'] !== $descriptor['ino'] || $pathname['dev'] !== $descriptor['dev'] ||
-                ($pathname['mode'] & 0170000) !== 0100000
-            ) {
+            if (!$this->verifyPrivateRegularFile($lockPath, $lockHandle)) {
                 return false;
             }
-            // fopen normally honors the umask and might create a readable file.
-            // Protect the login-state shard before writing or reading metadata.
-            if (($pathname['mode'] & 0077) !== 0) {
-                if (!@chmod($path, 0600)) {
-                    return false;
-                }
-                clearstatcache(true, $path);
-                $secured = @lstat($path);
-                if (
-                    !is_array($secured) || ($secured['mode'] & 0077) !== 0 ||
-                    $secured['ino'] !== $descriptor['ino'] || $secured['dev'] !== $descriptor['dev']
-                ) {
-                    return false;
-                }
-            }
+
             $now = ($this->clock)();
-            $entries = $this->read($handle, $now);
+            $entries = $this->readShard($dataPath, $now);
             if ($entries === null) {
                 return false;
             }
@@ -143,13 +133,47 @@ final readonly class LoginLimiter
                 $entries[$identity] = $attempts;
             }
 
-            return $this->write($handle, $entries);
+            return $this->writeAtomic($baseDir, $shard, $dataPath, $entries);
         } catch (Throwable) {
             return false;
         } finally {
-            @flock($handle, LOCK_UN);
-            fclose($handle);
+            @flock($lockHandle, LOCK_UN);
+            fclose($lockHandle);
         }
+    }
+
+    /**
+     * Verify that an open descriptor refers to a private regular file at the given path.
+     *
+     * @param resource $handle
+     */
+    private function verifyPrivateRegularFile(string $path, $handle): bool
+    {
+        clearstatcache(true, $path);
+        $pathname = @lstat($path);
+        $descriptor = @fstat($handle);
+        if (
+            !is_array($pathname) || !is_array($descriptor) ||
+            $pathname['ino'] !== $descriptor['ino'] || $pathname['dev'] !== $descriptor['dev'] ||
+            ($pathname['mode'] & 0170000) !== 0100000
+        ) {
+            return false;
+        }
+        if (DIRECTORY_SEPARATOR !== '\\' && ($pathname['mode'] & 0077) !== 0) {
+            if (!@chmod($path, 0600)) {
+                return false;
+            }
+            clearstatcache(true, $path);
+            $secured = @lstat($path);
+            if (
+                !is_array($secured) || ($secured['mode'] & 0077) !== 0 ||
+                $secured['ino'] !== $descriptor['ino'] || $secured['dev'] !== $descriptor['dev']
+            ) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -178,9 +202,7 @@ final readonly class LoginLimiter
         if (!is_array($info) || ($info['mode'] & 0170000) !== 0040000) {
             return false;
         }
-        // Legacy storage may have been created with an unsafe 0755 mode.
-        // Tighten it if possible; never silently permit shared access.
-        if (($info['mode'] & 0077) !== 0) {
+        if (DIRECTORY_SEPARATOR !== '\\' && ($info['mode'] & 0077) !== 0) {
             if (!@chmod($this->directory, 0700)) {
                 return false;
             }
@@ -197,20 +219,36 @@ final readonly class LoginLimiter
         return is_writable($this->directory);
     }
 
-    /** @param resource $handle
+    /**
+     * Read shard JSON atomically; missing file is initial empty state, whereas
+     * an existing zero-byte or corrupt file fails closed.
+     *
      * @return array<string,list<int>>|null
      */
-    private function read($handle, int $now): ?array
+    private function readShard(string $dataPath, int $now): ?array
     {
-        if (@fseek($handle, 0, SEEK_SET) !== 0) {
-            return null;
-        }
-        $raw = @stream_get_contents($handle, self::MAX_SHARD_BYTES + 1);
-        if (!is_string($raw) || strlen($raw) > self::MAX_SHARD_BYTES) {
-            return null;
-        }
-        if ($raw === '') {
+        clearstatcache(true, $dataPath);
+        if (!file_exists($dataPath)) {
             return [];
+        }
+        if (is_link($dataPath)) {
+            return null;
+        }
+        $handle = @fopen($dataPath, 'rb');
+        if ($handle === false) {
+            return null;
+        }
+        try {
+            if (!$this->verifyPrivateRegularFile($dataPath, $handle)) {
+                return null;
+            }
+            $raw = @stream_get_contents($handle, self::MAX_SHARD_BYTES + 1);
+        } finally {
+            fclose($handle);
+        }
+
+        if (!is_string($raw) || $raw === '' || strlen($raw) > self::MAX_SHARD_BYTES) {
+            return null;
         }
         try {
             $decoded = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
@@ -218,7 +256,7 @@ final readonly class LoginLimiter
             return null;
         }
         if (
-            !is_array($decoded) || array_is_list($decoded) && $decoded !== [] ||
+            !is_array($decoded) || (array_is_list($decoded) && $decoded !== []) ||
             count($decoded) > $this->maxIdentitiesPerShard
         ) {
             return null;
@@ -254,26 +292,52 @@ final readonly class LoginLimiter
         return $clean;
     }
 
-    /** @param resource $handle
+    /**
+     * Write shard state to a private temp file and atomically rename into place.
+     *
      * @param array<string,list<int>> $entries
      */
-    private function write($handle, array $entries): bool
+    private function writeAtomic(string $baseDir, int $shard, string $dataPath, array $entries): bool
     {
         $json = json_encode($entries === [] ? new stdClass() : $entries, JSON_THROW_ON_ERROR);
-        if (strlen($json) > self::MAX_SHARD_BYTES || @fseek($handle, 0, SEEK_SET) !== 0 || !@ftruncate($handle, 0)) {
+        if (strlen($json) > self::MAX_SHARD_BYTES) {
             return false;
         }
-        $length = strlen($json);
-        $offset = 0;
-        while ($offset < $length) {
-            $written = @fwrite($handle, substr($json, $offset));
-            if ($written === false || $written === 0) {
-                return false;
+        $tmpPath = $baseDir . '/login-' . $shard . '.tmp.' . bin2hex(random_bytes(8));
+        $tmpHandle = @fopen($tmpPath, 'xb');
+        if ($tmpHandle === false) {
+            return false;
+        }
+        $ok = false;
+        try {
+            $chmodOk = DIRECTORY_SEPARATOR === '\\' || @chmod($tmpPath, 0600);
+            if ($chmodOk) {
+                $length = strlen($json);
+                $offset = 0;
+                $writeFailed = false;
+                while ($offset < $length) {
+                    $written = @fwrite($tmpHandle, substr($json, $offset));
+                    if ($written === false || $written === 0) {
+                        $writeFailed = true;
+                        break;
+                    }
+                    $offset += $written;
+                }
+                if (!$writeFailed && @fflush($tmpHandle)) {
+                    $ok = true;
+                }
             }
-            $offset += $written;
+        } finally {
+            fclose($tmpHandle);
         }
 
-        return @fflush($handle);
+        if (!$ok || !@rename($tmpPath, $dataPath)) {
+            @unlink($tmpPath);
+
+            return false;
+        }
+
+        return true;
     }
 }
 

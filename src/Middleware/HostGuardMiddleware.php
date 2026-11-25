@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
+use App\Security\TrustedProxy;
 use Cake\Core\Configure;
 use Cake\Http\Exception\BadRequestException;
 use Cake\Http\Response;
@@ -12,8 +13,15 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /** Reject unexpected hosts and ports; trust the configured canonical origin only. */
-final class HostGuardMiddleware implements MiddlewareInterface
+final readonly class HostGuardMiddleware implements MiddlewareInterface
 {
+    /**
+     * Initialize middleware with explicit proxy trust boundary.
+     */
+    public function __construct(private ?TrustedProxy $trustedProxy = null)
+    {
+    }
+
     /**
      * Process an HTTP request using this middleware.
      */
@@ -27,6 +35,9 @@ final class HostGuardMiddleware implements MiddlewareInterface
         $rawPort = parse_url($configured, PHP_URL_PORT);
         $expectedPort = is_int($rawPort) ? $rawPort : null;
         $scheme = parse_url($configured, PHP_URL_SCHEME);
+        if (!is_string($expectedHost) || $expectedHost === '' || !in_array($scheme, ['http', 'https'], true)) {
+            throw new BadRequestException('Invalid configured origin');
+        }
         // PSR-7 URI implementations represent default HTTP(S) ports as null.
         // Normalize explicit :80 / :443 in the configured canonical URL too.
         if (
@@ -35,47 +46,42 @@ final class HostGuardMiddleware implements MiddlewareInterface
         ) {
             $expectedPort = null;
         }
+
         $uri = $request->getUri();
+        $uriScheme = strtolower($uri->getScheme());
         $incomingHost = $uri->getHost();
-
-        // 301 Redirect www. to non-www canonical host (SEO01, NET02)
-        $isWww = is_string($expectedHost)
-            && $expectedHost !== ''
-            && strcasecmp($incomingHost, 'www.' . $expectedHost) === 0;
-        if ($isWww) {
-            $targetUri = $uri->withHost($expectedHost);
-            if ($scheme === 'https') {
-                $targetUri = $targetUri->withScheme('https')->withPort($expectedPort);
-            }
-
-            return (new Response())
-                ->withStatus(301)
-                ->withHeader('Location', (string)$targetUri);
+        $incomingPort = $uri->getPort();
+        if (
+            ($uriScheme === 'http' && $incomingPort === 80) ||
+            ($uriScheme === 'https' && $incomingPort === 443)
+        ) {
+            $incomingPort = null;
         }
 
-        // 301 Redirect HTTP to HTTPS if application is configured for HTTPS (NET02)
-        $isProtoHttp = $request->hasHeader('X-Forwarded-Proto')
-            && $request->getHeaderLine('X-Forwarded-Proto') === 'http';
-        $isHttp = $uri->getScheme() === 'http' || $isProtoHttp;
-        if (
-            $scheme === 'https'
-            && $isHttp
-            && is_string($expectedHost)
-            && strcasecmp($incomingHost, $expectedHost) === 0
-        ) {
-            $targetUri = $uri->withScheme('https')->withPort($expectedPort);
-
-            return (new Response())
-                ->withStatus(301)
-                ->withHeader('Location', (string)$targetUri);
-        }
-
-        if (
-            !is_string($expectedHost) || $expectedHost === '' ||
-            strcasecmp($incomingHost, $expectedHost) !== 0 ||
-            $expectedPort !== $uri->getPort()
-        ) {
+        $isCanonicalHost = strcasecmp($incomingHost, $expectedHost) === 0;
+        $isWwwHost = strcasecmp($incomingHost, 'www.' . $expectedHost) === 0;
+        if ((!$isCanonicalHost && !$isWwwHost) || $expectedPort !== $incomingPort) {
             throw new BadRequestException('Unexpected host');
+        }
+
+        // Reconstruct target URI strictly from the configured canonical origin.
+        $canonicalUri = $uri
+            ->withScheme($scheme)
+            ->withHost($expectedHost)
+            ->withPort($expectedPort);
+
+        if ($isWwwHost) {
+            return (new Response())
+                ->withStatus(301)
+                ->withHeader('Location', (string)$canonicalUri);
+        }
+
+        $proxy = $this->trustedProxy ?? TrustedProxy::fromEnvironment();
+        $effectiveScheme = $proxy->effectiveScheme($request);
+        if ($scheme === 'https' && $effectiveScheme === 'http') {
+            return (new Response())
+                ->withStatus(301)
+                ->withHeader('Location', (string)$canonicalUri);
         }
 
         return $handler->handle($request);

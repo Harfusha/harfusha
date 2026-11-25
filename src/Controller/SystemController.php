@@ -4,12 +4,14 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Domain\JournalFeed;
+use App\Domain\PublicRouteRegistry;
 use App\Domain\PublicSitemap;
 use App\Service\ContentRepository;
 use App\Service\GithubSyncService;
 use App\Support\Environment;
 use App\Support\GithubSyncFailure;
 use App\Support\Html;
+use App\Support\HttpConditionalResponder;
 use App\Support\Language;
 use Cake\Core\Configure;
 use Cake\Http\Exception\NotFoundException;
@@ -44,25 +46,21 @@ final class SystemController extends AppController
     /**
      * Return the discoverable localized website URLs.
      */
-    public function sitemap(): Response
+    public function sitemap(ContentRepository $content, PublicRouteRegistry $registry): Response
     {
         $origin = $this->origin();
-        $pages = [
-            '', 'projects', 'connections', 'decisions', 'homelab', 'maker',
-            'open-source', 'now', 'journal', 'about',
-        ];
-        $content = new ContentRepository();
         $projects = $content->projects();
-        foreach ($projects as $project) {
-            $pages[] = 'projects/' . $project->slug;
-        }
+        $pages = $registry->sitemapRoutes($projects);
 
         $lastmods = [];
         $latestJournalDate = null;
         foreach ($content->journal() as $entry) {
             $publishedAt = is_string($entry['published_at'] ?? null) ? $entry['published_at'] : '';
             $date = substr($publishedAt, 0, 10);
-            if (preg_match('~^\d{4}-\d{2}-\d{2}$~D', $date) === 1) {
+            if (
+                preg_match('~^(\d{4})-(\d{2})-(\d{2})$~D', $date, $parts) === 1 &&
+                checkdate((int)$parts[2], (int)$parts[3], (int)$parts[1])
+            ) {
                 if ($latestJournalDate === null || $date > $latestJournalDate) {
                     $latestJournalDate = $date;
                 }
@@ -91,31 +89,20 @@ final class SystemController extends AppController
         ];
 
         $body = PublicSitemap::render($origin, $pages, $lastmods, $imageMap);
-        $etag = '"' . hash('sha256', $body) . '"';
-        $response = $this->response->withType('xml')
-            ->withHeader('ETag', $etag)
-            ->withHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
 
-        $ifNoneMatch = trim($this->request->getHeaderLine('If-None-Match'));
-        if ($ifNoneMatch !== '') {
-            $rawEtag = trim($etag, '"');
-            $normalized = str_starts_with($ifNoneMatch, 'W/') ? substr($ifNoneMatch, 2) : $ifNoneMatch;
-            $unquoted = trim($normalized, '"');
-            if (str_ends_with($unquoted, '-gzip')) {
-                $unquoted = substr($unquoted, 0, -5);
-            }
-            if ($ifNoneMatch === '*' || $unquoted === $rawEtag) {
-                return $response->withStatus(304)->withStringBody('');
-            }
-        }
-
-        return $response->withStringBody($body);
+        return HttpConditionalResponder::respond(
+            $this->request,
+            $this->response,
+            $body,
+            'application/xml; charset=UTF-8',
+            'public, max-age=3600, must-revalidate',
+        );
     }
 
     /**
      * Return the public, read-only activity feed.
      */
-    public function feed(): Response
+    public function feed(ContentRepository $content): Response
     {
         $code = $this->request->getParam('lang');
         if (!is_string($code) || !in_array($code, ['cs', 'en'], true)) {
@@ -124,18 +111,22 @@ final class SystemController extends AppController
         $xml = JournalFeed::render(
             $this->origin(),
             new Language($code),
-            (new ContentRepository())->journal(),
+            $content->journal(),
         );
 
-        return $this->response->withHeader('Content-Type', 'application/rss+xml; charset=UTF-8')
-            ->withHeader('Cache-Control', 'no-store')
-            ->withStringBody($xml);
+        return HttpConditionalResponder::respond(
+            $this->request,
+            $this->response,
+            $xml,
+            'application/rss+xml; charset=UTF-8',
+            'no-store',
+        );
     }
 
     /**
      * Authorize the scheduled GitHub synchronization endpoint.
      */
-    public function sync(): Response
+    public function sync(GithubSyncService $syncService): Response
     {
         $secret = Environment::get('CRON_SECRET');
         $provided = $this->request->getHeaderLine('X-Cron-Token');
@@ -143,7 +134,7 @@ final class SystemController extends AppController
             return $this->response->withStatus(403)->withStringBody('Forbidden');
         }
         try {
-            $summary = (new GithubSyncService())->synchronize();
+            $summary = $syncService->synchronize();
 
             return $this->response->withType('json')->withStringBody(Html::json($summary));
         } catch (Throwable $error) {

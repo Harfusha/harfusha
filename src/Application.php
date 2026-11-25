@@ -3,12 +3,19 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Domain\ProjectCatalog;
+use App\Domain\PublicRouteRegistry;
 use App\Middleware\HostGuardMiddleware;
 use App\Middleware\SecurityHeadersMiddleware;
+use App\Security\TrustedProxy;
+use App\Service\ContentRepository;
+use App\Service\GithubSyncService;
+use App\Service\OperationsService;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Error\Middleware\ErrorHandlerMiddleware;
 use Cake\Http\BaseApplication;
+use Cake\Http\Client;
 use Cake\Http\Middleware\BodyParserMiddleware;
 use Cake\Http\Middleware\CsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
@@ -50,29 +57,24 @@ final class Application extends BaseApplication
         $csrf->skipCheckCallback(
             static fn(ServerRequest $request): bool => $request->getUri()->getPath() === '/cron/github',
         );
+        // Public routes are strictly read-only GET/HEAD and must never emit
+        // unnecessary CSRF Set-Cookie headers that defeat cacheability (N-SEC-03).
         $csrfWrapper = static function (
             ServerRequestInterface $request,
             RequestHandlerInterface $handler,
         ) use ($csrf): ResponseInterface {
             $path = $request->getUri()->getPath();
-            if (
-                $path === '/sitemap.xml' ||
-                $path === '/healthz' ||
-                $path === '/robots.txt' ||
-                $path === '/manifest.webmanifest' ||
-                str_starts_with($path, '/api/') ||
-                str_ends_with($path, '/feed.xml')
-            ) {
-                return $handler->handle($request);
+            if ($path === '/admin' || str_starts_with($path, '/admin/')) {
+                return $csrf->process($request, $handler);
             }
 
-            return $csrf->process($request, $handler);
+            return $handler->handle($request);
         };
 
         return $middlewareQueue
             ->add(new SecurityHeadersMiddleware())
             ->add(new ErrorHandlerMiddleware($config, $this))
-            ->add(new HostGuardMiddleware())
+            ->add(new HostGuardMiddleware(TrustedProxy::fromEnvironment()))
             ->add(new AssetMiddleware(['cacheTime' => Configure::read('Asset.cacheTime')]))
             ->add(new RoutingMiddleware($this))
             ->add(new BodyParserMiddleware())
@@ -80,9 +82,15 @@ final class Application extends BaseApplication
     }
 
     /**
-     * Configure dependency injection bindings.
+     * Configure dependency injection bindings for controllers and services.
      */
     public function services(ContainerInterface $container): void
     {
+        $container->addShared(ProjectCatalog::class, static fn(): ProjectCatalog => new ProjectCatalog(ROOT . '/data'));
+        $container->addShared(PublicRouteRegistry::class);
+        $container->add(ContentRepository::class)->addArgument(ProjectCatalog::class);
+        $container->add(OperationsService::class);
+        $container->addShared(TrustedProxy::class, static fn(): TrustedProxy => TrustedProxy::fromEnvironment());
+        $container->add(GithubSyncService::class)->addArgument(new Client());
     }
 }

@@ -45,8 +45,13 @@ final class PublicSitemap
                 throw new InvalidArgumentException('Invalid sitemap route');
             }
             $lastmod = $lastmodMap[$route] ?? null;
-            if ($lastmod !== null && preg_match('~^\d{4}-\d{2}-\d{2}$~D', $lastmod) !== 1) {
-                throw new InvalidArgumentException('Invalid sitemap lastmod format');
+            if ($lastmod !== null) {
+                if (preg_match('~^(\d{4})-(\d{2})-(\d{2})$~D', $lastmod, $parts) !== 1) {
+                    throw new InvalidArgumentException('Invalid sitemap lastmod format');
+                }
+                if (!checkdate((int)$parts[2], (int)$parts[3], (int)$parts[1])) {
+                    throw new InvalidArgumentException('Invalid sitemap calendar date');
+                }
             }
             $images = $imageMap[$route] ?? [];
             foreach ($images as $img) {
