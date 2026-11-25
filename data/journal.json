@@ -7,7 +7,8 @@
     "category": "Desktop",
     "published_at": "2026-11-17 04:23:18",
     "source_url": "https://github.com/Harfusha/MutaUI/commit/72cf4782d09020ed669ed76a2ac7bfa807a25a2a",
-    "project": "mutaui"
+    "project": "mutaui",
+    "stable_id": "entry-4569bbd19a4f841d4910"
   },
   {
     "title_cs": "Local AI Hub: odolnost proti zámkům SQLite při paralelní indexaci",
@@ -17,7 +18,8 @@
     "category": "AI",
     "published_at": "2026-11-16 17:14:53",
     "source_url": "https://github.com/Harfusha/local-ai-hub/commit/069240979778ddce69cfb6d8caee291222c14e4b",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-a79815be5b76413719d8"
   },
   {
     "title_cs": "MutaUI: validace konfigurace a správa relací Mutagen CLI",
@@ -27,7 +29,8 @@
     "category": "Desktop",
     "published_at": "2026-11-16 16:40:28",
     "source_url": "https://github.com/Harfusha/MutaUI/commit/ac4c304c69bccfd2dfb94d30755473e7d3fc26da",
-    "project": "mutaui"
+    "project": "mutaui",
+    "stable_id": "entry-8a9c07dcf26ed83dbe68"
   },
   {
     "title_cs": "Plánovač uvolní rezervaci GPU po pádu procesu Laya",
@@ -37,7 +40,8 @@
     "category": "AI",
     "published_at": "2026-11-16 16:12:25",
     "source_url": "https://github.com/Harfusha/local-ai-hub/commit/670e08f51232503d3e032b4c969d52a4769e70d4",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-72ec235073fdedc2171c"
   },
   {
     "title_cs": "Přednostní práce může převzít GPU mezi dávkami",
@@ -47,7 +51,8 @@
     "category": "AI",
     "published_at": "2026-11-16 10:19:58",
     "source_url": "https://github.com/Harfusha/local-ai-hub/commit/e18f493ccc4f3f323ff81d250c61f40354ae1386",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-089035feb863119b03e1"
   },
   {
     "title_cs": "Scan2CAD: filtrace zakrytých a šikmých ploch z fotografií",
@@ -57,7 +62,8 @@
     "category": "Scan2CAD",
     "published_at": "2026-11-16",
     "source_url": "/projects/scan2cad",
-    "project": "scan2cad"
+    "project": "scan2cad",
+    "stable_id": "entry-a962185a5fc4face2661"
   },
   {
     "title_cs": "Laya na Windows kontroluje dostupnost CUDA předem",
@@ -67,7 +73,8 @@
     "category": "Local AI Hub",
     "published_at": "2026-11-16",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-90bec945df09ef7906ae"
   },
   {
     "title_cs": "Kontrola CUDA před načtením knihovny",
@@ -77,7 +84,8 @@
     "category": "Local AI Hub",
     "published_at": "2026-11-16",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-ffac607092851d7d4e3b"
   },
   {
     "title_cs": "Úklid uvolní jen rezervaci ukončeného procesu",
@@ -87,7 +95,8 @@
     "category": "Local AI Hub",
     "published_at": "2026-11-16",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-c1c69255ede51413f4e6"
   },
   {
     "title_cs": "MutaUI: od architektury po multiplatformní balíčky",
@@ -97,7 +106,8 @@
     "category": "Desktop",
     "published_at": "2026-11-15 12:00:00",
     "source_url": "https://github.com/Harfusha/MutaUI/commit/101796a289",
-    "project": "mutaui"
+    "project": "mutaui",
+    "stable_id": "entry-a78e9cc7aac6c4b1538a"
   },
   {
     "title_cs": "Local AI Hub 6.1.0: metadata vydání odpovídají tagu",
@@ -107,7 +117,8 @@
     "category": "AI",
     "published_at": "2026-11-15 12:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-af6e24f1fa5b7e3595fd"
   },
   {
     "published_at": "2026-11-15 12:00:00",
@@ -117,7 +128,8 @@
     "body_cs": "Commit ccc3daefc6 zavádí systém CharcoalProgression, který propojuje těžbu surového dřeva s termickým zpracováním na dřevěné uhlí. Systém sleduje materiálovou bilanci bez přímých zkratek do globálního inventáře.",
     "body_en": "Commit ccc3daefc6 introduces the CharcoalProgression system, linking raw lumber harvesting to pyrolytic charcoal production. The system tracks physical resource conservation without bypassing into global inventory numbers.",
     "source_url": "/projects/woodbound",
-    "project": "woodbound"
+    "project": "woodbound",
+    "stable_id": "entry-2f8f16f83dea5cea4280"
   },
   {
     "title_cs": "Scan2CAD: kontrola trojúhelníků s nulovou plochou",
@@ -127,7 +139,8 @@
     "category": "Scan2CAD",
     "published_at": "2026-11-15",
     "source_url": "/projects/scan2cad",
-    "project": "scan2cad"
+    "project": "scan2cad",
+    "stable_id": "entry-0da8e4e2ce4738d30c44"
   },
   {
     "title_cs": "Scan2CAD kontroluje velikost skenu před konverzí",
@@ -137,7 +150,8 @@
     "category": "Scan2CAD",
     "published_at": "2026-11-15",
     "source_url": "/projects/scan2cad",
-    "project": "scan2cad"
+    "project": "scan2cad",
+    "stable_id": "entry-67e251ad463ef0c3d64b"
   },
   {
     "title_cs": "Migrace konfigurace začíná auditem starého stavu",
@@ -147,7 +161,8 @@
     "category": "Home Infrastructure",
     "published_at": "2026-11-15",
     "source_url": "/projects/home-infrastructure",
-    "project": "home-infrastructure"
+    "project": "home-infrastructure",
+    "stable_id": "entry-437f60d3afdfd6c822dd"
   },
   {
     "title_cs": "Uhlí začíná u skutečného toku dřeva",
@@ -157,7 +172,8 @@
     "category": "Woodbound",
     "published_at": "2026-11-15",
     "source_url": "/projects/woodbound",
-    "project": "woodbound"
+    "project": "woodbound",
+    "stable_id": "entry-51d69186b725db39e76d"
   },
   {
     "title_cs": "Izolace testů infrastruktury pomocí mocků soketů",
@@ -167,7 +183,8 @@
     "category": "Home Infrastructure",
     "published_at": "2026-11-15",
     "source_url": "/projects/home-infrastructure",
-    "project": "home-infrastructure"
+    "project": "home-infrastructure",
+    "stable_id": "entry-58ece94aa19ccfa326e4"
   },
   {
     "published_at": "2026-11-14 12:00:00",
@@ -177,7 +194,8 @@
     "body_cs": "Definice schématu a časové expirace pro kandidáty na doporučení skladeb. Commit 3bf788c323 specifikuje normalizovaný vektor akustických příznaků a pevné retenční okno, aby mezipaměť audio analýz nezatěžovala lokální paměť.",
     "body_en": "Defining structured schemas and cache TTLs for track recommendation candidates. Commit 3bf788c323 formalizes a normalized acoustic feature vector and fixed retention boundaries to prevent unbounded memory growth during continuous playback sessions.",
     "source_url": "/projects/shpotify",
-    "project": "shpotify"
+    "project": "shpotify",
+    "stable_id": "entry-07fdf65c71aa1b6029bd"
   },
   {
     "title_cs": "Založení MutaUI",
@@ -187,7 +205,8 @@
     "category": "Desktop",
     "published_at": "2026-11-12 07:43:52",
     "source_url": "https://github.com/Harfusha/MutaUI",
-    "project": "mutaui"
+    "project": "mutaui",
+    "stable_id": "entry-1be9c43fa96804a6e87f"
   },
   {
     "title_cs": "Local AI Hub 6.0.0",
@@ -197,7 +216,8 @@
     "category": "AI",
     "published_at": "2026-11-08 10:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-72c09132e76dd2edc35d"
   },
   {
     "title_cs": "Zkrácená odpověď zachová identitu plánu i úkolu",
@@ -207,7 +227,8 @@
     "category": "AI",
     "published_at": "2026-11-07 16:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-2906ca7ba06ebd31094f"
   },
   {
     "title_cs": "Scan2CAD: nejdřív měřítko, potom projekce",
@@ -217,7 +238,8 @@
     "category": "3D",
     "published_at": "2026-11-04 12:00:00",
     "source_url": "/projects/scan2cad",
-    "project": "scan2cad"
+    "project": "scan2cad",
+    "stable_id": "entry-d53b049d444f37fce330"
   },
   {
     "title_cs": "Local AI Hub: zjištění vlastníka portu na Windows",
@@ -227,7 +249,8 @@
     "category": "AI",
     "published_at": "2026-10-30 18:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-f4629c5b5cafc30e973b"
   },
   {
     "title_cs": "SQLite na Windows: cesty a souběžné založení indexu",
@@ -237,7 +260,8 @@
     "category": "AI",
     "published_at": "2026-10-30 14:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-9fb48dc2a3b0c3121cb4"
   },
   {
     "title_cs": "Zrušená obrazová úloha zahodí pozdní výsledek",
@@ -247,7 +271,8 @@
     "category": "AI",
     "published_at": "2026-10-30 10:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-097aed557d37b34e89ec"
   },
   {
     "title_cs": "Omezení zátěže sémantického vyhledávání a propagace zrušení",
@@ -257,7 +282,8 @@
     "category": "AI",
     "published_at": "2026-10-26 12:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-1d4b8222529551f0a9b6"
   },
   {
     "published_at": "2026-10-26 12:00:00",
@@ -267,7 +293,8 @@
     "body_cs": "Deterministické řazení kandidátů podle lokálně uložených akustických profilů ze Spotify Web API (danceability, energy, acousticness). Cachování eliminuje opakované síťové dotazy a umožňuje plynulé vyhodnocování podobnosti skladeb v reálném čase.",
     "body_en": "Deterministic candidate ranking based on locally cached Spotify audio features (danceability, energy, valence). Local caching removes redundant API roundtrips and allows real-time acoustic similarity computation during playback transitions.",
     "source_url": "/projects/shpotify",
-    "project": "shpotify"
+    "project": "shpotify",
+    "stable_id": "entry-f2dddaa7e14cb5782056"
   },
   {
     "published_at": "2026-10-22 12:00:00",
@@ -277,7 +304,8 @@
     "body_cs": "Deterministický split trénovacích a testovacích dat pro offline vyhodnocování doporučovacího modelu. Commit 5c5c14e27d zavádí reprodukovatelný výběr vzorků s pevným náhodným seedem, což umožňuje objektivně porovnávat různé váhy příznaků.",
     "body_en": "Deterministic train/test dataset partitioning for offline evaluation of the recommendation pipeline. Commit 5c5c14e27d introduces reproducible sampling with a fixed pseudorandom seed, ensuring feature weight variations can be benchmarked objectively.",
     "source_url": "/projects/shpotify",
-    "project": "shpotify"
+    "project": "shpotify",
+    "stable_id": "entry-8f50d3f4bb61d9ac9b98"
   },
   {
     "title_cs": "Jedna instalace, jeden vlastník: zjednodušení na lokální IPC",
@@ -287,7 +315,8 @@
     "category": "AI",
     "published_at": "2026-10-19 12:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-657b6711a2ac6540214a"
   },
   {
     "title_cs": "Shpotify: první místnost a společná fronta",
@@ -297,7 +326,8 @@
     "category": "Music",
     "published_at": "2026-10-13 12:00:00",
     "source_url": "/projects/shpotify",
-    "project": "shpotify"
+    "project": "shpotify",
+    "stable_id": "entry-a5355ff7fd86e3e824cc"
   },
   {
     "title_cs": "Local AI Hub 4.0: striktní důkazní kontrakt a deterministické brány",
@@ -307,7 +337,8 @@
     "category": "AI",
     "published_at": "2026-09-21 12:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-2f5ec9b8a806664827b2"
   },
   {
     "title_cs": "Jak se rodil Local AI Hub: sjednocení rozhraní",
@@ -317,7 +348,8 @@
     "category": "AI",
     "published_at": "2026-09-08 12:00:00",
     "source_url": "https://github.com/Harfusha/local-ai-hub/blob/master/CHANGELOG.md",
-    "project": "local-ai-hub"
+    "project": "local-ai-hub",
+    "stable_id": "entry-84661f5f618fb381f98c"
   },
   {
     "title_cs": "Domácí infrastruktura jako kód",
@@ -327,7 +359,8 @@
     "category": "Infrastructure",
     "published_at": "2026-08-16 12:00:00",
     "source_url": "/projects/home-infrastructure",
-    "project": "home-infrastructure"
+    "project": "home-infrastructure",
+    "stable_id": "entry-bb1417170aebe9d32c2e"
   },
   {
     "title_cs": "Asociace v CakePHP musí být čitelné i pro PHPStan",
@@ -337,7 +370,8 @@
     "category": "Open source",
     "published_at": "2024-08-22 12:00:00",
     "source_url": "https://github.com/cakephp/cakephp/pull/17827",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-d8cec73651e2f7f34ad4"
   },
   {
     "title_cs": "DebugKit: menší panel a údržba SQLite",
@@ -347,7 +381,8 @@
     "category": "Open source",
     "published_at": "2024-08-29 12:00:00",
     "source_url": "https://github.com/cakephp/debug_kit/pull/1022",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-1fbc7081f517741551ab"
   },
   {
     "title_cs": "TableLocator vrací typ, který do něj pošleš",
@@ -357,7 +392,8 @@
     "category": "Open source",
     "published_at": "2025-10-10 12:00:00",
     "source_url": "https://github.com/cakephp/cakephp/pull/18957",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-2b193e653bdea98e7a8f"
   },
   {
     "title_cs": "Kontext chyby patří do loggeru, ne do každého varování",
@@ -367,7 +403,8 @@
     "category": "Open source",
     "published_at": "2025-04-15 12:00:00",
     "source_url": "https://github.com/cakephp/cakephp/pull/17976",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-9569a197a14ad8cb0baa"
   },
   {
     "title_cs": "Číselné řetězce s nulami na začátku mají zůstat čitelné",
@@ -377,7 +414,8 @@
     "category": "Open source",
     "published_at": "2024-11-01 12:00:00",
     "source_url": "https://github.com/cakephp/cakephp/pull/17979",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-f3701afffd0fa289247b"
   },
   {
     "title_cs": "CakePHP 4 dostal zpět typovou podporu asociací pro PHPStan",
@@ -387,7 +425,8 @@
     "category": "Open source",
     "published_at": "2024-10-23 12:00:00",
     "source_url": "https://github.com/CakeDC/cakephp-phpstan/pull/37",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-96171ff99c11d91d789e"
   },
   {
     "title_cs": "Varování o nedokončené transakci dostalo kontext požadavku",
@@ -397,7 +436,8 @@
     "category": "Open source",
     "published_at": "2024-10-17 12:00:00",
     "source_url": "https://github.com/cakephp/cakephp/pull/17974",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-23f943a158ff026f8b9c"
   },
   {
     "title_cs": "V code-quality setu Rectoru jsem zúžil jedno pravidlo",
@@ -407,7 +447,8 @@
     "category": "Open source",
     "published_at": "2024-07-30 13:00:00",
     "source_url": "https://github.com/rectorphp/rector-src/pull/6201",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-2423bc124ddd477525d6"
   },
   {
     "title_cs": "Chronos už nevrací mixed tam, kde vrací tutéž časovou třídu",
@@ -417,7 +458,8 @@
     "category": "Open source",
     "published_at": "2024-07-30 12:00:00",
     "source_url": "https://github.com/cakephp/chronos/pull/460",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-ac2ed0aaf32ed2fa0809"
   },
   {
     "title_cs": "IDE Helper se naučil projít vnořené víceřádkové anotace",
@@ -427,7 +469,8 @@
     "category": "Open source",
     "published_at": "2024-03-05 12:00:00",
     "source_url": "https://github.com/dereuromark/cakephp-ide-helper/pull/345",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-c8dfa1954b2f7667c7e6"
   },
   {
     "title_cs": "Formátování čísel v CakePHP dostalo volbu zaokrouhlení",
@@ -437,6 +480,7 @@
     "category": "Open source",
     "published_at": "2024-01-20 12:00:00",
     "source_url": "https://github.com/cakephp/cakephp/pull/17552",
-    "project": "open-source"
+    "project": "open-source",
+    "stable_id": "entry-50e76b3a3b7bd0983f09"
   }
 ]

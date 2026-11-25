@@ -27,6 +27,7 @@ final class PublicContentValidator
                 'connections.json' => self::connection($record, $label),
                 'contributions.json' => self::contribution($record, $label),
                 'journal.json' => self::journal($record, $label),
+                'evidence.json' => self::evidenceItem($record, $label),
                 'maker.json' => self::maker($record, $label),
                 'decisions.json' => self::decision($record, $label),
                 'flows.json' => self::flow($record, $label),
@@ -37,6 +38,71 @@ final class PublicContentValidator
             }
             $seen[$key] = true;
         }
+    }
+
+    /** @param array<string,mixed> $row */
+    private static function evidenceItem(array $row, string $label): string
+    {
+        $id = self::string($row, 'id', $label, 3, 100);
+        self::string($row, 'project_id', $label, 2, 80);
+        $version = $row['schema_version'] ?? null;
+        if (!is_int($version) || $version !== 1) {
+            throw new InvalidArgumentException('Unsupported evidence schema version: ' . $label);
+        }
+        $claim = $row['claim'] ?? null;
+        if (!is_array($claim)) {
+            throw new InvalidArgumentException('Missing evidence claim: ' . $label);
+        }
+        /** @var array<string, mixed> $claim */
+        $cs = self::string($claim, 'cs', $label, 5, 2000);
+        $en = self::string($claim, 'en', $label, 5, 2000);
+        PublicText::assertRenderable($cs);
+        PublicText::assertRenderable($en);
+
+        $evidenceList = $row['evidence'] ?? null;
+        if (!is_array($evidenceList) || !array_is_list($evidenceList) || count($evidenceList) < 1) {
+            throw new InvalidArgumentException('Missing evidence list: ' . $label);
+        }
+        foreach ($evidenceList as $eIndex => $eItem) {
+            if (!is_array($eItem)) {
+                throw new InvalidArgumentException('Invalid evidence item: ' . $label);
+            }
+            /** @var array<string, mixed> $eItem */
+            $eLabel = $label . '.evidence[' . $eIndex . ']';
+            self::string($eItem, 'id', $eLabel, 3, 100);
+            $kind = self::string($eItem, 'kind', $eLabel, 2, 50);
+            if (!in_array($kind, EngineeringEvidence::ALLOWED_KINDS, true)) {
+                throw new InvalidArgumentException('Unknown evidence kind ' . $kind . ': ' . $eLabel);
+            }
+            $visibility = self::string($eItem, 'visibility', $eLabel, 2, 50);
+            if (!in_array($visibility, EngineeringEvidence::ALLOWED_VISIBILITY, true)) {
+                throw new InvalidArgumentException('Unknown evidence visibility: ' . $eLabel);
+            }
+            $status = self::string($eItem, 'verification_status', $eLabel, 2, 50);
+            if (!in_array($status, EngineeringEvidence::ALLOWED_STATUSES, true)) {
+                throw new InvalidArgumentException('Unknown evidence verification status: ' . $eLabel);
+            }
+            $method = self::string($eItem, 'method', $eLabel, 5, 2000);
+            PublicText::assertRenderable($method);
+            self::stringList($eItem, 'limitations', $eLabel, 0, 20, 500);
+
+            $verifiedAt = $eItem['verified_at'] ?? null;
+            if (is_string($verifiedAt) && $verifiedAt !== '') {
+                self::date($verifiedAt, $eLabel);
+            }
+        }
+
+        $publication = $row['publication'] ?? null;
+        if (!is_array($publication)) {
+            throw new InvalidArgumentException('Missing publication block: ' . $label);
+        }
+        /** @var array<string, mixed> $publication */
+        $pubState = self::string($publication, 'state', $label, 2, 50);
+        if (!in_array($pubState, EngineeringClaim::ALLOWED_PUBLICATION_STATES, true)) {
+            throw new InvalidArgumentException('Invalid publication state: ' . $label);
+        }
+
+        return $id;
     }
 
     /** @param array<string,mixed> $row */
@@ -86,6 +152,28 @@ final class PublicContentValidator
                 || count($row['features_cs']) !== count($row['features'])
             ) {
                 throw new InvalidArgumentException('Feature translations do not match: ' . $label);
+            }
+        }
+
+        if (array_key_exists('latest_public_release', $row)) {
+            self::string($row, 'latest_public_release', $label, 0, 40);
+        }
+        if (array_key_exists('latest_public_release_date', $row)) {
+            $relDate = self::string($row, 'latest_public_release_date', $label, 0, 32);
+            if ($relDate !== '') {
+                self::date($relDate, $label);
+            }
+        }
+        if (array_key_exists('release_url', $row)) {
+            $relUrl = self::string($row, 'release_url', $label, 0, 255);
+            if ($isPrivate && $relUrl !== '') {
+                throw new InvalidArgumentException('Private release URL is forbidden: ' . $label);
+            }
+            if (
+                $relUrl !== ''
+                && preg_match('~^https://github\.com/[A-Za-z0-9-]+/[A-Za-z0-9_.-]+/releases/tag/[A-Za-z0-9_.-]+$~D', $relUrl) !== 1
+            ) {
+                throw new InvalidArgumentException('Unexpected release URL: ' . $label);
             }
         }
 
@@ -197,6 +285,14 @@ final class PublicContentValidator
             && preg_match($validPattern, $link) !== 1
         ) {
             throw new InvalidArgumentException('Unsafe journal source: ' . $label);
+        }
+        if (isset($row['stable_id'])) {
+            $stableId = self::string($row, 'stable_id', $label, 6, 70);
+            if (preg_match('/^entry-[a-z0-9-]{6,64}$/D', $stableId) !== 1) {
+                throw new InvalidArgumentException('Invalid journal stable_id: ' . $label);
+            }
+
+            return $stableId;
         }
 
         return $when . '|' . self::string($row, 'title_en', $label, 1, 4000);

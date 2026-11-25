@@ -6,6 +6,7 @@ use App\Support\Language;
 /** @var App\Domain\Project $project */
 /** @var list<array{slug:string,name:string,type:string}> $related */
 /** @var list<App\Domain\EngineeringDecision> $decisions */
+/** @var list<App\Domain\EngineeringClaim> $evidence */
 require dirname(__DIR__) . '/element/portfolio_case_reading.php';
 [$caseProblem, $caseApproach, $caseEvidence, $caseEvidenceCopy] = $caseReading;
 $sourceHref = !$project->private && $project->repo !== '' ? Html::safeUrl($project->repo) : null;
@@ -54,6 +55,11 @@ $stackHeading = match ($project->slug) {
             <?php if ($project->slug === 'local-ai-hub'): ?>
                 <a class="inline-link" href="#hub-preview-title"><?= $lang->value('Diagram architektury', 'Architecture diagram') ?> <span aria-hidden="true">↓</span></a>
             <?php endif; ?>
+            <?php if ($project->slug === 'harfusha-lab'): ?>
+                <a class="inline-link" href="#harfusha-lab-preview-title"><?= $lang->value('Diagram architektury', 'Architecture diagram') ?> <span aria-hidden="true">↓</span></a>
+                <a class="inline-link" href="#request-lifecycle-lab"><?= $lang->value('Request Lifecycle Lab', 'Request Lifecycle Lab') ?> <span aria-hidden="true">↓</span></a>
+                <a class="inline-link" href="#database-concurrency-lab"><?= $lang->value('Database Concurrency Lab', 'Database Concurrency Lab') ?> <span aria-hidden="true">↓</span></a>
+            <?php endif; ?>
             <?php if ($project->slug === 'mutaui'): ?>
                 <a class="inline-link" href="#mutaui-preview-title"><?= $lang->value('Snímky aplikace', 'Application screenshots') ?> <span aria-hidden="true">↓</span></a>
             <?php endif; ?>
@@ -65,11 +71,59 @@ $stackHeading = match ($project->slug) {
     <section class="case-evidence" aria-labelledby="case-evidence-title">
         <h2 id="case-evidence-title"><?= Html::escape($caseEvidence) ?></h2>
         <p><?= Html::escape($caseEvidenceCopy) ?></p>
+        <?php if (!empty($evidence)): ?>
+        <div class="evidence-ledger" aria-label="<?= $lang->value('Strukturovaný registr ověřitelných důkazů', 'Structured verifiable evidence ledger') ?>">
+            <h3 class="evidence-ledger-title"><?= $lang->value('Ověřitelná technická tvrzení a podklady', 'Verifiable technical claims and evidence') ?></h3>
+            <div class="evidence-items">
+                <?php foreach ($evidence as $claim): ?>
+                <div class="evidence-record" data-claim-id="<?= Html::escape($claim->id) ?>">
+                    <p class="evidence-claim-text"><strong><?= $lang->value('Tvrzení:', 'Claim:') ?></strong> <?= Html::escape($lang->value($claim->claim['cs'], $claim->claim['en'])) ?></p>
+                    <ul class="evidence-list">
+                        <?php foreach ($claim->evidence as $item): ?>
+                        <li class="evidence-item status-<?= Html::escape($item->verificationStatus) ?> kind-<?= Html::escape($item->kind) ?>">
+                            <div class="evidence-item-header">
+                                <span class="badge badge-kind"><?= Html::escape(strtoupper($item->kind)) ?></span>
+                                <span class="badge badge-status"><?= $item->verificationStatus === 'verified' ? $lang->value('Ověřeno', 'Verified') : $lang->value('Neověřeno', 'Unverified') ?></span>
+                                <?php if ($item->revision !== null): ?>
+                                <code class="evidence-revision"><?= Html::escape($item->revision) ?></code>
+                                <?php endif; ?>
+                                <?php if ($item->verifiedAt !== null): ?>
+                                <time class="evidence-date" datetime="<?= Html::escape($item->verifiedAt) ?>"><?= Html::escape($item->verifiedAt) ?></time>
+                                <?php endif; ?>
+                            </div>
+                            <p class="evidence-method"><?= Html::escape($item->method) ?></p>
+                            <?php if ($item->limitations !== []): ?>
+                            <div class="evidence-limitations">
+                                <span class="limitation-label"><?= $lang->value('Rozsah a omezení:', 'Scope & limitations:') ?></span>
+                                <ul>
+                                    <?php foreach ($item->limitations as $limitation): ?>
+                                    <li><?= Html::escape($limitation) ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                            <?php endif; ?>
+                            <?php if ($item->sourceUrl !== null): ?>
+                            <a class="evidence-source-link inline-link" href="<?= Html::escape(Html::safeUrl($item->sourceUrl)) ?>" target="_blank" rel="noopener noreferrer">
+                                <?= $lang->value('Otevřít veřejný zdrojový odkaz', 'Open public source link') ?> ↗
+                            </a>
+                            <?php endif; ?>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
     </section>
 </section>
 <nav class="shell case-navigation" aria-label="<?= $project->status === 'record' ? $lang->value('Obsah záznamu', 'On this record') : $lang->value('Obsah případové studie', 'On this case study') ?>">
     <a href="#project-overview"><?= $lang->value('Přehled', 'Overview') ?></a>
     <a href="#case-evidence-title"><?= $lang->value('Důkazy a omezení', 'Evidence and limits') ?></a>
+    <?php if ($project->slug === 'harfusha-lab'): ?>
+    <a href="#request-lifecycle-lab"><?= $lang->value('Lifecycle Lab', 'Lifecycle Lab') ?></a>
+    <a href="#database-concurrency-lab"><?= $lang->value('Concurrency Lab', 'Concurrency Lab') ?></a>
+    <?php endif; ?>
 </nav>
 <?php if ($project->slug === 'local-ai-hub'): ?>
 <section class="shell project-preview" aria-labelledby="hub-preview-title">
@@ -84,6 +138,22 @@ $stackHeading = match ($project->slug) {
   <img src="/assets/img/local-ai-hub-architecture.png" width="1380" height="900" loading="lazy" alt="<?= $lang->value('Architektonický diagram Local AI Hubu: agenti, MCP protokol, jádro a repozitář', 'Local AI Hub architectural blueprint: agents, MCP protocol, core engine, and repository') ?>">
  </picture><figcaption><?= $lang->value('Local AI Hub / architektura pipeline / MCP server', 'Local AI Hub / pipeline architecture / MCP server') ?></figcaption></figure>
 </section>
+<?php endif; ?>
+<?php if ($project->slug === 'harfusha-lab'): ?>
+<section class="shell project-preview" aria-labelledby="harfusha-lab-preview-title">
+ <div class="project-preview-copy">
+  <span class="eyebrow"><?= $lang->value('ARCHITEKTURA SYSTÉMU', 'SYSTEM ARCHITECTURE') ?></span>
+  <h2 id="harfusha-lab-preview-title"><?= $lang->value('Architektura a vrstvy Harfusha Lab', 'Harfusha Lab Architecture and Layers') ?></h2>
+  <p><?= $lang->value('Server-side rendering v CakePHP 5: od reverzní proxy ochrany přes striktně typované doménové DTO a modelové vrstvy až po offline SSR náhled s nulovou chybovostí v PHPStan max.', 'Server-side rendering in CakePHP 5: from reverse proxy boundary defense to strictly typed domain DTOs, model layers, and offline SSR preview with zero errors under PHPStan max.') ?></p>
+  <a class="inline-link" href="https://github.com/Harfusha/harfusha" target="_blank" rel="noopener noreferrer"><?= $lang->value('Zdrojový repozitář na GitHubu', 'Source repository on GitHub') ?> ↗</a>
+ </div>
+ <figure><picture>
+  <source type="image/webp" srcset="/assets/img/developer-workbench.webp">
+  <img src="/assets/img/developer-workbench.png" width="1380" height="900" loading="lazy" alt="<?= $lang->value('Architektura platformy Harfusha Lab: CakePHP 5 SSR, typové DTO a ověřitelná evidence', 'Harfusha Lab platform architecture: CakePHP 5 SSR, typed DTOs, and verifiable evidence') ?>">
+ </picture><figcaption><?= $lang->value('Harfusha Lab / architektura platformy / CakePHP 5 SSR', 'Harfusha Lab / platform architecture / CakePHP 5 SSR') ?></figcaption></figure>
+</section>
+<?php require dirname(__DIR__) . '/element/lab_lifecycle.php'; ?>
+<?php require dirname(__DIR__) . '/element/lab_concurrency.php'; ?>
 <?php endif; ?>
 <?php if ($project->slug === 'mutaui'): ?>
 <section class="shell project-preview" aria-labelledby="mutaui-preview-title">

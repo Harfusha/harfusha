@@ -40,12 +40,75 @@ $localizedNodes = array_map(static function (array $node) use ($lang): array {
   <div class="lab-scenario-actions">
     <button type="button" class="btn btn-ghost btn-sm" data-lab-scenario="media" data-fail-node="nas"><?= $lang->value('Video při výpadku NAS', 'Video with the NAS offline') ?></button>
     <button type="button" class="btn btn-ghost btn-sm" data-lab-scenario="printing" data-fail-node="print"><?= $lang->value('Tisk při výpadku tiskového uzlu', 'Printing with the print node offline') ?></button>
+    <button type="button" class="btn btn-ghost btn-sm" data-lab-scenario="media" data-fail-nodes="nas,print"><?= $lang->value('Souběh: NAS + tisk', 'Multi-outage: NAS + print') ?></button>
+    <button type="button" class="btn btn-ghost btn-sm" data-lab-scenario="media" data-fail-nodes="pi,nas"><?= $lang->value('Souběh: Pi + NAS (core)', 'Multi-outage: Pi + NAS (core)') ?></button>
   </div>
 </div><div class="lab-toolbar requires-js"><div class="lab-tabs" role="group" aria-label="<?= $lang->value('Pohled na domácí síť', 'Home network views') ?>"><button class="tab active" data-lab-view="services" aria-pressed="true"><?= $lang->value('Služby', 'Services') ?></button><button class="tab" data-lab-view="hardware" aria-pressed="false"><?= $lang->value('Zařízení', 'Hardware') ?></button><button class="tab" data-lab-view="dependencies" aria-pressed="false"><?= $lang->value('Závislosti','Dependencies') ?></button><button class="tab" data-lab-view="flows" aria-pressed="false"><?= $lang->value('Cesty dat','Data paths') ?></button></div><div class="lab-toolbar-right"><label class="toggle-label"><input type="checkbox" data-failure-mode><span><?= $lang->value('Vyber uzel pro simulaci výpadku','Select a node to simulate an outage') ?></span></label><button class="mini-button" type="button" data-lab-reset><?= $lang->value('Reset','Reset') ?></button></div></div><div class="lab-flow-toolbar hidden" data-flow-toolbar><label for="lab-flow-select"><?= $lang->value('Modelová cesta požadavku', 'Illustrative request path') ?></label><select id="lab-flow-select" data-flow-select><?php foreach ($flows as $flow): ?><option value="<?= Html::escape($flow->id) ?>"><?= Html::escape($lang->value($flow->titleCs, $flow->titleEn)) ?></option><?php endforeach; ?></select><span class="lab-flow-disclaimer"><?= $lang->value('Simulace nad připravenými daty — bez živého provozu.', 'Simulation uses prepared data — no live network traffic.') ?></span></div><div class="lab-content"><div class="lab-canvas-wrap"><div class="lab-canvas-status"><span class="status-indicator"></span><?= $lang->value('Uzly ve veřejném modelu','Nodes in the public model') ?></div><div class="lab-device-grid" data-lab-devices role="group" aria-label="<?= $lang->value('Zařízení v modelu sítě', 'Devices in the network model') ?>"><span id="node-pi" class="visually-hidden"></span></div><div class="lab-legend"><span><i class="legend-dot legend-online"></i><?= $lang->value('Dostupné v simulaci','Available in simulation') ?></span><span><i class="legend-dot legend-down"></i><?= $lang->value('Nedostupné','Unavailable') ?></span></div><div class="lab-flow-inspector hidden" data-flow-inspector><span class="eyebrow"><?= $lang->value('CESTA POŽADAVKU / POSTUP', 'REQUEST PATH / TRACE') ?></span><h3 data-flow-title></h3><p data-flow-description></p><p class="lab-flow-result" data-flow-result tabindex="-1" role="status" aria-live="polite"></p><ol class="lab-flow-steps" data-flow-steps></ol></div></div><div class="lab-inspector"><span class="eyebrow"><?= $lang->value('PODROBNOSTI / ', 'DETAILS / ') ?><span data-lab-index>01</span></span><h2 data-lab-name>—</h2><p data-lab-description></p><div class="lab-inspector-group"><span class="eyebrow"><?= $lang->value('TECHNOLOGIE', 'TECHNOLOGIES') ?></span><div class="stack-list" data-lab-tech></div></div><div class="lab-inspector-group"><span class="eyebrow"><?= $lang->value('SLUŽBY A ZÁVISLOSTI', 'SERVICES & DEPENDENCIES') ?></span><ul class="service-list" data-lab-services></ul></div><div class="lab-inspector-note" data-lab-note><?= $lang->value('Vyber uzel pro podrobnosti; zapni simulaci a kliknutím uzel vypni.','Select a node for details; enable simulation and click a node to take it offline.') ?></div></div></div></div>
  <script type="application/json" id="topology-flows"><?= Html::json(array_map(static fn (App\Domain\NetworkFlow $flow): array => $flow->toArray(), $flows)) ?></script>
  <script type="application/json" id="topology-data"><?= Html::json($localizedNodes) ?></script>
 <noscript><div class="lab-fallback"><h2><?= $lang->value('Textový přehled datových cest', 'Text-only data path overview') ?></h2><p><?= $lang->value('Bez JavaScriptu jsou cesty uvedeny níže. Simulace výpadků vyžaduje JavaScript a používá pouze připravená data.', 'Without JavaScript, the paths remain available here. Failure simulation requires JavaScript and uses prepared data only.') ?></p><?php foreach ($flows as $flow): ?><h3><?= Html::escape($lang->value($flow->titleCs, $flow->titleEn)) ?></h3><p><?= Html::escape($lang->value($flow->descriptionCs, $flow->descriptionEn)) ?></p><ol><?php foreach ($flow->path as $i => $nodeId): ?><li><?= Html::escape($lang->value($flow->stepsCs[$i], $flow->stepsEn[$i])) ?></li><?php endforeach; ?></ol><?php endforeach; ?></div></noscript>
 </section>
+
+<section class="section shell" aria-labelledby="homelab-impact-title">
+    <div class="section-heading">
+        <div>
+            <span class="eyebrow"><?= $lang->value('ANALÝZA SPOLEHLIVOSTI', 'RELIABILITY ANALYSIS') ?></span>
+            <h2 id="homelab-impact-title"><?= $lang->value('Matice dopadů výpadků a redundance', 'Outage Impact & Redundancy Matrix') ?></h2>
+            <p><?= $lang->value('Přehled závislostí upstreamu, dopadů na klientské služby a dostupných záložních mechanismů při výpadku jednotlivých zařízení.', 'Summary of upstream dependencies, downstream service impacts, and redundancy fallbacks during node outages.') ?></p>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table-fallback impact-matrix-table">
+            <thead>
+                <tr>
+                    <th><?= $lang->value('Zařízení / Uzel', 'Device / Node') ?></th>
+                    <th><?= $lang->value('Primární role', 'Primary Role') ?></th>
+                    <th><?= $lang->value('Dopad při výpadku', 'Outage Impact') ?></th>
+                    <th><?= $lang->value('Redundance / Záloha', 'Redundancy / Fallback') ?></th>
+                    <th><?= $lang->value('Priorita obnovy', 'Recovery Priority') ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Router (MikroTik)</strong></td>
+                    <td><?= $lang->value('L3 routing, firewall, WireGuard VPN', 'L3 routing, firewall, WireGuard VPN') ?></td>
+                    <td><?= $lang->value('Celá síť ztratí spojení s internetem i mezi VLANy.', 'All network traffic to internet and inter-VLAN halts.') ?></td>
+                    <td><?= $lang->value('Konfigurace zálohována v Gitu, lokální LTE záloha při selhání WAN.', 'Git-backed config, local LTE fallback on WAN failure.') ?></td>
+                    <td><span class="badge badge-error">P1 (<?= $lang->value('Kritická', 'Critical') ?>)</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Switch (CRS326)</strong></td>
+                    <td><?= $lang->value('L2 distribuce, 10GbE SFP+ páteř', 'L2 distribution, 10GbE SFP+ backbone') ?></td>
+                    <td><?= $lang->value('Ztráta kabelového spojení mezi servery a NASem.', 'Loss of wired connectivity between hosts and NAS.') ?></td>
+                    <td><?= $lang->value('Agregované linky (LACP) na páteři.', 'LACP bonded links on core backbone.') ?></td>
+                    <td><span class="badge badge-error">P1 (<?= $lang->value('Kritická', 'Critical') ?>)</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Raspberry Pi (Core)</strong></td>
+                    <td><?= $lang->value('DNS filtr (Pi-hole), Unbound, Discord bot', 'DNS filter (Pi-hole), Unbound, Discord bot') ?></td>
+                    <td><?= $lang->value('Lokální DNS filtrace vypadne; interní jména nedostupná.', 'Local DNS filtering down; local hostnames unreachable.') ?></td>
+                    <td><?= $lang->value('Router automaticky přepíná na záložní veřejný DNS resolver.', 'Router automatically falls back to secondary public DNS resolver.') ?></td>
+                    <td><span class="badge badge-warning">P2 (<?= $lang->value('Vysoká', 'High') ?>)</span></td>
+                </tr>
+                <tr>
+                    <td><strong>NAS (Synology)</strong></td>
+                    <td><?= $lang->value('NFS/SMB úložiště, BookStack DB, mediální archiv', 'NFS/SMB storage, BookStack DB, media archive') ?></td>
+                    <td><?= $lang->value('Jellyfin ztratí mediální data; BookStack je v režimu offline.', 'Jellyfin loses media pool; BookStack drops offline.') ?></td>
+                    <td><?= $lang->value('SHR (RAID-1/5) redundance disků; denní šifrovaná C2 záloha.', 'SHR (RAID-1/5) disk tolerance; daily encrypted C2 backup.') ?></td>
+                    <td><span class="badge badge-warning">P2 (<?= $lang->value('Vysoká', 'High') ?>)</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Print Node (OctoPrint)</strong></td>
+                    <td><?= $lang->value('3D tiskový uzel, OctoPrint daemon', '3D printing node, OctoPrint daemon') ?></td>
+                    <td><?= $lang->value('Není možný vzdálený tisk ani monitoring.', 'Remote print dispatch and camera feed unavailable.') ?></td>
+                    <td><?= $lang->value('Tiskárna podporuje autonomní tisk z lokální SD karty.', 'Printer supports standalone printing from local SD card.') ?></td>
+                    <td><span class="badge badge-info">P3 (<?= $lang->value('Střední', 'Medium') ?>)</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
 <section class="section shell homelab-services" data-service-catalog>
  <div class="section-heading"><div><span class="eyebrow"><?= $lang->value('KATALOG SLUŽEB', 'SERVICE CATALOG') ?></span><h2><?= $lang->value('Kde jednotlivé služby běží', 'Where each service runs') ?></h2><p><?= $lang->value('Rozklikni službu: role, návaznost i konkrétní hranice. Katalog vychází z konfiguračních podkladů; neukazuje živé zdraví hostů.', 'Open a service to see its role, dependencies and limits. This catalog follows configuration sources; it does not show live host health.') ?></p></div></div>
  <div class="service-groups">

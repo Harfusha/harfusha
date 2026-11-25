@@ -54,12 +54,13 @@
   function initAdmin() {
     const root = $('[data-admin-editor]');
     if (!root) return;
-    const select = $('[data-admin-select]', root), cs = $('[data-admin-cs]', root), en = $('[data-admin-en]', root), status = $('[data-admin-status]', root);
+    const select = $('[data-admin-select]', root), cs = $('[data-admin-cs]', root), en = $('[data-admin-en]', root), status = $('[data-admin-status]', root), revision = $('[data-admin-revision]', root);
     const problems = [$('[data-admin-problem-cs]', root), $('[data-admin-problem-en]', root)];
     const solutions = [$('[data-admin-solution-cs]', root), $('[data-admin-solution-en]', root)];
     const update = () => {
       const option = select?.selectedOptions[0];
       if (!option) return;
+      if (revision) revision.value = option.dataset.revision || '';
       cs.value = option.dataset.cs || '';
       en.value = option.dataset.en || '';
       status.value = option.dataset.status || 'prototype';
@@ -110,7 +111,10 @@
     const root = $('[data-journal-filter]');
     if (!root) return;
     const entries = $$('[data-journal-entry]', root).map(entry => ({
-      entry, text: normalizeSearch(entry.textContent || '').replace(/\s+/g, ' '),
+      entry,
+      id: entry.id || '',
+      legacyId: entry.dataset.legacyId || '',
+      text: normalizeSearch(entry.textContent || '').replace(/\s+/g, ' '),
     }));
     const buttons = $$('[data-journal-year]', root);
     const count = $('[data-journal-count]', root);
@@ -118,35 +122,48 @@
     const searchControl = $('[data-journal-search-control]', root);
     const projectControl = $('[data-journal-project-control]', root);
     const projectSelect = $('[data-journal-project]', root);
+    const serverForm = $('.journal-server-filter', root);
     const empty = $('[data-journal-empty]', root);
-    let year = 'all';
+    let year = buttons.find(b => b.classList.contains('active'))?.dataset.journalYear || 'all';
     if (searchControl) searchControl.hidden = false;
     if (projectControl) projectControl.hidden = false;
+    serverForm?.addEventListener('submit', e => e.preventDefault());
+    const activeDeepLinkId = () => window.location.hash.slice(1);
     const render = () => {
       const query = normalizeSearch(search?.value || '').trim().replace(/\s+/g, ' ');
       const proj = projectSelect?.value || 'all';
+      const targetId = activeDeepLinkId();
       let visible = 0;
-      entries.forEach(({entry, text}) => {
-        const matches = (year === 'all' || entry.dataset.year === year)
-          && (proj === 'all' || entry.dataset.project === proj)
-          && text.includes(query);
+      entries.forEach(({entry, id, legacyId, text}) => {
+        const isDeepLinked = targetId !== '' && (id === targetId || legacyId === targetId);
+        const matches = isDeepLinked || (
+          (year === 'all' || entry.dataset.year === year) &&
+          (proj === 'all' || entry.dataset.project === proj) &&
+          text.includes(query)
+        );
         entry.hidden = !matches;
         if (matches) visible++;
       });
       buttons.forEach(button => {
         const active = button.dataset.journalYear === year;
         button.classList.toggle('active', active);
-        button.setAttribute('aria-pressed', String(active));
+        if (active) {
+          button.setAttribute('aria-current', 'page');
+        } else {
+          button.removeAttribute('aria-current');
+        }
       });
       if (empty) empty.hidden = visible !== 0;
       if (count) count.textContent = `${local('Počet zápisů:', 'Entries:')} ${visible}`;
     };
-    buttons.forEach(button => button.addEventListener('click', () => {
+    buttons.forEach(button => button.addEventListener('click', e => {
+      e.preventDefault();
       year = button.dataset.journalYear || 'all';
       render();
     }));
     search?.addEventListener('input', render);
     projectSelect?.addEventListener('change', render);
+    window.addEventListener('hashchange', render);
     render();
   }
   initJournalFilter();
@@ -407,11 +424,12 @@
       scenarioGroup.hidden = false;
       $$('[data-lab-scenario]', scenarioGroup).forEach(button => button.addEventListener('click', () => {
         const flow = flows.find(item => item.id === button.dataset.labScenario);
-        const failedNode = button.dataset.failNode;
-        if (!flow?.path.includes(failedNode) || !nodeMap.has(failedNode)) return;
+        const failedNodesStr = button.dataset.failNodes || button.dataset.failNode || '';
+        const failedNodes = failedNodesStr.split(',').map(s => s.trim()).filter(Boolean);
+        if (!flow || failedNodes.length === 0 || failedNodes.some(n => !nodeMap.has(n))) return;
         knockedOut.clear();
-        knockedOut.add(failedNode);
-        selected = failedNode;
+        failedNodes.forEach(n => knockedOut.add(n));
+        selected = failedNodes[0];
         currentFlow = flow;
         view = 'flows';
         flowSelect.value = flow.id;
@@ -535,6 +553,165 @@
       }
     });
   });
+
+  function initLifecycleLab() {
+    const root = $('[data-lifecycle-lab]');
+    if (!root) return;
+    const tabs = $$('[data-lifecycle-tab]', root);
+    const panels = $$('[data-lifecycle-panel]', root);
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetId = tab.dataset.lifecycleTab;
+        tabs.forEach(t => {
+          const active = t.dataset.lifecycleTab === targetId;
+          t.classList.toggle('active', active);
+          t.setAttribute('aria-selected', String(active));
+        });
+        panels.forEach(p => {
+          const active = p.dataset.lifecyclePanel === targetId;
+          p.classList.toggle('active', active);
+          p.hidden = !active;
+        });
+      });
+    });
+  }
+  initLifecycleLab();
+
+  function initConcurrencyLab() {
+    const root = $('[data-concurrency-lab]');
+    const dataEl = $('#concurrency-lab-data');
+    if (!root || !dataEl) return;
+    let scenarios;
+    try { scenarios = JSON.parse(dataEl.textContent || '[]'); } catch { return; }
+    if (!Array.isArray(scenarios) || !scenarios.length) return;
+
+    const tabs = $$('[data-concurrency-tab]', root);
+    const panels = $$('[data-concurrency-panel]', root);
+    const prevBtn = $('[data-concurrency-step-prev]', root);
+    const nextBtn = $('[data-concurrency-step-next]', root);
+    const resetBtn = $('[data-concurrency-reset]', root);
+
+    let activeScenarioId = tabs.find(t => t.classList.contains('active'))?.dataset.concurrencyTab || scenarios[0].id;
+    let currentStepIdx = 0;
+
+    const renderStep = () => {
+      const scenario = scenarios.find(s => s.id === activeScenarioId);
+      if (!scenario) return;
+      const panel = $(`[data-concurrency-panel="${activeScenarioId}"]`, root);
+      if (!panel) return;
+      const steps = scenario.steps || [];
+      if (!steps.length) return;
+      if (currentStepIdx >= steps.length) currentStepIdx = steps.length - 1;
+      if (currentStepIdx < 0) currentStepIdx = 0;
+
+      const step = steps[currentStepIdx];
+      const stepNum = $('[data-current-step-num]', panel);
+      const actorA = $('[data-actor-a-state]', panel);
+      const dbBox = $('[data-db-state]', panel);
+      const actorB = $('[data-actor-b-state]', panel);
+      const actionText = $('[data-action-text]', panel);
+      const sqlStatus = $('[data-sql-status]', panel);
+      const sqlCode = $('[data-sql-code]', panel);
+      const markers = $$('.marker-item', panel);
+
+      if (stepNum) stepNum.textContent = String(step.step_number);
+      if (actorA) actorA.textContent = step.client_a_state;
+      if (dbBox) dbBox.textContent = step.db_state;
+      if (actorB) actorB.textContent = step.client_b_state;
+      if (actionText) {
+        const strong = $('strong', actionText);
+        const span = $('span', actionText);
+        if (strong) strong.textContent = step.actor + ': ';
+        if (span) span.textContent = step.action[language] || step.action['cs'];
+      }
+      if (sqlStatus) sqlStatus.textContent = step.status;
+      if (sqlCode) sqlCode.textContent = step.sql;
+
+      markers.forEach((m, idx) => {
+        m.classList.toggle('current', idx === currentStepIdx);
+        m.classList.toggle('passed', idx < currentStepIdx);
+      });
+
+      if (prevBtn) prevBtn.disabled = currentStepIdx === 0;
+      if (nextBtn) nextBtn.disabled = currentStepIdx >= steps.length - 1;
+    };
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        activeScenarioId = tab.dataset.concurrencyTab || '';
+        currentStepIdx = 0;
+        tabs.forEach(t => {
+          const active = t.dataset.concurrencyTab === activeScenarioId;
+          t.classList.toggle('active', active);
+          t.setAttribute('aria-selected', String(active));
+        });
+        panels.forEach(p => {
+          const active = p.dataset.concurrencyPanel === activeScenarioId;
+          p.classList.toggle('active', active);
+          p.hidden = !active;
+        });
+        renderStep();
+      });
+    });
+
+    panels.forEach(panel => {
+      $$('[data-step-jump]', panel).forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.stepJump || '0', 10);
+          if (!isNaN(idx)) {
+            currentStepIdx = idx;
+            renderStep();
+          }
+        });
+      });
+    });
+
+    prevBtn?.addEventListener('click', () => {
+      if (currentStepIdx > 0) {
+        currentStepIdx--;
+        renderStep();
+      }
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      const scenario = scenarios.find(s => s.id === activeScenarioId);
+      if (scenario && currentStepIdx < (scenario.steps || []).length - 1) {
+        currentStepIdx++;
+        renderStep();
+      }
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      currentStepIdx = 0;
+      renderStep();
+    });
+
+    renderStep();
+  }
+  initConcurrencyLab();
+
+  function initTypeSafetyLab() {
+    const root = $('[data-type-safety-lab]');
+    if (!root) return;
+    const tabs = $$('[data-ts-tab]', root);
+    const panels = $$('[data-ts-panel]', root);
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const mode = tab.dataset.tsTab;
+        tabs.forEach(t => {
+          const active = t.dataset.tsTab === mode;
+          t.classList.toggle('active', active);
+          t.setAttribute('aria-selected', String(active));
+        });
+        panels.forEach(p => {
+          const active = p.dataset.tsPanel === mode;
+          p.classList.toggle('active', active);
+          p.hidden = !active;
+        });
+      });
+    });
+  }
+  initTypeSafetyLab();
 
   function initMobileMenu() {
     const menu = document.querySelector('details.mobile-menu');

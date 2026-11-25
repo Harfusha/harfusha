@@ -7,7 +7,7 @@ use App\Support\Language;
 /** @var list<array{repository:string,description:string,repo_url:string,pushed_at:string}> $recentRepos */
 /** @var list<array<string,mixed>> $journalEntries */
 /** @var list<array<string,mixed>> $activity */
-/** @var array{source:string,last_sync:?string} $provenance */
+/** @var array{source:string,last_sync:?string,age_hours?:?int,is_stale?:bool,snapshot_date?:?string,is_expired?:bool} $provenance */
 $githubSynced = $provenance['source'] === 'github-public-api';
 $githubUnavailable = $provenance['source'] === 'unavailable';
 $stateLabels = [
@@ -41,15 +41,7 @@ krsort($activityYears, SORT_NUMERIC);
 <section class="page-hero shell">
   <h1><?= $lang->value('Poslední změny', 'Recent changes') ?></h1>
   <p><?= $lang->value('Stručný přehled posledních zaznamenaných kroků ve vývoji repozitářů, deníku a upstream příspěvcích.', 'A concise overview of recent milestones across repositories, the engineering journal, and upstream contributions.') ?></p>
-  <div class="page-meta"><?= $githubSynced ? (!empty($provenance['is_stale']) ? $lang->value('ZASTARALÝ IMPORT GITHUBU', 'STALE GITHUB IMPORT') : $lang->value('VEŘEJNÝ IMPORT GITHUBU', 'PUBLIC GITHUB IMPORT')) : ($githubUnavailable ? $lang->value('DATA NEDOSTUPNÁ', 'DATA UNAVAILABLE') : $lang->value('RUČNĚ OVĚŘENÝ SNÍMEK', 'REVIEWED SNAPSHOT')) ?> <span>·</span>
-  <?php if ($provenance['last_sync'] !== null): ?>
-    <?php if (!empty($provenance['is_stale'])): ?>
-      <?= $lang->value('Importovaný snímek: ', 'Imported snapshot: ') ?><?= Html::escape($provenance['last_sync']) ?> (<?= $lang->value('před ' . (int)($provenance['age_hours'] ?? 0) . ' h · zastaralé', (int)($provenance['age_hours'] ?? 0) . 'h ago · stale') ?>)
-    <?php else: ?>
-      <?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?> (<?= $lang->value('před ' . (int)($provenance['age_hours'] ?? 0) . ' h · čerstvé', (int)($provenance['age_hours'] ?? 0) . 'h ago · fresh') ?>)
-    <?php endif; ?>
-  <?php elseif ($githubUnavailable): ?><?= $lang->value('Starší záznamy při výpadku nezobrazujeme.', 'Historical records stay hidden while the source is unavailable.') ?>
-  <?php else: ?><?= $lang->value('Ověřená data z repozitářů (snímek).', 'Verified repository snapshot.') ?><?php endif; ?></div>
+  <div class="page-meta"><?php require dirname(__DIR__) . '/element/github_provenance_notice.php'; ?></div>
 </section>
 <nav class="shell case-navigation" aria-label="<?= $lang->value('Obsah časové osy', 'On this timeline') ?>">
     <a href="#now-repositories-title"><?= $lang->value('Repozitáře', 'Repositories') ?></a>

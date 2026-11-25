@@ -20,8 +20,8 @@ final class JournalFeed
 
     /**
      * A language-independent, stable anchor for the visible journal entry.
-     * Database ids survive title edits; curated entries use their reviewed
-     * English title and publication timestamp, not mutable body text.
+     * Database ids survive title edits; curated entries prefer an immutable
+     * `stable_id` when present, falling back to the legacy title+date hash.
      *
      * @param array<string,mixed> $record
      */
@@ -31,6 +31,21 @@ final class JournalFeed
         if (is_int($id) && $id > 0) {
             return 'entry-db-' . $id;
         }
+        $stableId = $record['stable_id'] ?? null;
+        if (is_string($stableId) && preg_match('/^entry-[a-z0-9-]{6,64}$/D', $stableId) === 1) {
+            return $stableId;
+        }
+
+        return self::legacyTitleHashId($record);
+    }
+
+    /**
+     * Compute the historical title-based anchor hash so legacy deep links remain resolvable.
+     *
+     * @param array<string,mixed> $record
+     */
+    public static function legacyTitleHashId(array $record): string
+    {
         $published = $record['published_at'] ?? null;
         $title = $record['title_en'] ?? null;
         if (!is_string($published) || $published === '' || !is_string($title) || $title === '') {
@@ -38,6 +53,25 @@ final class JournalFeed
         }
 
         return 'entry-' . substr(hash('sha256', $published . chr(0) . $title), 0, 20);
+    }
+
+    /**
+     * Parse a strict UTC publication date into a Unix timestamp for deterministic sorting.
+     */
+    public static function parseUtcTimestamp(string $value): int
+    {
+        $utc = new DateTimeZone('UTC');
+        foreach (['!Y-m-d H:i:s', '!Y-m-d\TH:i:s\Z', '!Y-m-d'] as $format) {
+            $parsed = DateTimeImmutable::createFromFormat($format, $value, $utc);
+            $errors = DateTimeImmutable::getLastErrors();
+            $noErrors = $errors === false
+                || ($errors['warning_count'] === 0 && $errors['error_count'] === 0);
+            if ($parsed instanceof DateTimeImmutable && $noErrors) {
+                return $parsed->getTimestamp();
+            }
+        }
+
+        throw new InvalidArgumentException('Invalid journal publication date');
     }
 
     /** @param list<array<string,mixed>> $entries */
@@ -57,15 +91,17 @@ final class JournalFeed
             . '</description>';
         $xml .= '<language>' . $language->code . '</language>';
         foreach (array_slice($entries, 0, 30) as $record) {
-            $title = $record['title_' . $language->code] ?? null;
+            $entryTitle = $record['title_' . $language->code] ?? null;
             $body = $record['body_' . $language->code] ?? null;
             $published = $record['published_at'] ?? null;
-            if (!is_string($title) || !is_string($body) || !is_string($published)) {
+            if (!is_string($entryTitle) || !is_string($body) || !is_string($published)) {
                 throw new InvalidArgumentException('Incomplete public journal record');
             }
+            PublicText::assertRenderable($entryTitle);
+            PublicText::assertRenderable($body);
             $date = self::rssDate($published);
             $link = $base . '/journal#' . self::entryId($record);
-            $xml .= '<item><title>' . self::escape($title) . '</title>';
+            $xml .= '<item><title>' . self::escape($entryTitle) . '</title>';
             $xml .= '<link>' . self::escape($link) . '</link>';
             $xml .= '<guid isPermaLink="true">' . self::escape($link) . '</guid>';
             $xml .= '<description>' . self::escape($body) . '</description>';
@@ -79,31 +115,16 @@ final class JournalFeed
      * Format reviewed publication dates without DateTime's lenient rollover
      * of impossible dates or relative strings such as "next Tuesday".
      */
-    private static function rssDate(string $published): string
+    private static function rssDate(string $value): string
     {
-        PublicText::assertRenderable($published);
-        $formats = [
-            ['!Y-m-d H:i:s', 'Y-m-d H:i:s'],
-            ['!Y-m-d', 'Y-m-d'],
-            ['!Y-m-d\TH:i:s\Z', 'Y-m-d\TH:i:s\Z'],
-        ];
-        foreach ($formats as [$inputFormat, $canonicalFormat]) {
-            $date = DateTimeImmutable::createFromFormat($inputFormat, $published, new DateTimeZone('UTC'));
-            if ($date !== false && $date->format($canonicalFormat) === $published) {
-                return $date->format(DATE_RSS);
-            }
-        }
-
-        throw new InvalidArgumentException('Invalid public journal timestamp');
+        return gmdate(DATE_RSS, self::parseUtcTimestamp($value));
     }
 
     /**
      * Encode untrusted text for safe inclusion in this output format.
      */
-    private static function escape(string $text): string
+    private static function escape(string $value): string
     {
-        PublicText::assertRenderable($text);
-
-        return htmlspecialchars($text, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        return htmlspecialchars($value, ENT_XML1 | ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 }

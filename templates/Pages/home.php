@@ -11,28 +11,26 @@ use App\Support\Language;
 /** @var list<array<string,mixed>> $recentRepos */
 /** @var int $projectCount */
 /** @var int $mergedPrCount */
-/** @var array{source:string,last_sync:?string} $provenance */
+/** @var array{source:string,last_sync:?string,age_hours:?int,is_stale:bool} $provenance */
 ?>
 <section class="shell workbench-hero portfolio-home-hero" aria-labelledby="workbench-title">
     <div class="workbench-intro">
         <p class="workbench-author">Adam Halfar <span aria-hidden="true">/</span> Harfusha</p>
-        <h1 id="workbench-title"><?= $lang->value('Navrhuju backendové systémy, nástroje pro vývojáře a automatizaci.', 'I build backend systems, developer tools and automation.') ?></h1>
-        <p><?= $lang->value('Zaměřuju se na čistou doménovou architekturu v CakePHP, deterministické vývojářské nástroje a infrastrukturu jako kód.', 'Focusing on clean domain architecture in CakePHP, deterministic developer tooling, and infrastructure as code.') ?></p>
+        <h1 id="workbench-title"><?= $lang->value('PHP backend a vývojářské nástroje', 'PHP backend and developer tools') ?></h1>
+        <p><?= $lang->value('Typově bezpečné aplikace v CakePHP, deterministické nástroje pro kódovací agenty a infrastruktura jako kód.', 'Type-safe PHP applications in CakePHP, deterministic tooling for coding agents, and infrastructure as code.') ?></p>
         <div class="hero-buttons">
             <a class="btn btn-primary" href="#selected-work"><?= $lang->value('Vybrané projekty', 'Selected work') ?></a>
-            <a class="btn btn-ghost" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Open-source příspěvky', 'Open source contributions') ?></a>
+            <a class="btn btn-ghost" href="mailto:adam.halfar@seznam.cz"><?= $lang->value('Kontakt', 'Contact') ?></a>
         </div>
-        <a class="workbench-text-link" href="mailto:adam.halfar@seznam.cz"><?= $lang->value('Přímý kontakt: adam.halfar@seznam.cz', 'Direct contact: adam.halfar@seznam.cz') ?></a>
+        <a class="workbench-text-link" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Open-source příspěvky →', 'Open-source contributions →') ?></a>
     </div>
-    <a class="workbench-cover" href="<?= $lang->path('/projects') ?>">
-        <figure>
-            <picture>
-                <source type="image/webp" srcset="/assets/img/developer-workbench.webp">
-                <img src="/assets/img/developer-workbench.png" width="1380" height="900" fetchpriority="high" alt="<?= $lang->value('Přehled inženýrského workbench prostředí, backendové architektury v CakePHP a nástrojů', 'Overview of the engineering workbench, CakePHP backend architecture, and tools') ?>">
-            </picture>
-            <figcaption><span><?= $lang->value('Ekosystém projektů · backend, automatizace a vývojářské nástroje', 'Project ecosystem · backend, automation and developer tools') ?></span></figcaption>
-        </figure>
-    </a>
+    <figure class="workbench-cover workbench-cover-figure">
+        <picture>
+            <source type="image/webp" srcset="/assets/img/developer-workbench.webp">
+            <img src="/assets/img/developer-workbench.png" width="1380" height="900" fetchpriority="high" alt="<?= $lang->value('Přehled inženýrského workbench prostředí, backendové architektury v CakePHP a nástrojů', 'Overview of the engineering workbench, CakePHP backend architecture, and tools') ?>">
+        </picture>
+        <figcaption><span><?= $lang->value('Ekosystém projektů · backend, automatizace a vývojářské nástroje', 'Project ecosystem · backend, automation and developer tools') ?></span></figcaption>
+    </figure>
 </section>
 
 <section class="section shell portfolio-section" id="selected-work" aria-labelledby="selected-work-title">
@@ -42,7 +40,7 @@ use App\Support\Language;
             <h2 id="selected-work-title"><?= $lang->value('Vybraná práce', 'Selected work') ?></h2>
             <p><?= $lang->value('Architektura kódovacích agentů, desktopové synchronizace a správy infrastruktury.', 'Architecture of coding agent tooling, desktop synchronization, and infrastructure operations.') ?></p>
         </div>
-        <a class="inline-link" href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všech devět projektů', 'All nine projects') ?></a>
+        <a class="inline-link" href="<?= $lang->path('/projects') ?>"><?= $lang->value('Všechny projekty', 'All projects') ?></a>
     </div>
     <div class="showcase-grid showcase-grid-featured">
         <?php foreach ($projects as $project): ?>
@@ -83,14 +81,12 @@ use App\Support\Language;
         <a class="inline-link" href="<?= $lang->path('/open-source') ?>"><?= $lang->value('Prohlédnout příspěvky', 'Browse contributions') ?></a>
     </div>
     <div class="stats-strip">
-        <div><strong><?= $projectCount ?></strong><span><?= $lang->value('vybraných projektů', 'selected projects') ?></span></div>
-        <div><strong><?= $mergedPrCount ?></strong><span><?= $lang->value('sloučených PR v přehledu', 'merged PRs in this feed') ?></span></div>
-        <div><strong><?= count($recentRepos) ?></strong><span><?= $lang->value('nedávno aktualizovaných repozitářů', 'recently updated repositories') ?></span></div>
-        <div class="stat-note"><?= match ($provenance['source']) {
-            'github-public-api' => $lang->value('Počty vycházejí z posledního úspěšného veřejného importu GitHubu.', 'Counts come from the latest successful public GitHub import.'),
-            'unavailable' => $lang->value('Údaje z GitHubu jsou dočasně nedostupné.', 'GitHub data is temporarily unavailable.'),
-            default => $lang->value('Počty vycházejí z uloženého přehledu.', 'Counts come from the stored activity snapshot.'),
-        } ?><?php if ($provenance['last_sync'] !== null): ?> <time><?= Html::escape($provenance['last_sync']) ?></time><?php endif; ?></div>
+        <div><strong><?= $projectCount ?></strong><span><?= $lang->value('veřejně zdokumentovaných projektů', 'documented projects in catalog') ?></span></div>
+        <div><strong><?= $mergedPrCount ?></strong><span><?= $lang->value('sloučených PR v zobrazeném výběru', 'merged PRs in displayed selection') ?></span></div>
+        <div><strong><?= count($recentRepos) ?></strong><span><?= $lang->value('repozitářů v zobrazeném výběru', 'repositories in displayed selection') ?></span></div>
+        <div class="stat-note">
+            <?php require dirname(__DIR__) . '/element/github_provenance_notice.php'; ?>
+        </div>
     </div>
     <?php if ($recentRepos !== []): ?>
     <div class="recent-items">

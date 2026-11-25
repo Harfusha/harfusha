@@ -41,7 +41,7 @@ use App\Support\Language;
     <div class="profile-work-list">
         <article>
             <h3><?= $lang->value('Backend a datová rozhraní', 'Backends and data contracts') ?></h3>
-            <p><?= $lang->value('V CakePHP a PHP 8.4 striktně odděluji doménové modely od prezentační vrstvy. Repozitáře poskytují typově bezpečná data a veřejný JSON koncový bod nabízí stejnou konzistenci externím klientům i offline renderu.', 'In CakePHP and PHP 8.4, I strictly decouple domain models from presentation layers. Repositories provide type-safe data structures, with public JSON endpoints ensuring consistency for external clients and offline SSR.') ?></p>
+            <p><?= $lang->value('V CakePHP a PHP 8.5 striktně odděluji doménové modely od prezentační vrstvy. Repozitáře poskytují typově bezpečná data a veřejný JSON koncový bod nabízí stejnou konzistenci externím klientům i offline renderu.', 'In CakePHP and PHP 8.5, I strictly decouple domain models from presentation layers. Repositories provide type-safe data structures, with public JSON endpoints ensuring consistency for external clients and offline SSR.') ?></p>
             <a class="inline-link" href="/api/v1/projects?lang=<?= $lang->code ?>"><?= $lang->value('Otevřít JSON katalog', 'Open the JSON catalog') ?> <span aria-hidden="true">↗</span></a>
         </article>
         <article>

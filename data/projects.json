@@ -35,7 +35,10 @@
             "Adaptivní hybridní orchestrace: AST index, lexikální BM25, volitelný RAG a lokální modely",
             "Lokální bezpečnostní hranice PC s izolovanými Git worktrees a ochranou proti souběhu zápisů"
         ],
-        "year": "2026"
+        "year": "2026",
+        "latest_public_release": "v5.1.4",
+        "latest_public_release_date": "2026-11-07",
+        "release_url": "https://github.com/Harfusha/local-ai-hub/releases/tag/v5.1.4"
     },
     {
         "slug": "mutaui",
@@ -71,7 +74,10 @@
             "Diagnostika lokálního démona a monitorování systémových prostředků",
             "Multiplatformní desktopové balíčky sestavené přes PyInstaller"
         ],
-        "year": "2026"
+        "year": "2026",
+        "latest_public_release": "v9.1.1",
+        "latest_public_release_date": "2026-11-23",
+        "release_url": "https://github.com/Harfusha/MutaUI/releases/tag/v9.1.1"
     },
     {
         "slug": "home-infrastructure",
@@ -309,5 +315,47 @@
             "Provozní konfigurace izolovaná od ostatních služeb primárního uzlu"
         ],
         "year": "2026"
+    },
+    {
+        "slug": "harfusha-lab",
+        "name": "Harfusha Lab",
+        "category": "Backend Architecture & Web",
+        "status": "active",
+        "featured": true,
+        "private": false,
+        "repo": "https://github.com/Harfusha/harfusha",
+        "demo": "",
+        "summary_cs": "Osobní inženýrské portfolio a backendová platforma v CakePHP 5 se server-side renderingem, striktní statickou analýzou a ověřitelnou evidencí.",
+        "summary_en": "Personal engineering portfolio and backend platform in CakePHP 5 with server-side rendering, maximum static analysis rigor, and verifiable evidence.",
+        "problem_cs": "Běžná portfolia bývají generické statické šablony plné neověřených tvrzení, bez doménové architektury, testů, bezpečnosti nebo typových záruk.",
+        "problem_en": "Developer portfolios are often generic static templates full of unverified claims, lacking domain architecture, automated tests, or type safety.",
+        "solution_cs": "Server-side rendering v CakePHP 5 s PHPStan max, PHPUnit testy, atomickým GitHub snapshotem, reverzní proxy ochranou a reprodukovatelným offline náhledem.",
+        "solution_en": "Server-side rendering in CakePHP 5 with PHPStan max, PHPUnit tests, atomic GitHub snapshot, reverse proxy protection, and reproducible offline preview.",
+        "stack": [
+            "PHP 8.5",
+            "CakePHP 5",
+            "MySQL",
+            "PHPStan",
+            "PHPUnit",
+            "Ansible"
+        ],
+        "features": [
+            "Pure domain architecture with type-safe DTOs and boundary validation",
+            "PHPStan at maximum level with phpstan-strict-rules and ShipMonk rules (0 errors)",
+            "Comprehensive test harness: 191 PHPUnit tests, client JS suites, and offline SSR previews",
+            "Reverse proxy boundary enforcement with TrustedProxy and canonical HostGuard",
+            "Structured Engineering Evidence System tying technical claims to verifiable sources"
+        ],
+        "features_cs": [
+            "Čistá doménová architektura s typově bezpečnými DTO a validací na hranicích",
+            "PHPStan na maximální úrovni s phpstan-strict-rules a ShipMonk pravidly (0 chyb)",
+            "Komplexní testovací sada: 191 PHPUnit testů, klientské JS testy a offline SSR náhledy",
+            "Vynucení hranic reverzní proxy s TrustedProxy a kanonickým HostGuard middlewarem",
+            "Strukturovaný Engineering Evidence System propojující tvrzení s ověřitelnými zdroji"
+        ],
+        "year": "2026",
+        "latest_public_release": "v5.2.0",
+        "latest_public_release_date": "2026-11-24",
+        "release_url": "https://github.com/Harfusha/harfusha/releases/tag/v5.2.0"
     }
 ]

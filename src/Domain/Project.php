@@ -32,6 +32,9 @@ final readonly class Project
         public array $features,
         public string $year,
         public array $featuresCs = [],
+        public string $latestPublicRelease = '',
+        public string $latestPublicReleaseDate = '',
+        public string $releaseUrl = '',
     ) {
         if (ProjectStatus::tryFrom($status) === null) {
             throw new InvalidArgumentException('Invalid project status');
@@ -63,6 +66,9 @@ final readonly class Project
             self::strings($value, 'features'),
             self::str($value, 'year'),
             self::strings($value, 'features_cs'),
+            self::str($value, 'latest_public_release'),
+            self::str($value, 'latest_public_release_date'),
+            self::str($value, 'release_url'),
         );
     }
 

@@ -118,5 +118,20 @@
     "tradeoff_en": "Message serialization overhead and strict requirement for deterministic tick-based packet execution, balanced against complete desynchronization resilience and reliable save and load state recovery.",
     "evidence_cs": "Repozitář modu obsahuje implementaci serializačního kodeku, validaci stavových přechodů a append-only ledger pro replay událostí po uložení a načtení hry.",
     "evidence_en": "Mod codebase contains message codecs, state transition validators, and an append-only event ledger for deterministic replay across save and reload boundaries."
+  },
+  {
+    "id": "harfusha-lab-ssr-architecture",
+    "project": "harfusha-lab",
+    "status": "documented",
+    "title_cs": "Server-side rendering a CakePHP 5 namísto těžkého SPA frameworku",
+    "title_en": "Server-side rendering and CakePHP 5 over a heavy client-side SPA framework",
+    "context_cs": "Běžná vývojářská portfolia často volí jednostránkové aplikace (React, Vue, Next.js), které však vyžadují složitý build pipeline, zvyšují klientskou zátěž, komplikují SEO a maskují absenci skutečné backendové doménové architektury.",
+    "context_en": "Developer portfolios frequently adopt single-page applications (React, Vue, Next.js) that introduce heavy client bundles, fragile build pipelines, search indexing hurdles, and conceal the absence of true backend domain architecture.",
+    "decision_cs": "Postavit platformu na server-side renderingu v CakePHP 5 s PHP 8.5, maximální úrovní statické analýzy (PHPStan max + strict rules) a typově bezpečnými doménovými modely. Statická data a public snapshoty jsou striktně odděleny od privátních zdrojů a celá prezentace funguje i bez klientského JavaScriptu.",
+    "decision_en": "Architect the platform around server-side rendering in CakePHP 5 with PHP 8.5, maximum static analysis rigor (PHPStan max + strict rules), and type-safe domain models. Public datasets and snapshot reads are decoupled from private sources, providing complete functionality without client-side JavaScript.",
+    "tradeoff_cs": "Požadavek na spolehlivý PHP runtime a Apache/Nginx prostředí namísto prostého statického S3 hostingu, vyvážený bleskovým prvním vykreslením (FCP), nulovou hydratační režií a ověřitelnou architekturou webového backendu.",
+    "tradeoff_en": "Requires a reliable PHP hosting runtime rather than simple static CDN hosting, repaid by instant first contentful paint (FCP), zero hydration lag, and tangible demonstration of production backend engineering.",
+    "evidence_cs": "Kompletní zdrojový kód repozitáře, PHPUnit testy (191 testů) a nulová chybovost v PHPStan max + strict rules dokládají striktní doménové rozhraní a server-side render bez SPA závislostí.",
+    "evidence_en": "Complete repository source, 191 automated PHPUnit tests, and zero errors under PHPStan max + strict rules substantiate the clean domain boundaries and server-side rendering without SPA dependencies."
   }
 ]

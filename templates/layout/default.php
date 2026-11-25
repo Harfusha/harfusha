@@ -157,10 +157,10 @@ $jsonLd = json_encode([
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <script src="/assets/js/theme-init.js"></script>
+  <meta name="theme-color" content="#f4f0e6">
+  <script src="<?= Html::escape(Html::versionedAsset('assets/js/theme-init.js')) ?>"></script>
   <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#f4f0e6">
   <meta name="description" content="<?= Html::escape($description) ?>">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Harfusha Lab">

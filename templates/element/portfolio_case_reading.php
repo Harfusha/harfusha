@@ -11,13 +11,13 @@ $caseReading = match ($project->slug) {
         $lang->value('Dohledat kontext v repozitáři bez plýtvání tokeny', 'Retrieve repository context without wasting token budget'),
         $lang->value('Nejdřív deterministický index, potom širší kontext', 'Query the deterministic index first, expand context only when needed'),
         $lang->value('Architektura a veřejný kód', 'Architecture and public source'),
-        $lang->value('Verze 6.1.0 je release candidate s deterministickým AST indexem, SQLite WAL koordinací a MCP rozhraním. Výkonnostní parametry závisí na hardwaru.', 'Version 6.1.0 is a release candidate featuring deterministic AST indexing, SQLite WAL coordination, and MCP interfaces. Benchmarks vary by host hardware.'),
+        $lang->value('Poslední veřejné vydání: v5.1.4 (7. 11. 2026). Vývoj nové verze probíhá jako release candidate — bez ověřeného SHA zde neuváděn. Výkonnostní parametry závisí na hardwaru.', 'Latest public release: v5.1.4 (7 Nov 2026). Next version is in development as a release candidate — not listed here without a verified SHA. Benchmarks vary by host hardware.'),
     ],
     'mutaui' => [
         $lang->value('Zobrazit stav relací bez přepínání mezi příkazy', 'See session status without switching between commands'),
         $lang->value('MutaUI ovládá relace přes Mutagen CLI; samotný přenos zajišťuje Mutagen.', 'MutaUI manages sessions through the Mutagen CLI; Mutagen performs the transfer.'),
         $lang->value('Desktopové rozhraní a profily', 'Desktop interface and profiles'),
-        $lang->value('PySide6 rozhraní pro správu synchronizačních profilů Mutagen CLI a diagnostiku démona na testovacích datech.', 'PySide6 interface for Mutagen CLI sync profile orchestration and daemon diagnostics with test fixtures.'),
+        $lang->value('PySide6 rozhraní pro správu synchronizačních profilů Mutagen CLI a diagnostiku démona na testovacích datech. Poslední veřejné vydání: v9.1.1 (23. 11. 2026).', 'PySide6 interface for Mutagen CLI sync profile orchestration and daemon diagnostics with test fixtures. Latest public release: v9.1.1 (23 Nov 2026).'),
     ],
     'home-infrastructure' => [
         $lang->value('Zjistit, které služby závisejí na jednom hostu', 'See which services depend on a single host'),
@@ -60,6 +60,12 @@ $caseReading = match ($project->slug) {
         $lang->value('Spravovat službu přes Ansible a systemd', 'Manage the service through Ansible and systemd'),
         $lang->value('Provozní konfigurace a izolace', 'Operations setup and isolation'),
         $lang->value('Ansible spravuje samostatný checkout se systémovou službou v systemd a vyhrazeným neprivilegovaným účtem s omezenými administračními wrappery.', 'Ansible manages a separate checkout with a systemd service, a dedicated unprivileged account, and restricted maintenance wrappers.'),
+    ],
+    'harfusha-lab' => [
+        $lang->value('Prezentovat skutečnou backendovou expertízu a doložitelná technická rozhodnutí', 'Present genuine backend engineering expertise with verifiable architectural decisions'),
+        $lang->value('Server-side rendering v CakePHP 5 se striktní statickou analýzou a nezávislým offline náhledem', 'Server-side rendering in CakePHP 5 with strict static analysis and an independent offline preview'),
+        $lang->value('Architektura a ověřené podklady', 'Architecture and verified evidence'),
+        $lang->value('Server-side rendering v CakePHP 5 s PHPStan max a ShipMonk strict rules (0 chyb). Plně typovaný Cake ORM, ochrana proti spoofingu přes TrustedProxy, 191 automatizovaných testů a centrální evidence ledger.', 'Server-side rendering in CakePHP 5 with PHPStan max and ShipMonk strict rules (0 errors). Fully typed Cake ORM, reverse proxy spoofing defense via TrustedProxy, 191 automated tests, and a central evidence ledger.'),
     ],
     default => [
         $lang->value('Problém', 'Problem'),

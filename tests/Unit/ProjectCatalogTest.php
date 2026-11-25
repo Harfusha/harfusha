@@ -15,7 +15,7 @@ final class ProjectCatalogTest extends TestCase
     {
         $catalog = new ProjectCatalog(ROOT . '/data');
         $projects = $catalog->projects();
-        self::assertCount(9, $projects);
+        self::assertCount(10, $projects);
         self::assertNull($catalog->find('maker-lab'));
         self::assertSame(count($projects), count(array_unique(array_map(static fn(Project $p): string => $p->slug, $projects))));
         foreach ($projects as $project) {
@@ -84,7 +84,7 @@ final class ProjectCatalogTest extends TestCase
     {
         $catalog = new ProjectCatalog(ROOT . '/data');
         $projects = $catalog->projects();
-        self::assertCount(9, $projects);
+        self::assertCount(10, $projects);
 
         foreach (['cs', 'en'] as $langCode) {
             $lang = new Language($langCode);

@@ -6,7 +6,7 @@ use App\Support\Language;
 
 /** @var Language $lang */
 /** @var list<array<string,mixed>> $activity */
-/** @var array{source:string,last_sync:?string} $provenance */
+/** @var array{source:string,last_sync:?string,age_hours?:?int,is_stale?:bool,snapshot_date?:?string,is_expired?:bool} $provenance */
 
 $mergedVisible = count(array_filter(
     $activity,
@@ -24,6 +24,10 @@ $stateLabels = [
     <span class="eyebrow"><?= $lang->value('PŘÍSPĚVKY DO OPEN-SOURCE PROJEKTŮ', 'OPEN-SOURCE CONTRIBUTIONS') ?></span>
     <h1><?= $lang->value('Open‑source práce', 'Open‑source contributions') ?></h1>
     <p><?= $lang->value('Konkrétní změny v CakePHP, DebugKitu, Chronosu a Rectoru. U každé ukázky je odkaz na sloučený pull request.', 'Specific changes to CakePHP, DebugKit, Chronos and Rector, each linked to its merged pull request.') ?></p>
+    <div class="page-hero-links">
+        <a class="inline-link" href="#type-safety-lab"><?= $lang->value('Type Safety Lab (PR #18957)', 'Type Safety Lab (PR #18957)') ?> <span aria-hidden="true">↓</span></a>
+        <a class="inline-link" href="#featured-contributions-title"><?= $lang->value('Vybrané příspěvky', 'Selected contributions') ?> <span aria-hidden="true">↓</span></a>
+    </div>
 </section>
 
 <section class="shell section" aria-labelledby="featured-contributions-title">
@@ -49,7 +53,7 @@ $stateLabels = [
                         <span>src/ORM/Association/BelongsTo.php</span>
                         <span class="code-tag">PHPStan & Generics</span>
                     </div>
-                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+  * @template T of \Cake\ORM\Table</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= sprintf($lang->value('Rozdíl v kódu: %s', 'Code diff: %s'), 'CakePHP #17827') ?>"><code><span class="code-diff-add">+  * @template T of \Cake\ORM\Table</span>
 <span class="code-diff-add">+  * @mixin T</span>
 class BelongsTo extends Association</code></pre>
                 </div>
@@ -73,7 +77,7 @@ class BelongsTo extends Association</code></pre>
                         <span>src/Model/Table/RequestsTable.php</span>
                         <span class="code-tag">SQLite & Compression</span>
                     </div>
-                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- $content = serialize($panel->data());</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= sprintf($lang->value('Rozdíl v kódu: %s', 'Code diff: %s'), 'DebugKit #1022') ?>"><code><span class="code-diff-del">- $content = serialize($panel->data());</span>
 <span class="code-diff-del">- $statement->bindValue(':content', $content, PDO::PARAM_STR);</span>
 <span class="code-diff-add">+ $content = gzdeflate(serialize($panel->data()), 6);</span>
 <span class="code-diff-add">+ $statement->bindValue(':content', $content, PDO::PARAM_LOB);</span></code></pre>
@@ -98,7 +102,7 @@ class BelongsTo extends Association</code></pre>
                         <span>src/Config/Level/CodeQualityLevel.php</span>
                         <span class="code-tag">Rector & AST</span>
                     </div>
-                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">- use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= sprintf($lang->value('Rozdíl v kódu: %s', 'Code diff: %s'), 'Rector #6201') ?>"><code><span class="code-diff-del">- use Rector\CodeQuality\Rector\FunctionLike\SimplifyUselessVariableRector;</span>
 <span class="code-diff-del">- SimplifyUselessVariableRector::class,</span></code></pre>
                 </div>
             </div>
@@ -121,7 +125,7 @@ class BelongsTo extends Association</code></pre>
                         <span>src/ORM/Locator/LocatorAwareTrait.php</span>
                         <span class="code-tag">Type Safety & ORM</span>
                     </div>
-                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+ @template T of \Cake\ORM\Table</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= sprintf($lang->value('Rozdíl v kódu: %s', 'Code diff: %s'), 'CakePHP #18957') ?>"><code><span class="code-diff-add">+ @template T of \Cake\ORM\Table</span>
 <span class="code-diff-add">+ @param class-string&lt;T&gt;|string|null $alias</span>
 <span class="code-diff-add">+ @return ($alias is class-string&lt;T&gt; ? T : \Cake\ORM\Table)</span></code></pre>
                 </div>
@@ -145,7 +149,7 @@ class BelongsTo extends Association</code></pre>
                         <span>src/ChronosInterface.php</span>
                         <span class="code-tag">Chronos & PHPDoc</span>
                     </div>
-                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-del">-      * @return mixed</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= sprintf($lang->value('Rozdíl v kódu: %s', 'Code diff: %s'), 'Chronos #460') ?>"><code><span class="code-diff-del">-      * @return mixed</span>
 <span class="code-diff-add">+      * @return static</span>
      public function next(?int $dayOfWeek = null);</code></pre>
                 </div>
@@ -169,7 +173,7 @@ class BelongsTo extends Association</code></pre>
                         <span>src/Database/Connection.php</span>
                         <span class="code-tag">Database & Logging</span>
                     </div>
-                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= $lang->value('Rozdíl v kódu', 'Code diff') ?>"><code><span class="code-diff-add">+ $requestUrl = $_SERVER['REQUEST_URI'] ?? '';</span>
+                    <pre class="code-content" role="region" tabindex="0" aria-label="<?= sprintf($lang->value('Rozdíl v kódu: %s', 'Code diff: %s'), 'CakePHP #17974') ?>"><code><span class="code-diff-add">+ $requestUrl = $_SERVER['REQUEST_URI'] ?? '';</span>
 <span class="code-diff-add">+ if ($requestUrl) { $message .= "\nRequest URL: " . $requestUrl; }</span>
 <span class="code-diff-add">+ $clientIp = $_SERVER['REMOTE_ADDR'] ?? '';</span>
 <span class="code-diff-add">+ if ($clientIp) { $message .= "\nClient IP: " . $clientIp; }</span></code></pre>
@@ -183,6 +187,8 @@ class BelongsTo extends Association</code></pre>
     </div>
 </section>
 
+<?php require dirname(__DIR__) . '/element/lab_typesafety.php'; ?>
+
 <section class="shell section" aria-labelledby="activity-history-title">
     <div class="section-heading">
         <div>
@@ -195,13 +201,12 @@ class BelongsTo extends Association</code></pre>
     <div class="contribution-intro">
         <div>
             <strong><?= $mergedVisible ?></strong>
-            <span><?= $lang->value('sloučených pull requestů v tomto přehledu', 'merged pull requests in this overview') ?></span>
+            <span><?= $lang->value('sloučených PR v zobrazeném výběru', 'merged PRs in displayed selection') ?></span>
         </div>
-        <p><?= $provenance['source'] === 'github-public-api'
-            ? $lang->value('Seznam pochází z posledního úspěšného veřejného importu GitHubu.', 'Entries are from the last successful public GitHub import.')
-            : ($provenance['source'] === 'unavailable'
-                ? $lang->value('GitHub data jsou dočasně nedostupná. Historické záznamy nezveřejňujeme jako náhradu.', 'GitHub data is temporarily unavailable. Historical records are not republished as a fallback.')
-                : $lang->value('Jde o výběrový přehled veřejných aktivit, ne o úplnou historii GitHubu.', 'This is a selected view of public activity, not a complete GitHub history.')) ?><?php if ($provenance['last_sync'] !== null): ?><br><time><?= $lang->value('Poslední úspěšný import: ', 'Last successful import: ') ?><?= Html::escape($provenance['last_sync']) ?></time><?php endif; ?></p>
+        <div>
+            <?php require dirname(__DIR__) . '/element/github_provenance_notice.php'; ?>
+            <p class="muted"><?= $lang->value('Výběrový přehled veřejných příspěvků, nikoli úplná celoživotní statistika účtu.', 'A selected view of public contributions, not a complete lifetime account total.') ?></p>
+        </div>
     </div>
 
     <details class="activity-reading">

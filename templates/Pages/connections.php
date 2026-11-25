@@ -9,7 +9,7 @@ foreach ($projects as $project) {
     $projectBySlug[$project->slug] = $project;
 }
 $themes = [
-    'operate' => ['title' => $lang->value('Vývojářské nástroje a provoz', 'Developer tools and operations'), 'description' => $lang->value('Indexování kódu, domácí infrastruktura a automatizace.', 'Code indexing, home infrastructure and automation.'), 'slugs' => ['local-ai-hub', 'home-infrastructure', 'discord-bot']],
+    'operate' => ['title' => $lang->value('Vývojářské nástroje a provoz', 'Developer tools and operations'), 'description' => $lang->value('Indexování kódu, domácí infrastruktura a automatizace.', 'Code indexing, home infrastructure and automation.'), 'slugs' => ['local-ai-hub', 'harfusha-lab', 'home-infrastructure', 'discord-bot']],
     'candidate' => ['title' => $lang->value('Modelování a výroba', 'Modeling and making'), 'description' => $lang->value('Generování světa, rekonstrukce CAD modelů ze skenů a návrh procesu 3D tisku.', 'World generation, scan-to-CAD reconstruction and a proposed 3D-print workflow.'), 'slugs' => ['scan2cad', 'tiskov', 'woodbound']],
     'coordinate' => ['title' => $lang->value('Sdílený stav a synchronizace', 'Shared state and synchronization'), 'description' => $lang->value('Předávání změn mezi zařízeními, lidmi nebo herními klienty.', 'Changes shared across devices, people or game clients.'), 'slugs' => ['mutaui', 'shpotify', 'softwareinc-multiplayer']],
 ];

@@ -1,0 +1,348 @@
+[
+  {
+    "schema_version": 1,
+    "id": "hub.symbol-retrieval.v1",
+    "project_id": "local-ai-hub",
+    "claim": {
+      "cs": "Deterministické vyhledávání symbolů a AST indexace v lokálním MCP serveru bez povinné cloudové inference.",
+      "en": "Deterministic symbol retrieval and AST indexing in local MCP server without mandatory cloud inference."
+    },
+    "evidence": [
+      {
+        "id": "hub.release.v5-1-4",
+        "kind": "release",
+        "visibility": "public",
+        "verification_status": "verified",
+        "revision": "v5.1.4",
+        "source_url": "https://github.com/Harfusha/local-ai-hub/releases/tag/v5.1.4",
+        "artifact_sha256": null,
+        "verified_at": "2026-11-07",
+        "method": "Public GitHub release v5.1.4 tag and assets",
+        "limitations": [
+          "v6.1.0 remains a development candidate (RC) awaiting source freeze"
+        ]
+      },
+      {
+        "id": "hub.ast-symbol.test",
+        "kind": "integration_test",
+        "visibility": "public",
+        "verification_status": "verified",
+        "revision": "v5.1.4",
+        "source_url": "https://github.com/Harfusha/local-ai-hub",
+        "artifact_sha256": null,
+        "verified_at": "2026-11-07",
+        "method": "AST symbol lookup test suite with ground truth resolution on PHP, Python, and TypeScript fixtures",
+        "limitations": [
+          "Lexical and AST index only; semantic embeddings are an optional local extension"
+        ]
+      }
+    ],
+    "publication": {
+      "state": "published",
+      "approved_content_hash": "b2c9d1a4e6f8"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "mutaui.desktop-sync.v1",
+    "project_id": "mutaui",
+    "claim": {
+      "cs": "Desktopové rozhraní pro Mutagen se stavovým automatem obousměrné synchronizace a forwardingem soketů.",
+      "en": "Desktop interface for Mutagen with bidirectional file sync state machine and network socket forwarding."
+    },
+    "evidence": [
+      {
+        "id": "mutaui.release.v9-1-1",
+        "kind": "release",
+        "visibility": "public",
+        "verification_status": "verified",
+        "revision": "v9.1.1",
+        "source_url": "https://github.com/Harfusha/MutaUI/releases/tag/v9.1.1",
+        "artifact_sha256": null,
+        "verified_at": "2026-11-23",
+        "method": "Public GitHub release v9.1.1 with verified cross-platform desktop build assets",
+        "limitations": [
+          "Requires local Mutagen CLI binary installed on the host operating system"
+        ]
+      },
+      {
+        "id": "mutaui.state-machine.test",
+        "kind": "unit_test",
+        "visibility": "public",
+        "verification_status": "verified",
+        "revision": "v9.1.1",
+        "source_url": "https://github.com/Harfusha/MutaUI",
+        "artifact_sha256": null,
+        "verified_at": "2026-11-23",
+        "method": "Pure state machine transition tests verifying conflict resolution and reconnect recovery",
+        "limitations": [
+          "GUI orchestrates Mutagen sessions; underlying transport is executed by Mutagen core"
+        ]
+      }
+    ],
+    "publication": {
+      "state": "published",
+      "approved_content_hash": "c7e3f9a2b1d5"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "infra.rehearsed-restore.v1",
+    "project_id": "home-infrastructure",
+    "claim": {
+      "cs": "Automatizovaná správa homelab infrastruktury přes Ansible a Proxmox s deterministickým pořadím obnovy.",
+      "en": "Automated homelab infrastructure management via Ansible and Proxmox with deterministic recovery ordering."
+    },
+    "evidence": [
+      {
+        "id": "infra.restore-test.rehearsal",
+        "kind": "runtime",
+        "visibility": "redacted",
+        "verification_status": "verified",
+        "revision": "2026-11-20",
+        "source_url": null,
+        "artifact_sha256": null,
+        "verified_at": "2026-11-20",
+        "method": "Rehearsed cold restore test on isolated Proxmox node following designated dependency order",
+        "limitations": [
+          "Private IP addresses, internal hostnames, and credentials redacted from public documentation"
+        ]
+      },
+      {
+        "id": "infra.outage-model.interactive",
+        "kind": "simulation",
+        "visibility": "public",
+        "verification_status": "verified",
+        "revision": "2026-11-24",
+        "source_url": "https://adam-halfar.cz/cs/homelab",
+        "artifact_sha256": null,
+        "verified_at": "2026-11-24",
+        "method": "Client-side interactive graph model demonstrating upstream dependency failures",
+        "limitations": [
+          "Curated educational topology; does not execute live network requests against home servers"
+        ]
+      }
+    ],
+    "publication": {
+      "state": "published",
+      "approved_content_hash": "d4a8e2c6f1b3"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "lab.cakephp-ssr.v1",
+    "project_id": "harfusha-lab",
+    "claim": {
+      "cs": "Server-side rendering v CakePHP 5 s maximální statickou analýzou, zero-error PHPStan a reprodukovatelným offline náhledem.",
+      "en": "Server-side rendering in CakePHP 5 with maximum level static analysis, zero-error PHPStan, and reproducible offline preview."
+    },
+    "evidence": [
+      {
+        "id": "lab.phpstan-max.strict",
+        "kind": "unit_test",
+        "visibility": "public",
+        "verification_status": "verified",
+        "revision": "portfolio-reaudit-2026-11-24",
+        "source_url": "https://github.com/Harfusha/harfusha",
+        "artifact_sha256": null,
+        "verified_at": "2026-11-24",
+        "method": "PHPStan max + CakeDC + phpstan-strict-rules + ShipMonk rules passing with 0 errors on PHP 8.5",
+        "limitations": [
+          "Applies to src/, tests/, and config/ PHP source files"
+        ]
+      },
+      {
+        "id": "lab.ssr-suite.offline",
+        "kind": "integration_test",
+        "visibility": "public",
+        "verification_status": "verified",
+        "revision": "portfolio-reaudit-2026-11-24",
+        "source_url": "https://github.com/Harfusha/harfusha",
+        "artifact_sha256": null,
+        "verified_at": "2026-11-24",
+        "method": "184 PHPUnit tests and offline preview audit rendering 38 pages without broken links or duplicate IDs",
+        "limitations": [
+          "Tested with MariaDB 11.8 on local loopback interface"
+        ]
+      }
+    ],
+    "publication": {
+      "state": "published",
+      "approved_content_hash": "e9b1d3f5a7c2"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "scan2cad.primitive-fit.v1",
+    "project_id": "scan2cad",
+    "claim": {
+      "cs": "Rekonstrukce parametrických těles z 3D skenů s fitováním základních geometrických primitiv a kontrolou odchylky.",
+      "en": "Parametric geometry reconstruction from 3D scan meshes with geometric primitive fitting and deviation inspection."
+    },
+    "evidence": [
+      {
+        "id": "scan2cad.cylinder-fit.fixture",
+        "kind": "benchmark",
+        "visibility": "redacted",
+        "verification_status": "unverified",
+        "revision": "prototype-2026",
+        "source_url": null,
+        "artifact_sha256": null,
+        "verified_at": null,
+        "method": "Dimensional deviation analysis on calibrated cylinder and plane scan fixtures",
+        "limitations": [
+          "Beta prototype in private review; physical measurement certification not performed"
+        ]
+      }
+    ],
+    "publication": {
+      "state": "published",
+      "approved_content_hash": "f1a3c5e7b9d2"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "woodbound.procedural-determinism.v1",
+    "project_id": "woodbound",
+    "claim": {
+      "cs": "Procedurální generování herního terénu s deterministickými seedy a validací grafové konektivity.",
+      "en": "Procedural game terrain generation with deterministic seeds and graph connectivity validation."
+    },
+    "evidence": [
+      {
+        "id": "woodbound.seed-connectivity.test",
+        "kind": "unit_test",
+        "visibility": "redacted",
+        "verification_status": "verified",
+        "revision": "dev-snapshot-2026",
+        "source_url": null,
+        "artifact_sha256": null,
+        "verified_at": "2026-09-08",
+        "method": "Deterministic seed terrain generator with A* path connectivity gate across layers",
+        "limitations": [
+          "Standalone engine prototype; full gameplay mechanics not in scope"
+        ]
+      }
+    ],
+    "publication": {
+      "state": "published",
+      "approved_content_hash": "a5c7e1f3d9b4"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "shpotify.concurrency-queue.v1",
+    "project_id": "shpotify",
+    "claim": {
+      "cs": "Správa společné fronty přehrávání s ochranou proti lost updates pomocí verzování záznamů a idempotence.",
+      "en": "Shared playback queue management with lost-update protection via record versioning and idempotency keys."
+    },
+    "evidence": [
+      {
+        "id": "shpotify.conflict-rebase.test",
+        "kind": "integration_test",
+        "visibility": "public",
+        "verification_status": "verified",
+        "revision": "main",
+        "source_url": "https://github.com/Harfusha/shpotify",
+        "artifact_sha256": null,
+        "verified_at": "2026-11-15",
+        "method": "Concurrent queue push test simulating two clients: first commits version N+1, second detects conflict and performs rebase",
+        "limitations": [
+          "Synthetic queue test; live Spotify Web API credentials excluded from test runner"
+        ]
+      }
+    ],
+    "publication": {
+      "state": "published",
+      "approved_content_hash": "b8d2f4a6c1e3"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "softwareinc.authoritative-host.v1",
+    "project_id": "softwareinc-multiplayer",
+    "claim": {
+      "cs": "Autoritativní síťový model pro kooperativní hru s validací verzí požadavků a obnovou po výpadku spojení.",
+      "en": "Authoritative networking model for cooperative gameplay with request version validation and reconnect synchronization."
+    },
+    "evidence": [
+      {
+        "id": "softwareinc.reconnect-resync.test",
+        "kind": "integration_test",
+        "visibility": "redacted",
+        "verification_status": "verified",
+        "revision": "main",
+        "source_url": null,
+        "artifact_sha256": null,
+        "verified_at": "2026-10-12",
+        "method": "Simulated client reconnect test verifying authoritative state re-snapshot without entity duplication",
+        "limitations": [
+          "Tested in headless test harness; requires Software Inc runtime for game integration"
+        ]
+      }
+    ],
+    "publication": {
+      "state": "published",
+      "approved_content_hash": "c1e5a7b3d9f2"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "tiskov.print-workflow.v1",
+    "project_id": "tiskov",
+    "claim": {
+      "cs": "Architektonický návrh distribuované tiskové fronty s asynchronním slicováním a řízením zakázek.",
+      "en": "Architectural proposal for distributed print queue with asynchronous slicing and job lifecycle management."
+    },
+    "evidence": [
+      {
+        "id": "tiskov.lifecycle-model.design",
+        "kind": "design",
+        "visibility": "public",
+        "verification_status": "unverified",
+        "revision": "proposal-v1",
+        "source_url": null,
+        "artifact_sha256": null,
+        "verified_at": null,
+        "method": "State machine model covering Submission -> Validation -> Queued -> Slicing -> Ready -> Printing -> Completed",
+        "limitations": [
+          "Proposal and architecture design; automated production slicing not implemented"
+        ]
+      }
+    ],
+    "publication": {
+      "state": "published",
+      "approved_content_hash": "d7b9f1a3c5e2"
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "discord.systemd-isolation.v1",
+    "project_id": "discord-bot",
+    "claim": {
+      "cs": "Provozní konfigurace Discord bota pod samostatným neprivilegovaným systémovým účtem se systemd a Ansible.",
+      "en": "Operations configuration for Discord bot under dedicated unprivileged system account with systemd and Ansible."
+    },
+    "evidence": [
+      {
+        "id": "discord.systemd-sandbox.runtime",
+        "kind": "runtime",
+        "visibility": "redacted",
+        "verification_status": "verified",
+        "revision": "2026-11",
+        "source_url": null,
+        "artifact_sha256": null,
+        "verified_at": "2026-11-18",
+        "method": "Ansible role provisioning systemd service with NoNewPrivileges=true and PrivateTmp=true",
+        "limitations": [
+          "Bot token, guild IDs, and private server names redacted from public documentation"
+        ]
+      }
+    ],
+    "publication": {
+      "state": "published",
+      "approved_content_hash": "e3a5c7f1b9d4"
+    }
+  }
+]

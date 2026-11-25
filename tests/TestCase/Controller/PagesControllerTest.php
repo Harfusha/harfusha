@@ -38,9 +38,9 @@ final class PagesControllerTest extends HttpIntegrationTestCase
 
         $this->get('/en/');
         $this->assertResponseOk();
-        $this->assertResponseContains('<strong>' . count($allProjects) . '</strong><span>selected projects');
-        $this->assertResponseContains('<strong>' . $mergedPrCount . '</strong><span>merged PRs in this feed');
-        $this->assertResponseContains('<strong>' . $recentRepoCount . '</strong><span>recently updated repositories');
+        $this->assertResponseContains('<strong>' . count($allProjects) . '</strong><span>documented projects in catalog');
+        $this->assertResponseContains('<strong>' . $mergedPrCount . '</strong><span>merged PRs in displayed selection');
+        $this->assertResponseContains('<strong>' . $recentRepoCount . '</strong><span>repositories in displayed selection');
         $this->assertResponseNotContains('<strong>26</strong><span>repositories inventoried');
         $this->assertResponseNotContains('<strong>62</strong><span>merged external PRs');
     }
@@ -235,6 +235,22 @@ final class PagesControllerTest extends HttpIntegrationTestCase
         $this->assertResponseCode(404);
         $this->get('/cs/projects/maker-lab');
         $this->assertResponseCode(404);
+    }
+
+    public function testHarfushaLabCaseStudyRendersVerifiableEvidenceAndDecisions(): void
+    {
+        $this->get('/cs/projects/harfusha-lab');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Harfusha Lab');
+        $this->assertResponseContains('CakePHP 5');
+        $this->assertResponseContains('data-claim-id="lab.cakephp-ssr.v1"');
+        $this->assertResponseContains('Architektura a vrstvy Harfusha Lab');
+
+        $this->get('/en/projects/harfusha-lab');
+        $this->assertResponseOk();
+        $this->assertResponseContains('Server-side rendering');
+        $this->assertResponseContains('data-claim-id="lab.cakephp-ssr.v1"');
+        $this->assertResponseContains('Harfusha Lab Architecture and Layers');
     }
 
     public function testCronRequiresHeader(): void

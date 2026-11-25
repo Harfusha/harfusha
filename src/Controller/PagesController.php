@@ -4,32 +4,17 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Domain\EngineeringDecision;
+use App\Domain\JournalFeed;
 use App\Domain\Project;
 use App\Service\ContentRepository;
 use App\Support\Language;
 use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
+use Normalizer;
 
 final class PagesController extends AppController
 {
-    private ?ContentRepository $content = null;
-
-    /**
-     * Resolve the curated public content repository.
-     */
-    private function content(): ContentRepository
-    {
-        return $this->content ??= new ContentRepository();
-    }
-
-    /**
-     * Initialize controller components and request services.
-     */
-    public function initialize(): void
-    {
-        parent::initialize();
-        $this->content = new ContentRepository();
-    }
+    private const int JOURNAL_PER_PAGE = 60;
 
     /**
      * Resolve the validated locale from the request.
@@ -59,12 +44,14 @@ final class PagesController extends AppController
         // an editorial unpublish or a completed GitHub import.
         if (
             in_array($route, ['/', '/projects', '/journal', '/now', '/open-source'], true) ||
-            str_starts_with($route, '/projects/')
+            str_starts_with($route, '/projects/') ||
+            str_starts_with($route, '/journal/')
         ) {
             $this->response = $this->response->withHeader('Cache-Control', 'no-store');
         }
         $this->set([...$data,
-            'lang' => $lang, 'route' => $route,
+            'lang' => $lang,
+            'route' => $route,
             'title' => $lang->value($csTitle, $enTitle),
             'description' => $lang->value($csDescription, $enDescription),
         ]);
@@ -81,37 +68,39 @@ final class PagesController extends AppController
     }
 
     /**
-     * Render the localized landing page.
+     * Render the localized landing page using a single atomic GitHub snapshot (N-DATA-03).
      */
-    public function home(): Response
+    public function home(ContentRepository $content): Response
     {
-        $projects = $this->content()->projects();
+        $projects = $content->projects();
         $featured = array_values(array_filter(
             $projects,
             static fn(Project $p): bool => $p->featured,
         ));
+        $snapshot = $content->githubSnapshot();
         $mergedPrCount = count(array_filter(
-            $this->content()->activity(),
+            $snapshot->activity,
             static fn(array $entry): bool => ($entry['kind'] ?? null) === 'pr'
                 && ($entry['state'] ?? null) === 'merged',
         ));
 
         return $this->show(
             'home',
-            'Adam Halfar | PHP a vývojářské nástroje',
-            'Adam Halfar | PHP and developer tools',
-            'Portfolio Adama Halfara: projekty v PHP a CakePHP, příspěvky do open-source ' .
-            'knihoven a nástroje pro vývoj i provoz.',
-            'Adam Halfar’s portfolio: PHP and CakePHP projects, open-source contributions, ' .
-            'and tools for development and operations.',
+            'Adam Halfar | PHP backend a vývojářské nástroje',
+            'Adam Halfar | PHP backend and developer tools',
+            'Portfolio Adama Halfara: backendový vývoj v PHP a CakePHP, vývojářské nástroje, ' .
+            'příspěvky do open-source knihoven a provozní automatizace.',
+            'Adam Halfar’s portfolio: PHP and CakePHP backend engineering, developer tools, ' .
+            'open-source contributions, and operations automation.',
             '/',
             [
                 'projects' => array_slice($featured, 0, 4),
                 'projectCount' => count($projects),
                 'mergedPrCount' => $mergedPrCount,
-                'journal' => array_slice($this->content()->journal(), 0, 3),
-                'recentRepos' => $this->content()->publicRepoUpdates(),
-                'provenance' => $this->content()->githubProvenance(),
+                'journal' => array_slice($content->journal(), 0, 3),
+                'recentRepos' => $snapshot->recentRepos,
+                'provenance' => $snapshot->provenance->toArray(),
+                'evidenceRegistry' => $content->evidence(),
             ],
         );
     }
@@ -119,7 +108,7 @@ final class PagesController extends AppController
     /**
      * List publicly visible projects.
      */
-    public function projects(): Response
+    public function projects(ContentRepository $content): Response
     {
         return $this->show(
             'projects',
@@ -128,20 +117,23 @@ final class PagesController extends AppController
             'Případové studie vývojářských nástrojů, infrastruktury a technických prototypů.',
             'Case studies in developer tools, infrastructure and engineering prototypes.',
             '/projects',
-            ['projects' => $this->content()->projects()],
+            [
+                'projects' => $content->projects(),
+                'evidenceRegistry' => $content->evidence(),
+            ],
         );
     }
 
     /**
-     * Display a public project or apply a validated editorial update.
+     * Display a public project case study.
      */
-    public function project(): Response
+    public function project(ContentRepository $content): Response
     {
         $slug = $this->request->getParam('slug');
         if (!is_string($slug)) {
             throw new NotFoundException();
         }
-        $project = $this->content()->findProject($slug);
+        $project = $content->findProject($slug);
         if ($project === null) {
             throw new NotFoundException();
         }
@@ -153,18 +145,22 @@ final class PagesController extends AppController
             $project->summaryCs,
             $project->summaryEn,
             '/projects/' . $project->slug,
-            ['project' => $project, 'related' => $this->content()->relatedProjects($project->slug),
+            [
+                'project' => $project,
+                'related' => $content->relatedProjects($project->slug),
                 'decisions' => array_values(array_filter(
-                    $this->content()->decisions(),
+                    $content->decisions(),
                     static fn(EngineeringDecision $decision): bool => $decision->project === $project->slug,
-                ))],
+                )),
+                'evidence' => $content->projectEvidence($project->slug),
+            ],
         );
     }
 
     /**
      * Render the independent project index.
      */
-    public function connections(): Response
+    public function connections(ContentRepository $content): Response
     {
         return $this->show(
             'connections',
@@ -173,14 +169,14 @@ final class PagesController extends AppController
             'Tematický přehled projektů a jejich současné fáze.',
             'A thematic index of projects and their current stages.',
             '/connections',
-            ['projects' => $this->content()->projects()],
+            ['projects' => $content->projects()],
         );
     }
 
     /**
      * Display the sanitized homelab topology and its simulations.
      */
-    public function homelab(): Response
+    public function homelab(ContentRepository $content): Response
     {
         return $this->show(
             'homelab',
@@ -189,7 +185,7 @@ final class PagesController extends AppController
             'Prozkoumej dokumentovaná zařízení, služby a dopady výpadků.',
             'Explore documented devices, services and outage impacts.',
             '/homelab',
-            ['nodes' => $this->content()->topology(), 'flows' => $this->content()->flows()],
+            ['nodes' => $content->topology(), 'flows' => $content->flows()],
         );
     }
 
@@ -207,7 +203,7 @@ final class PagesController extends AppController
     /**
      * Show the documented engineering trade-offs.
      */
-    public function decisions(): Response
+    public function decisions(ContentRepository $content): Response
     {
         return $this->show(
             'decisions',
@@ -216,7 +212,7 @@ final class PagesController extends AppController
             'Důvody, kompromisy a ověřitelné limity návrhu skutečných projektů.',
             'Rationale, trade-offs and stated limitations behind real projects.',
             '/decisions',
-            ['decisions' => $this->content()->decisions()],
+            ['decisions' => $content->decisions()],
         );
     }
 
@@ -239,8 +235,10 @@ final class PagesController extends AppController
     /**
      * Show public upstream contributions.
      */
-    public function openSource(): Response
+    public function openSource(ContentRepository $content): Response
     {
+        $snapshot = $content->githubSnapshot();
+
         return $this->show(
             'open_source',
             'Open-source příspěvky | Harfusha Lab',
@@ -248,16 +246,20 @@ final class PagesController extends AppController
             'Vybrané pull requesty a hlášení chyb do open-source projektů.',
             'Selected pull requests and bug reports in open-source projects.',
             '/open-source',
-            ['activity' => $this->content()->activity(),
-                'provenance' => $this->content()->githubProvenance()],
+            [
+                'activity' => $snapshot->activity,
+                'provenance' => $snapshot->provenance->toArray(),
+            ],
         );
     }
 
     /**
      * Show the current engineering workbench.
      */
-    public function now(): Response
+    public function now(ContentRepository $content): Response
     {
+        $snapshot = $content->githubSnapshot();
+
         return $this->show(
             'now',
             'Co se změnilo | Harfusha',
@@ -266,19 +268,66 @@ final class PagesController extends AppController
             'A view of the latest recorded changes in public repositories.',
             '/now',
             [
-                'recentRepos' => $this->content()->publicRepoUpdates(),
-                'journalEntries' => $this->content()->journal(),
-                'activity' => $this->content()->activity(),
-                'provenance' => $this->content()->githubProvenance(),
+                'recentRepos' => $snapshot->recentRepos,
+                'journalEntries' => $content->journal(),
+                'activity' => $snapshot->activity,
+                'provenance' => $snapshot->provenance->toArray(),
             ],
         );
     }
 
     /**
-     * Display or update the published engineering journal.
+     * Display the published engineering journal with pagination and no-JS GET filters.
      */
-    public function journal(): Response
+    public function journal(ContentRepository $content): Response
     {
+        $allEntries = $content->journal();
+        $yearParam = $this->request->getQuery('year', 'all');
+        $projectParam = $this->request->getQuery('project', 'all');
+        $queryParam = $this->request->getQuery('q', '');
+        $pageParam = $this->request->getQuery('page', '1');
+
+        $selectedYear = is_string($yearParam) && preg_match('/^\d{4}$/D', $yearParam) === 1 ? $yearParam : 'all';
+        $selectedProject = is_string($projectParam) && preg_match('/^[a-z0-9-]+$/D', $projectParam) === 1
+            ? $projectParam : 'all';
+        $searchQuery = is_string($queryParam) ? trim(mb_substr($queryParam, 0, 120, 'UTF-8')) : '';
+        $normalizedQuery = self::foldDiacritics($searchQuery);
+
+        $filtered = array_values(array_filter(
+            $allEntries,
+            static function (array $entry) use ($selectedYear, $selectedProject, $normalizedQuery): bool {
+                $publishedAt = is_string($entry['published_at'] ?? null) ? $entry['published_at'] : '';
+                $entryYear = substr($publishedAt, 0, 4);
+                if ($selectedYear !== 'all' && $entryYear !== $selectedYear) {
+                    return false;
+                }
+                $entryProject = is_string($entry['project'] ?? null) ? $entry['project'] : '';
+                if ($selectedProject !== 'all' && $entryProject !== $selectedProject) {
+                    return false;
+                }
+                if ($normalizedQuery !== '') {
+                    $titleCs = is_string($entry['title_cs'] ?? null) ? $entry['title_cs'] : '';
+                    $titleEn = is_string($entry['title_en'] ?? null) ? $entry['title_en'] : '';
+                    $bodyCs = is_string($entry['body_cs'] ?? null) ? $entry['body_cs'] : '';
+                    $bodyEn = is_string($entry['body_en'] ?? null) ? $entry['body_en'] : '';
+                    $category = is_string($entry['category'] ?? null) ? $entry['category'] : '';
+                    $haystack = self::foldDiacritics(
+                        $titleCs . ' ' . $titleEn . ' ' . $bodyCs . ' ' . $bodyEn . ' ' . $category . ' ' . $entryProject,
+                    );
+                    if (!str_contains($haystack, $normalizedQuery)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            },
+        ));
+
+        $totalFiltered = count($filtered);
+        $totalPages = max(1, (int)ceil($totalFiltered / self::JOURNAL_PER_PAGE));
+        $page = is_string($pageParam) && ctype_digit($pageParam) ? max(1, min($totalPages, (int)$pageParam)) : 1;
+        $pagedEntries = array_slice($filtered, ($page - 1) * self::JOURNAL_PER_PAGE, self::JOURNAL_PER_PAGE);
+
         return $this->show(
             'journal',
             'Vývojový deník | Harfusha Lab',
@@ -286,8 +335,56 @@ final class PagesController extends AppController
             'Poznámky k opravám, novým funkcím a technickým rozhodnutím.',
             'Notes on fixes, new features and engineering decisions.',
             '/journal',
-            ['journal' => $this->content()->journal()],
+            [
+                'allJournal' => $allEntries,
+                'journal' => $pagedEntries,
+                'journalPage' => $page,
+                'journalTotalPages' => $totalPages,
+                'journalTotalCount' => $totalFiltered,
+                'selectedYear' => $selectedYear,
+                'selectedProject' => $selectedProject,
+                'searchQuery' => $searchQuery,
+            ],
         );
+    }
+
+    /**
+     * Resolve a permanent individual journal entry URL (supports both stable IDs and legacy title-hash IDs).
+     */
+    public function journalEntry(ContentRepository $content): Response
+    {
+        $entryId = $this->request->getParam('entryId');
+        if (!is_string($entryId)) {
+            throw new NotFoundException();
+        }
+        $lang = $this->lang();
+        foreach ($content->journal() as $entry) {
+            $primaryId = JournalFeed::entryId($entry);
+            $isLegacyMatch = false;
+            if (!isset($entry['id']) && is_string($entry['published_at'] ?? null) && is_string($entry['title_en'] ?? null)) {
+                $isLegacyMatch = JournalFeed::legacyTitleHashId($entry) === $entryId;
+            }
+            if ($primaryId === $entryId || $isLegacyMatch) {
+                $titleCs = is_string($entry['title_cs'] ?? null) ? $entry['title_cs'] : '';
+                $titleEn = is_string($entry['title_en'] ?? null) ? $entry['title_en'] : '';
+                $bodyCs = is_string($entry['body_cs'] ?? null) ? $entry['body_cs'] : '';
+                $bodyEn = is_string($entry['body_en'] ?? null) ? $entry['body_en'] : '';
+                $entryTitle = $lang->value($titleCs, $titleEn);
+                $entryBody = $lang->value($bodyCs, $bodyEn);
+
+                return $this->show(
+                    'journal_entry',
+                    $entryTitle . ' | Vývojový deník',
+                    $entryTitle . ' | Development Journal',
+                    mb_substr($entryBody, 0, 160, 'UTF-8'),
+                    mb_substr($entryBody, 0, 160, 'UTF-8'),
+                    '/journal/' . $primaryId,
+                    ['entry' => $entry, 'entryId' => $primaryId],
+                );
+            }
+        }
+
+        throw new NotFoundException();
     }
 
     /**
@@ -303,5 +400,21 @@ final class PagesController extends AppController
             'Adam Halfar, a backend developer focused on PHP and CakePHP.',
             '/about',
         );
+    }
+
+    /**
+     * Fold Unicode accents and lowercase for diacritic-insensitive Czech/English search (UX07).
+     */
+    private static function foldDiacritics(string $value): string
+    {
+        if ($value === '') {
+            return '';
+        }
+        $decomposed = Normalizer::normalize($value, Normalizer::FORM_D);
+        $stripped = is_string($decomposed)
+            ? preg_replace('/\p{Mn}+/u', '', $decomposed)
+            : $value;
+
+        return mb_strtolower(is_string($stripped) ? $stripped : $value, 'UTF-8');
     }
 }

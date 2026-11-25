@@ -142,6 +142,14 @@ final class ProjectCatalog
         return $rows;
     }
 
+    /**
+     * Central typed registry of verified engineering evidence and claims (N-EVD-01).
+     */
+    public function evidence(): EvidenceRegistry
+    {
+        return EvidenceRegistry::fromFile($this->directory . DIRECTORY_SEPARATOR . 'evidence.json');
+    }
+
     /** @return list<array<string,mixed>> */
     private function read(string $file): array
     {

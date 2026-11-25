@@ -1,12 +1,17 @@
 <?php
 declare(strict_types=1);
 
+use App\Domain\EvidenceRegistry;
 use App\Domain\Project;
 use App\Support\Html;
 use App\Support\Language;
 
 /** @var Project $project */
 /** @var Language $lang */
+/** @var EvidenceRegistry|null $evidenceRegistry */
+$claims = isset($evidenceRegistry) ? $evidenceRegistry->forProject($project->slug) : [];
+$primaryClaim = $claims[0] ?? null;
+$primaryEvidence = $primaryClaim?->primaryEvidence();
 ?>
 <article class="showcase-card">
     <?php if ($project->slug === 'local-ai-hub'): ?>
@@ -34,17 +39,39 @@ use App\Support\Language;
         <img src="/assets/img/home-network-model.png" width="1280" height="831" loading="lazy" alt="<?= $lang->value('Topologický model domácí sítě s rolemi uzlů a závislostmi služeb', 'Home network topology model with node roles and service dependencies') ?>">
         <figcaption><?= $lang->value('Topologický model · závislosti služeb a uzlů', 'Topology model · service and node dependencies') ?></figcaption>
     </figure>
+    <?php elseif ($project->slug === 'harfusha-lab'): ?>
+    <figure class="showcase-visual showcase-architecture">
+        <picture>
+            <source type="image/webp" srcset="/assets/img/developer-workbench.webp">
+            <img src="/assets/img/developer-workbench.png"
+                width="1380" height="900" loading="lazy"
+                alt="<?= $lang->value('Přehled architektury platformy Harfusha Lab: CakePHP 5 SSR, typové DTO a ověřitelná evidence', 'Architectural blueprint of Harfusha Lab platform: CakePHP 5 SSR, typed DTOs, and verifiable evidence') ?>">
+        </picture>
+        <figcaption><?= $lang->value('Architektura platformy · CakePHP 5 SSR a evidence ledger', 'Platform architecture · CakePHP 5 SSR & evidence ledger') ?></figcaption>
+    </figure>
     <?php endif; ?>
     <div class="showcase-copy">
         <span class="category"><?= Html::escape(Project::categoryLabel($project->category, $lang)) ?></span>
         <h3><a href="<?= $lang->path('/projects/' . $project->slug) ?>"><?= Html::escape($project->name) ?> <span aria-hidden="true">↗</span></a></h3>
         <p class="showcase-summary"><?= Html::escape($project->summary($lang)) ?></p>
-        <?php if ($project->slug === 'local-ai-hub'): ?>
-        <p class="showcase-proof"><strong><?= $lang->value('Ověřený výsledek:', 'Verified outcome:') ?></strong> <?= $lang->value('Deterministický AST index vrací přesné výřezy kódu s tokenovým rozpočtem bez nutnosti volat model.', 'Deterministic AST indexing returns exact code slices within token budget without calling models.') ?></p>
-        <?php elseif ($project->slug === 'mutaui'): ?>
-        <p class="showcase-proof"><strong><?= $lang->value('Ověřený výsledek:', 'Verified outcome:') ?></strong> <?= $lang->value('Synchronizace souborů přes Mutagen s dohledem nad stavem démona a izolovaným offline demem.', 'Mutagen file synchronization with daemon supervision and an isolated offline demo.') ?></p>
-        <?php elseif ($project->slug === 'home-infrastructure'): ?>
-        <p class="showcase-proof"><strong><?= $lang->value('Ověřený výsledek:', 'Verified outcome:') ?></strong> <?= $lang->value('Interaktivní simulace výpadku uzlů ukazuje kaskádový dopad na DNS, proxy a úložiště.', 'Interactive node outage simulation demonstrates cascading impacts on DNS, proxy and storage.') ?></p>
+        <?php if ($primaryClaim !== null && $primaryEvidence !== null): ?>
+        <div class="showcase-proof evidence-card" data-evidence-id="<?= Html::escape($primaryEvidence->id) ?>">
+            <div class="evidence-header">
+                <span class="evidence-badge status-<?= Html::escape($primaryEvidence->verificationStatus) ?> kind-<?= Html::escape($primaryEvidence->kind) ?>">
+                    <span class="evidence-kind"><?= Html::escape(strtoupper($primaryEvidence->kind)) ?></span>
+                    <span class="evidence-status"><?= $primaryEvidence->verificationStatus === 'verified' ? $lang->value('Ověřeno', 'Verified') : $lang->value('Neověřeno', 'Unverified') ?></span>
+                </span>
+                <?php if ($primaryEvidence->revision !== null): ?>
+                <code class="evidence-revision"><?= Html::escape($primaryEvidence->revision) ?></code>
+                <?php endif; ?>
+            </div>
+            <p class="evidence-claim"><?= Html::escape($lang->value($primaryClaim->claim['cs'], $primaryClaim->claim['en'])) ?></p>
+            <?php if ($primaryEvidence->sourceUrl !== null): ?>
+            <a class="evidence-link" href="<?= Html::escape(Html::safeUrl($primaryEvidence->sourceUrl)) ?>" target="_blank" rel="noopener noreferrer">
+                <?= $lang->value('Zdroj důkazu ↗', 'Evidence source ↗') ?>
+            </a>
+            <?php endif; ?>
+        </div>
         <?php endif; ?>
     </div>
 </article>

@@ -11,6 +11,8 @@ const flows = JSON.parse(fs.readFileSync(path.join(root, 'data/flows.json'), 'ut
 test('outage propagation follows the curated network dependencies', () => {
   assert.deepEqual(core.affectedNodes(graph, []), []);
   assert.deepEqual(core.affectedNodes(graph, ['nas']), ['nas']);
+  assert.deepEqual(core.affectedNodes(graph, ['nas', 'print']).sort(), ['nas', 'print'].sort());
+  assert.deepEqual(core.affectedNodes(graph, ['pi', 'nas']).sort(), ['nas', 'pi'].sort());
   assert.equal(core.affectedNodes(graph, ['router']).length, 6);
   assert.deepEqual(core.affectedNodes(graph, ['internet']).map(String), graph.map(node => node.id));
   assert.throws(() => core.affectedNodes(graph, ['unknown']));
