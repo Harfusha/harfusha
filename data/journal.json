@@ -1,5 +1,60 @@
 [
   {
+    "title_cs": "MutaUI 9.2.0 uzavřelo audit oprav a vymezilo limity vydání",
+    "title_en": "MutaUI 9.2.0 closed the audit fixes and clarified release limits",
+    "body_cs": "Vydání uzavřelo 92 auditních nálezů a doložilo 55 akceptačních případů 227 regresními testy. Oprava životního cyklu workerů udržela počet handleů stabilní při více než 5 000 úlohách. Dokumentace zároveň rozlišuje automatické kontroly od dosud neověřeného fyzického macOS, podpisu certifikátem a notarizace.",
+    "body_en": "The release closed 92 audit findings and backed 55 acceptance cases with 227 regression tests. A worker-lifecycle fix kept handle counts stable across more than 5,000 tasks. The documentation also separates automated checks from physical macOS, certificate signing, and notarization that remain unverified.",
+    "category": "Desktop",
+    "published_at": "2026-11-25 18:33:33",
+    "source_url": "https://github.com/Harfusha/MutaUI/releases/tag/v9.2.0",
+    "project": "mutaui",
+    "stable_id": "entry-mutaui-v92-20261125"
+  },
+  {
+    "title_cs": "Harfusha Lab: šest interaktivních laboratoří s dohledatelnými důkazy",
+    "title_en": "Harfusha Lab: six interactive labs backed by traceable evidence",
+    "body_cs": "Portfolio jsem rozšířil o šest interaktivních laboratoří: životní cyklus požadavku v CakePHP, souběh databázových zápisů, výpadky infrastruktury, typovou bezpečnost, práci s kontextem repozitáře a převod skenu na CAD. Evidence propojuje veřejná tvrzení s konkrétními podklady a případová studie ukazuje hranice Harfusha Lab. Ověřovací ledger uzavírá 247 bodů; laboratoře vysvětlují modelované scénáře i jejich limity.",
+    "body_en": "I expanded the portfolio with six interactive labs: the CakePHP request lifecycle, database write contention, infrastructure failures, type safety, repository context retrieval, and scan-to-CAD reconstruction. The evidence registry connects public claims to concrete sources, while the flagship case study explains Harfusha Lab’s boundaries. The verification ledger closes 247 items; each lab describes its simulated scenarios and limits.",
+    "category": "Engineering",
+    "published_at": "2026-11-25 17:37:10",
+    "source_url": "https://github.com/Harfusha/harfusha/commit/c193c7e",
+    "project": "harfusha-lab",
+    "stable_id": "entry-harfusha-labs-20261125"
+  },
+  {
+    "title_cs": "Local AI Hub 8.1.0 oddělilo přípravu modelu od kódování",
+    "title_en": "Local AI Hub 8.1.0 separated model preparation from coding",
+    "body_cs": "Nová kaskáda používá specializované modely pro přípravu kontextu a odděluje je od obecných modelů pro kódování. CPU a integrované profily volí dvě fáze; profily s dedikovanou GPU mohou zapojit třetí. Směrování tak odpovídá dostupnému hardwaru a každá modelová role má jasnou hranici.",
+    "body_en": "The new cascade uses fine-tuned models to prepare context and keeps them separate from general coding models. CPU and integrated profiles use two stages; dedicated-GPU profiles can use three. Routing follows the available hardware, with a clear boundary between model roles.",
+    "category": "AI",
+    "published_at": "2026-11-24 16:11:50",
+    "source_url": "https://github.com/Harfusha/local-ai-hub/releases/tag/v8.1.0",
+    "project": "local-ai-hub",
+    "stable_id": "entry-local-ai-hub-v810-20261124"
+  },
+  {
+    "title_cs": "Portfoliový audit uzavřel 148 nálezů a ověřil vydání",
+    "title_en": "Portfolio audit closed 148 findings and verified the release",
+    "body_cs": "Při závěrečném auditu jsem uzavřel 148 původních nálezů napříč obsahem, navigací, přístupností, bezpečností a provozem. Výsledky jsem svázal s konkrétními kontrolami a revizí vydání, aby stav webu šel posoudit podle důkazů, ne podle seznamu hotových úkolů.",
+    "body_en": "The final audit closed 148 original findings across content, navigation, accessibility, security, and operations. I tied the results to specific checks and the release revision so the site’s status can be judged from evidence rather than a list of completed tasks.",
+    "category": "Engineering",
+    "published_at": "2026-11-24 12:27:32",
+    "source_url": "https://github.com/Harfusha/harfusha/commit/5f2073b19aa344eaa013ba27f5c10e6f477f2950",
+    "project": "harfusha-lab",
+    "stable_id": "entry-harfusha-audit-20261124"
+  },
+  {
+    "title_cs": "MutaUI 9.0 zpevnilo cestu od Mutagenu k vydání",
+    "title_en": "MutaUI 9.0 hardened the path from Mutagen to release",
+    "body_cs": "Vydání v9.0.0 opravilo multiplatformní integraci Mutagenu v CI a dokončilo část F3 auditu zaměřenou na vydání, tajné údaje a notarizaci. Balíčky vznikají až po úspěšných kontrolách pro cílové platformy; ruční přijetí na fyzickém macOS zůstává samostatným krokem.",
+    "body_en": "Version 9.0.0 fixed cross-platform Mutagen integration in CI and completed the F3 audit work around releases, secret baselines, and notarization. Packages are published only after the platform checks pass; acceptance on physical macOS remains a separate step.",
+    "category": "Desktop",
+    "published_at": "2026-11-22 17:52:18",
+    "source_url": "https://github.com/Harfusha/MutaUI/releases/tag/v9.0.0",
+    "project": "mutaui",
+    "stable_id": "entry-mutaui-v9-20261122"
+  },
+  {
     "title_cs": "MutaUI: verifikace desktopového buildu vázaná na Git SHA",
     "title_en": "MutaUI: binding desktop build verification to exact Git commits",
     "body_cs": "Při multiplatformním testování desktopových GUI nástrojů snadno vznikne rozpor mezi výstupem CI runneru a verzí v balíčku. MutaUI váže výsledky integračních testů přímo na neměnný Git commit hash, takže stav relací a chování CLI wrapperu odpovídá přesné revizi kódu.",
